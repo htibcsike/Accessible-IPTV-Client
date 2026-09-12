@@ -272,7 +272,7 @@ A program bármely csatorna adását képes fájlba rögzíteni akkor is, ha kö
 - A Felvételek > Rögzítés leállítása paranccsal befejezheti a kijelölt csatornán folyó felvételt; az Összes rögzítés leállítása valamennyi aktív folyamatot leállítja.
 - A Felvételek > Felvételek mappájának megnyitása paranccsal megnyithatja a mentett fájlokat tartalmazó mappát.
 - A Felvételek > Letöltési mappa beállítása… paranccsal választhatja ki ezt a mappát. Az archív műsorok letöltései szintén ide kerülnek.
-- Minden rögzítés naplófájlt ír a felvételi mappán belüli logs mappába. Amikor egy rögzítés befejeződik, a program jelzi, hány figyelmeztetést és hibát tartalmaz a napló, így könnyen észrevehető, ha egy felvétel nehézségek közepette készült; a részletekért nyissa meg a naplót.
+- Minden rögzítéshez külön naplófájl készül a felvételek mappáján belüli logs almappában. A rögzítés befejezésekor a program jelzi, hány figyelmeztetés és hiba található a naplóban; így gyorsan kiderül, ha a felvétel készítése közben probléma merült fel. A részletekért nyissa meg a naplófájlt.
 
 Ha a beépített lejátszóban éppen nézett csatornát kezdi rögzíteni, a lejátszás és a felvétel ugyanazt a szolgáltatói kapcsolatot használja. Emiatt a funkció olyan fiókokkal is működik, amelyek egyszerre csak egy adatfolyamot engedélyeznek.
 
@@ -297,13 +297,13 @@ A Felvételek > Ütemezett felvételek… ablak minden ütemezett, folyamatban l
 - A Delete eltávolítja a kijelölt elemet a listából. Ha a felvétel még folyamatban van, a program megerősítés után előbb leállítja.
 - Az Escape bezárja az ablakot.
 
-Az ütemezett felvételek automatikusan elindulnak, amennyiben a program fut; ez akkor is igaz, ha a főablak a rendszertálcára van minimalizálva. Az ablak a megnyitáskor, valamint minden rögzítés indításakor, befejezésekor vagy törlésekor magától frissül, így a Frissítés parancs ritkán szükséges.
+Az ütemezett felvételek automatikusan elindulnak, amennyiben a program fut; ez akkor is igaz, ha a főablak a rendszertálcára van minimalizálva. Az ablak megnyitásakor, valamint minden rögzítés elindulásakor, befejezésekor vagy megszakításakor automatikusan frissül, ezért a Frissítés parancsra csak ritkán van szükség.
 
-A program megkérdezi, hogy biztosan bezárja-e, amíg van ütemezett rögzítés, mert az ütemezés csak nyitott program mellett működik. Ha ennek ellenére bezárja, az ütemezett felvétel nem indul el.
+A program kilépés előtt megerősítést kér, ha még van indításra váró ütemezett felvétel, mert az ütemezett felvételek csak akkor indulnak el, ha az alkalmazás fut. Ha ennek ellenére kilép, az indításra váró felvétel nem indul el.
 
 ### Ütemezési ráhagyás {#schedule-padding}
 
-A műsorok a gyakorlatban nem mindig pontosan a meghirdetett időben kezdődnek vagy fejeződnek be. A Felvételek > Ütemezési ráhagyás… beállítással megadhatja, hány perccel a műsor kezdete előtt induljon el az ütemezett felvétel, illetve a tervezett befejezés után mennyi ideig folytatódjon. A kézzel indított rögzítéseket ez a beállítás nem érinti. A archívumról letöltött felvételek is ugyanezeket a perceket használják: amikor a szolgáltató lehetővé teszi, a kért archívumablak is ennyivel bővül, és a letöltés újrapróbálkozik, ha a fájl a műsnál rövidebb lett.
+A műsorok a gyakorlatban nem mindig pontosan a meghirdetett időben kezdődnek vagy fejeződnek be. A Felvételek > Ütemezési ráhagyás… beállítással megadhatja, hány perccel a műsor kezdete előtt induljon el az ütemezett felvétel, illetve a tervezett befejezés után mennyi ideig folytatódjon. A kézzel indított rögzítéseket ez a beállítás nem érinti. Az archív műsorok letöltése ugyanezt a ráhagyást használja: ha a szolgáltató ezt támogatja, a program a szolgáltatótól lekért archív időszakot a beállított percekkel kibővíti, és újrapróbálja a letöltést, ha az elkészült fájl rövidebb a műsor teljes időtartamánál.
 
 ### A számítógép leállítása a felvételek után {#shutdown-after-recordings}
 

@@ -35,7 +35,7 @@ msgstr "Egy letöltés vagy rögzítés még folyamatban van.\n\nHa most kilép,
 
 #: main.py:5280
 msgid "A recording is in progress and {count} recording is still scheduled.\n\n{names}\n\nThe app must stay open to start them. Exit anyway?"
-msgstr "Egy felvétel folyamatban van, és {count} felvétel van még ütemezve.\n\n{names}\n\nAz alkalmazásnak nyitva kell maradnia az indításukhoz. Kilép mindenképp?"
+msgstr "Egy rögzítés folyamatban van, és még {count} felvétel van ütemezve.\n\n{names}\n\nAz ütemezett felvételek elindításához az alkalmazásnak futnia kell. Biztosan kilép?"
 
 #: main.py:234
 msgid "A screen reader accessible IPTV client for Windows and Linux.\n\nSupports M3U/M3U Plus playlists, Stalker Portal, Xtream Codes, built-in VLC playback, casting, and XMLTV EPG."
@@ -709,7 +709,7 @@ msgstr "Letöltés részletei"
 
 #: main.py:7747
 msgid "Download ended early:\n{path}\n\nOnly {written} of {expected} arrived before the provider closed the connection. The incomplete file was kept."
-msgstr "A letöltés korán ért véget:\n{path}\n\nA szolgáltató csak {written} tartalmat küldött el a várt {expected} helyett, mielőtt megszakította a kapcsolatot. A hiányos fájl megmaradt."
+msgstr "A letöltés idő előtt véget ért:\n{path}\n\nA letöltött tartalom időtartama mindössze {written} a várt {expected} helyett, mert a szolgáltató idő előtt lezárta a kapcsolatot. A hiányos fájl megmaradt."
 
 #: main.py:8423
 msgid "Download failed (code {code})."
@@ -1279,7 +1279,7 @@ msgstr "Jelenleg nincs műsor adásban."
 
 #: main.py:3179
 msgid "No programme guide has been imported yet, so there is nothing to schedule from.\n\nImport a guide first (File > EPG Manager, then File > Import EPG to DB), then try scheduling again."
-msgstr "Még nincs betöltött műsorújság, ezért nincs mi alapján ütemezni.\n\nElőször töltsön be egy újságot (Fájl > EPG-kezelő, majd Fájl > EPG importálása az adatbázisba), majd próbálja újra az ütemezést."
+msgstr "Még nincs importált műsorújság, ezért nincs olyan műsor, amelynek rögzítése ütemezhető lenne.\n\nElőször nyissa meg a Fájl > Műsorújság kezelése menüpontot, és szükség esetén adjon hozzá műsorújság-forrást. Ezután válassza a Fájl > Műsorújság importálása az adatbázisba parancsot, majd próbálja újra az ütemezést."
 
 #: main.py:6261
 msgid "No programs are currently airing, or EPG data has not been imported yet."
@@ -1680,7 +1680,7 @@ msgstr "A felvétel mentése befejeződött:\n{path}"
 
 #: main.py:3380
 msgid "Recording scheduled.\n\nThe programme guide has not been imported yet, so the Scheduled Recordings window may not list anything, and this may be the only episode you can schedule. Import the guide from File > Import EPG to DB to see and schedule upcoming programmes."
-msgstr "Felvétel ütemezve.\n\nA műsorújság még nincs importálva, ezért az Ütemezett felvételek ablakban esetleg semmi nem jelenik meg, és lehet, hogy ez az egyetlen epizód, amelyet ütemezni tud. A jövendő műsorok megtekintéséhez és ütemezéséhez importálja az újságot a Fájl > EPG importálása az adatbázisba menüpontból."
+msgstr "A felvétel ütemezése megtörtént.\n\nA műsorújság még nincs importálva, ezért előfordulhat, hogy az Ütemezett felvételek ablakban semmi sem jelenik meg, és lehet, hogy jelenleg csak ennek a műsornak a rögzítését tudja ütemezni. A későbbi műsorok megtekintéséhez és rögzítésük ütemezéséhez válassza a Fájl > Műsorújság importálása az adatbázisba parancsot."
 
 #: main.py:3634
 msgid "Recording started ({fmt}):\n{path}"
@@ -2479,7 +2479,7 @@ msgstr "{app} naprakész (v{version})."
 
 #: main.py:4881
 msgid "{app} was successfully updated to v{version}."
-msgstr "Az {app} sikeresen frissült a v{version} verzióra."
+msgstr "A(z) {app} sikeresen frissült a v{version} verzióra."
 
 #: main.py:9082
 #: main.py:9227
@@ -2488,11 +2488,11 @@ msgstr "{count} műsor"
 
 #: main.py:5286
 msgid "{count} recording is scheduled but has not started yet.\n\n{names}\n\nThe app must stay open to start it. Exit anyway?"
-msgstr "{count} felvétel van ütemezve, de még nem kezdődött el.\n\n{names}\n\nAz alkalmazásnak nyitva kell maradnia az indításukhoz. Kilép mindenképp?"
+msgstr "{count} felvétel van ütemezve, de még nem indult el.\n\n{names}\n\nAz ütemezett felvételek elindításához az alkalmazásnak futnia kell. Biztosan kilép?"
 
 #: main.py:5277
 msgid "{first} and {count} more"
-msgstr "{first} és {count} további"
+msgstr "{first}, valamint további {count} felvétel"
 
 #: account_info.py:134
 msgid "{kind} – {who}"
