@@ -21,7 +21,7 @@ msgid "(No EPG debug log has been written yet.)"
 msgstr "(Es wurde noch kein EPG-Debug-Protokoll geschrieben.)"
 
 #: main.py:8624
-#: main.py:9487
+#: main.py:9491
 msgid "(No title)"
 msgstr "(Kein Titel)"
 
@@ -289,7 +289,7 @@ msgstr "Integrierter Player nicht verfügbar:\n{detail}"
 
 #: internal_player.py:136
 #: main.py:8392
-#: main.py:8979
+#: main.py:8983
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -301,7 +301,7 @@ msgstr "Download abbrechen"
 msgid "Cancel Shutdown"
 msgstr "Herunterfahren abbrechen"
 
-#: main.py:9008
+#: main.py:9012
 msgid "Canceled"
 msgstr "Abgebrochen"
 
@@ -373,9 +373,9 @@ msgstr "Nachholen"
 #: main.py:7549
 #: main.py:7639
 #: main.py:7682
-#: main.py:7745
-#: main.py:7758
-#: main.py:7762
+#: main.py:7746
+#: main.py:7764
+#: main.py:7768
 #: main.py:7811
 msgid "Catch-up Download"
 msgstr "Nachholen-Download"
@@ -410,8 +410,8 @@ msgid "Channel missing command reference"
 msgstr "Dem Sender fehlt die Befehlsreferenz"
 
 #: main.py:2636
-#: main.py:9353
-#: main.py:9355
+#: main.py:9357
+#: main.py:9359
 msgid "Channels"
 msgstr "Sender"
 
@@ -458,7 +458,7 @@ msgstr "M3U-Datei auswählen"
 #: main.py:278
 #: main.py:341
 #: main.py:8186
-#: main.py:9128
+#: main.py:9132
 msgid "Close"
 msgstr "Schließen"
 
@@ -466,7 +466,7 @@ msgstr "Schließen"
 msgid "Community and support"
 msgstr "Community und Support"
 
-#: main.py:9005
+#: main.py:9009
 msgid "Completed"
 msgstr "Abgeschlossen"
 
@@ -618,7 +618,7 @@ msgstr "Die Aufnahme konnte nicht gestartet werden:\n{error}"
 msgid "Created"
 msgstr "Erstellt"
 
-#: main.py:9120
+#: main.py:9124
 msgid "Currently airing programs"
 msgstr "Derzeit laufende Sendungen"
 
@@ -639,7 +639,7 @@ msgstr "Verbleibende Tage"
 msgid "Days since expiry"
 msgstr "Tage seit Ablauf"
 
-#: main.py:8981
+#: main.py:8985
 #: playlist.py:2787
 msgid "Delete"
 msgstr "Löschen"
@@ -653,7 +653,7 @@ msgid "Delete the playlist “{name}”?\n\nThis removes it from the list of pla
 msgstr "Wiedergabeliste „{name}“ löschen?\n\nSie wird aus der Liste der Wiedergabelisten entfernt. Das lässt sich nicht rückgängig machen."
 
 #: main.py:8575
-#: main.py:9517
+#: main.py:9521
 msgid "Description"
 msgstr "Beschreibung"
 
@@ -695,11 +695,11 @@ msgstr "Herunterladen"
 msgid "Download and install now? The app will restart after the update."
 msgstr "Jetzt herunterladen und installieren? Die Anwendung wird nach dem Update neu gestartet."
 
-#: main.py:7744
+#: main.py:7745
 msgid "Download canceled. The incomplete file was discarded."
 msgstr "Download abgebrochen. Die unvollständige Datei wurde verworfen."
 
-#: main.py:7761
+#: main.py:7767
 msgid "Download complete:\n{path}"
 msgstr "Download abgeschlossen:\n{path}"
 
@@ -707,7 +707,7 @@ msgstr "Download abgeschlossen:\n{path}"
 msgid "Download details"
 msgstr "Download-Details"
 
-#: main.py:7751
+#: main.py:7757
 msgid "Download ended early:\n{path}\n\nOnly {written} of {expected} arrived before the provider closed the connection. The incomplete file was kept."
 msgstr "Der Download endete vorzeitig:\n{path}\n\nNur {written} von {expected} wurden übertragen, bevor der Anbieter die Verbindung schloss. Die unvollständige Datei wurde behalten."
 
@@ -801,7 +801,7 @@ msgstr "Der EPG-Import wird im Hintergrund gestartet. Sie können die App weiter
 msgid "EPG is not enabled."
 msgstr "EPG ist nicht aktiviert."
 
-#: main.py:9498
+#: main.py:9502
 msgid "EPG: {channel}"
 msgstr "EPG: {channel}"
 
@@ -833,7 +833,7 @@ msgstr "Ausführbare Datei oder Pfad des Players eingeben:"
 #: main.py:2655
 #: main.py:2657
 #: main.py:8578
-#: main.py:9520
+#: main.py:9524
 msgid "Episode description"
 msgstr "Folgenbeschreibung"
 
@@ -901,7 +901,7 @@ msgstr "Läuft ab"
 msgid "Extracting update..."
 msgstr "Update wird entpackt..."
 
-#: main.py:9006
+#: main.py:9010
 msgid "Failed"
 msgstr "Fehlgeschlagen"
 
@@ -958,11 +958,11 @@ msgstr "Favoriten"
 msgid "File"
 msgstr "Datei"
 
-#: main.py:9107
+#: main.py:9111
 msgid "Filter (Tab):"
 msgstr "Filter (Tab):"
 
-#: main.py:9109
+#: main.py:9113
 msgid "Filter programs"
 msgstr "Sendungen filtern"
 
@@ -1179,7 +1179,7 @@ msgstr "Minuten nach der Sendung:"
 msgid "Minutes before programme:"
 msgstr "Minuten vor der Sendung:"
 
-#: main.py:9007
+#: main.py:9011
 msgid "Missed"
 msgstr "Verpasst"
 
@@ -1253,7 +1253,7 @@ msgstr "Keine Sender gefunden."
 
 #: main.py:3057
 #: main.py:8644
-#: main.py:9622
+#: main.py:9626
 msgid "No description available for this programme."
 msgstr "Für diese Sendung ist keine Beschreibung verfügbar."
 
@@ -1445,8 +1445,8 @@ msgstr "Plattform: {platform}"
 
 #: internal_player.py:727
 #: main.py:3091
-#: main.py:9126
-#: main.py:9305
+#: main.py:9130
+#: main.py:9309
 msgid "Play"
 msgstr "Wiedergeben"
 
@@ -1568,7 +1568,7 @@ msgstr "Neustart wird vorbereitet..."
 msgid "Press Escape to hide this window; the download continues. View > Show Downloads (Ctrl+Shift+D) brings it back."
 msgstr "Drücken Sie Escape, um dieses Fenster auszublenden; der Download läuft weiter. Ansicht > Downloads anzeigen (Ctrl+Shift+D) holt es zurück."
 
-#: main.py:9121
+#: main.py:9125
 msgid "Program - Channel"
 msgstr "Sendung - Sender"
 
@@ -1642,7 +1642,7 @@ msgstr "Aufnehmen"
 #: main.py:3783
 #: main.py:3791
 #: main.py:3794
-#: main.py:9003
+#: main.py:9007
 msgid "Recording"
 msgstr "Aufnahme"
 
@@ -1698,7 +1698,7 @@ msgstr "Aufnahmen"
 
 #: main.py:8184
 #: main.py:8944
-#: main.py:8976
+#: main.py:8980
 msgid "Refresh"
 msgstr "Aktualisieren"
 
@@ -1710,7 +1710,7 @@ msgstr "Aktualisieren"
 msgid "Refreshing stream..."
 msgstr "Stream wird aktualisiert..."
 
-#: main.py:9067
+#: main.py:9071
 msgid "Remove all scheduled recordings from the list?"
 msgstr "Alle geplanten Aufnahmen aus der Liste entfernen?"
 
@@ -1718,7 +1718,7 @@ msgstr "Alle geplanten Aufnahmen aus der Liste entfernen?"
 msgid "Remove from Favorites"
 msgstr "Aus Favoriten entfernen"
 
-#: main.py:9070
+#: main.py:9074
 msgid "Remove scheduled recording '{title}' from the list?"
 msgstr "Geplante Aufnahme '{title}' aus der Liste entfernen?"
 
@@ -1751,10 +1751,10 @@ msgstr "Zeitpuffer für Aufnahmen..."
 #: main.py:3370
 #: main.py:3385
 #: main.py:3392
-#: main.py:9127
-#: main.py:9307
-#: main.py:9589
-#: main.py:9631
+#: main.py:9131
+#: main.py:9311
+#: main.py:9593
+#: main.py:9635
 msgid "Schedule Recording"
 msgstr "Aufnahme planen"
 
@@ -1762,7 +1762,7 @@ msgstr "Aufnahme planen"
 msgid "Schedule Recording..."
 msgstr "Aufnahme planen..."
 
-#: main.py:9002
+#: main.py:9006
 msgid "Scheduled"
 msgstr "Geplant"
 
@@ -1771,9 +1771,9 @@ msgid "Scheduled Recording"
 msgstr "Geplante Aufnahme"
 
 #: main.py:8924
-#: main.py:9054
-#: main.py:9063
-#: main.py:9071
+#: main.py:9058
+#: main.py:9067
+#: main.py:9075
 msgid "Scheduled Recordings"
 msgstr "Geplante Aufnahmen"
 
@@ -1828,7 +1828,7 @@ msgstr "Wählen Sie zuerst einen Sender aus."
 msgid "Select a channel to record first."
 msgstr "Wählen Sie zuerst einen aufzunehmenden Sender aus."
 
-#: main.py:9631
+#: main.py:9635
 msgid "Select a programme first."
 msgstr "Wählen Sie zuerst eine Sendung aus."
 
@@ -1836,8 +1836,8 @@ msgstr "Wählen Sie zuerst eine Sendung aus."
 msgid "Select a programme, then press Enter to open it, or use the context menu to download it. Press Escape to close."
 msgstr "Wählen Sie eine Sendung aus und drücken Sie die Eingabetaste, um sie zu öffnen, oder verwenden Sie das Kontextmenü zum Herunterladen. Mit Escape schließen Sie das Fenster."
 
-#: main.py:9054
-#: main.py:9063
+#: main.py:9058
+#: main.py:9067
 msgid "Select a scheduled recording first."
 msgstr "Wählen Sie zuerst eine geplante Aufnahme aus."
 
@@ -1997,7 +1997,7 @@ msgstr "Aufnahme(n) stoppen"
 msgid "Stopped"
 msgstr "Gestoppt"
 
-#: main.py:9004
+#: main.py:9008
 msgid "Stopping"
 msgstr "Wird gestoppt"
 
@@ -2158,7 +2158,7 @@ msgid "This programme is not available as catch-up content yet."
 msgstr "Diese Sendung steht noch nicht zum Nachholen bereit."
 
 #: main.py:8937
-#: main.py:9507
+#: main.py:9511
 msgid "Time"
 msgstr "Zeit"
 
@@ -2167,7 +2167,7 @@ msgid "Time remaining: {time}"
 msgstr "Verbleibende Zeit: {time}"
 
 #: main.py:8938
-#: main.py:9508
+#: main.py:9512
 msgid "Title"
 msgstr "Titel"
 
@@ -2231,7 +2231,7 @@ msgstr "Nicht kategorisiert"
 msgid "Unexpected account response from the Xtream server"
 msgstr "Unerwartete Kontoantwort vom Xtream-Server"
 
-#: main.py:9488
+#: main.py:9492
 #: updater.py:512
 msgid "Unknown"
 msgstr "Unbekannt"
@@ -2408,7 +2408,7 @@ msgid "Volume Control"
 msgstr "Lautstärkeregelung"
 
 #: main.py:2806
-#: main.py:9094
+#: main.py:9098
 msgid "What's on Now"
 msgstr "Jetzt im Programm"
 
@@ -2485,8 +2485,8 @@ msgstr "{app} ist auf dem neuesten Stand (v{version})."
 msgid "{app} was successfully updated to v{version}."
 msgstr "{app} wurde erfolgreich auf v{version} aktualisiert."
 
-#: main.py:9115
-#: main.py:9260
+#: main.py:9119
+#: main.py:9264
 msgid "{count} programs"
 msgstr "{count} Sendungen"
 
@@ -2558,3 +2558,4 @@ msgstr "~{value} Mbit/s"
 #: main.py:5957
 msgid "◄ Back"
 msgstr "◄ Zurück"
+
