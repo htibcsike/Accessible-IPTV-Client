@@ -1,6 +1,10 @@
 # Changelog
 
 Readable release history for Accessible IPTV Client. New entries are prepended automatically by `build.bat release`. Older entries were reconstructed from the [Forgejo mirror](https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client).
+## v1.134.3 - 2026-09-12
+
+- Stop bundled ffmpeg before updating
+
 ## v1.134.2 - 2026-09-12
 
 - Queue-dvr-notifications-and-improve-schedule-management
