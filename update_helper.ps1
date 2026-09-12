@@ -331,12 +331,19 @@ if ($parentProcess) {
     Wait-Pumped -Milliseconds 1000 -Window $statusWindow
 }
 
-# Kill any processes running from the install directory.
+# Kill any processes running from the install directory. The app itself is
+# normally the only one, but a recording interrupted while FFmpeg was
+# finalising can leave the bundled ffmpeg.exe alive after the app exits. That
+# process holds its executable open on Windows, preventing an installer or
+# portable directory-swap update from replacing it.
 Write-Log "Scanning for processes locking $InstallDir..."
 try {
     $targetProcessName = [System.IO.Path]::GetFileNameWithoutExtension($ExeName)
     $installPrefix = $InstallDir.TrimEnd([System.IO.Path]::DirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
-    $candidateProcesses = Get-Process -Name $targetProcessName -ErrorAction SilentlyContinue
+    # ffmpeg.exe is bundled alongside IPTVClient.exe (main.spec), so constrain
+    # cleanup by the image path below; never terminate an unrelated FFmpeg.
+    $targetProcessNames = @($targetProcessName, "ffmpeg") | Select-Object -Unique
+    $candidateProcesses = Get-Process -Name $targetProcessNames -ErrorAction SilentlyContinue
     $zombies = $candidateProcesses | Where-Object {
         try {
             $_.MainModule.FileName.StartsWith($installPrefix, [System.StringComparison]::OrdinalIgnoreCase)
@@ -346,7 +353,7 @@ try {
     }
     foreach ($proc in $zombies) {
         if ($proc.Id -ne $PID -and $proc.Id -ne $ParentPid) {
-            Write-Log "Killing zombie process: $($proc.Name) (PID $($proc.Id))"
+            Write-Log "Stopping process locking the install directory: $($proc.Name) (PID $($proc.Id))"
             Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
         }
     }

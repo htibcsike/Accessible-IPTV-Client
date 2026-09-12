@@ -59,6 +59,16 @@ def test_update_helper_supports_elevated_installer_mode_and_portable_config():
     assert "Migrated configuration from backup to roaming profile." not in helper
 
 
+def test_update_helper_stops_only_bundled_ffmpeg_before_replacing_the_app():
+    """A detached recording finalizer must not keep the update's ffmpeg.exe locked."""
+    helper = (ROOT / "update_helper.ps1").read_text(encoding="utf-8")
+
+    assert '$targetProcessNames = @($targetProcessName, "ffmpeg")' in helper
+    assert "Get-Process -Name $targetProcessNames" in helper
+    assert "StartsWith($installPrefix" in helper
+    assert "never terminate an unrelated FFmpeg" in helper
+
+
 def test_update_helper_verifies_the_restart_and_retries():
     """A restart that silently fails leaves a blind user with no app and no clue.
 
