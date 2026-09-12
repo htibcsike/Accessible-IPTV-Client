@@ -150,7 +150,7 @@ def test_scheduled_recordings_dialog_populates_on_open(host):
         parent.Destroy()
 
 
-def test_scheduled_recordings_delete_shortcut(host, monkeypatch):
+def test_scheduled_recordings_delete_shortcut_is_silent_when_empty(host, monkeypatch):
     scheduler = types.SimpleNamespace(list_jobs=lambda **kw: [])
     dlg = ScheduledRecordingsDialog(host, scheduler)
     calls = []
@@ -158,9 +158,90 @@ def test_scheduled_recordings_delete_shortcut(host, monkeypatch):
     event = types.SimpleNamespace(GetKeyCode=lambda: wx.WXK_DELETE, Skip=lambda: None)
     try:
         dlg._on_char_hook(event)
-        assert calls == [event]
+        assert calls == []
     finally:
         dlg.Destroy()
+
+
+def test_scheduled_recordings_delete_shortcuts_act_when_populated(host, monkeypatch):
+    job = {"id": "j1", "status": "scheduled", "title": "News",
+           "channel_name": "TVP 1", "display_title": "News - TVP 1",
+           "start_ts": 0, "stop_ts": 3600, "format": "provider_mkv"}
+    scheduler = types.SimpleNamespace(list_jobs=lambda **kw: [job])
+
+    class Parent(wx.Frame):
+        def _schedule_window_label(self, _job):
+            return "1970-01-01 00:00 - 1970-01-01 01:00"
+
+        def _recording_format_label(self, _fmt):
+            return "MKV"
+
+    parent = Parent(host)
+    try:
+        dlg = ScheduledRecordingsDialog(parent, scheduler)
+        calls = []
+        monkeypatch.setattr(dlg, "_on_delete_selected", lambda event: calls.append(event))
+        try:
+            for key in (wx.WXK_DELETE, wx.WXK_NUMPAD_DELETE):
+                event = types.SimpleNamespace(GetKeyCode=lambda key=key: key, Skip=lambda: None)
+                dlg._on_char_hook(event)
+            assert len(calls) == 2
+        finally:
+            dlg.Destroy()
+    finally:
+        parent.Destroy()
+
+
+def test_scheduled_recordings_ctrl_a_selects_every_row(host):
+    jobs = [
+        {"id": "one", "status": "scheduled", "title": "News", "channel_name": "TVP 1", "format": "provider_mkv"},
+        {"id": "two", "status": "scheduled", "title": "Film", "channel_name": "TVP 2", "format": "provider_mkv"},
+    ]
+    scheduler = types.SimpleNamespace(list_jobs=lambda **kw: jobs)
+
+    class Parent(wx.Frame):
+        def _schedule_window_label(self, _job):
+            return "time"
+
+        def _recording_format_label(self, _fmt):
+            return "format"
+
+    parent = Parent(host)
+    dlg = ScheduledRecordingsDialog(parent, scheduler)
+    event = types.SimpleNamespace(GetKeyCode=lambda: ord("A"), ControlDown=lambda: True, Skip=lambda: None)
+    try:
+        dlg._on_char_hook(event)
+        assert len(dlg._selected_jobs()) == 2
+    finally:
+        dlg.Destroy()
+        parent.Destroy()
+
+
+def test_scheduled_recordings_delete_confirms_the_selected_title(host, monkeypatch):
+    jobs = [
+        {"id": "one", "status": "scheduled", "title": "Evening News", "channel_name": "TVP 1", "format": "provider_mkv"},
+        {"id": "two", "status": "scheduled", "title": "Film", "channel_name": "TVP 2", "format": "provider_mkv"},
+    ]
+    deleted, prompts = [], []
+    scheduler = types.SimpleNamespace(list_jobs=lambda **kw: jobs, delete_job=lambda job_id: deleted.append(job_id))
+
+    class Parent(wx.Frame):
+        def _schedule_window_label(self, _job):
+            return "time"
+
+        def _recording_format_label(self, _fmt):
+            return "format"
+
+    parent = Parent(host)
+    dlg = ScheduledRecordingsDialog(parent, scheduler)
+    monkeypatch.setattr(appmod, "message_box", lambda text, *_args: prompts.append(text) or wx.YES)
+    try:
+        dlg._on_delete_selected(None)
+        assert prompts == ["Remove scheduled recording 'Evening News' from the list?"]
+        assert deleted == ["one"]
+    finally:
+        dlg.Destroy()
+        parent.Destroy()
 
 
 def test_whats_on_now_dialog_builds(host):

@@ -208,6 +208,7 @@ def _download_client(returned, **overrides):
         _catchup_downloads={},
         _maybe_shutdown_after_recordings=lambda: None,
         _recording_failure_detail=lambda _rec: "",
+        _catchup_download_is_truncated=lambda _rec: False,
         _maybe_retry_catchup_download=lambda *a, **k: False,
         _modal_box_is_open=lambda: False,
         _show_or_queue_message_box=lambda *a: None,
@@ -247,6 +248,16 @@ def test_a_download_being_retried_does_not_go_back_yet(monkeypatch):
     main.IPTVClient._catchup_download_finished(
         client, _failed_download(["[error] Server returned 403 Forbidden"]), 1)
     assert returned == []
+
+
+def test_a_cancelled_download_goes_back_to_its_programme(monkeypatch):
+    monkeypatch.setattr(main.wx, "CallAfter", lambda fn, *a, **k: fn(*a, **k))
+    returned = []
+    rec = _failed_download([])
+    rec.stopped_by_user = True
+    client = _download_client(returned)
+    main.IPTVClient._catchup_download_finished(client, rec, 0)
+    assert returned == [{"channel": TVP, "start": AIRED}]
 
 
 def test_a_download_that_cannot_be_prepared_goes_back_too(monkeypatch):

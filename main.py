@@ -3470,8 +3470,12 @@ class IPTVClient(wx.Frame):
             audio_track_count=audio_count,
         )
         self._note_recording_started()
+        # This is a scheduler-thread callback.  It can arrive while the
+        # user is still reading the confirmation that created the job, so it
+        # must use the notification gate rather than nesting a second modal
+        # message box in wxMSW's first message loop.
         wx.CallAfter(
-            message_box,
+            self._show_or_queue_message_box,
             _("Scheduled recording started:\n{title}").format(
                 title=job.get("display_title") or job.get("title") or ""),
             _("Scheduled Recording"),
@@ -7736,9 +7740,15 @@ class IPTVClient(wx.Frame):
                 if rec.stopped_by_user:
                     # The partial output was discarded by the recorder: ffmpeg
                     # cannot resume it, so it would only be unplayable junk.
+                    shown_now = not self._modal_box_is_open()
                     self._show_or_queue_message_box(
                         _("Download canceled. The incomplete file was discarded."),
                         _("Catch-up Download"), wx.OK | wx.ICON_INFORMATION)
+                    if shown_now:
+                        metadata = getattr(rec, "metadata", None) or {}
+                        self._return_to_catchup_after_download(
+                            metadata.get("channel") or {},
+                            metadata.get("programme_start", ""))
                 elif truncated:
                     # No retry was scheduled (budget spent): the partial file
                     # was kept, so say what it holds instead of calling it
@@ -8919,7 +8929,10 @@ class ScheduledRecordingsDialog(wx.Dialog):
         panel = wx.Panel(self)
         sizer = wx.BoxSizer(wx.VERTICAL)
 
-        self.list_ctrl = wx.ListCtrl(panel, style=wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        # Multi-selection makes Ctrl+A useful for clearing a stale schedule.
+        # Do not add LC_SINGLE_SEL: it makes Select() silently deselect the
+        # preceding row on wxMSW.
+        self.list_ctrl = wx.ListCtrl(panel, style=wx.LC_REPORT)
         self.list_ctrl.SetName(_("Scheduled recordings"))
         self.list_ctrl.InsertColumn(0, _("Time"), width=210)
         self.list_ctrl.InsertColumn(1, _("Title"), width=230)
@@ -8949,8 +8962,14 @@ class ScheduledRecordingsDialog(wx.Dialog):
         key = event.GetKeyCode()
         if key == wx.WXK_ESCAPE:
             self.Close()
-        elif key == wx.WXK_DELETE:
-            self._on_delete_selected(event)
+        elif key in (ord("A"), ord("a")) and event.ControlDown():
+            self._select_all()
+        elif key in (wx.WXK_DELETE, wx.WXK_NUMPAD_DELETE):
+            # With no rows there is nothing the user could select or delete;
+            # keep either Delete key silent instead of showing an irrelevant
+            # information box.
+            if self.list_ctrl.GetItemCount():
+                self._on_delete_selected(event)
         elif key == wx.WXK_MENU:
             self._show_context_menu(keyboard=True)
         else:
@@ -9017,6 +9036,22 @@ class ScheduledRecordingsDialog(wx.Dialog):
             return None
         return self.jobs[idx]
 
+    def _selected_jobs(self) -> List[Dict[str, object]]:
+        """Return every selected schedule entry in display order."""
+        jobs = []
+        idx = self.list_ctrl.GetFirstSelected()
+        while idx != -1:
+            if idx < len(self.jobs):
+                jobs.append(self.jobs[idx])
+            idx = self.list_ctrl.GetNextSelected(idx)
+        return jobs
+
+    def _select_all(self) -> None:
+        for idx in range(self.list_ctrl.GetItemCount()):
+            self.list_ctrl.Select(idx)
+        if self.list_ctrl.GetItemCount():
+            self.list_ctrl.Focus(0)
+
     def _on_cancel_selected(self, _event):
         job = self._selected_job()
         if not job:
@@ -9027,21 +9062,23 @@ class ScheduledRecordingsDialog(wx.Dialog):
             self.refresh()
 
     def _on_delete_selected(self, _event):
-        job = self._selected_job()
-        if not job:
+        jobs = self._selected_jobs()
+        if not jobs:
             message_box(_("Select a scheduled recording first."), _("Scheduled Recordings"),
                           wx.OK | wx.ICON_INFORMATION)
             return
-        if job.get("status") in {dvr.STATUS_RECORDING, dvr.STATUS_STOPPING}:
-            answer = message_box(
-                _("This recording is active. Stop and delete it?"),
-                _("Scheduled Recordings"),
-                wx.YES_NO | wx.ICON_WARNING,
-            )
-            if answer != wx.YES:
-                return
-            self.parent_frame._cancel_scheduled_recording(str(job.get("id") or ""))
-        self.scheduler.delete_job(str(job.get("id") or ""))
+        if len(jobs) == self.list_ctrl.GetItemCount():
+            prompt = _("Remove all scheduled recordings from the list?")
+        else:
+            title = str(jobs[0].get("display_title") or jobs[0].get("title") or "")
+            prompt = _("Remove scheduled recording '{title}' from the list?").format(title=title)
+        if message_box(prompt, _("Scheduled Recordings"),
+                       wx.YES_NO | wx.ICON_QUESTION) != wx.YES:
+            return
+        for job in jobs:
+            if job.get("status") in {dvr.STATUS_RECORDING, dvr.STATUS_STOPPING}:
+                self.parent_frame._cancel_scheduled_recording(str(job.get("id") or ""))
+            self.scheduler.delete_job(str(job.get("id") or ""))
         self.refresh()
 
     def _on_close(self, event):

@@ -16,12 +16,12 @@ msgstr ""
 msgid "&Playback"
 msgstr "播放(&P)"
 
-#: main.py:4131
+#: main.py:4135
 msgid "(No EPG debug log has been written yet.)"
 msgstr "（尚未写入 EPG 调试日志。）"
 
-#: main.py:8614
-#: main.py:9454
+#: main.py:8624
+#: main.py:9487
 msgid "(No title)"
 msgstr "（无标题）"
 
@@ -29,11 +29,11 @@ msgstr "（无标题）"
 msgid "(thumbprint {thumbprint})."
 msgstr "（指纹 {thumbprint}）。"
 
-#: main.py:5299
+#: main.py:5303
 msgid "A download is still in progress.\n\nIf you exit now it will stop, and only the part captured so far is kept.\n\nExit anyway?"
 msgstr "下载或录制仍在进行中。\n\n如果现在退出，它将停止，并且只保留已捕获的部分。\n\n仍要退出吗？"
 
-#: main.py:5280
+#: main.py:5284
 msgid "A recording is in progress and {count} recording is still scheduled.\n\n{names}\n\nThe app must stay open to start them. Exit anyway?"
 msgstr "有一个录制正在进行，还有 {count} 个录制已安排。\n\n{names}\n\n应用必须保持打开才能启动它。仍要退出吗？"
 
@@ -56,7 +56,7 @@ msgstr "账户"
 
 #: main.py:2691
 #: main.py:2807
-#: main.py:8148
+#: main.py:8158
 msgid "Account Info"
 msgstr "账户信息"
 
@@ -64,12 +64,12 @@ msgstr "账户信息"
 msgid "Account balance"
 msgstr "账户余额"
 
-#: main.py:8167
-#: main.py:8169
+#: main.py:8177
+#: main.py:8179
 msgid "Account details"
 msgstr "账户详情"
 
-#: main.py:8287
+#: main.py:8297
 msgid "Account details copied to the clipboard."
 msgstr "账户详情已复制到剪贴板。"
 
@@ -77,8 +77,8 @@ msgstr "账户详情已复制到剪贴板。"
 msgid "Account information is not supported for this provider type."
 msgstr "此提供商类型不支持账户信息。"
 
-#: main.py:8161
-#: main.py:8163
+#: main.py:8171
+#: main.py:8173
 msgid "Accounts"
 msgstr "账户"
 
@@ -86,7 +86,7 @@ msgstr "账户"
 msgid "Active"
 msgstr "有效"
 
-#: main.py:4126
+#: main.py:4130
 msgid "Active recordings: {count}"
 msgstr "正在进行的录制：{count}"
 
@@ -126,10 +126,10 @@ msgstr "添加 Xtream Codes 账户"
 msgid "Add to Favorites"
 msgstr "添加到收藏"
 
-#: main.py:5684
-#: main.py:5720
-#: main.py:5721
-#: main.py:6657
+#: main.py:5688
+#: main.py:5724
+#: main.py:5725
+#: main.py:6661
 msgid "All Channels"
 msgstr "所有频道"
 
@@ -142,7 +142,7 @@ msgstr "所有文件"
 msgid "All playlists"
 msgstr "所有播放列表"
 
-#: main.py:8868
+#: main.py:8878
 msgid "All recordings have finished.\n\nThe computer will shut down by itself. Seconds remaining: {seconds}"
 msgstr "所有录制均已完成。\n\n计算机将自动关机。剩余秒数：{seconds}"
 
@@ -150,7 +150,7 @@ msgstr "所有录制均已完成。\n\n计算机将自动关机。剩余秒数�
 msgid "Allowed formats"
 msgstr "允许的格式"
 
-#: main.py:4363
+#: main.py:4367
 msgid "An update is already in progress."
 msgstr "更新已在进行中。"
 
@@ -283,25 +283,25 @@ msgstr "内置播放器"
 msgid "Built-in player is unavailable."
 msgstr "内置播放器不可用。"
 
-#: main.py:7276
+#: main.py:7280
 msgid "Built-in player unavailable:\n{detail}"
 msgstr "内置播放器不可用：\n{detail}"
 
 #: internal_player.py:136
-#: main.py:8382
-#: main.py:8964
+#: main.py:8392
+#: main.py:8979
 msgid "Cancel"
 msgstr "取消"
 
-#: main.py:8474
+#: main.py:8484
 msgid "Cancel Download"
 msgstr "取消下载"
 
-#: main.py:8844
+#: main.py:8854
 msgid "Cancel Shutdown"
 msgstr "取消关机"
 
-#: main.py:8993
+#: main.py:9008
 msgid "Canceled"
 msgstr "已取消"
 
@@ -334,20 +334,20 @@ msgstr "投屏..."
 
 #: internal_player.py:1691
 #: internal_player.py:1695
-#: main.py:7259
-#: main.py:7369
-#: main.py:7384
-#: main.py:7928
+#: main.py:7263
+#: main.py:7373
+#: main.py:7388
+#: main.py:7938
 msgid "Casting"
 msgstr "正在投屏"
 
-#: main.py:7255
-#: main.py:7262
-#: main.py:7386
+#: main.py:7259
+#: main.py:7266
+#: main.py:7390
 msgid "Casting Error"
 msgstr "投屏错误"
 
-#: main.py:7252
+#: main.py:7256
 msgid "Casting failed: {error}"
 msgstr "投屏失败：{error}"
 
@@ -355,36 +355,36 @@ msgstr "投屏失败：{error}"
 msgid "Casting is unavailable because the caster is not initialised."
 msgstr "投屏不可用，因为投屏器未初始化。"
 
-#: main.py:7259
-#: main.py:7384
+#: main.py:7263
+#: main.py:7388
 msgid "Casting to {device}..."
 msgstr "正在投屏到 {device}..."
 
 #: main.py:3121
-#: main.py:7447
-#: main.py:7471
-#: main.py:7474
-#: main.py:8545
+#: main.py:7451
+#: main.py:7475
+#: main.py:7478
+#: main.py:8555
 msgid "Catch-up"
 msgstr "回看"
 
-#: main.py:7527
-#: main.py:7533
-#: main.py:7545
-#: main.py:7635
-#: main.py:7678
-#: main.py:7741
-#: main.py:7754
+#: main.py:7531
+#: main.py:7537
+#: main.py:7549
+#: main.py:7639
+#: main.py:7682
+#: main.py:7745
 #: main.py:7758
-#: main.py:7801
+#: main.py:7762
+#: main.py:7811
 msgid "Catch-up Download"
 msgstr "回看下载"
 
-#: main.py:8580
+#: main.py:8590
 msgid "Catch-up programmes"
 msgstr "回看节目"
 
-#: main.py:8546
+#: main.py:8556
 msgid "Catch-up: {name}"
 msgstr "回看：{name}"
 
@@ -395,12 +395,12 @@ msgstr "回看：{name}"
 msgid "Categories"
 msgstr "分类"
 
-#: main.py:8926
+#: main.py:8939
 msgid "Channel"
 msgstr "频道"
 
 #: main.py:3400
-#: main.py:6282
+#: main.py:6286
 msgid "Channel Not Found"
 msgstr "未找到频道"
 
@@ -410,12 +410,12 @@ msgid "Channel missing command reference"
 msgstr "频道缺少命令引用"
 
 #: main.py:2636
-#: main.py:9320
-#: main.py:9322
+#: main.py:9353
+#: main.py:9355
 msgid "Channels"
 msgstr "频道"
 
-#: main.py:8261
+#: main.py:8271
 msgid "Check failed."
 msgstr "检查失败。"
 
@@ -427,19 +427,19 @@ msgstr "检查更新"
 msgid "Check for Updates..."
 msgstr "检查更新..."
 
-#: main.py:6144
+#: main.py:6148
 msgid "Check that the EPG sources in File > EPG Manager are reachable, then try again."
 msgstr "请检查“文件 > EPG 管理器”中的 EPG 源是否可访问，然后重试。"
 
-#: main.py:8225
+#: main.py:8235
 msgid "Checking account, please wait..."
 msgstr "正在检查账户，请稍候..."
 
-#: main.py:4525
+#: main.py:4529
 msgid "Checking for update details..."
 msgstr "正在检查更新详情..."
 
-#: main.py:8226
+#: main.py:8236
 msgid "Checking {account}..."
 msgstr "正在检查 {account}..."
 
@@ -457,8 +457,8 @@ msgstr "选择 M3U 文件"
 
 #: main.py:278
 #: main.py:341
-#: main.py:8176
-#: main.py:9095
+#: main.py:8186
+#: main.py:9128
 msgid "Close"
 msgstr "关闭"
 
@@ -466,23 +466,23 @@ msgstr "关闭"
 msgid "Community and support"
 msgstr "社区与支持"
 
-#: main.py:8990
+#: main.py:9005
 msgid "Completed"
 msgstr "已完成"
 
-#: main.py:4125
+#: main.py:4129
 msgid "Configured playlists: {count}"
 msgstr "已配置的播放列表：{count}"
 
-#: main.py:7983
+#: main.py:7993
 msgid "Connect"
 msgstr "连接"
 
-#: main.py:7942
+#: main.py:7952
 msgid "Connected"
 msgstr "已连接"
 
-#: main.py:7942
+#: main.py:7952
 msgid "Connected to {device}"
 msgstr "已连接到 {device}"
 
@@ -490,7 +490,7 @@ msgstr "已连接到 {device}"
 msgid "Connections in use"
 msgstr "已用连接数"
 
-#: main.py:8175
+#: main.py:8185
 msgid "Copy Details"
 msgstr "复制详情"
 
@@ -503,11 +503,11 @@ msgstr "复制日志和调试信息"
 msgid "Copy URL"
 msgstr "复制 URL"
 
-#: main.py:8250
+#: main.py:8260
 msgid "Could not check this account.\n\n{error}"
 msgstr "无法检查此账户。\n\n{error}"
 
-#: main.py:4143
+#: main.py:4147
 msgid "Could not copy diagnostic information:\n{error}"
 msgstr "无法复制诊断信息：\n{error}"
 
@@ -516,29 +516,29 @@ msgid "Could not create libVLC media player object."
 msgstr "无法创建 libVLC 媒体播放器对象。"
 
 #: main.py:3449
-#: main.py:3549
+#: main.py:3553
 msgid "Could not find a stream URL for this channel."
 msgstr "无法找到此频道的流 URL。"
 
 #: main.py:3398
-#: main.py:6282
+#: main.py:6286
 msgid "Could not find channel '{channel}' in your playlist."
 msgstr "无法在您的播放列表中找到频道“{channel}”。"
 
-#: main.py:7225
+#: main.py:7229
 msgid "Could not find stream URL for this selection."
 msgstr "无法找到此选择的流 URL。"
 
 #: main.py:3346
-#: main.py:6277
+#: main.py:6281
 msgid "Could not identify the channel."
 msgstr "无法识别该频道。"
 
-#: main.py:5921
+#: main.py:5925
 msgid "Could not load episodes for this series."
 msgstr "无法加载此剧集的分集。"
 
-#: main.py:5940
+#: main.py:5944
 msgid "Could not load episodes:\n{error}"
 msgstr "无法加载分集：\n{error}"
 
@@ -554,24 +554,24 @@ msgstr "无法找到 {player} 应用。"
 msgid "Could not locate {player} executable."
 msgstr "无法找到 {player} 可执行文件。"
 
-#: main.py:6193
+#: main.py:6197
 msgid "Could not look for provider accounts: {error}"
 msgstr "无法查找提供商账户：{error}"
 
-#: main.py:6953
+#: main.py:6957
 msgid "Could not match this programme to a playlist channel."
 msgstr "无法将此节目与播放列表频道匹配。"
 
-#: main.py:4086
-#: main.py:4099
+#: main.py:4090
+#: main.py:4103
 msgid "Could not open folder:\n{error}"
 msgstr "无法打开文件夹：\n{error}"
 
-#: main.py:4278
+#: main.py:4282
 msgid "Could not open the EPG window: {error}"
 msgstr "无法打开节目单窗口：{error}"
 
-#: main.py:8280
+#: main.py:8290
 #: playlist.py:2756
 msgid "Could not open the clipboard."
 msgstr "无法打开剪贴板。"
@@ -585,8 +585,8 @@ msgstr "无法连接到 Xtream 服务器：{error}"
 msgid "Could not reach the portal: {error}"
 msgstr "无法连接到门户：{error}"
 
-#: main.py:3545
-#: main.py:6968
+#: main.py:3549
+#: main.py:6972
 msgid "Could not resolve stream URL:\n{error}"
 msgstr "无法解析流 URL：\n{error}"
 
@@ -598,11 +598,11 @@ msgstr "无法运行 Authenticode 验证：{detail}"
 msgid "Could not schedule recording:\n{error}"
 msgstr "无法安排录制：\n{error}"
 
-#: main.py:3906
+#: main.py:3910
 msgid "Could not shut down the computer:\n{error}"
 msgstr "无法关闭计算机：\n{error}"
 
-#: main.py:7677
+#: main.py:7681
 msgid "Could not start catch-up download:\n{error}"
 msgstr "无法开始回看下载：\n{error}"
 
@@ -610,7 +610,7 @@ msgstr "无法开始回看下载：\n{error}"
 msgid "Could not start playback: {error}"
 msgstr "无法开始播放：{error}"
 
-#: main.py:3619
+#: main.py:3623
 msgid "Could not start recording:\n{error}"
 msgstr "无法开始录制：\n{error}"
 
@@ -618,11 +618,11 @@ msgstr "无法开始录制：\n{error}"
 msgid "Created"
 msgstr "创建时间"
 
-#: main.py:9087
+#: main.py:9120
 msgid "Currently airing programs"
 msgstr "当前正在播出的节目"
 
-#: main.py:7926
+#: main.py:7936
 msgid "Currently connected to: {device}\n\nDisconnect?"
 msgstr "当前已连接到：{device}\n\n断开连接？"
 
@@ -639,7 +639,7 @@ msgstr "剩余天数"
 msgid "Days since expiry"
 msgstr "到期后天数"
 
-#: main.py:8966
+#: main.py:8981
 #: playlist.py:2787
 msgid "Delete"
 msgstr "删除"
@@ -652,8 +652,8 @@ msgstr "删除播放列表"
 msgid "Delete the playlist “{name}”?\n\nThis removes it from the list of playlists. It cannot be undone."
 msgstr "要删除播放列表“{name}”吗?\n\n它将从播放列表中移除，此操作无法撤销。"
 
-#: main.py:8565
-#: main.py:9484
+#: main.py:8575
+#: main.py:9517
 msgid "Description"
 msgstr "节目简介"
 
@@ -661,12 +661,12 @@ msgstr "节目简介"
 msgid "Detected from"
 msgstr "检测来源"
 
-#: main.py:4144
-#: main.py:4147
+#: main.py:4148
+#: main.py:4151
 msgid "Diagnostic Information"
 msgstr "诊断信息"
 
-#: main.py:4146
+#: main.py:4150
 msgid "Diagnostic information was copied to the clipboard. You can paste it into a message to the developer."
 msgstr "诊断信息已复制到剪贴板。您可以将其粘贴到给开发者的消息中。"
 
@@ -674,7 +674,7 @@ msgstr "诊断信息已复制到剪贴板。您可以将其粘贴到给开发者
 msgid "Disabled"
 msgstr "已禁用"
 
-#: main.py:7253
+#: main.py:7257
 msgid "Disconnected from the cast device. Open the cast menu to pick another device."
 msgstr "已与投屏设备断开连接。打开投屏菜单以选择其他设备。"
 
@@ -683,85 +683,85 @@ msgstr "已与投屏设备断开连接。打开投屏菜单以选择其他设备
 msgid "Display name"
 msgstr "显示名称"
 
-#: main.py:8472
+#: main.py:8482
 msgid "Do you really want to cancel this download? It cannot be resumed afterwards."
 msgstr "确定要取消这个下载吗？之后无法继续。"
 
-#: main.py:8664
+#: main.py:8674
 msgid "Download"
 msgstr "下载"
 
-#: main.py:4438
+#: main.py:4442
 msgid "Download and install now? The app will restart after the update."
 msgstr "立即下载并安装？更新后应用将重新启动。"
 
-#: main.py:7740
+#: main.py:7744
 msgid "Download canceled. The incomplete file was discarded."
 msgstr "下载已取消。不完整的文件已被丢弃。"
 
-#: main.py:7757
+#: main.py:7761
 msgid "Download complete:\n{path}"
 msgstr "下载完成：\n{path}"
 
-#: main.py:8390
+#: main.py:8400
 msgid "Download details"
 msgstr "下载详情"
 
-#: main.py:7747
+#: main.py:7751
 msgid "Download ended early:\n{path}\n\nOnly {written} of {expected} arrived before the provider closed the connection. The incomplete file was kept."
 msgstr "下载提前结束：\n{path}\n\n在提供者关闭连接之前，预期 {expected} 中仅收到 {written}。不完整的文件已保留。"
 
-#: main.py:8423
+#: main.py:8433
 msgid "Download failed (code {code})."
 msgstr "下载失败（代码 {code}）。"
 
-#: main.py:7794
+#: main.py:7804
 msgid "Download failed (code {code}):\n{path}\n\n{detail}"
 msgstr "下载失败（代码 {code}）：\n{path}\n\n{detail}"
 
-#: main.py:8439
+#: main.py:8449
 msgid "Download failed - retrying (attempt {attempt} of {total}) in {seconds} seconds..."
 msgstr "下载失败 - 正在重试（第 {attempt} 次，共 {total} 次），{seconds} 秒后开始..."
 
-#: main.py:7791
+#: main.py:7801
 msgid "Download failed:\n{path}\n\n{reason}\n\n{detail}"
 msgstr "下载失败：\n{path}\n\n{reason}\n\n{detail}"
 
-#: main.py:5302
+#: main.py:5306
 msgid "Download in progress"
 msgstr "下载进行中"
 
-#: main.py:8389
+#: main.py:8399
 msgid "Download progress"
 msgstr "下载进度"
 
-#: main.py:8388
+#: main.py:8398
 msgid "Download status"
 msgstr "下载状态"
 
-#: main.py:4551
-#: main.py:4596
+#: main.py:4555
+#: main.py:4600
 msgid "Downloaded update failed SHA-256 verification."
 msgstr "下载的更新未通过 SHA-256 验证。"
 
-#: main.py:8463
+#: main.py:8473
 msgid "Downloaded: {size}"
 msgstr "已下载：{size}"
 
-#: main.py:4543
 #: main.py:4547
-#: main.py:4588
+#: main.py:4551
 #: main.py:4592
+#: main.py:4596
 msgid "Downloading update..."
 msgstr "正在下载更新..."
 
-#: main.py:8348
-#: main.py:8452
-#: main.py:8456
+#: main.py:8358
+#: main.py:8462
+#: main.py:8466
 msgid "Downloading {name}"
 msgstr "正在下载 {name}"
 
-#: main.py:4268
+#: main.py:4272
 msgid "EPG"
 msgstr "EPG"
 
@@ -775,37 +775,37 @@ msgstr "需要更新节目单数据库"
 msgid "EPG Manager"
 msgstr "EPG 管理器"
 
-#: main.py:6218
-#: main.py:6236
+#: main.py:6222
+#: main.py:6240
 msgid "EPG Not Available"
 msgstr "EPG 不可用"
 
-#: main.py:4128
+#: main.py:4132
 msgid "EPG debug log (latest 128 KiB):"
 msgstr "EPG 调试日志（最近 128 KiB）："
 
-#: main.py:4124
+#: main.py:4128
 msgid "EPG enabled: {enabled}"
 msgstr "EPG 已启用：{enabled}"
 
-#: main.py:6210
+#: main.py:6214
 msgid "EPG import is already in progress."
 msgstr "EPG 导入已在进行中。"
 
-#: main.py:6229
+#: main.py:6233
 msgid "EPG import will start in the background. You can keep using the app; a message will tell you when the import has finished."
 msgstr "EPG 导入将在后台开始。您可以继续使用本应用；导入完成后会有消息提示。"
 
-#: main.py:6218
-#: main.py:6236
+#: main.py:6222
+#: main.py:6240
 msgid "EPG is not enabled."
 msgstr "未启用 EPG。"
 
-#: main.py:9465
+#: main.py:9498
 msgid "EPG: {channel}"
 msgstr "EPG：{channel}"
 
-#: main.py:8461
+#: main.py:8471
 msgid "Elapsed: {time}"
 msgstr "已用时间：{time}"
 
@@ -822,7 +822,7 @@ msgstr "输入 EPG XML URL"
 msgid "Enter M3U URL"
 msgstr "输入 M3U URL"
 
-#: main.py:8065
+#: main.py:8075
 msgid "Enter PIN displayed on {device}:"
 msgstr "输入 {device} 上显示的 PIN 码："
 
@@ -832,8 +832,8 @@ msgstr "输入播放器可执行文件或路径："
 
 #: main.py:2655
 #: main.py:2657
-#: main.py:8568
-#: main.py:9487
+#: main.py:8578
+#: main.py:9520
 msgid "Episode description"
 msgstr "分集简介"
 
@@ -844,12 +844,12 @@ msgstr "第 {num} 集"
 #: internal_player.py:1713
 #: main.py:3145
 #: main.py:3199
-#: main.py:4279
-#: main.py:6194
-#: main.py:6258
-#: main.py:6277
-#: main.py:7945
-#: main.py:8102
+#: main.py:4283
+#: main.py:6198
+#: main.py:6262
+#: main.py:6281
+#: main.py:7955
+#: main.py:8112
 msgid "Error"
 msgstr "错误"
 
@@ -858,7 +858,7 @@ msgstr "错误"
 msgid "Error fetching EPG: {error}"
 msgstr "获取 EPG 时出错：{error}"
 
-#: main.py:8014
+#: main.py:8024
 msgid "Error: {error}"
 msgstr "错误：{error}"
 
@@ -897,20 +897,20 @@ msgstr "已过期"
 msgid "Expires"
 msgstr "到期时间"
 
-#: main.py:4598
+#: main.py:4602
 msgid "Extracting update..."
 msgstr "正在提取更新..."
 
-#: main.py:8991
+#: main.py:9006
 msgid "Failed"
 msgstr "失败"
 
-#: main.py:7262
-#: main.py:7386
+#: main.py:7266
+#: main.py:7390
 msgid "Failed to cast: {error}"
 msgstr "投屏失败：{error}"
 
-#: main.py:7945
+#: main.py:7955
 msgid "Failed to connect: {error}"
 msgstr "连接失败：{error}"
 
@@ -922,7 +922,7 @@ msgstr "下载清单失败（{code}）。"
 msgid "Failed to download update ({code})."
 msgstr "下载更新失败（{code}）。"
 
-#: main.py:6258
+#: main.py:6262
 msgid "Failed to fetch EPG data: {error}"
 msgstr "获取 EPG 数据失败：{error}"
 
@@ -938,11 +938,11 @@ msgstr "初始化 libVLC 实例失败。"
 msgid "Failed to initialise media player: {error}"
 msgstr "初始化媒体播放器失败：{error}"
 
-#: main.py:7325
+#: main.py:7329
 msgid "Failed to launch {player}:\n{error}"
 msgstr "启动 {player} 失败：\n{error}"
 
-#: main.py:7319
+#: main.py:7323
 msgid "Failed to start built-in player:\n{error}"
 msgstr "启动内置播放器失败：\n{error}"
 
@@ -958,11 +958,11 @@ msgstr "收藏"
 msgid "File"
 msgstr "文件"
 
-#: main.py:9074
+#: main.py:9107
 msgid "Filter (Tab):"
 msgstr "筛选（Tab）："
 
-#: main.py:9076
+#: main.py:9109
 msgid "Filter programs"
 msgstr "筛选节目"
 
@@ -979,11 +979,11 @@ msgstr "查找下一个"
 msgid "Follow Serrebi on GitHub"
 msgstr "在 GitHub 上关注 Serrebi"
 
-#: main.py:8928
+#: main.py:8941
 msgid "Format"
 msgstr "格式"
 
-#: main.py:8025
+#: main.py:8035
 msgid "Found {count} devices:"
 msgstr "找到 {count} 个设备："
 
@@ -992,7 +992,7 @@ msgstr "找到 {count} 个设备："
 msgid "Full Screen"
 msgstr "全屏"
 
-#: main.py:4069
+#: main.py:4073
 msgid "Full ffmpeg log:\n{path}"
 msgstr "完整的 ffmpeg 日志：\n{path}"
 
@@ -1028,9 +1028,9 @@ msgid "Hide Window"
 msgstr "隐藏窗口"
 
 #: main.py:3242
-#: main.py:6987
-#: main.py:7240
-#: main.py:7278
+#: main.py:6991
+#: main.py:7244
+#: main.py:7282
 msgid "IPTV Stream"
 msgstr "IPTV 流"
 
@@ -1040,7 +1040,7 @@ msgstr "IPTV 流"
 msgid "Idle"
 msgstr "空闲"
 
-#: main.py:6140
+#: main.py:6144
 msgid "Import Complete"
 msgstr "导入完成"
 
@@ -1050,12 +1050,12 @@ msgid "Import EPG to DB"
 msgstr "将 EPG 导入数据库"
 
 #: main.py:3167
-#: main.py:6147
-#: main.py:6224
+#: main.py:6151
+#: main.py:6228
 msgid "Import Failed"
 msgstr "导入失败"
 
-#: main.py:6231
+#: main.py:6235
 msgid "Import Started"
 msgstr "导入已开始"
 
@@ -1067,7 +1067,7 @@ msgstr "正在导入 EPG"
 msgid "Importing EPG data…"
 msgstr "正在导入 EPG 数据…"
 
-#: main.py:6210
+#: main.py:6214
 msgid "In Progress"
 msgstr "进行中"
 
@@ -1075,7 +1075,7 @@ msgstr "进行中"
 msgid "Include the provider's XMLTV guide automatically"
 msgstr "自动包含提供商的 XMLTV 指南"
 
-#: main.py:4794
+#: main.py:4798
 msgid "Installing the update. {app} will close and start again by itself - please do not open it yourself in the meantime."
 msgstr "正在安装更新。{app} 将关闭并自动重新启动，在此期间请不要自行打开它。"
 
@@ -1093,7 +1093,7 @@ msgstr "加入 SerrebiProjects 电报群组"
 
 #: main.py:2748
 #: main.py:2864
-#: main.py:4341
+#: main.py:4345
 msgid "Language"
 msgstr "语言"
 
@@ -1101,13 +1101,13 @@ msgstr "语言"
 msgid "Last error: {reason}"
 msgstr "上一个错误：{reason}"
 
-#: main.py:4393
+#: main.py:4397
 msgid "Latest release tag is missing or invalid."
 msgstr "最新发布标签缺失或无效。"
 
-#: main.py:7276
-#: main.py:7319
-#: main.py:7325
+#: main.py:7280
+#: main.py:7323
+#: main.py:7329
 msgid "Launch Error"
 msgstr "启动错误"
 
@@ -1116,11 +1116,11 @@ msgstr "启动错误"
 msgid "Live TV && Catch-up"
 msgstr "直播电视和回看"
 
-#: main.py:5802
+#: main.py:5806
 msgid "Loading Video on Demand…"
 msgstr "正在加载视频点播…"
 
-#: main.py:5929
+#: main.py:5933
 msgid "Loading episodes…"
 msgstr "正在加载分集…"
 
@@ -1128,7 +1128,7 @@ msgstr "正在加载分集…"
 msgid "Loading playlists..."
 msgstr "正在加载播放列表..."
 
-#: main.py:4100
+#: main.py:4104
 msgid "Logs"
 msgstr "日志"
 
@@ -1171,15 +1171,15 @@ msgstr "提供商消息"
 msgid "Minimize to System Tray"
 msgstr "最小化到系统托盘"
 
-#: main.py:8766
+#: main.py:8776
 msgid "Minutes after programme:"
 msgstr "节目结束后的分钟数："
 
-#: main.py:8765
+#: main.py:8775
 msgid "Minutes before programme:"
 msgstr "节目开始前的分钟数："
 
-#: main.py:8992
+#: main.py:9007
 msgid "Missed"
 msgstr "已错过"
 
@@ -1200,7 +1200,7 @@ msgstr "永不（未设置到期日期）"
 msgid "Next: {programme}"
 msgstr "接下来：{programme}"
 
-#: main.py:6766
+#: main.py:6770
 msgid "Next: {title} ({start} – {end})"
 msgstr "接下来：{title}（{start} – {end}）"
 
@@ -1208,28 +1208,28 @@ msgstr "接下来：{title}（{start} – {end}）"
 msgid "No"
 msgstr "否"
 
-#: main.py:6202
+#: main.py:6206
 msgid "No Accounts"
 msgstr "无账户"
 
-#: main.py:6261
+#: main.py:6265
 msgid "No Data"
 msgstr "无数据"
 
-#: main.py:6214
+#: main.py:6218
 msgid "No EPG sources configured. Please add one in File > EPG Manager."
 msgstr "未配置 EPG 源。请在“文件 > EPG 管理器”中添加一个。"
 
-#: main.py:6214
+#: main.py:6218
 msgid "No Sources"
 msgstr "无源"
 
-#: main.py:5864
+#: main.py:5868
 msgid "No Video on Demand content found."
 msgstr "未找到视频点播内容。"
 
 #: internal_player.py:1695
-#: main.py:7369
+#: main.py:7373
 msgid "No active stream to cast."
 msgstr "没有可投屏的活动流。"
 
@@ -1243,37 +1243,37 @@ msgstr "未找到音频输出设备。"
 msgid "No audio tracks available"
 msgstr "没有可用的音轨"
 
-#: main.py:7446
+#: main.py:7450
 msgid "No catch-up programmes are available for this channel."
 msgstr "此频道没有可用的回看节目。"
 
-#: main.py:5679
+#: main.py:5683
 msgid "No channels found."
 msgstr "未找到频道。"
 
 #: main.py:3057
-#: main.py:8634
-#: main.py:9589
+#: main.py:8644
+#: main.py:9622
 msgid "No description available for this programme."
 msgstr "该节目暂无简介。"
 
-#: main.py:8022
+#: main.py:8032
 msgid "No devices found."
 msgstr "未找到设备。"
 
-#: main.py:5960
+#: main.py:5964
 msgid "No episodes found for this series."
 msgstr "未找到此剧集的分集。"
 
-#: main.py:8432
+#: main.py:8442
 msgid "No error details were reported."
 msgstr "没有报告任何错误详情。"
 
-#: main.py:4057
+#: main.py:4061
 msgid "No ffmpeg details were reported."
 msgstr "未报告任何 ffmpeg 详情。"
 
-#: main.py:6764
+#: main.py:6768
 msgid "No program currently airing."
 msgstr "当前没有正在播出的节目。"
 
@@ -1281,16 +1281,16 @@ msgstr "当前没有正在播出的节目。"
 msgid "No programme guide has been imported yet, so there is nothing to schedule from.\n\nImport a guide first (File > EPG Manager, then File > Import EPG to DB), then try scheduling again."
 msgstr "尚未导入任何节目指南，因此没有可安排的内容。\n\n请先导入指南（文件 > EPG 管理器，然后是 文件 > 将 EPG 导入数据库），再重新尝试安排。"
 
-#: main.py:6261
+#: main.py:6265
 msgid "No programs are currently airing, or EPG data has not been imported yet."
 msgstr "当前没有正在播出的节目，或尚未导入 EPG 数据。"
 
-#: main.py:6198
+#: main.py:6202
 msgid "No provider accounts were found.\n\nXtream Codes and Stalker Portal accounts added in the Playlist Manager are listed here, along with any account detected from a playlist or stream URL."
 msgstr "未找到任何提供商账户。\n\n在播放列表管理器中添加的 Xtream Codes 和 Stalker Portal 账户会列在这里，以及从播放列表或流 URL 检测到的任何账户。"
 
-#: main.py:3778
-#: main.py:3789
+#: main.py:3782
+#: main.py:3793
 msgid "No recordings are currently active."
 msgstr "当前没有活动的录制。"
 
@@ -1298,12 +1298,12 @@ msgstr "当前没有活动的录制。"
 msgid "No stream URL provided."
 msgstr "未提供流 URL。"
 
-#: main.py:4268
+#: main.py:4272
 msgid "No upcoming schedule found for this channel."
 msgstr "未找到此频道的即将播出的排期。"
 
-#: main.py:6954
-#: main.py:7225
+#: main.py:6958
+#: main.py:7229
 msgid "Not Found"
 msgstr "未找到"
 
@@ -1312,11 +1312,11 @@ msgstr "未找到"
 msgid "Not reported by the server"
 msgstr "服务器未报告"
 
-#: main.py:7339
+#: main.py:7343
 msgid "Nothing is playing in the built-in player."
 msgstr "内置播放器中没有正在播放的内容。"
 
-#: main.py:6752
+#: main.py:6756
 msgid "Now: {title} ({start} – {end})"
 msgstr "现在：{title}（{start} – {end}）"
 
@@ -1324,7 +1324,7 @@ msgstr "现在：{title}（{start} – {end}）"
 msgid "OK"
 msgstr "确定"
 
-#: main.py:8662
+#: main.py:8672
 msgid "Open"
 msgstr "打开"
 
@@ -1333,7 +1333,7 @@ msgstr "打开"
 msgid "Open Logs Folder"
 msgstr "打开日志文件夹"
 
-#: main.py:4206
+#: main.py:4210
 msgid "Open Recordings Folder"
 msgstr "打开录制文件夹"
 
@@ -1370,7 +1370,7 @@ msgstr "选项"
 msgid "Other details reported by the server"
 msgstr "服务器报告的其他详情"
 
-#: main.py:5714
+#: main.py:5718
 msgid "Other playlists"
 msgstr "其他播放列表"
 
@@ -1378,39 +1378,39 @@ msgstr "其他播放列表"
 msgid "Package"
 msgstr "套餐"
 
-#: main.py:7980
+#: main.py:7990
 msgid "Pair..."
 msgstr "配对..."
 
-#: main.py:8124
+#: main.py:8134
 msgid "Paired with {device}. Ready to connect."
 msgstr "已与 {device} 配对。准备连接。"
 
-#: main.py:8065
+#: main.py:8075
 msgid "Pairing"
 msgstr "正在配对"
 
-#: main.py:8123
+#: main.py:8133
 msgid "Pairing Complete"
 msgstr "配对完成"
 
-#: main.py:8098
+#: main.py:8108
 msgid "Pairing Failed"
 msgstr "配对失败"
 
-#: main.py:8084
+#: main.py:8094
 msgid "Pairing cancelled."
 msgstr "配对已取消。"
 
-#: main.py:8102
+#: main.py:8112
 msgid "Pairing error: {error}"
 msgstr "配对错误：{error}"
 
-#: main.py:8103
+#: main.py:8113
 msgid "Pairing failed: {error}"
 msgstr "配对失败：{error}"
 
-#: main.py:8098
+#: main.py:8108
 msgid "Pairing finished but no credentials returned."
 msgstr "配对已完成，但未返回任何凭据。"
 
@@ -1439,14 +1439,14 @@ msgstr "待处理"
 msgid "Phone"
 msgstr "电话"
 
-#: main.py:4121
+#: main.py:4125
 msgid "Platform: {platform}"
 msgstr "平台：{platform}"
 
 #: internal_player.py:727
 #: main.py:3091
-#: main.py:9093
-#: main.py:9272
+#: main.py:9126
+#: main.py:9305
 msgid "Play"
 msgstr "播放"
 
@@ -1461,8 +1461,8 @@ msgstr "播放或暂停"
 msgid "Play/Pause"
 msgstr "播放/暂停"
 
-#: main.py:6965
-#: main.py:6968
+#: main.py:6969
+#: main.py:6972
 msgid "Playback Error"
 msgstr "播放错误"
 
@@ -1533,12 +1533,12 @@ msgstr "门户未返回流 URL"
 msgid "Portal handshake failed: no token returned"
 msgstr "门户握手失败：未返回令牌"
 
-#: main.py:8709
-#: main.py:8712
+#: main.py:8719
+#: main.py:8722
 msgid "Prefer an audio description track when the channel has one"
 msgstr "当频道提供音频描述音轨时优先使用"
 
-#: main.py:8700
+#: main.py:8710
 msgid "Preferred Audio Track"
 msgstr "首选音轨"
 
@@ -1551,28 +1551,28 @@ msgstr "首选音轨..."
 msgid "Preferred stream container format"
 msgstr "首选流容器格式"
 
-#: main.py:8715
+#: main.py:8725
 msgid "Preferred track names or languages, most wanted first:"
 msgstr "首选音轨名称或语言，最想要的排在前面："
 
-#: main.py:8359
+#: main.py:8369
 msgid "Preparing download..."
 msgstr "正在准备下载..."
 
-#: main.py:4573
-#: main.py:4633
+#: main.py:4577
+#: main.py:4637
 msgid "Preparing to restart..."
 msgstr "正在准备重新启动..."
 
-#: main.py:8373
+#: main.py:8383
 msgid "Press Escape to hide this window; the download continues. View > Show Downloads (Ctrl+Shift+D) brings it back."
 msgstr "按 Esc 隐藏此窗口；下载会继续。视图 > 显示下载 (Ctrl+Shift+D) 可重新显示。"
 
-#: main.py:9088
+#: main.py:9121
 msgid "Program - Channel"
 msgstr "节目 - 频道"
 
-#: main.py:8460
+#: main.py:8470
 msgid "Progress: {percent}%"
 msgstr "进度：{percent}%"
 
@@ -1582,10 +1582,10 @@ msgstr "进度：{percent}%"
 msgid "Provider"
 msgstr "提供商"
 
-#: main.py:3541
-#: main.py:6965
-#: main.py:7471
-#: main.py:7527
+#: main.py:3545
+#: main.py:6969
+#: main.py:7475
+#: main.py:7531
 msgid "Provider error: {error}"
 msgstr "提供商错误：{error}"
 
@@ -1602,7 +1602,7 @@ msgstr "提供商质量（复制，MP4）"
 msgid "Provider – {name}"
 msgstr "提供商 – {name}"
 
-#: main.py:4122
+#: main.py:4126
 msgid "Python: {version}"
 msgstr "Python: {version}"
 
@@ -1610,7 +1610,7 @@ msgstr "Python: {version}"
 msgid "Randomise MAC"
 msgstr "随机生成 MAC"
 
-#: main.py:8261
+#: main.py:8271
 msgid "Ready."
 msgstr "就绪。"
 
@@ -1628,41 +1628,41 @@ msgstr "正在重新连接..."
 #: internal_player.py:1662
 #: internal_player.py:1678
 #: main.py:3100
-#: main.py:3516
-#: main.py:7340
-#: main.py:7348
+#: main.py:3520
+#: main.py:7344
+#: main.py:7352
 msgid "Record"
 msgstr "录制"
 
-#: main.py:3532
-#: main.py:3636
-#: main.py:3762
-#: main.py:3765
-#: main.py:3776
-#: main.py:3779
-#: main.py:3787
-#: main.py:3790
-#: main.py:8988
+#: main.py:3536
+#: main.py:3640
+#: main.py:3766
+#: main.py:3769
+#: main.py:3780
+#: main.py:3783
+#: main.py:3791
+#: main.py:3794
+#: main.py:9003
 msgid "Recording"
 msgstr "正在录制"
 
-#: main.py:4004
+#: main.py:4008
 msgid "Recording Complete"
 msgstr "录制完成"
 
-#: main.py:3542
 #: main.py:3546
 #: main.py:3550
-#: main.py:3620
-#: main.py:4016
+#: main.py:3554
+#: main.py:3624
+#: main.py:4020
 msgid "Recording Error"
 msgstr "录制错误"
 
-#: main.py:4202
+#: main.py:4206
 msgid "Recording Format"
 msgstr "录制格式"
 
-#: main.py:4010
+#: main.py:4014
 msgid "Recording Warning"
 msgstr "录制警告"
 
@@ -1670,11 +1670,11 @@ msgstr "录制警告"
 msgid "Recording is not available from this window."
 msgstr "此窗口无法进行录制。"
 
-#: main.py:4014
+#: main.py:4018
 msgid "Recording of {name} ended unexpectedly (code {code}).\n\n{detail}"
 msgstr "{name} 的录制意外结束（代码 {code}）。\n\n{detail}"
 
-#: main.py:4003
+#: main.py:4007
 msgid "Recording saved:\n{path}"
 msgstr "录制已保存：\n{path}"
 
@@ -1682,23 +1682,23 @@ msgstr "录制已保存：\n{path}"
 msgid "Recording scheduled.\n\nThe programme guide has not been imported yet, so the Scheduled Recordings window may not list anything, and this may be the only episode you can schedule. Import the guide from File > Import EPG to DB to see and schedule upcoming programmes."
 msgstr "录制已安排。\n\n节目指南尚未导入，因此“已安排的录制”窗口可能不会列出任何内容，而且这可能是您唯一能安排的一集。请通过 文件 > 将 EPG 导入数据库 导入指南，以查看并安排即将播出的节目。"
 
-#: main.py:3634
+#: main.py:3638
 msgid "Recording started ({fmt}):\n{path}"
 msgstr "录制已开始（{fmt}）：\n{path}"
 
-#: main.py:4008
+#: main.py:4012
 msgid "Recording stopped, but ffmpeg reported code {code}.\n\n{detail}\n\nFile:\n{path}"
 msgstr "录制已停止，但 ffmpeg 报告了代码 {code}。\n\n{detail}\n\n文件：\n{path}"
 
 #: main.py:2737
 #: main.py:2873
-#: main.py:4087
+#: main.py:4091
 msgid "Recordings"
 msgstr "录制"
 
-#: main.py:8174
-#: main.py:8931
-#: main.py:8961
+#: main.py:8184
+#: main.py:8944
+#: main.py:8976
 msgid "Refresh"
 msgstr "刷新"
 
@@ -1710,9 +1710,17 @@ msgstr "刷新"
 msgid "Refreshing stream..."
 msgstr "正在刷新流..."
 
+#: main.py:9067
+msgid "Remove all scheduled recordings from the list?"
+msgstr "要从列表中移除所有计划录制吗？"
+
 #: main.py:2112
 msgid "Remove from Favorites"
 msgstr "从收藏中移除"
+
+#: main.py:9070
+msgid "Remove scheduled recording '{title}' from the list?"
+msgstr "要从列表中移除计划录制“{title}”吗？"
 
 #: playlist.py:2710
 #: playlist.py:2786
@@ -1727,11 +1735,11 @@ msgstr "还原"
 msgid "Resume"
 msgstr "继续"
 
-#: main.py:8755
+#: main.py:8765
 msgid "Schedule Padding"
 msgstr "录制时间余量"
 
-#: main.py:4203
+#: main.py:4207
 msgid "Schedule Padding..."
 msgstr "录制时间余量..."
 
@@ -1743,10 +1751,10 @@ msgstr "录制时间余量..."
 #: main.py:3370
 #: main.py:3385
 #: main.py:3392
-#: main.py:9094
-#: main.py:9274
-#: main.py:9556
-#: main.py:9598
+#: main.py:9127
+#: main.py:9307
+#: main.py:9589
+#: main.py:9631
 msgid "Schedule Recording"
 msgstr "安排录制"
 
@@ -1754,22 +1762,22 @@ msgstr "安排录制"
 msgid "Schedule Recording..."
 msgstr "安排录制..."
 
-#: main.py:8987
+#: main.py:9002
 msgid "Scheduled"
 msgstr "已安排"
 
-#: main.py:3477
+#: main.py:3481
 msgid "Scheduled Recording"
 msgstr "已安排的录制"
 
-#: main.py:8914
-#: main.py:9023
-#: main.py:9032
-#: main.py:9038
+#: main.py:8924
+#: main.py:9054
+#: main.py:9063
+#: main.py:9071
 msgid "Scheduled Recordings"
 msgstr "已安排的录制"
 
-#: main.py:4198
+#: main.py:4202
 msgid "Scheduled Recordings..."
 msgstr "已安排的录制..."
 
@@ -1777,7 +1785,7 @@ msgstr "已安排的录制..."
 msgid "Scheduled recording is missing channel data."
 msgstr "已安排的录制缺少频道数据。"
 
-#: main.py:3475
+#: main.py:3479
 msgid "Scheduled recording started:\n{title}"
 msgstr "已安排的录制已开始：\n{title}"
 
@@ -1785,8 +1793,8 @@ msgstr "已安排的录制已开始：\n{title}"
 msgid "Scheduled recording:\n{title}\n{time}"
 msgstr "已安排的录制：\n{title}\n{time}"
 
-#: main.py:5293
-#: main.py:8923
+#: main.py:5297
+#: main.py:8936
 msgid "Scheduled recordings"
 msgstr "已安排的录制"
 
@@ -1796,7 +1804,7 @@ msgstr "已安排的录制"
 msgid "Search"
 msgstr "搜索"
 
-#: main.py:7975
+#: main.py:7985
 msgid "Searching for devices..."
 msgstr "正在搜索设备..."
 
@@ -1804,7 +1812,7 @@ msgstr "正在搜索设备..."
 msgid "Select Custom Player"
 msgstr "选择自定义播放器"
 
-#: main.py:7967
+#: main.py:7977
 msgid "Select Device to Cast"
 msgstr "选择要投屏的设备"
 
@@ -1816,24 +1824,24 @@ msgstr "选择播放器可执行文件"
 msgid "Select a channel first."
 msgstr "请先选择一个频道。"
 
-#: main.py:3516
+#: main.py:3520
 msgid "Select a channel to record first."
 msgstr "请先选择要录制的频道。"
 
-#: main.py:9598
+#: main.py:9631
 msgid "Select a programme first."
 msgstr "请先选择一个节目。"
 
-#: main.py:8550
+#: main.py:8560
 msgid "Select a programme, then press Enter to open it, or use the context menu to download it. Press Escape to close."
 msgstr "选择一个节目，然后按 Enter 打开，或使用上下文菜单下载。 按 Escape 关闭。"
 
-#: main.py:9023
-#: main.py:9032
+#: main.py:9054
+#: main.py:9063
 msgid "Select a scheduled recording first."
 msgstr "请先选择一个已安排的录制。"
 
-#: main.py:8160
+#: main.py:8170
 msgid "Select an account to check its status:"
 msgstr "选择一个账户以检查其状态："
 
@@ -1845,7 +1853,7 @@ msgstr "请选择内置播放器的音频输出设备。"
 msgid "Select the playlist format to download"
 msgstr "选择要下载的播放列表格式"
 
-#: main.py:8721
+#: main.py:8731
 msgid "Separate them with commas, for example: audio description, English. A track is used when its name contains one of these words. Leave this empty to keep whatever track the channel starts on."
 msgstr "请用逗号分隔，例如：音频描述、中文。当音轨名称包含其中任一词语时即会使用该音轨。留空则保留频道启动时的音轨。"
 
@@ -1871,11 +1879,11 @@ msgstr "服务器时间"
 msgid "Server time zone"
 msgstr "服务器时区"
 
-#: main.py:4208
+#: main.py:4212
 msgid "Set Download Folder..."
 msgstr "设置下载文件夹..."
 
-#: main.py:4151
+#: main.py:4155
 msgid "Set download folder"
 msgstr "设置下载文件夹"
 
@@ -1902,22 +1910,22 @@ msgstr "按 Enter 时显示播放器"
 msgid "Show Stream URL"
 msgstr "显示流地址"
 
-#: main.py:3836
-#: main.py:3897
-#: main.py:3907
-#: main.py:8831
+#: main.py:3840
+#: main.py:3901
+#: main.py:3911
+#: main.py:8841
 msgid "Shut Down After Recordings"
 msgstr "录制完成后关机"
 
-#: main.py:8845
+#: main.py:8855
 msgid "Shut Down Now"
 msgstr "立即关机"
 
-#: main.py:4212
+#: main.py:4216
 msgid "Shut Down the Computer When Recordings Finish"
 msgstr "录制全部完成后关闭计算机"
 
-#: main.py:3896
+#: main.py:3900
 msgid "Shutdown canceled. Automatic shutdown after recordings is now off."
 msgstr "已取消关机。录制完成后自动关机现已关闭。"
 
@@ -1930,23 +1938,23 @@ msgstr "Stalker Portal"
 msgid "Stalker Portal – {name}"
 msgstr "Stalker Portal – {name}"
 
-#: main.py:4191
+#: main.py:4195
 msgid "Start Recording"
 msgstr "开始录制"
 
-#: main.py:8758
+#: main.py:8768
 msgid "Start scheduled recordings early or keep recording after the programme ends. Manual recordings are not changed."
 msgstr "提前开始预定录制，或在节目结束后继续录制。手动录制不受影响。"
 
-#: main.py:8054
+#: main.py:8064
 msgid "Starting pairing with {device}..."
 msgstr "正在开始与 {device} 配对..."
 
-#: main.py:4456
+#: main.py:4460
 msgid "Starting update..."
 msgstr "正在开始更新..."
 
-#: main.py:6758
+#: main.py:6762
 msgid "Starts at {start}: {title}"
 msgstr "开始于 {start}：{title}"
 
@@ -1954,7 +1962,7 @@ msgstr "开始于 {start}：{title}"
 #: account_info.py:469
 #: account_info.py:471
 #: account_info.py:515
-#: main.py:8927
+#: main.py:8940
 msgid "Status"
 msgstr "状态"
 
@@ -1966,7 +1974,7 @@ msgstr "状态"
 msgid "Stop"
 msgstr "停止"
 
-#: main.py:4195
+#: main.py:4199
 msgid "Stop All Recordings"
 msgstr "停止所有录制"
 
@@ -1976,7 +1984,7 @@ msgstr "停止播放"
 
 #: internal_player.py:1678
 #: main.py:3098
-#: main.py:4193
+#: main.py:4197
 msgid "Stop Recording"
 msgstr "停止录制"
 
@@ -1989,20 +1997,20 @@ msgstr "停止录制"
 msgid "Stopped"
 msgstr "已停止"
 
-#: main.py:8989
+#: main.py:9004
 msgid "Stopping"
 msgstr "正在停止"
 
-#: main.py:3530
-#: main.py:3760
+#: main.py:3534
+#: main.py:3764
 msgid "Stopping recording for {name}..."
 msgstr "正在停止 {name} 的录制..."
 
-#: main.py:3776
+#: main.py:3780
 msgid "Stopping recording..."
 msgstr "正在停止录制..."
 
-#: main.py:3786
+#: main.py:3790
 msgid "Stopping {count} recording(s)..."
 msgstr "正在停止 {count} 个录制..."
 
@@ -2039,7 +2047,7 @@ msgstr "流输出"
 msgid "Subscription"
 msgstr "订阅"
 
-#: main.py:8123
+#: main.py:8133
 msgid "Successfully paired with {device}!"
 msgstr "已成功与 {device} 配对！"
 
@@ -2052,23 +2060,23 @@ msgid "The EPG database was created by an older version and is missing newer fie
 msgstr "节目单数据库由旧版本创建，缺少新字段。要重新导入指南来更新它吗？\n\n（否则节目单视图无法显示节目描述。）"
 
 #: main.py:3167
-#: main.py:6224
+#: main.py:6228
 msgid "The EPG import could not be started."
 msgstr "无法启动 EPG 导入。"
 
-#: main.py:6143
+#: main.py:6147
 msgid "The EPG import did not finish. The programme guide may be incomplete or unchanged."
 msgstr "EPG 导入未完成。节目单可能不完整或未更新。"
 
-#: main.py:6139
+#: main.py:6143
 msgid "The EPG import has finished. The programme guide is up to date."
 msgstr "EPG 导入已完成。节目单已是最新。"
 
-#: main.py:4137
+#: main.py:4141
 msgid "The clipboard is unavailable."
 msgstr "剪贴板不可用。"
 
-#: main.py:3831
+#: main.py:3835
 msgid "The computer will shut down once every recording that is running or still scheduled has finished.\n\nYou get a countdown you can cancel first, and this setting turns itself off again as soon as it has been used.\n\nShut down the computer when recordings finish?"
 msgstr "当所有正在进行或仍在计划中的录制完成后，计算机将关机。\n\n关机前会出现可取消的倒计时，并且此设置在使用后会自动关闭。\n\n录制完成后关闭计算机吗？"
 
@@ -2076,7 +2084,7 @@ msgstr "当所有正在进行或仍在计划中的录制完成后，计算机将
 msgid "The connection to the provider timed out."
 msgstr "连接提供商超时。"
 
-#: main.py:4339
+#: main.py:4343
 msgid "The language has been changed. Please restart Accessible IPTV Client for the change to take full effect."
 msgstr "语言已更改。请重新启动 Accessible IPTV Client 以使更改完全生效。"
 
@@ -2112,7 +2120,7 @@ msgstr "服务器未报告任何账户详情。"
 msgid "The stream sent data that could not be read."
 msgstr "串流发送了无法读取的数据。"
 
-#: main.py:4868
+#: main.py:4872
 msgid "The update to v{version} did not finish, so {app} is still v{current}. You can try again from Help > Check for Updates..."
 msgstr "到 v{version} 的更新未能完成，因此 {app} 仍是 v{current}。您可以从帮助 > 检查更新... 重试。"
 
@@ -2120,12 +2128,12 @@ msgstr "到 v{version} 的更新未能完成，因此 {app} 仍是 v{current}。
 msgid "The user guide could not be opened: {error}"
 msgstr "无法打开用户指南：{error}"
 
-#: main.py:7544
-#: main.py:7634
+#: main.py:7548
+#: main.py:7638
 msgid "This catch-up programme is already downloading."
 msgstr "该回看节目已在下载中。"
 
-#: main.py:3764
+#: main.py:3768
 msgid "This channel is not currently recording."
 msgstr "此频道当前未在录制。"
 
@@ -2133,7 +2141,7 @@ msgstr "此频道当前未在录制。"
 msgid "This entry cannot be added to Favorites."
 msgstr "无法将此条目添加到收藏。"
 
-#: main.py:7346
+#: main.py:7350
 msgid "This is a catch-up stream. Use Download in the catch-up list to save it."
 msgstr "这是回看流。请在回看列表中使用“下载”来保存它。"
 
@@ -2145,25 +2153,21 @@ msgstr "此节目已经结束。"
 msgid "This programme is already scheduled to record."
 msgstr "此节目已被安排录制。"
 
-#: main.py:7522
+#: main.py:7526
 msgid "This programme is not available as catch-up content yet."
 msgstr "该节目暂不支持回看。"
 
-#: main.py:9037
-msgid "This recording is active. Stop and delete it?"
-msgstr "此录制处于活动状态。停止并删除它？"
-
-#: main.py:8924
-#: main.py:9474
+#: main.py:8937
+#: main.py:9507
 msgid "Time"
 msgstr "时间"
 
-#: main.py:8462
+#: main.py:8472
 msgid "Time remaining: {time}"
 msgstr "剩余时间：{time}"
 
-#: main.py:8925
-#: main.py:9475
+#: main.py:8938
+#: main.py:9508
 msgid "Title"
 msgstr "标题"
 
@@ -2207,11 +2211,11 @@ msgstr "无法下载清单。请检查您的连接。"
 msgid "Unable to download update. Please check your connection."
 msgstr "无法下载更新。请检查您的连接。"
 
-#: main.py:7532
+#: main.py:7536
 msgid "Unable to prepare catch-up download:\n{error}"
 msgstr "无法准备回看下载：\n{error}"
 
-#: main.py:7474
+#: main.py:7478
 msgid "Unable to prepare catch-up stream:\n{error}"
 msgstr "无法准备回看流：\n{error}"
 
@@ -2227,7 +2231,7 @@ msgstr "未分类"
 msgid "Unexpected account response from the Xtream server"
 msgstr "来自 Xtream 服务器的意外账户响应"
 
-#: main.py:9455
+#: main.py:9488
 #: updater.py:512
 msgid "Unknown"
 msgstr "未知"
@@ -2236,26 +2240,26 @@ msgstr "未知"
 msgid "Unknown time"
 msgstr "未知时间"
 
-#: main.py:4440
+#: main.py:4444
 msgid "Update Available"
 msgstr "有可用更新"
 
-#: main.py:4883
+#: main.py:4887
 msgid "Update Complete"
 msgstr "更新完成"
 
-#: main.py:4652
-#: main.py:4668
-#: main.py:4718
-#: main.py:4768
+#: main.py:4656
+#: main.py:4672
+#: main.py:4722
+#: main.py:4772
 msgid "Update Error"
 msgstr "更新错误"
 
-#: main.py:4872
+#: main.py:4876
 msgid "Update Not Completed"
 msgstr "更新未完成"
 
-#: main.py:4435
+#: main.py:4439
 msgid "Update available: v{latest} (current v{current})."
 msgstr "有可用更新：v{latest}（当前 v{current}）。"
 
@@ -2263,34 +2267,34 @@ msgstr "有可用更新：v{latest}（当前 v{current}）。"
 msgid "Update cancelled."
 msgstr "更新已取消。"
 
-#: main.py:4413
+#: main.py:4417
 msgid "Update check failed: {error}"
 msgstr "更新检查失败：{error}"
 
-#: main.py:4368
+#: main.py:4372
 msgid "Update check is already running."
 msgstr "更新检查已在运行。"
 
-#: main.py:4717
-#: main.py:4767
+#: main.py:4721
+#: main.py:4771
 msgid "Update failed to start: {error}"
 msgstr "更新启动失败：{error}"
 
-#: main.py:4651
-#: main.py:4667
+#: main.py:4655
+#: main.py:4671
 msgid "Update failed: {error}"
 msgstr "更新失败：{error}"
 
-#: main.py:4564
-#: main.py:4624
+#: main.py:4568
+#: main.py:4628
 msgid "Update helper is missing from this build."
 msgstr "此构建中缺少更新助手。"
 
-#: main.py:4586
+#: main.py:4590
 msgid "Update manifest contains an unsafe asset filename."
 msgstr "更新清单包含不安全的资源文件名。"
 
-#: main.py:4541
+#: main.py:4545
 msgid "Update manifest contains an unsafe installer filename."
 msgstr "更新清单包含不安全的安装程序文件名。"
 
@@ -2298,12 +2302,12 @@ msgstr "更新清单包含不安全的安装程序文件名。"
 msgid "Update manifest download URL is missing."
 msgstr "缺少更新清单下载 URL。"
 
-#: main.py:4537
+#: main.py:4541
 #: updater.py:345
 msgid "Update manifest is missing required fields."
 msgstr "更新清单缺少必需字段。"
 
-#: main.py:4532
+#: main.py:4536
 msgid "Update manifest version is not newer than the current app."
 msgstr "更新清单版本不比当前应用新。"
 
@@ -2315,27 +2319,27 @@ msgstr "在最新发布中未找到更新清单。"
 msgid "Update package contains an unsafe file path."
 msgstr "更新包包含不安全的文件路径。"
 
-#: main.py:4605
+#: main.py:4609
 msgid "Updated executable '{name}' not found in the package."
 msgstr "在包中未找到更新的可执行文件“{name}”。"
 
-#: main.py:4363
-#: main.py:4368
-#: main.py:4402
-#: main.py:4414
+#: main.py:4367
+#: main.py:4372
+#: main.py:4406
+#: main.py:4418
 msgid "Updates"
 msgstr "更新"
 
-#: main.py:4378
+#: main.py:4382
 msgid "Updates are only available in the packaged build."
 msgstr "更新仅在打包构建中可用。"
 
-#: main.py:4376
+#: main.py:4380
 msgid "Updates are only supported on Windows builds."
 msgstr "更新仅在 Windows 构建上受支持。"
 
-#: main.py:4455
-#: main.py:4802
+#: main.py:4459
+#: main.py:4806
 msgid "Updating {app}"
 msgstr "正在更新 {app}"
 
@@ -2362,18 +2366,18 @@ msgstr "需要用户名、密码和 URL。"
 msgid "Validation"
 msgstr "验证"
 
-#: main.py:4549
-#: main.py:4594
+#: main.py:4553
+#: main.py:4598
 msgid "Verifying download..."
 msgstr "正在验证下载..."
 
-#: main.py:4553
-#: main.py:4607
+#: main.py:4557
+#: main.py:4611
 msgid "Verifying signature..."
 msgstr "正在验证签名..."
 
-#: main.py:5922
-#: main.py:5941
+#: main.py:5926
+#: main.py:5945
 msgid "Video on Demand"
 msgstr "视频点播"
 
@@ -2404,11 +2408,11 @@ msgid "Volume Control"
 msgstr "音量控制"
 
 #: main.py:2806
-#: main.py:9061
+#: main.py:9094
 msgid "What's on Now"
 msgstr "正在播出"
 
-#: main.py:8703
+#: main.py:8713
 msgid "When a channel offers more than one audio track, the built-in player can switch to the track you want on its own."
 msgstr "当频道提供多个音轨时，内置播放器可以自动切换到您想要的音轨。"
 
@@ -2445,7 +2449,7 @@ msgstr "您还没有添加任何收藏。选择一个频道并按 Ctrl+D 添加�
 msgid "channel stream URL"
 msgstr "频道流 URL"
 
-#: main.py:8424
+#: main.py:8434
 msgid "ffmpeg exit code: {code}"
 msgstr "ffmpeg 退出代码：{code}"
 
@@ -2461,7 +2465,7 @@ msgstr "python-vlc (libVLC) 不可用。"
 msgid "unknown source"
 msgstr "未知来源"
 
-#: main.py:4123
+#: main.py:4127
 msgid "wxPython: {version}"
 msgstr "wxPython: {version}"
 
@@ -2473,24 +2477,24 @@ msgstr "x264 重新编码（MKV）"
 msgid "x264 re-encode (MP4)"
 msgstr "x264 重新编码（MP4）"
 
-#: main.py:4400
+#: main.py:4404
 msgid "{app} is up to date (v{version})."
 msgstr "{app} 已是最新版本（v{version}）。"
 
-#: main.py:4881
+#: main.py:4885
 msgid "{app} was successfully updated to v{version}."
 msgstr "{app} 已成功更新到 v{version} 版本。"
 
-#: main.py:9082
-#: main.py:9227
+#: main.py:9115
+#: main.py:9260
 msgid "{count} programs"
 msgstr "{count} 个节目"
 
-#: main.py:5286
+#: main.py:5290
 msgid "{count} recording is scheduled but has not started yet.\n\n{names}\n\nThe app must stay open to start it. Exit anyway?"
 msgstr "{count} 个录制已安排但尚未开始。\n\n{names}\n\n应用必须保持打开才能启动它。仍要退出吗？"
 
-#: main.py:5277
+#: main.py:5281
 msgid "{first} and {count} more"
 msgstr "{first} 以及另外 {count} 个"
 
@@ -2534,7 +2538,7 @@ msgstr "{player} 未针对 Linux 配置。"
 msgid "{title} - Built-in Player"
 msgstr "{title} - 内置播放器"
 
-#: main.py:7538
+#: main.py:7542
 msgid "{title} - {channel}"
 msgstr "{title} - {channel}"
 
@@ -2542,7 +2546,7 @@ msgstr "{title} - {channel}"
 msgid "{value}s buffer"
 msgstr "{value} 秒缓冲"
 
-#: main.py:4060
+#: main.py:4064
 msgid "{warnings} warnings, {errors} errors and {fatals} fatal errors were logged in total."
 msgstr "总共记录了 {warnings} 条警告、{errors} 个错误和 {fatals} 个严重错误。"
 
@@ -2550,8 +2554,7 @@ msgstr "总共记录了 {warnings} 条警告、{errors} 个错误和 {fatals} �
 msgid "~{value} Mbps"
 msgstr "~{value} Mbps"
 
-#: main.py:5928
-#: main.py:5953
+#: main.py:5932
+#: main.py:5957
 msgid "◄ Back"
 msgstr "◄ 返回"
-

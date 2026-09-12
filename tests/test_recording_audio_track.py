@@ -386,6 +386,7 @@ def test_scheduled_recording_keeps_the_chosen_track(monkeypatch):
         _recording_audio_choice=lambda url, headers, intent: (2, 3),
         _note_recording_started=lambda: None,
         _on_recording_finished=lambda *a: None,
+        _show_or_queue_message_box=lambda *a: None,
     )
     main.IPTVClient._start_scheduled_recording(
         client, {"id": "j1", "title": "News", "format": "audio_mp3_v0", "channel": dict(TVP)})
