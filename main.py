@@ -994,8 +994,28 @@ _CATCHUP_RETRY_BASE_DELAY_SECONDS = 2.0
 # connection mid-file and the download is retried rather than celebrated.
 _CATCHUP_SHORT_COMPLETION_RATIO = 0.95
 _CATCHUP_RETRYABLE_RE = re.compile(
-    r"403\b|429\b|50[0-9]\b|connection (?:reset|refused|closed)|timed? ?out|"
-    r"temporarily unavailable|no route to host|server returned", re.IGNORECASE)
+r"403\b|429\b|50[0-9]\b|connection (?:reset|refused|closed)|timed? ?out|"
+r"temporarily unavailable|no route to host|server returned", re.IGNORECASE)
+
+# Teleelevidenie counts every media request against an account-wide, one-stream
+# allowance.  Keep this deliberately narrow: ``timeshift`` alone does not say
+# that an unrelated provider has the same restriction.
+_ONE_STREAM_PROVIDER_SUFFIXES = ("teleelevidenie.com",)
+
+
+def single_stream_provider_key(url: str) -> str:
+    """The exclusive-connection key for a known one-stream provider, or ``""``."""
+    if not url:
+        return ""
+    try:
+        base_url, _headers = split_stream_modifiers(url)
+        host = (urllib.parse.urlsplit(base_url).hostname or "").lower().rstrip(".")
+    except (TypeError, ValueError):
+        return ""
+    for suffix in _ONE_STREAM_PROVIDER_SUFFIXES:
+        if host == suffix or host.endswith("." + suffix):
+            return suffix
+    return ""
 
 
 # How far ahead View EPG looks. It starts at the programme on air now: finished
@@ -1520,6 +1540,7 @@ class IPTVClient(wx.Frame):
         # knows which channel to record.
         self._internal_player_channel: Optional[Dict[str, str]] = None
         self._internal_player_stream_kind = "live"
+        self._active_cast_source_url = ""
         # ...and which channel the audio track picked in the player belongs to.
         self._internal_player_audio_key = ""
         # Live catch-up download progress dialogs, by recorder id.
@@ -3494,6 +3515,35 @@ class IPTVClient(wx.Frame):
             self._maybe_shutdown_after_recordings()
         wx.CallAfter(refresh)
 
+    def _single_stream_provider_busy(self, url: str, *, include_player: bool = True) -> bool:
+        """Whether another app-owned media operation holds this provider's slot."""
+        key = single_stream_provider_key(url)
+        if not key:
+            return False
+        recorder = getattr(self, "recorder", None)
+        if recorder is not None and recorder.has_active_connection(key):
+            return True
+        if include_player:
+            frame = getattr(self, "_internal_player_frame", None)
+            if frame is not None and not getattr(frame, "_destroyed", False):
+                current = getattr(frame, "_current_url", "") or getattr(frame, "_last_resolved_url", "")
+                if single_stream_provider_key(current) == key:
+                    return True
+        caster = getattr(self, "caster", None)
+        cast_url = getattr(self, "_active_cast_source_url", "")
+        if caster is not None and caster.is_connected() and single_stream_provider_key(cast_url) == key:
+            return True
+        return False
+
+    def _single_stream_provider_refusal(self) -> str:
+        """Use the existing localized one-stream explanation before opening media."""
+        return _ffmpeg_exit_reason(-858797304)
+
+    def _single_stream_provider_has_recording(self, url: str) -> bool:
+        key = single_stream_provider_key(url)
+        recorder = getattr(self, "recorder", None)
+        return bool(key and recorder is not None and recorder.has_active_connection(key))
+
     def _start_scheduled_recording(self, job: Dict[str, object]):
         channel = job.get("channel") if isinstance(job.get("channel"), dict) else {}
         if not channel:
@@ -3501,6 +3551,8 @@ class IPTVClient(wx.Frame):
         url = self._resolve_live_url(channel)
         if not url:
             raise RuntimeError(_("Could not find a stream URL for this channel."))
+        if IPTVClient._single_stream_provider_busy(self, url):
+            raise RuntimeError(IPTVClient._single_stream_provider_refusal(self))
         fmt = normalize_recording_format(job.get("format"))
         out_dir = get_recordings_dir(self.config)
         headers = channel_http_headers(channel)
@@ -3522,6 +3574,7 @@ class IPTVClient(wx.Frame):
             on_finish=self._on_recording_finished,
             audio_track=audio_track,
             audio_track_count=audio_count,
+            connection_key=single_stream_provider_key(url),
         )
         self._note_recording_started()
         # This is a scheduler-thread callback.  It can arrive while the
@@ -3616,6 +3669,10 @@ class IPTVClient(wx.Frame):
         # stream, the recording opens it, and the player then watches the
         # recording's own copy of it through a local relay.
         share = self._player_is_showing(channel)
+        if IPTVClient._single_stream_provider_busy(self, url, include_player=not share):
+            message_box(IPTVClient._single_stream_provider_refusal(self),
+                        _("Recording Error"), wx.OK | wx.ICON_WARNING)
+            return
         player_shown = False
         if share:
             frame = self._internal_player_frame
@@ -3670,6 +3727,7 @@ class IPTVClient(wx.Frame):
                 key=key, on_finish=self._on_recording_finished,
                 audio_track=audio_track, audio_track_count=audio_count,
                 share_with_player=share_with is not None,
+                connection_key=single_stream_provider_key(url),
             )
         except Exception as err:
             message_box(_("Could not start recording:\n{error}").format(error=err),
@@ -7262,6 +7320,10 @@ class IPTVClient(wx.Frame):
             message_box(_("Could not find stream URL for this selection."), _("Not Found"),
                           wx.OK | wx.ICON_WARNING)
             return
+        if IPTVClient._single_stream_provider_has_recording(self, url):
+            message_box(IPTVClient._single_stream_provider_refusal(self),
+                        _("Launch Error"), wx.OK | wx.ICON_WARNING)
+            return
         if show_internal_player is None:
             show_internal_player = self.show_player_on_enter
 
@@ -7275,6 +7337,7 @@ class IPTVClient(wx.Frame):
                 def do_cast():
                     try:
                         caster.play(url, title or _("IPTV Stream"), channel=channel)
+                        self._active_cast_source_url = url
                     except Exception as e:
                         err_msg = str(e)
                         # The current cast device is incompatible or unreachable
@@ -7415,6 +7478,7 @@ class IPTVClient(wx.Frame):
                 # Use the active caster directly so we can forward headers from the current stream.
                 if caster.active_caster:
                     caster.dispatch(caster.active_caster.play(url, title, headers=headers))
+                    self._active_cast_source_url = url
                 else:
                     raise RuntimeError("Caster not connected.")
                 wx.CallAfter(self._handoff_internal_player_after_cast, url, title)
@@ -7583,6 +7647,13 @@ class IPTVClient(wx.Frame):
             self._return_to_catchup_after_download(channel, show.get("start", ""))
             return
         fmt = normalize_recording_format(self.config.get("recording_format"))
+        # Do this before the redirect/direct-file and audio probes.  Those are
+        # media requests too, and would otherwise consume Teleelevidenie's
+        # sole connection before ffmpeg gets a chance to start.
+        if IPTVClient._single_stream_provider_busy(self, url):
+            message_box(IPTVClient._single_stream_provider_refusal(self),
+                        _("Catch-up Download"), wx.OK | wx.ICON_WARNING)
+            return
         audio_intent = self._recording_audio_intent(channel)
         # The fast direct-URL probe does network work; keep it off the GUI
         # thread. If no direct file exists we fall back to the HLS URL.
@@ -7672,6 +7743,14 @@ class IPTVClient(wx.Frame):
                           _("Catch-up Download"), wx.OK | wx.ICON_INFORMATION)
             self._return_to_catchup_after_download(channel, show.get("start", ""))
             return
+        provider_url = hls_url or url
+        if IPTVClient._single_stream_provider_busy(self, provider_url):
+            if retry_of is not None:
+                self._catchup_retry_state.pop(retry_of, None)
+            message_box(IPTVClient._single_stream_provider_refusal(self),
+                        _("Catch-up Download"), wx.OK | wx.ICON_WARNING)
+            self._return_to_catchup_after_download(channel, show.get("start", ""))
+            return
         try:
             # The file is named for when the programme aired, as the EPG lists
             # it, not for whenever it happened to be downloaded.
@@ -7704,6 +7783,7 @@ class IPTVClient(wx.Frame):
                 file_time=aired,
                 audio_track=audio_choice[0] if audio_choice else None,
                 audio_track_count=audio_choice[1] if audio_choice else 0,
+                connection_key=single_stream_provider_key(provider_url),
             )
         except Exception as err:
             # Stream URLs go to the debug log verbatim (credentials included):

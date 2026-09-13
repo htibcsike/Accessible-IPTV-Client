@@ -449,7 +449,7 @@ msgstr "Hangsáv kiválasztása"
 
 #: playlist.py:2864
 msgid "Choose EPG XML file"
-msgstr "EPG XML-fájl kiválasztása"
+msgstr "Műsorújság XML-fájljának kiválasztása"
 
 #: playlist.py:2954
 msgid "Choose M3U file"
@@ -1297,7 +1297,7 @@ msgstr "Jelenleg nincs folyamatban rögzítés."
 
 #: main.py:514
 msgid "No release history is available."
-msgstr "Nem érhető el kiadási előzmény."
+msgstr "Nem állnak rendelkezésre kiadási előzmények."
 
 #: internal_player.py:594
 msgid "No stream URL provided."
@@ -1389,7 +1389,7 @@ msgstr "Párosítás…"
 
 #: main.py:8167
 msgid "Paired with {device}. Ready to connect."
-msgstr "Sikeres párosítás: {device}. Az eszköz készen áll a csatlakozásra."
+msgstr "A párosítás sikerült: {device}. Most már kapcsolódhat az eszközhöz."
 
 #: main.py:8108
 msgid "Pairing"
@@ -1693,7 +1693,7 @@ msgstr "A rögzítés megkezdődött ({fmt}):\n{path}"
 
 #: main.py:4063
 msgid "Recording stopped, but ffmpeg reported code {code}.\n\n{detail}\n\nFile:\n{path}"
-msgstr "A rögzítés az FFmpeg {code} kilépési kódjával állt le.\n\n{detail}\n\nFájl:\n{path}"
+msgstr "A rögzítés leállt, de az FFmpeg {code} kilépési kódot jelzett.\n\n{detail}\n\nFájl:\n{path}"
 
 #: main.py:2787
 #: main.py:2925
@@ -1717,7 +1717,7 @@ msgstr "Adás frissítése…"
 
 #: main.py:520
 msgid "Release history"
-msgstr "Kiadási előzmény"
+msgstr "Kiadási előzmények"
 
 #: main.py:9108
 msgid "Remove all scheduled recordings from the list?"
@@ -1729,7 +1729,7 @@ msgstr "Eltávolítás a kedvencekből"
 
 #: main.py:9111
 msgid "Remove scheduled recording '{title}' from the list?"
-msgstr "Eltávolítja a(z) '{title}' ütemezett felvételt a listáról?"
+msgstr "Eltávolítja a listáról a következő ütemezett felvételt: „{title}”?"
 
 #: playlist.py:2710
 #: playlist.py:2786
@@ -1750,7 +1750,7 @@ msgstr "Ütemezési ráhagyás"
 
 #: main.py:4258
 msgid "Schedule Padding..."
-msgstr "Ütemezési ráhagyás..."
+msgstr "Ütemezési ráhagyás…"
 
 #: main.py:3158
 #: main.py:3237
@@ -1769,7 +1769,7 @@ msgstr "Felvétel ütemezése"
 
 #: main.py:3167
 msgid "Schedule Recording..."
-msgstr "Felvétel ütemezése..."
+msgstr "Felvétel ütemezése…"
 
 #: main.py:9040
 msgid "Scheduled"
@@ -2131,7 +2131,7 @@ msgstr "Az adatfolyamból érkező tartalmat nem sikerült feldolgozni."
 
 #: main.py:4931
 msgid "The update to v{version} did not finish, so {app} is still v{current}. You can try again from Help > Check for Updates..."
-msgstr "Nem fejeződött be a frissítés a v{version} verzióra, ezért {app} továbbra is v{current}. Újrapróbálhatja a Súgó > Frissítések keresése… menüpontból."
+msgstr "A frissítés a v{version} verzióra nem fejeződött be, ezért {app} továbbra is a v{current} verziót használja. A Súgó > Frissítések keresése… menüpontban újra megpróbálhatja."
 
 #: main.py:562
 msgid "The user guide could not be opened: {error}"
@@ -2498,7 +2498,7 @@ msgstr "{app} naprakész (v{version})."
 
 #: main.py:4944
 msgid "{app} was successfully updated to v{version}."
-msgstr "A(z) {app} sikeresen frissült a v{version} verzióra."
+msgstr "Az {app} sikeresen frissült a v{version} verzióra."
 
 #: main.py:9156
 #: main.py:9301
@@ -2569,4 +2569,3 @@ msgstr "Körülbelül {value} Mbps"
 #: main.py:5990
 msgid "◄ Back"
 msgstr "◄ Vissza"
-

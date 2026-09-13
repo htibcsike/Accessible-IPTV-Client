@@ -356,6 +356,20 @@ def test_recording_log_sits_beside_the_recording():
     assert path == os.path.join(out_dir, "logs", "Show - stamp.log")
 
 
+def test_provider_connection_key_prevents_a_second_recording():
+    """Manual and scheduled jobs have distinct keys but share one account slot."""
+    manager = recorder.RecordingManager()
+    active = recorder.Recording(1, "manual:tvp", "https://my.teleelevidenie.com/play/a",
+                                "TVP", "provider_mkv", "out.mkv", _StubProcess(),
+                                connection_key="teleelevidenie.com")
+    manager._recordings[active.id] = active
+
+    assert manager.has_active_connection("teleelevidenie.com")
+    with pytest.raises(RuntimeError, match="only stream"):
+        manager.start("https://my.teleelevidenie.com/play/b", "Scheduled", "provider_mkv",
+                      {}, "unused", key="dvr:42", connection_key="teleelevidenie.com")
+
+
 def test_read_log_problems_keeps_only_warnings_and_errors(tmp_path):
     log = tmp_path / "rec.log"
     log.write_text(

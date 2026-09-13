@@ -467,9 +467,12 @@ class Recording:
     def __init__(self, rec_id: int, key: str, url: str, title: str, fmt: str, out_path: str,
                  process: "subprocess.Popen", metadata: Optional[Dict[str, object]] = None,
                  log_path: str = "", command: Optional[List[str]] = None,
-                 partial_path: str = ""):
+                 partial_path: str = "", connection_key: str = ""):
         self.id = rec_id
         self.key = key  # stable channel identity (resolved URL can change per resolve)
+        # Some providers permit exactly one media session per account.  This
+        # separate key is intentionally provider-scoped, unlike ``key`` above.
+        self.connection_key = connection_key
         self.url = url
         self.title = title
         self.fmt = fmt
@@ -515,6 +518,7 @@ class RecordingManager:
     def __init__(self):
         self._lock = threading.Lock()
         self._recordings: "Dict[int, Recording]" = {}
+        self._reserved_connection_keys = set()
         self._next_id = 1
 
     # -- queries -----------------------------------------------------------
@@ -529,6 +533,11 @@ class RecordingManager:
         if not key:
             return False
         return any(r.key == key for r in self.list_active())
+
+    def has_active_connection(self, connection_key: str) -> bool:
+        """Whether a provider-scoped exclusive recording is already running."""
+        return bool(connection_key and any(
+            r.connection_key == connection_key for r in self.list_active()))
 
     # -- lifecycle ---------------------------------------------------------
     def start(
@@ -549,11 +558,18 @@ class RecordingManager:
         audio_track: Optional[int] = None,
         audio_track_count: int = 0,
         share_with_player: bool = False,
+        connection_key: str = "",
     ) -> Recording:
         if not url:
             raise ValueError("No stream URL to record.")
         if fmt not in RECORDING_FORMATS:
             fmt = DEFAULT_RECORDING_FORMAT
+
+        # Check before creating files or opening ffmpeg.  A scheduled and a
+        # manual recording use different recording keys, so ``is_recording``
+        # alone cannot prevent two connections to a one-stream provider.
+        if self.has_active_connection(connection_key):
+            raise RuntimeError("A recording is already using this provider's only stream.")
 
         os.makedirs(out_dir, exist_ok=True)
         out_path = self._unique_output_path(out_dir, display_name, format_extension(fmt),
@@ -581,6 +597,15 @@ class RecordingManager:
         log_path = recording_log_path(out_dir, out_path)
         log_handle = self._open_log(log_path, cmd, url)
         creation_flags = subprocess.CREATE_NO_WINDOW if hasattr(subprocess, "CREATE_NO_WINDOW") else 0
+        with self._lock:
+            if connection_key and (connection_key in self._reserved_connection_keys or any(
+                    r.connection_key == connection_key and r.process and r.process.poll() is None
+                    for r in self._recordings.values())):
+                if log_handle:
+                    log_handle.close()
+                raise RuntimeError("A recording is already using this provider's only stream.")
+            if connection_key:
+                self._reserved_connection_keys.add(connection_key)
         try:
             process = subprocess.Popen(
                 cmd,
@@ -592,6 +617,8 @@ class RecordingManager:
         except Exception:
             if log_handle:
                 log_handle.close()
+            with self._lock:
+                self._reserved_connection_keys.discard(connection_key)
             raise
         if log_handle:
             # The child owns the descriptor now; ours would only pin the file open.
@@ -603,8 +630,10 @@ class RecordingManager:
             rec_id = self._next_id
             self._next_id += 1
             rec = Recording(rec_id, key or url, url, display_name, fmt, out_path, process,
-                            metadata, log_path=log_path, command=cmd, partial_path=partial_path)
+                            metadata, log_path=log_path, command=cmd, partial_path=partial_path,
+                            connection_key=connection_key)
             self._recordings[rec_id] = rec
+            self._reserved_connection_keys.discard(connection_key)
         if share_with_player:
             from recording_relay import RecordingRelay
             rec.relay = RecordingRelay(process.stdout)

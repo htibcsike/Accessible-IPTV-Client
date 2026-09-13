@@ -18,6 +18,12 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import main  # noqa: E402
 
 
+def test_teleelevidenie_hosts_share_one_connection_key():
+    assert main.single_stream_provider_key(
+        "https://my.teleelevidenie.com/play/mpegts-token|User-Agent=Mozilla") == "teleelevidenie.com"
+    assert main.single_stream_provider_key("https://cdn.example.invalid/live.ts") == ""
+
+
 def _client():
     return SimpleNamespace(
         _extract_stream_id=lambda url: main.IPTVClient._extract_stream_id(None, url)
