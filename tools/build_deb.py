@@ -277,6 +277,8 @@ def build_payload(version: str) -> Staged:
         raise RuntimeError("docs/help/en.md (the English user guide) was not found.")
     for absolute, name in guides:
         staged.add_file(f"{lib_dir}/docs/help/{name}", absolute)
+    # Help > What's New reads this alongside the installed Python modules.
+    staged.add_file(f"{lib_dir}/CHANGELOG.md", os.path.join(REPO_ROOT, "CHANGELOG.md"))
     log(f"staged {len(app_source_files())} modules, {len(catalogues)} catalogues "
         f"and {len(guides)} user guide(s)")
 

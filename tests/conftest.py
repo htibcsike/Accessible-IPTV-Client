@@ -20,7 +20,21 @@ target it is given and deletes the one it returns, so handing an old pointer bac
 use-after-free that kills the interpreter with a Windows access violation.
 """
 
+import sys
+
 import pytest
+
+# pytest's optional ``*current`` convenience symlinks are constructed with a
+# relative target under a relative --basetemp. Python 3.14 on Windows creates
+# them as directory links to their parent and then cannot delete them on the
+# next run. They are not part of a test's contract, so suppress just that
+# best-effort shortcut while retaining the workspace-local temporary directory.
+if sys.platform.startswith("win"):
+    try:
+        from _pytest import pathlib as _pytest_pathlib
+        _pytest_pathlib._force_symlink = lambda *_args, **_kwargs: None
+    except Exception:
+        pass
 
 try:
     import wx

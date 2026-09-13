@@ -32,6 +32,7 @@ AudioTrackPreferenceDialog: Any = appmod.AudioTrackPreferenceDialog
 RecordingPaddingDialog: Any = appmod.RecordingPaddingDialog
 ShutdownCountdownDialog: Any = appmod.ShutdownCountdownDialog
 ScheduledRecordingsDialog: Any = appmod.ScheduledRecordingsDialog
+ChangelogDialog: Any = appmod.ChangelogDialog
 WhatsOnNowDialog: Any = appmod.WhatsOnNowDialog
 
 
@@ -120,6 +121,14 @@ def test_scheduled_recordings_dialog_builds(host):
     dlg = ScheduledRecordingsDialog(host, scheduler)
     try:
         assert dlg.list_ctrl.GetColumnCount() == 5
+    finally:
+        dlg.Destroy()
+
+
+def test_changelog_dialog_builds(host):
+    dlg = ChangelogDialog(host)
+    try:
+        assert "Changelog" in dlg.text.GetValue()
     finally:
         dlg.Destroy()
 
@@ -239,6 +248,29 @@ def test_scheduled_recordings_delete_confirms_the_selected_title(host, monkeypat
         dlg._on_delete_selected(None)
         assert prompts == ["Remove scheduled recording 'Evening News' from the list?"]
         assert deleted == ["one"]
+    finally:
+        dlg.Destroy()
+        parent.Destroy()
+
+
+def test_scheduled_recordings_single_item_uses_the_item_confirmation(host, monkeypatch):
+    job = {"id": "one", "status": "scheduled", "title": "Evening News", "channel_name": "TVP 1", "format": "provider_mkv"}
+    prompts = []
+    scheduler = types.SimpleNamespace(list_jobs=lambda **kw: [job], delete_job=lambda _job_id: None)
+
+    class Parent(wx.Frame):
+        def _schedule_window_label(self, _job):
+            return "time"
+
+        def _recording_format_label(self, _fmt):
+            return "format"
+
+    parent = Parent(host)
+    dlg = ScheduledRecordingsDialog(parent, scheduler)
+    monkeypatch.setattr(appmod, "message_box", lambda text, *_args: prompts.append(text) or wx.NO)
+    try:
+        dlg._on_delete_selected(None)
+        assert prompts == ["Remove scheduled recording 'Evening News' from the list?"]
     finally:
         dlg.Destroy()
         parent.Destroy()

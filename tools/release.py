@@ -468,6 +468,17 @@ def validate_bundled_user_guide(dist_dir=None):
         )
 
 
+def validate_bundled_changelog(dist_dir=None):
+    """The Help > What's New window must have the release history to display."""
+    dist_dir = dist_dir or os.path.join(REPO_ROOT, "dist", "iptvclient")
+    changelog = os.path.join(dist_dir, "_internal", "CHANGELOG.md")
+    if not os.path.isfile(changelog):
+        raise RuntimeError(
+            f"{os.path.relpath(changelog, REPO_ROOT)} is missing from the build; "
+            "check main.spec datas."
+        )
+
+
 def sign_executable(exe_path):
     signtool = os.environ.get("SIGNTOOL_PATH", DEFAULT_SIGNTOOL)
     if not os.path.exists(signtool):
@@ -815,6 +826,7 @@ def main():
         validate_ffmpeg_binary(os.path.join(REPO_ROOT, "dist", "iptvclient", "_internal", FFMPEG_NAME))
         validate_no_bundled_config()
         validate_bundled_user_guide()
+        validate_bundled_changelog()
         sign_executable(exe_path)
         signing_thumbprint = get_signing_thumbprint(exe_path)
         installer_path = build_installer(next_version)
@@ -835,6 +847,7 @@ def main():
         validate_ffmpeg_binary(os.path.join(REPO_ROOT, "dist", "iptvclient", "_internal", FFMPEG_NAME))
         validate_no_bundled_config()
         validate_bundled_user_guide()
+        validate_bundled_changelog()
         sign_executable(exe_path)
         signing_thumbprint = get_signing_thumbprint(exe_path)
         installer_path = None

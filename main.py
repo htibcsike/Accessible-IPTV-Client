@@ -491,6 +491,51 @@ class UserGuideDialog(wx.Dialog):
             self.Destroy()
 
 
+def changelog_path() -> str:
+    """Absolute path of the release history shipped with this application."""
+    if getattr(sys, "frozen", False):
+        base = getattr(sys, "_MEIPASS", None) or os.path.dirname(sys.executable)
+    else:
+        base = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base, "CHANGELOG.md")
+
+
+class ChangelogDialog(wx.Dialog):
+    """A read-only, copyable view of the complete bundled release history."""
+
+    def __init__(self, parent, path: Optional[str] = None):
+        super().__init__(parent, title=_("What's New"), size=(820, 580),
+                         style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER | wx.MAXIMIZE_BOX)
+        try:
+            with open(path or changelog_path(), "r", encoding="utf-8") as handle:
+                history = handle.read()
+        except OSError:
+            LOG.exception("Could not read the bundled changelog")
+            history = _("No release history is available.")
+
+        panel = wx.Panel(self)
+        layout = wx.BoxSizer(wx.VERTICAL)
+        self.text = wx.TextCtrl(panel, value=history,
+                                style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_RICH2)
+        self.text.SetName(_("Release history"))
+        close_btn = wx.Button(panel, id=wx.ID_CANCEL, label=_("Close"))
+        layout.Add(self.text, 1, wx.EXPAND | wx.ALL, 10)
+        layout.Add(close_btn, 0, wx.ALIGN_RIGHT | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        panel.SetSizer(layout)
+        self.SetMinSize((520, 380))
+        self.CentreOnParent()
+        close_btn.Bind(wx.EVT_BUTTON, lambda _event: self._finish())
+        self.Bind(wx.EVT_CLOSE, lambda _event: self._finish())
+        self.SetEscapeId(wx.ID_CANCEL)
+        wx.CallAfter(self.text.SetFocus)
+
+    def _finish(self) -> None:
+        if self.IsModal():
+            self.EndModal(wx.ID_CANCEL)
+        else:
+            self.Destroy()
+
+
 # The guide window on screen, so F1 inside it moves it instead of opening another.
 _OPEN_USER_GUIDE: Optional[UserGuideDialog] = None
 _LAST_HELP_REQUEST = 0.0
@@ -2772,10 +2817,12 @@ class IPTVClient(wx.Frame):
                 help_menu = wx.Menu()
                 guide_item = help_menu.Append(wx.ID_ANY, _("User Guide") + "\tF1")
                 help_menu.Bind(wx.EVT_MENU, self._on_user_guide_menu, guide_item)
+                whats_new_item = help_menu.Append(wx.ID_ANY, _("What's New"))
                 logs_item = help_menu.Append(wx.ID_ANY, _("Open Logs Folder"))
                 copy_debug_item = help_menu.Append(wx.ID_ANY, _("Copy Log and Debug Information"))
                 about_item = help_menu.Append(wx.ID_ABOUT, _("About..."))
                 help_menu.Bind(wx.EVT_MENU, self._open_logs_folder, logs_item)
+                help_menu.Bind(wx.EVT_MENU, self._show_changelog_dialog, whats_new_item)
                 help_menu.Bind(wx.EVT_MENU, self._copy_diagnostic_information, copy_debug_item)
                 help_menu.Bind(wx.EVT_MENU, self._show_about_dialog, about_item)
                 menu.AppendSubMenu(help_menu, _("Help"))
@@ -2877,6 +2924,7 @@ class IPTVClient(wx.Frame):
             # F1 before this accelerator can, with the context topic; choosing
             # the item itself opens the guide at its beginning.
             self.user_guide_item = hm.Append(wx.ID_ANY, _("User Guide") + "\tF1")
+            self.whats_new_item = hm.Append(wx.ID_ANY, _("What's New"))
             hm.AppendSeparator()
             self.check_updates_item = hm.Append(wx.ID_ANY, _("Check for Updates..."))
             self.open_logs_item = hm.Append(wx.ID_ANY, _("Open Logs Folder"))
@@ -2933,6 +2981,7 @@ class IPTVClient(wx.Frame):
             self.Bind(wx.EVT_MENU, self._copy_diagnostic_information, self.copy_diagnostic_item)
             self.Bind(wx.EVT_MENU, self._show_about_dialog, m_about)
             self.Bind(wx.EVT_MENU, self._on_user_guide_menu, self.user_guide_item)
+            self.Bind(wx.EVT_MENU, self._show_changelog_dialog, self.whats_new_item)
             self.Bind(wx.EVT_MENU_OPEN, self.on_menu_open)
             self._sync_player_menu_from_config()
             self.min_to_tray_item.Check(self.minimize_to_tray)
@@ -4262,6 +4311,14 @@ class IPTVClient(wx.Frame):
     def _show_about_dialog(self, _event=None):
         """Show the accessible, keyboard-navigable About dialog."""
         dlg = AccessibleAboutDialog(self)
+        try:
+            dlg.ShowModal()
+        finally:
+            dlg.Destroy()
+
+    def _show_changelog_dialog(self, _event=None):
+        """Help > What's New: browse the release history bundled with the app."""
+        dlg = ChangelogDialog(self)
         try:
             dlg.ShowModal()
         finally:
@@ -8979,11 +9036,12 @@ class ScheduledRecordingsDialog(wx.Dialog):
         menu = wx.Menu()
         refresh_item = menu.Append(wx.ID_ANY, _("Refresh"))
         menu.Bind(wx.EVT_MENU, lambda _event: self.refresh(), refresh_item)
-        menu.AppendSeparator()
-        cancel_item = menu.Append(wx.ID_ANY, _("Cancel"))
-        menu.Bind(wx.EVT_MENU, self._on_cancel_selected, cancel_item)
-        delete_item = menu.Append(wx.ID_ANY, _("Delete") + "\tDel")
-        menu.Bind(wx.EVT_MENU, self._on_delete_selected, delete_item)
+        if self.list_ctrl.GetItemCount():
+            menu.AppendSeparator()
+            cancel_item = menu.Append(wx.ID_ANY, _("Cancel"))
+            menu.Bind(wx.EVT_MENU, self._on_cancel_selected, cancel_item)
+            delete_item = menu.Append(wx.ID_ANY, _("Delete") + "\tDel")
+            menu.Bind(wx.EVT_MENU, self._on_delete_selected, delete_item)
         pos = wx.DefaultPosition
         if keyboard:
             idx = self.list_ctrl.GetFirstSelected()
@@ -9067,7 +9125,10 @@ class ScheduledRecordingsDialog(wx.Dialog):
             message_box(_("Select a scheduled recording first."), _("Scheduled Recordings"),
                           wx.OK | wx.ICON_INFORMATION)
             return
-        if len(jobs) == self.list_ctrl.GetItemCount():
+        # A one-row schedule is also technically "all" selected, but callers
+        # need its title to make an informed deletion decision. The all-items
+        # wording is reserved for an actual multi-recording bulk selection.
+        if len(jobs) > 1 and len(jobs) == self.list_ctrl.GetItemCount():
             prompt = _("Remove all scheduled recordings from the list?")
         else:
             title = str(jobs[0].get("display_title") or jobs[0].get("title") or "")

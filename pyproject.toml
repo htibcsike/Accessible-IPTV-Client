@@ -26,7 +26,9 @@ testpaths = ["tests"]
 # The default Windows temp location (%TEMP%\pytest-of-<user>) has broken ACLs on
 # at least one dev machine, which fails every test that uses tmp_path. Keeping
 # scratch dirs inside the repo sidesteps it and needs no per-run flags.
-addopts = "--basetemp=.pytest-tmp"
+# `.pytest-work` replaced `.pytest-tmp` after Python 3.14 left undeletable
+# relative `*current` symlinks in the latter on Windows.
+addopts = "--basetemp=.pytest-work"
 cache_dir = ".pytest-cache"
 filterwarnings = [
     "error::SyntaxWarning",
@@ -37,5 +39,5 @@ filterwarnings = [
 # reports the repo's own top-level modules (channel_names, playlist, ...) as
 # missing when imported from tests/.
 include = ["."]
-exclude = ["build", "dist", ".pytest-tmp", "locale"]
+exclude = ["build", "dist", ".pytest-tmp", ".pytest-work", "locale"]
 extraPaths = ["."]

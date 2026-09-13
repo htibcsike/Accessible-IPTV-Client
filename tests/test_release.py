@@ -48,6 +48,15 @@ def test_build_without_the_user_guide_is_refused(tmp_path):
     release.validate_bundled_user_guide(str(tmp_path))
 
 
+def test_build_without_the_changelog_is_refused(tmp_path):
+    with pytest.raises(RuntimeError, match=r"main\.spec datas"):
+        release.validate_bundled_changelog(str(tmp_path))
+    changelog = tmp_path / "_internal" / "CHANGELOG.md"
+    changelog.parent.mkdir(parents=True)
+    changelog.write_text("# Changelog\n", encoding="utf-8")
+    release.validate_bundled_changelog(str(tmp_path))
+
+
 def test_release_commit_stages_changelog(monkeypatch):
     commands = []
     monkeypatch.setattr(release, "run", lambda command, **_kwargs: commands.append(command))
