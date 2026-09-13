@@ -496,15 +496,15 @@ def test_stop_waits_for_the_container_instead_of_killing_ffmpeg(tmp_path, monkey
     assert not rec.finalize_timed_out
 
 
-def test_shutdown_leaves_ffmpeg_to_finish_on_its_own(tmp_path):
-    """Closing the app must not truncate a recording that is still finalizing."""
+def test_shutdown_terminates_ffmpeg_that_will_not_stop(tmp_path):
+    """Closing the app must not leave an FFmpeg stream process behind."""
     proc = _StubProcess(exits_after_waits=99)  # still working when we give up waiting
     rec = _stub_recording(proc, tmp_path / "big.mp4")
 
     recorder.RecordingManager()._graceful_stop(rec, wait=True, detach=True)
 
-    assert proc.wait_timeouts == [recorder.DETACH_WAIT_SECONDS]
-    assert not proc.terminated and not proc.killed
+    assert proc.wait_timeouts == [recorder.DETACH_WAIT_SECONDS, recorder.TERMINATE_GRACE_SECONDS]
+    assert proc.terminated
     assert rec.detached
 
 

@@ -70,9 +70,10 @@ FINALIZE_GRACE_SECONDS = 30.0
 FINALIZE_REWRITE_BYTES_PER_SECOND = 8 * 1024 * 1024  # pessimistic: USB 2.0 / SMB share
 FINALIZE_TIMEOUT_CAP_SECONDS = 3600.0
 TERMINATE_GRACE_SECONDS = 15.0
-# On shutdown we ask ffmpeg to stop, wait briefly, then leave it alone. It is a separate
-# process and finishes the container on its own; blocking the GUI thread for the full
-# finalize timeout would look like a hang, and killing it would corrupt the recording.
+# On shutdown we ask FFmpeg to stop and give it a short clean-finalize window.  If it
+# remains alive, it must be terminated: an orphan can keep a provider's only stream
+# slot occupied and makes a restarted scheduled recording fail until Task Manager is
+# used to kill it.
 DETACH_WAIT_SECONDS = 5.0
 
 # ffmpeg's stderr for each recording is kept next to the recordings themselves, so a
@@ -630,8 +631,8 @@ class RecordingManager:
     def stop_all(self, *, wait: bool = False, detach: bool = False) -> int:
         """Stop every active recording.
 
-        ``detach`` is for application shutdown: ffmpeg is asked to stop and then left
-        to finish writing its container by itself, however long that takes.
+        ``detach`` is for application shutdown: FFmpeg gets a short clean-finalize
+        window, then is forcibly stopped if it remains alive.
         """
         active = self.list_active()
         for rec in active:
@@ -771,16 +772,27 @@ class RecordingManager:
                 LOG.debug("RecordingManager._graceful_stop._finalize: ignored exception", exc_info=True)
 
             if detach:
-                # Shutdown. Give ffmpeg a moment for the common short recording, then
-                # leave it to finish on its own: it is a separate process and does not
-                # need us alive. Killing it here is exactly what strands a long MP4
-                # with no moov atom.
-                rec.detached = True
+                # Shutdown.  Do not orphan FFmpeg: it can keep the provider stream
+                # open after the application is gone, so the scheduler re-arms the
+                # job at next launch and starts a second competing capture.
                 try:
                     proc.wait(timeout=DETACH_WAIT_SECONDS)
-                    rec.detached = False
+                    return
                 except Exception:
-                    LOG.info("Leaving ffmpeg to finish writing %s after shutdown", rec.out_path)
+                    LOG.warning("ffmpeg did not stop %s within %.0fs during shutdown; "
+                                "terminating it.", rec.out_path, DETACH_WAIT_SECONDS)
+                rec.detached = True
+                try:
+                    proc.terminate()
+                    proc.wait(timeout=TERMINATE_GRACE_SECONDS)
+                    return
+                except Exception:
+                    LOG.warning("ffmpeg did not terminate %s; killing it.", rec.out_path)
+                try:
+                    proc.kill()
+                    proc.wait(timeout=TERMINATE_GRACE_SECONDS)
+                except Exception:
+                    LOG.exception("Could not kill ffmpeg during shutdown: %s", rec.out_path)
                 return
 
             # Finalizing is disk-bound and scales with the size of the capture, so the

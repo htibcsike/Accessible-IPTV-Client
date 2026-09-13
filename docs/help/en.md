@@ -344,7 +344,7 @@ The program is available in English, Spanish, Arabic, Brazilian Portuguese, Fren
 
 ### System tray {#system-tray}
 
-When Options > Minimize to System Tray is on, closing or minimizing the main window hides it in the notification area instead of exiting, so scheduled recordings keep running. Activate the tray icon to bring the window back. Its menu also has Restore, Player Controls, Stop Recording(s) while something is recording, and Exit.
+When Options > Minimize to System Tray is on, closing or minimizing the main window hides it in the notification area instead of exiting, so scheduled recordings keep running. Activate the tray icon to bring the window back. Its menu also has Restore, Player Controls, Stop Recording(s) while something is recording, and Exit. Exit uses the same confirmation as closing the window: every waiting recording is named with its scheduled local time, so you can cancel the exit rather than accidentally skipping it.
 
 To quit the program completely, use File > Exit (Ctrl+Q).
 

@@ -1496,6 +1496,11 @@ class IPTVClient(wx.Frame):
         self._suppress_recording_notifications = False
         self._dvr_dialog = None
         self.dvr_scheduler = None
+        # A tray-menu Exit is a real application exit, unlike clicking the
+        # window close button when "minimize to tray" is enabled.  Keep this
+        # separate from _exit_forced: the latter deliberately bypasses the
+        # recording-loss confirmation for a system shutdown/update.
+        self._exit_from_tray_requested = False
 
         # Shut down the computer once recording is finished (Recordings menu).
         # ``_recorded_since_shutdown_armed`` is what stops the option powering the
@@ -3552,9 +3557,7 @@ class IPTVClient(wx.Frame):
         except Exception:
             LOG.debug("IPTVClient._upcoming_dvr_jobs: ignored exception", exc_info=True)
             return []
-        return [job for job in jobs
-                if job.get("status") in {dvr.STATUS_SCHEDULED, dvr.STATUS_RECORDING,
-                                         dvr.STATUS_STOPPING}]
+        return [job for job in jobs if job.get("status") == dvr.STATUS_SCHEDULED]
     def _cancel_scheduled_recording(self, job_id: str) -> bool:
         job = self._ensure_dvr_scheduler().get_job(job_id)
         if not job:
@@ -3965,14 +3968,13 @@ class IPTVClient(wx.Frame):
         wx.CallAfter(self.Close, True)
 
     def _release_recordings_on_exit(self):
-        """Stop every recording for shutdown without truncating the output files.
+        """Stop every recording before shutdown, including its FFmpeg process.
 
-        ffmpeg is asked to quit and then left alone: finalizing a large MP4 means
-        rewriting the whole file to move the moov atom to the front, which takes far
-        longer than a window close should block for, and killing it partway through
-        is what leaves an unplayable recording. ffmpeg is a separate process and
-        finishes on its own. Anything it was told to do is therefore recorded here,
-        because nothing will be left running to report it afterwards.
+        A process left behind can keep a provider's only stream slot occupied.  On
+        the next launch the durable DVR job is then re-armed and collides with that
+        orphan, producing a misleading second failed recording.  Give FFmpeg a
+        short chance to finalize cleanly, then terminate it so closing the app never
+        requires Task Manager intervention.
         """
         self._suppress_recording_notifications = True
         active = self.recorder.list_active()
@@ -3987,8 +3989,8 @@ class IPTVClient(wx.Frame):
                 job_id = None
             if not job_id:
                 continue
-            note = ("Stopped because the app exited; ffmpeg was left to finish writing "
-                    "the file." if rec.detached else "Stopped because the app exited.")
+            note = ("Stopped because the app exited; ffmpeg had to be terminated."
+                    if rec.detached else "Stopped because the app exited.")
             try:
                 scheduler.mark_finished(str(job_id), success=False,
                                         output_path=rec.out_path, message=note)
@@ -5260,44 +5262,10 @@ class IPTVClient(wx.Frame):
             wx.CallAfter(frame._adjust_volume, delta)
 
     def exit_from_tray(self):
-        self._search_token += 1
-        self._populate_token += 1
-        self._tray_allow_restore = False
-        self._cancel_tray_ready_timer()
-        if self.tray_icon:
-            try:
-                self.tray_icon.RemoveIcon()
-            except Exception:
-                LOG.debug("IPTVClient.exit_from_tray: ignored exception", exc_info=True)
-            self.tray_icon.Destroy()
-            self.tray_icon = None
-        try:
-            self._stop_dvr_scheduler(wait=True)
-        except Exception:
-            LOG.debug("IPTVClient.exit_from_tray: ignored exception", exc_info=True)
-        try:
-            self._release_recordings_on_exit()
-        except Exception:
-            LOG.debug("IPTVClient.exit_from_tray: ignored exception", exc_info=True)
-        # Mirror on_close cleanup so the now-playing timer can't fire into a
-        # destroyed frame and executor threads don't leak when exiting from the tray.
-        try:
-            self._stop_now_playing_timer()
-        except Exception:
-            LOG.debug("IPTVClient.exit_from_tray: ignored exception", exc_info=True)
-        try:
-            self._stop_update_check_timer()
-        except Exception:
-            LOG.debug("IPTVClient.exit_from_tray: ignored exception", exc_info=True)
-        try:
-            self._cancel_epg_autostart_timer()
-        except Exception:
-            LOG.debug("IPTVClient.exit_from_tray: ignored exception", exc_info=True)
-        if hasattr(self, "_epg_executor"):
-            self._epg_executor.shutdown(wait=False)
-        if self.caster:
-            self.caster.stop()
-        self.Destroy()
+        # Use the normal close path.  The old direct cleanup skipped its warning
+        # gate, so a tray Exit could silently abandon a waiting scheduled recording.
+        self._exit_from_tray_requested = True
+        self.Close()
 
     def _enable_tray_restore(self):
         self._tray_ready_timer = None
@@ -5319,7 +5287,9 @@ class IPTVClient(wx.Frame):
             event.Skip()
 
     def on_close(self, event):
-        if self.minimize_to_tray and not self._update_install_pending and not self._exit_forced:
+        if (self.minimize_to_tray and not self._update_install_pending
+                and not self._exit_forced
+                and not getattr(self, "_exit_from_tray_requested", False)):
             wx.CallAfter(self.show_tray_icon)
             event.Veto()
         else:
@@ -5331,12 +5301,16 @@ class IPTVClient(wx.Frame):
                     and not self._exit_forced):
                 pending_jobs = self._upcoming_dvr_jobs()
                 if pending_jobs:
-                    names = ", ".join(
-                        str(job.get("display_title") or job.get("title") or "?")
-                        for job in pending_jobs[:3])
-                    if len(pending_jobs) > 3:
-                        names = _("{first} and {count} more").format(
-                            first=names, count=len(pending_jobs) - 3)
+                    # Include the local recording window with every title.  A title
+                    # alone does not tell a screen-reader user which scheduled item
+                    # would be skipped, particularly when several episodes share a
+                    # name.
+                    names = "\n\n".join(
+                        "{title}\n{time}".format(
+                            title=str(job.get("display_title") or job.get("title") or "?"),
+                            time=self._schedule_window_label(job),
+                        )
+                        for job in pending_jobs)
                     if self.recorder.has_active():
                         warning = _(
                             "A recording is in progress and {count} recording "
@@ -5353,6 +5327,7 @@ class IPTVClient(wx.Frame):
                             warning,
                             _("Scheduled recordings"),
                             wx.YES_NO | wx.ICON_WARNING) != wx.YES:
+                        self._exit_from_tray_requested = False
                         event.Veto()
                         return
                 elif self._catchup_downloads:
@@ -5362,6 +5337,7 @@ class IPTVClient(wx.Frame):
                           "so far is kept.\n\nExit anyway?"),
                         _("Download in progress"), wx.YES_NO | wx.ICON_QUESTION)
                     if answer != wx.YES:
+                        self._exit_from_tray_requested = False
                         event.Veto()
                         return
             self._search_token += 1

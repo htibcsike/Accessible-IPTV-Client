@@ -367,7 +367,8 @@ def test_close_warns_while_a_recording_is_scheduled(monkeypatch):
         _exit_forced=False,
         _catchup_downloads={},
         _upcoming_dvr_jobs=lambda: [
-            {"display_title": "News - TVP 1", "title": "News"}],
+            {"display_title": "News - TVP 1", "title": "News", "start_ts": 0, "stop_ts": 0}],
+        _schedule_window_label=lambda _job: "2026-09-13 19:30 - 20:00",
         recorder=types.SimpleNamespace(has_active=lambda: False),
     )
     vetoed = []
@@ -382,6 +383,7 @@ def test_close_warns_while_a_recording_is_scheduled(monkeypatch):
     main.IPTVClient.on_close(frame, Event())
 
     assert len(answers) == 1
+    assert "News - TVP 1\n2026-09-13 19:30 - 20:00" in answers[0][0]
     assert vetoed == [True]
 
 
@@ -421,6 +423,17 @@ def test_close_without_downloads_does_not_warn(monkeypatch):
 
     assert answers == []
     assert destroyed == [True]
+
+
+def test_tray_exit_uses_the_normal_close_confirmation():
+    """Tray Exit must not bypass the scheduled-recording warning gate."""
+    calls = []
+    frame = types.SimpleNamespace(Close=lambda: calls.append(True))
+
+    main.IPTVClient.exit_from_tray(frame)
+
+    assert frame._exit_from_tray_requested is True
+    assert calls == [True]
 
 
 def test_channel_context_scheduling_offers_the_upcoming_week(monkeypatch):
