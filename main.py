@@ -87,6 +87,33 @@ _INTERNAL_PLAYER_IMPORT_ERROR = None
 # loaded playlist.
 ALL_PLAYLISTS_SCOPE = ""
 
+# Fixed command id shared by the Player menu item and the explicit accelerator
+# table. Keeping the shortcut in the table makes it work consistently on both
+# menu-bar and button-menu platforms; the menu label remains its visible hint.
+_MAIN_ACCEL_SHOW_PLAYER_ID = 4021
+
+
+def _main_window_accelerator_entries():
+    """Return the main-window shortcuts as one duplicate-checkable mapping."""
+    return [
+        (wx.ACCEL_CTRL, ord('M'), 4001),
+        (wx.ACCEL_CTRL, ord('E'), 4002),
+        (wx.ACCEL_CTRL, ord('I'), 4003),
+        (wx.ACCEL_CTRL, ord('Q'), 4004),
+        (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('P'), 4010),  # Play/Pause
+        (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('S'), 4011),  # Stop
+        (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('C'), 4012),  # Cast/connect
+        (wx.ACCEL_CTRL, wx.WXK_UP, 4015),   # Volume up
+        (wx.ACCEL_CTRL, wx.WXK_DOWN, 4016), # Volume down
+        (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('R'), 4017),  # Start/stop recording
+        (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('A'), 4018),  # Account info
+        (wx.ACCEL_CTRL, ord('D'), 4019),  # Add/remove favorite
+        # Windows skips a menu accelerator whose item was greyed out when the
+        # menu last opened, so downloads and the player window live here too.
+        (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('D'), 4020),  # Show downloads
+        (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('J'), _MAIN_ACCEL_SHOW_PLAYER_ID),
+    ]
+
 
 def _source_scope_id(src) -> str:
     """The stable id that tags a playlist's channels for the scope filter."""
@@ -2885,7 +2912,8 @@ class IPTVClient(wx.Frame):
             m_exit = fm.Append(wx.ID_EXIT, _("Exit") + "\tCtrl+Q")
             mb.Append(fm, _("File"))
             pm = wx.Menu()
-            pm_show = pm.Append(wx.ID_ANY, _("Show Built-in Player") + "\tCtrl+Shift+J")
+            pm_show = pm.Append(_MAIN_ACCEL_SHOW_PLAYER_ID,
+                                _("Show Built-in Player") + "\tCtrl+Shift+J")
             pm_toggle = pm.Append(wx.ID_ANY, _("Play/Pause") + "\tCtrl+Shift+P")
             pm_stop = pm.Append(wx.ID_ANY, _("Stop") + "\tCtrl+Shift+S")
             pm_cast = pm.Append(wx.ID_ANY, _("Cast / Connect...") + "\tCtrl+Shift+C")
@@ -2991,7 +3019,6 @@ class IPTVClient(wx.Frame):
             self.Bind(wx.EVT_MENU, self.show_account_info, m_acct)
             self.Bind(wx.EVT_MENU, self.show_cast_dialog, m_cast)
             self.Bind(wx.EVT_MENU, lambda _: self.Close(), m_exit)
-            self.Bind(wx.EVT_MENU, self._menu_show_player, pm_show)
             self.Bind(wx.EVT_MENU, self._menu_toggle_player, pm_toggle)
             self.Bind(wx.EVT_MENU, self._menu_stop_player, pm_stop)
             self.Bind(wx.EVT_MENU, self._menu_cast_from_player, pm_cast)
@@ -3026,26 +3053,7 @@ class IPTVClient(wx.Frame):
         # screen-reader user can filter and move on without hunting for Enter.
         self.filter_box.Bind(wx.EVT_CHAR_HOOK, self._on_filter_char_hook)
 
-        entries = [
-            (wx.ACCEL_CTRL, ord('M'), 4001),
-            (wx.ACCEL_CTRL, ord('E'), 4002),
-            (wx.ACCEL_CTRL, ord('I'), 4003),
-            (wx.ACCEL_CTRL, ord('Q'), 4004),
-            (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('P'), 4010),  # Play/Pause
-            (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('S'), 4011),  # Stop
-            (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('C'), 4012),  # Cast/connect
-            (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('K'), 4013),  # Volume up
-            (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('J'), 4014),  # Volume down
-            (wx.ACCEL_CTRL, wx.WXK_UP, 4015),   # Volume up (Ctrl+Up)
-            (wx.ACCEL_CTRL, wx.WXK_DOWN, 4016), # Volume down (Ctrl+Down)
-            (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('R'), 4017),  # Start/stop recording
-            (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('A'), 4018),  # Account info
-            (wx.ACCEL_CTRL, ord('D'), 4019),  # Add/remove favorite
-            # Show Downloads. Here as well as on the View menu: Windows skips a
-            # menu accelerator whose item was greyed out when the menu last
-            # opened, and that is exactly the state before a first download.
-            (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('D'), 4020),
-        ]
+        entries = _main_window_accelerator_entries()
         atable = wx.AcceleratorTable(entries)
         self.SetAcceleratorTable(atable)
         self.Bind(wx.EVT_MENU, self.show_manager, id=4001)
@@ -3055,14 +3063,14 @@ class IPTVClient(wx.Frame):
         self.Bind(wx.EVT_MENU, self._menu_toggle_player, id=4010)
         self.Bind(wx.EVT_MENU, self._menu_stop_player, id=4011)
         self.Bind(wx.EVT_MENU, self._menu_cast_from_player, id=4012)
-        self.Bind(wx.EVT_MENU, lambda _: self._adjust_internal_volume(+2), id=4013)
-        self.Bind(wx.EVT_MENU, lambda _: self._adjust_internal_volume(-2), id=4014)
         self.Bind(wx.EVT_MENU, lambda _: self._adjust_internal_volume(+2), id=4015)
         self.Bind(wx.EVT_MENU, lambda _: self._adjust_internal_volume(-2), id=4016)
         self.Bind(wx.EVT_MENU, self._record_selected, id=4017)
         self.Bind(wx.EVT_MENU, self.show_account_info, id=4018)
         self.Bind(wx.EVT_MENU, self._toggle_favorite_selected, id=4019)
         self.Bind(wx.EVT_MENU, self._show_catchup_downloads, id=4020)
+        self.Bind(wx.EVT_MENU, self._menu_show_player,
+                  id=_MAIN_ACCEL_SHOW_PLAYER_ID)
 
         # Intentionally do not event.Skip() to avoid duplicate handling.
 
@@ -5183,6 +5191,8 @@ class IPTVClient(wx.Frame):
             wx.CallAfter(lambda: frame._on_cast())
 
     def _menu_show_player(self, _=None):
+        if not self._internal_player_has_media():
+            return
         try:
             frame = self._ensure_internal_player()
         except Exception:
