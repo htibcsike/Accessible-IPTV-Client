@@ -1,6 +1,10 @@
 # Changelog
 
 Readable release history for Accessible IPTV Client. New entries are prepended automatically by `build.bat release`. Older entries were reconstructed from the [Forgejo mirror](https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client).
+## v1.135.3 - 2026-09-14
+
+- Restore show-player shortcut
+
 ## v1.135.2 - 2026-09-13
 
 - Enforce Teleelevidenie single-stream sessions
