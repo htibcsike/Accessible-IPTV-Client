@@ -273,7 +273,7 @@ The program can record any channel to a file while you watch something else, or 
 
 Recording what you are watching in the built-in player uses the same connection to the provider, so it works even with accounts that allow only one stream at a time.
 
-Stopping a recording can take a moment while the file is finished. Closing the program lets running recordings finish their files on their own.
+Stopping a recording can take a moment while its file is finalized. When the application exits, any recordings still in progress are also stopped; the program first gives them a short grace period to finalize their files.
 
 ### Recording format {#recording-formats}
 
@@ -291,12 +291,13 @@ To record a programme in the future, choose Schedule Recording on a programme in
 Recordings > Scheduled Recordings lists every scheduled, running and finished recording with its time, title, channel, status and format.
 
 - The Applications key or Shift+F10 on a recording opens its menu: Refresh, Cancel and Delete.
-- Delete removes the highlighted recording from the list; a running one is stopped first after asking you.
+- More than one recording can be selected; Ctrl+A selects every row.
+- Delete or Numpad Delete asks for confirmation, then removes the selected recordings. If any selected recordings are still in progress, the program stops them first.
 - Escape closes the window.
 
 Scheduled recordings start by themselves while the program is running, even when it is minimized to the system tray. The window refreshes by itself when you open it and whenever a recording starts, finishes or is cancelled, so the Refresh command is rarely needed.
 
-The program asks before it closes while a recording is scheduled, because the schedule only runs while the program is open. If you close it anyway, the scheduled recording will not start.
+The program asks before it closes while any scheduled recordings are still waiting to start, because they can only start while the program is running. If you close it anyway, the waiting recordings will not start.
 
 ### Schedule padding {#schedule-padding}
 
