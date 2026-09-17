@@ -128,7 +128,10 @@ def test_scheduled_recordings_dialog_builds(host):
 def test_changelog_dialog_builds(host):
     dlg = ChangelogDialog(host)
     try:
-        assert "Changelog" in dlg.text.GetValue()
+        history = dlg.text.GetValue()
+        assert history.startswith("# What's New")
+        assert "Readable release history" not in history
+        assert "\n## v" in history
     finally:
         dlg.Destroy()
 

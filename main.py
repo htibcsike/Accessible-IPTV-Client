@@ -41,6 +41,7 @@ from options import (
 # else is how the UI and the database drift apart.
 from channel_names import canonicalize_name, strip_noise_words
 import app_meta
+import release_notes
 import updater
 from playlist import (
     EPGDatabase, EPGManagerDialog, PlaylistManagerDialog,
@@ -528,14 +529,20 @@ def changelog_path() -> str:
 
 
 class ChangelogDialog(wx.Dialog):
-    """A read-only, copyable view of the complete bundled release history."""
+    """A read-only, copyable view of the complete bundled release history.
+
+    Section labels and the notes of the newest releases are shown in the
+    interface language when translated (see release_notes.py); the rest stays
+    English.
+    """
 
     def __init__(self, parent, path: Optional[str] = None):
         super().__init__(parent, title=_("What's New"), size=(820, 580),
                          style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER | wx.MAXIMIZE_BOX)
         try:
             with open(path or changelog_path(), "r", encoding="utf-8") as handle:
-                history = handle.read()
+                history = release_notes.localize_changelog(
+                    handle.read(), app_meta.APP_DISPLAY_NAME)
         except OSError:
             LOG.exception("Could not read the bundled changelog")
             history = _("No release history is available.")
@@ -4559,7 +4566,9 @@ class IPTVClient(wx.Frame):
             LOG.info("Skipping update prompt for v%s: an update is already in progress",
                      latest_version)
             return
-        summary = updater.summarize_release_notes(notes)
+        # Bodies published before v1.135.5 still carry commit prefixes ("fix: ").
+        summary = updater.summarize_release_notes(
+            release_notes.localize_notes(notes, clean=True))
         message = (
             _("Update available: v{latest} (current v{current}).").format(
                 latest=latest_version, current=current_version)

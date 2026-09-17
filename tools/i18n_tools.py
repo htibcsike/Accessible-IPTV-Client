@@ -6,7 +6,8 @@ gettext, Babel or polib to work on translations:
     python tools/i18n_tools.py extract   # rebuild locale/iptvclient.pot from _()/ngettext()
     python tools/i18n_tools.py compile   # compile every locale/<lang>/LC_MESSAGES/*.po -> *.mo
     python tools/i18n_tools.py update    # merge new POT strings into each existing .po
-    python tools/i18n_tools.py all       # extract + update + compile
+    python tools/i18n_tools.py notes     # refresh the release-notes catalogues
+    python tools/i18n_tools.py all       # extract + update + notes + compile
 
 Extraction is AST-based: it finds calls to ``_( "literal" )`` and
 ``ngettext("singular", "plural", n)`` and records source locations. f-strings and
@@ -28,6 +29,13 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOCALE_DIR = os.path.join(REPO_ROOT, "locale")
 DOMAIN = "iptvclient"
 POT_PATH = os.path.join(LOCALE_DIR, DOMAIN + ".pot")
+# Release-note bullets live in their own domain (see release_notes.py). Its
+# catalogues may be partly untranslated; the completeness tests skip them.
+NOTES_DOMAIN = "release_notes"
+NOTES_POT_PATH = os.path.join(LOCALE_DIR, NOTES_DOMAIN + ".pot")
+CHANGELOG_PATH = os.path.join(REPO_ROOT, "CHANGELOG.md")
+NOTES_WINDOW = 3  # keep in step with release_notes.RELEASE_WINDOW
+NO_NOTABLE_CHANGES = "No notable changes."  # an iptvclient string, not a note
 
 # Application modules that contain user-facing text. Extra files are harmless
 # (no marker calls = no strings), but listing them keeps extraction deterministic.
@@ -43,6 +51,7 @@ SOURCE_FILES = [
     "external_player.py",
     "casting.py",
     "stream_proxy.py",
+    "release_notes.py",
 ]
 
 # ``N_`` marks a string for extraction without translating it at that point
@@ -127,10 +136,40 @@ def _escape(text):
     )
 
 
-def _pot_header():
+def extract_release_notes(changelog_path=CHANGELOG_PATH, window=NOTES_WINDOW):
+    """Bullets of the newest ``window`` releases in CHANGELOG.md, as POT messages.
+
+    Section headings are not collected: their labels are ordinary application
+    strings. Bullets of older releases are left out, which retires them from
+    the catalogues on the next ``update``.
+    """
+    messages = {}
+    if not os.path.exists(changelog_path):
+        return messages
+    rel = os.path.basename(changelog_path)
+    releases = 0
+    with open(changelog_path, "r", encoding="utf-8") as fh:
+        for lineno, raw in enumerate(fh, 1):
+            line = raw.strip()
+            if line.startswith("## v"):
+                releases += 1
+                if releases > window:
+                    break
+                continue
+            if not releases or not line.startswith("- "):
+                continue
+            msgid = line[2:].strip()
+            if not msgid or msgid == NO_NOTABLE_CHANGES:
+                continue
+            entry = messages.setdefault(msgid, {"plural": None, "locations": set()})
+            entry["locations"].add((rel, lineno))
+    return messages
+
+
+def _pot_header(title="Translation template for Accessible IPTV Client."):
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M%z")
     return (
-        "# Translation template for Accessible IPTV Client.\n"
+        f"# {title}\n"
         "# Copyright (C) 2025-2026 Serrebi and contributors.\n"
         "# This file is distributed under the same license as the application.\n"
         "#\n"
@@ -147,9 +186,9 @@ def _pot_header():
     )
 
 
-def write_pot(messages, pot_path=POT_PATH):
+def write_pot(messages, pot_path=POT_PATH, title=None):
     os.makedirs(os.path.dirname(pot_path), exist_ok=True)
-    chunks = [_pot_header()]
+    chunks = [_pot_header(title) if title else _pot_header()]
     for msgid in sorted(messages):
         info = messages[msgid]
         chunks.append("\n")
@@ -325,7 +364,8 @@ def compile_po(po_path, mo_path=None):
     return mo_path, translated
 
 
-def find_po_files():
+def find_po_files(domain=None):
+    """Every ``locale/<lang>/LC_MESSAGES/*.po``, or only ``<domain>.po`` files."""
     found = []
     if not os.path.isdir(LOCALE_DIR):
         return found
@@ -334,7 +374,7 @@ def find_po_files():
         if not os.path.isdir(messages_dir):
             continue
         for name in sorted(os.listdir(messages_dir)):
-            if name.endswith(".po"):
+            if name.endswith(".po") and (domain is None or name == domain + ".po"):
                 found.append(os.path.join(messages_dir, name))
     return found
 
@@ -380,6 +420,37 @@ def update_po(po_path, messages):
 # --------------------------------------------------------------------------- #
 # CLI
 # --------------------------------------------------------------------------- #
+def _seed_po(po_path, template_po):
+    """Create an empty catalogue that reuses ``template_po``'s header."""
+    header = next((e for e in parse_po(template_po) if e.get("msgid", "") == ""), None)
+    chunks = ['msgid ""\n', 'msgstr ""\n']
+    for piece in (header or {}).get("msgstr", "").split("\n"):
+        piece = piece.strip()
+        if piece:
+            chunks.append(f'"{_escape(piece)}\\n"\n')
+    with open(po_path, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("".join(chunks) + "\n")
+
+
+def cmd_notes(changelog_path=CHANGELOG_PATH):
+    """Rebuild the release-notes template and fold it into every language.
+
+    A language gets a ``release_notes.po`` beside its ``iptvclient.po``;
+    translations of bullets still in the window are kept, retired ones dropped.
+    """
+    messages = extract_release_notes(changelog_path)
+    write_pot(messages, NOTES_POT_PATH,
+              title="Release-note translation template for Accessible IPTV Client.")
+    for main_po in find_po_files(DOMAIN):
+        po = os.path.join(os.path.dirname(main_po), NOTES_DOMAIN + ".po")
+        if not os.path.exists(po):
+            _seed_po(po, main_po)
+        update_po(po, messages)
+    print(f"Extracted {len(messages)} release-note strings -> "
+          f"{os.path.relpath(NOTES_POT_PATH, REPO_ROOT)}")
+    return messages
+
+
 def cmd_extract():
     messages = extract_messages(SOURCE_FILES)
     write_pot(messages)
@@ -401,14 +472,14 @@ def cmd_compile():
 def cmd_update(messages=None):
     if messages is None:
         messages = extract_messages(SOURCE_FILES)
-    for po in find_po_files():
+    for po in find_po_files(DOMAIN):
         update_po(po, messages)
         print(f"Updated {os.path.relpath(po, REPO_ROOT)}")
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="i18n tooling for Accessible IPTV Client")
-    parser.add_argument("command", choices=["extract", "compile", "update", "all"])
+    parser.add_argument("command", choices=["extract", "compile", "update", "notes", "all"])
     args = parser.parse_args(argv)
     if args.command == "extract":
         cmd_extract()
@@ -416,9 +487,12 @@ def main(argv=None):
         cmd_compile()
     elif args.command == "update":
         cmd_update()
+    elif args.command == "notes":
+        cmd_notes()
     elif args.command == "all":
         messages = cmd_extract()
         cmd_update(messages)
+        cmd_notes()
         cmd_compile()
 
 

@@ -14,6 +14,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, REPO_ROOT)
 
 import app_meta  # noqa: E402
+import release_notes as notes_format  # noqa: E402
 import updater  # noqa: E402
 
 DEFAULT_SIGNTOOL = r"C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe"
@@ -95,15 +96,20 @@ def classify_commit(commit):
     text = f"{subject}\n{body}".lower()
     if "breaking change" in text or re.search(r"^[a-z]+\!:", subject.lower()):
         return "Breaking"
-    if subject.lower().startswith("feat") or "feature" in text:
+    lowered = subject.lower()
+    if lowered.startswith("feat") or "feature" in text:
         return "Features"
-    if subject.lower().startswith("fix") or "fix" in text or "bug" in text:
+    if re.match(r"^[a-z]+\((?:accessibility|a11y|nvda)\)", lowered) or lowered.startswith("a11y"):
+        return "Accessibility"
+    if lowered.startswith("docs"):
+        return "Documentation"
+    if lowered.startswith("fix") or "fix" in text or "bug" in text:
         return "Fixes"
     return "Other"
 
 
 def summarize_commits(commits):
-    sections = {"Breaking": [], "Features": [], "Fixes": [], "Other": []}
+    sections = {key: [] for key in notes_format.SECTION_KEYS}
     for commit in commits:
         subject = commit["subject"]
         if not subject or subject.lower().startswith("merge"):
@@ -113,39 +119,40 @@ def summarize_commits(commits):
 
 
 def build_release_notes(commits):
+    """Release notes grouped under the English section labels, bullets cleaned.
+
+    The same text becomes the GitHub release body, the update manifest summary
+    and the CHANGELOG.md entry, so the update prompt and What's New can
+    translate it through the same catalogues.
+    """
     sections = summarize_commits(commits)
     output = []
-    for title in ("Breaking", "Features", "Fixes", "Other"):
-        items = sections[title]
+    seen = set()
+    for key, label in notes_format.SECTIONS:
+        items = []
+        for subject in sections[key]:
+            item = notes_format.clean_item(subject)
+            if item and item.lower() not in seen:
+                seen.add(item.lower())
+                items.append(item)
         if not items:
             continue
-        output.append(f"## {title}")
+        output.append(f"## {label}")
         output.extend([f"- {item}" for item in items])
         output.append("")
-    return "\n".join(output).strip() or "## Other\n- No notable changes."
+    return ("\n".join(output).strip()
+            or f"## Other changes\n- {notes_format.NO_NOTABLE_CHANGES}")
 
 
-def _changelog_item(text):
-    """Turn a conventional-commit subject into a readable changelog bullet."""
-    item = (text or "").strip()
-    item = re.sub(r"^(?:feat|fix|perf|docs|test|chore|build|ci)(?:\([^)]+\))?!?:\s*", "", item, flags=re.I)
-    if not item:
-        return ""
-    return item[0].upper() + item[1:]
-
-
-def _changelog_items(release_notes):
-    items = []
-    for line in (release_notes or "").splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        if line.startswith("- "):
-            line = line[2:].strip()
-        item = _changelog_item(line)
-        if item:
-            items.append(item)
-    return items or ["No notable changes."]
+def _changelog_lines(notes):
+    """The body of a CHANGELOG.md entry: ``### Label`` groups of bullets."""
+    lines = []
+    for label, items in notes_format.parse_sections(notes):
+        if label:
+            lines.extend([f"### {label}", ""])
+        lines.extend(f"- {item}" for item in items)
+        lines.append("")
+    return lines or [f"- {notes_format.NO_NOTABLE_CHANGES}", ""]
 
 
 def _changelog_header():
@@ -158,7 +165,7 @@ def _changelog_header():
     )
 
 
-def update_changelog(version, release_notes, release_date=None, path=None):
+def update_changelog(version, notes, release_date=None, path=None):
     """Prepend a release entry and refuse to overwrite an existing version."""
     path = path or CHANGELOG_PATH
     release_date = release_date or time.strftime("%Y-%m-%d")
@@ -176,9 +183,8 @@ def update_changelog(version, release_notes, release_date=None, path=None):
     if not existing.startswith("# Changelog\n"):
         raise RuntimeError("CHANGELOG.md must begin with '# Changelog'.")
     body = existing[len(header):] if existing.startswith(header) else existing.split("\n", 1)[1].lstrip("\n")
-    lines = [entry_heading, ""]
-    lines.extend(f"- {item}" for item in _changelog_items(release_notes))
-    entry = "\n".join(lines) + "\n\n"
+    lines = [entry_heading, ""] + _changelog_lines(notes)
+    entry = "\n".join(lines) + "\n"
     with open(path, "w", encoding="utf-8", newline="\n") as handle:
         handle.write(header + entry + body)
 
@@ -382,12 +388,18 @@ def sync_translations():
     compiles every catalogue to ``.mo`` so the build always bundles up-to-date
     translations. New source strings that lack a translation fall back to
     English until a translator fills them in.
+
+    The release-notes catalogues are refreshed from the CHANGELOG.md entry
+    written just before this runs: the new release's bullets join them and the
+    release that fell out of the window retires. Those catalogues are allowed
+    to be incomplete, so this never blocks a release.
     """
     import i18n_tools
 
     print("Syncing translation catalogues...")
     messages = i18n_tools.cmd_extract()
     i18n_tools.cmd_update(messages)
+    i18n_tools.cmd_notes(CHANGELOG_PATH)
     i18n_tools.cmd_compile()
 
 
@@ -838,7 +850,7 @@ def main():
         return
 
     if args.mode == "build":
-        release_notes = "## Other\n- Local build."
+        release_notes = "## Other changes\n- Local build."
         sync_translations()
         validate_ffmpeg_binary()
         clean_build_artifacts()

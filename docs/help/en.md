@@ -357,6 +357,8 @@ When an update is available, you are told what is new and asked whether to insta
 
 On Linux, install the new package over the old one instead.
 
+Help > What's New lists the changes in every version, newest first. The section headings are always in your language. The notes for the three most recent versions are shown in your language once they have been translated, which can happen a little after a release; until then, and for older versions, they are in English.
+
 ## Troubleshooting {#troubleshooting}
 
 - Help > Open Logs Folder opens the folder with the program's log files, including the log of guide imports and one log per recording.

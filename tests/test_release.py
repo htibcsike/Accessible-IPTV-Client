@@ -27,8 +27,41 @@ def test_update_changelog_prepends_readable_release_notes(tmp_path):
 
     content = path.read_text(encoding="utf-8")
     assert content.startswith("# Changelog\n\n")
-    assert "## v1.2.3 - 2026-07-10\n\n- Prevent stale focus\n- Update help" in content
+    assert ("## v1.2.3 - 2026-07-10\n\n"
+            "### Bug fixes\n\n- Prevent stale focus\n\n"
+            "### Other changes\n\n- Update help\n\n") in content
     assert content.index("## v1.2.3") < content.index("Existing release history.")
+
+
+def test_update_changelog_without_sections_or_notes(tmp_path):
+    path = tmp_path / "CHANGELOG.md"
+    path.write_text("# Changelog\n\nOld.\n", encoding="utf-8")
+    release.update_changelog("1.0.1", "- fix: a\n- fix: a\n", release_date="2026-01-01", path=path)
+    release.update_changelog("1.0.2", "", release_date="2026-01-02", path=path)
+    content = path.read_text(encoding="utf-8")
+    assert "## v1.0.1 - 2026-01-01\n\n- A\n\n" in content
+    assert "## v1.0.2 - 2026-01-02\n\n- No notable changes.\n\n" in content
+
+
+def test_release_notes_group_commits_under_labels():
+    commits = [
+        {"subject": "feat: record from the player", "body": ""},
+        {"subject": "fix(accessibility): announce focus", "body": ""},
+        {"subject": "fix: stop crash", "body": ""},
+        {"subject": "fix: stop crash", "body": ""},
+        {"subject": "docs(i18n): fix Hungarian guide", "body": ""},
+        {"subject": "Merge pull request #1", "body": ""},
+        {"subject": "Tidy things", "body": ""},
+    ]
+    assert release.build_release_notes(commits) == (
+        "## Features\n- Record from the player\n\n"
+        "## Accessibility\n- Announce focus\n\n"
+        "## Bug fixes\n- Stop crash\n\n"
+        "## Documentation\n- Fix Hungarian guide\n\n"
+        "## Other changes\n- Tidy things"
+    )
+    assert release.determine_bump(commits) == "minor"
+    assert release.build_release_notes([]) == "## Other changes\n- No notable changes."
 
 
 def test_update_changelog_refuses_duplicate_version(tmp_path):

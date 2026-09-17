@@ -29,6 +29,9 @@ LOG = logging.getLogger(__name__)
 
 # gettext domain -> locale/<lang>/LC_MESSAGES/iptvclient.mo
 DOMAIN = "iptvclient"
+# Release-note bullets (see release_notes.py). A separate domain so translations
+# can lag behind a release without failing the completeness tests.
+NOTES_DOMAIN = "release_notes"
 LANG_AUTO = "auto"
 
 # (code, native display label) shown in the Options > Language selector.
@@ -55,6 +58,7 @@ _LANGUAGE_LABELS = [
 SHIPPED_CATALOGS = ("es", "ar", "pt", "fr", "de", "ru", "tr", "it", "pl", "hi", "zh", "ja", "hu")
 
 _translation: _gettext.NullTranslations = _gettext.NullTranslations()
+_notes_translation: _gettext.NullTranslations = _gettext.NullTranslations()
 _active_code: str = LANG_AUTO
 
 
@@ -125,22 +129,24 @@ def _resolve_candidates(lang_code: str):
 
 def set_language(lang_code: str) -> str:
     """Activate ``lang_code`` ("auto"/"en"/"hu"/...). Returns the stored preference code."""
-    global _translation, _active_code
+    global _translation, _notes_translation, _active_code
     code = (lang_code or LANG_AUTO).strip().lower()
     if code in ("", "automatic", "system", "default"):
         code = LANG_AUTO
     _active_code = code
     candidates = _resolve_candidates(code)
-    if not candidates:
-        _translation = _gettext.NullTranslations()
-    else:
-        try:
-            _translation = _gettext.translation(
-                DOMAIN, locale_dir(), languages=candidates, fallback=True
-            )
-        except Exception:
-            _translation = _gettext.NullTranslations()
+    _translation = _load_catalogue(DOMAIN, candidates)
+    _notes_translation = _load_catalogue(NOTES_DOMAIN, candidates)
     return _active_code
+
+
+def _load_catalogue(domain, candidates):
+    if not candidates:
+        return _gettext.NullTranslations()
+    try:
+        return _gettext.translation(domain, locale_dir(), languages=candidates, fallback=True)
+    except Exception:
+        return _gettext.NullTranslations()
 
 
 def get_language() -> str:
@@ -157,6 +163,11 @@ def resolved_language() -> str:
 def gettext(message: str) -> str:
     """Translate ``message`` using the active catalogue (falls back to the source text)."""
     return _translation.gettext(message)
+
+
+def notes_gettext(message: str) -> str:
+    """Translate a release-note bullet; untranslated bullets stay English."""
+    return _notes_translation.gettext(message)
 
 
 def ngettext(singular: str, plural: str, n: int) -> str:
