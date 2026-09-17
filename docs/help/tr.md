@@ -259,10 +259,11 @@ Program, siz başka bir şey izlerken ya da hiçbir şey oynamazken herhangi bir
 - Kayıtlar > Kaydı durdur vurgulanan kanalın kaydını durdurur; Tüm kayıtları durdur hepsini durdurur.
 - Kayıtlar > Kayıt klasörünü aç, dosyaların kaydedildiği klasörü açar.
 - Kayıtlar > İndirme klasörünü ayarla... o klasörü seçer. Geri izleme indirmeleri de oraya gider.
+- Her kayıt, kayıt klasörünün içindeki logs klasörüne bir günlük dosyası yazar. Bir kayıt uyarı ya da hatayla biterse iletisi, günlükte bulunan uyarı, hata ve ölümcül hata satırlarının bir özetini içerir. Ayrıntılar için günlüğü açın.
 
 Yerleşik oynatıcıda izlediğinizi kaydetmek sağlayıcıyla aynı bağlantıyı kullanır; bir kerede yalnızca bir akışa izin veren hesaplarda bile çalışır.
 
-Kaydı durdurmak, dosya tamamlanırken bir an sürebilir. Programı kapatmak, devam eden kayıtların dosyalarını kendi başlarına bitirmesine izin verir.
+Bir kaydı durdurmak, dosyası tamamlanırken biraz sürebilir. Uygulamadan çıkıldığında hâlâ süren kayıtlar da durdurulur; program önce dosyalarını tamamlamaları için onlara kısa bir süre tanır.
 
 ### Kayıt biçimi {#recording-formats}
 
@@ -280,14 +281,17 @@ Gelecek bir programı kaydetmek için EPG'yi görüntüle..., Şimdi yayında ya
 Kayıtlar > Zamanlanmış kayıtlar... her zamanlanmış, süren ve bitmiş kaydı zamanı, başlığı, kanalı, durumu ve biçimiyle listeler.
 
 - Bir kayıtta Uygulamalar tuşu ya da Shift+F10 menüsünü açar: Yenile, İptal ve Sil.
-- Sil, vurgulanan kaydı listeden çıkarır; süren olan önce sorulup durdurulur.
+- Birden fazla kayıt seçilebilir; Ctrl+A tüm satırları seçer.
+- Delete ya da sayısal tuş takımındaki Delete onay ister, ardından seçili kayıtları kaldırır. Seçili kayıtlardan süren varsa program önce onları durdurur.
 - Escape pencereyi kapatır.
 
-Zamanlanmış kayıtlar, program çalışırken kendi kendine başlar; sistem tepsisine küçültülmüşken bile.
+Zamanlanmış kayıtlar, program çalışırken kendi kendine başlar; sistem tepsisine küçültülmüşken bile. Pencere, açtığınızda ve bir kayıt her başladığında, bittiğinde ya da iptal edildiğinde kendiliğinden yenilenir; bu yüzden Yenile komutuna nadiren gerek olur.
+
+Başlamayı bekleyen zamanlanmış kayıtlar varken program kapanmadan önce sorar, çünkü bu kayıtlar yalnızca program çalışırken başlayabilir. Yine de kapatırsanız bekleyen kayıtlar başlamaz.
 
 ### Zamanlama payı {#schedule-padding}
 
-Programlar nadiren tam zamanında başlar ve biter. Kayıtlar > Zamanlama payı..., zamanlanmış bir kaydın bir programdan kaç dakika önce başlayacağını ve bitiminden kaç dakika sonra kaydetmeye devam edeceğini ayarlar. Elle yapılan kayıtlar etkilenmez.
+Programlar nadiren tam zamanında başlar ve biter. Kayıtlar > Zamanlama payı..., zamanlanmış bir kaydın bir programdan kaç dakika önce başlayacağını ve bitiminden kaç dakika sonra kaydetmeye devam edeceğini ayarlar. Elle yapılan kayıtlar etkilenmez. Geri izleme indirmeleri de aynı dakikaları kullanır: sağlayıcı sunabildiği sürece sağlayıcıdan istenen arşiv aralığı bu dakikalar kadar genişletilir ve dosya programdan kısa gelirse indirme yeniden denenir.
 
 ### Kayıtlardan sonra kapatma {#shutdown-after-recordings}
 
@@ -331,7 +335,7 @@ Program; İngilizce, İspanyolca, Arapça, Brezilya Portekizcesi, Fransızca, Al
 
 ### Sistem tepsisi {#system-tray}
 
-Seçenekler > Sistem tepsisine küçült açıkken, ana pencereyi kapatmak ya da küçültmek programdan çıkmak yerine onu bildirim alanında gizler; böylece zamanlanmış kayıtlar sürer. Pencereyi geri getirmek için tepsi simgesini etkinleştirin. Menüsünde ayrıca Geri yükle, Oynatıcı denetimleri, bir şey kaydedilirken Kaydı durdur, ve Çıkış vardır.
+Seçenekler > Sistem tepsisine küçült açıkken, ana pencereyi kapatmak ya da küçültmek programdan çıkmak yerine onu bildirim alanında gizler; böylece zamanlanmış kayıtlar sürer. Pencereyi geri getirmek için tepsi simgesini etkinleştirin. Menüsünde ayrıca Geri yükle, Oynatıcı denetimleri, bir şey kaydedilirken Kaydı durdur, ve Çıkış vardır. Çıkış, pencereyi kapatmakla aynı onayı kullanır: bekleyen her kayıt zamanlanmış yerel saatiyle birlikte belirtilir, böylece kaydı yanlışlıkla atlamak yerine çıkışı iptal edebilirsiniz.
 
 Programdan tümüyle çıkmak için Dosya > Çıkış (Ctrl+Q) kullanın.
 
@@ -342,6 +346,8 @@ Windows'ta program kendini güncelleyebilir. Yardım > Güncellemeleri denetle..
 Güncelleme olduğunda, yenilikler söylenir ve kurulup kurulmayacağı sorulur. İndirme, bir şey kurulmadan önce denetlenir. Program güncelleme sırasında kapanır ve sonunda kendiliğinden yeniden başlar; sonra başarılı olup olmadığını söyler. Ayarlarınız, sık kullanılanlarınız ve kayıtlarınız korunur.
 
 Linux'ta, yeni paketi eskinin üzerine kurun.
+
+Yardım > Yenilikler, her sürümdeki değişiklikleri en yeniden başlayarak listeler. Bölüm başlıkları her zaman sizin dilinizdedir. En yeni üç sürümün notları çevrildikten sonra sizin dilinizde gösterilir; bu, sürümden biraz sonra olabilir. O zamana kadar ve daha eski sürümler için notlar İngilizcedir.
 
 ## Sorun giderme {#troubleshooting}
 

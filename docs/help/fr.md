@@ -260,10 +260,11 @@ Le programme peut enregistrer n'importe quelle chaîne dans un fichier pendant q
 - Enregistrements > Arrêter l'enregistrement arrête l'enregistrement de la chaîne surlignée, et Arrêter tous les enregistrements les arrête tous.
 - Enregistrements > Ouvrir le dossier des enregistrements ouvre le dossier où les fichiers sont enregistrés.
 - Enregistrements > Définir le dossier de téléchargement… choisit ce dossier. Les téléchargements de rattrapage y vont aussi.
+- Chaque enregistrement écrit un fichier journal dans le dossier logs du dossier des enregistrements. Si un enregistrement se termine par un avertissement ou une erreur, son message contient un résumé des lignes d'avertissement, d'erreur et d'erreur fatale trouvées dans le journal. Ouvrez le journal pour les détails.
 
 Enregistrer ce que vous regardez dans le lecteur intégré utilise la même connexion au fournisseur ; cela fonctionne donc même avec les comptes qui n'autorisent qu'un flux à la fois.
 
-Arrêter un enregistrement peut prendre un moment pendant que le fichier se finalise. Fermer le programme laisse les enregistrements en cours finir leurs fichiers d'eux-mêmes.
+L'arrêt d'un enregistrement peut prendre un moment, le temps de finaliser son fichier. Quand l'application se ferme, les enregistrements encore en cours sont eux aussi arrêtés ; le programme leur laisse d'abord un court délai pour finaliser leurs fichiers.
 
 ### Format d'enregistrement {#recording-formats}
 
@@ -281,14 +282,17 @@ Pour enregistrer une émission à venir, choisissez Programmer l'enregistrement 
 Enregistrements > Enregistrements programmés… liste chaque enregistrement programmé, en cours et terminé avec son heure, son titre, sa chaîne, son état et son format.
 
 - La touche Applications ou Shift+F10 sur un enregistrement ouvre son menu : Actualiser, Annuler et Supprimer.
-- Supprimer retire l'enregistrement surligné de la liste ; un enregistrement en cours est d'abord arrêté après vous avoir demandé.
+- Vous pouvez sélectionner plusieurs enregistrements ; Ctrl+A sélectionne toutes les lignes.
+- Suppr ou Suppr du pavé numérique demande une confirmation, puis retire les enregistrements sélectionnés. Si certains sont encore en cours, le programme les arrête d'abord.
 - Échap ferme la fenêtre.
 
-Les enregistrements programmés démarrent tout seuls pendant que le programme tourne, même réduit dans la barre d'état système.
+Les enregistrements programmés démarrent tout seuls pendant que le programme tourne, même réduit dans la barre d'état système. La fenêtre s'actualise d'elle-même à l'ouverture et chaque fois qu'un enregistrement démarre, se termine ou est annulé ; la commande Actualiser est donc rarement utile.
+
+Le programme demande confirmation avant de se fermer si des enregistrements programmés attendent encore de démarrer, car ils ne peuvent démarrer que pendant que le programme tourne. Si vous le fermez quand même, ces enregistrements ne démarreront pas.
 
 ### Marge de programmation {#schedule-padding}
 
-Les émissions commencent et finissent rarement exactement à l'heure. Enregistrements > Marge de programmation… fixe combien de minutes avant une émission un enregistrement programmé commence, et combien de minutes après sa fin il continue d'enregistrer. Les enregistrements manuels ne sont pas concernés.
+Les émissions commencent et finissent rarement exactement à l'heure. Enregistrements > Marge de programmation… fixe combien de minutes avant une émission un enregistrement programmé commence, et combien de minutes après sa fin il continue d'enregistrer. Les enregistrements manuels ne sont pas concernés. Les téléchargements de rattrapage utilisent les mêmes minutes : la plage d'archive demandée au fournisseur est élargie d'autant chaque fois qu'il peut la fournir, et le téléchargement est relancé quand le fichier reçu est plus court que l'émission.
 
 ### Éteindre après les enregistrements {#shutdown-after-recordings}
 
@@ -332,7 +336,7 @@ Le programme est disponible en anglais, espagnol, arabe, portugais du Brésil, f
 
 ### Barre d'état système {#system-tray}
 
-Quand Options > Réduire dans la barre d'état système est activé, fermer ou réduire la fenêtre principale la cache dans la zone de notification au lieu de quitter, ainsi les enregistrements programmés continuent. Activez l'icône de la barre pour ramener la fenêtre. Son menu a aussi Restaurer, Commandes du lecteur, Arrêter l'(les) enregistrement(s) pendant qu'un enregistrement tourne, et Quitter.
+Quand Options > Réduire dans la barre d'état système est activé, fermer ou réduire la fenêtre principale la cache dans la zone de notification au lieu de quitter, ainsi les enregistrements programmés continuent. Activez l'icône de la barre pour ramener la fenêtre. Son menu a aussi Restaurer, Commandes du lecteur, Arrêter l'(les) enregistrement(s) pendant qu'un enregistrement tourne, et Quitter. Quitter utilise la même confirmation que la fermeture de la fenêtre : chaque enregistrement en attente est cité avec son heure locale prévue, pour que vous puissiez annuler la sortie plutôt que de le manquer par erreur.
 
 Pour quitter complètement le programme, utilisez Fichier > Quitter (Ctrl+Q).
 
@@ -343,6 +347,8 @@ Sous Windows, le programme peut se mettre à jour lui-même. Aide > Vérifier le
 Quand une mise à jour est disponible, on vous dit ce qui est nouveau et on vous demande si vous voulez l'installer. Le téléchargement est vérifié avant que quoi que ce soit soit installé. Le programme se ferme pendant la mise à jour et redémarre tout seul à la fin, puis vous dit si elle a réussi. Vos réglages, favoris et enregistrements sont conservés.
 
 Sous Linux, installez plutôt le nouveau paquet par-dessus l'ancien.
+
+Aide > Nouveautés liste les changements de chaque version, de la plus récente à la plus ancienne. Les titres de section sont toujours dans votre langue. Les notes des trois versions les plus récentes s'affichent dans votre langue une fois traduites, ce qui peut arriver peu après une publication ; d'ici là, et pour les versions plus anciennes, elles sont en anglais.
 
 ## Dépannage {#troubleshooting}
 

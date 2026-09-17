@@ -260,10 +260,11 @@ O programa pode gravar qualquer canal para um arquivo enquanto você assiste out
 - Gravações > Parar gravação para a gravação do canal destacado, e Parar todas as gravações para todas.
 - Gravações > Abrir pasta de gravações abre a pasta onde os arquivos são guardados.
 - Gravações > Definir pasta de descarga… escolhe essa pasta. As transferências de replay também vão para lá.
+- Cada gravação escreve um arquivo de registro na pasta logs, dentro da pasta de gravações. Se uma gravação terminar com um aviso ou erro, a mensagem inclui um resumo das linhas de aviso, erro e erro fatal encontradas no registro. Abra o registro para ver os detalhes.
 
 Gravar o que você está assistindo no reprodutor integrado usa a mesma conexão com o provedor, então funciona mesmo com contas que permitem só um fluxo por vez.
 
-Parar uma gravação pode levar um momento enquanto o arquivo é concluído. Fechar o programa deixa as gravações em andamento concluírem seus arquivos por conta própria.
+Parar uma gravação pode levar um momento enquanto o arquivo é finalizado. Ao sair do aplicativo, as gravações ainda em andamento também são paradas; antes, o programa lhes dá um curto intervalo para finalizar os arquivos.
 
 ### Formato de gravação {#recording-formats}
 
@@ -281,14 +282,17 @@ Para gravar um programa futuro, escolha Agendar gravação sobre um programa em 
 Gravações > Gravações agendadas… lista cada gravação agendada, em andamento e concluída com hora, título, canal, status e formato.
 
 - A tecla de menu de aplicativo ou Shift+F10 sobre uma gravação abre o menu dela: Atualizar, Cancelar e Eliminar.
-- Eliminar remove a gravação destacada da lista; uma em andamento é parada primeiro, depois de perguntar.
+- É possível selecionar mais de uma gravação; Ctrl+A seleciona todas as linhas.
+- Delete ou Delete do teclado numérico pede confirmação e depois remove as gravações selecionadas. Se alguma delas ainda estiver em andamento, o programa a para primeiro.
 - Escape fecha a janela.
 
-As gravações agendadas começam sozinhas enquanto o programa está em execução, mesmo minimizado para a bandeja do sistema.
+As gravações agendadas começam sozinhas enquanto o programa está em execução, mesmo minimizado para a bandeja do sistema. A janela se atualiza sozinha ao ser aberta e sempre que uma gravação começa, termina ou é cancelada, por isso o comando Atualizar raramente é necessário.
+
+O programa pergunta antes de fechar se ainda houver gravações agendadas esperando para começar, porque elas só começam com o programa aberto. Se você fechá-lo mesmo assim, essas gravações não vão começar.
 
 ### Margem de agendamento {#schedule-padding}
 
-Programas raramente começam e terminam exatamente no horário. Gravações > Margem de agendamento… define quantos minutos antes de um programa uma gravação agendada começa, e quantos minutos depois do fim dela ela continua gravando. As gravações manuais não são afetadas.
+Programas raramente começam e terminam exatamente no horário. Gravações > Margem de agendamento… define quantos minutos antes de um programa uma gravação agendada começa, e quantos minutos depois do fim dela ela continua gravando. As gravações manuais não são afetadas. Os downloads de replay usam os mesmos minutos: a janela de arquivo pedida ao provedor é ampliada com eles sempre que o provedor puder atendê-la, e o download é repetido quando o arquivo chega mais curto que o programa.
 
 ### Desligar após as gravações {#shutdown-after-recordings}
 
@@ -332,7 +336,7 @@ O programa está disponível em inglês, espanhol, árabe, português do Brasil,
 
 ### Bandeja do sistema {#system-tray}
 
-Quando Opções > Minimizar para a bandeja do sistema está ligado, fechar ou minimizar a janela principal a esconde na área de notificação em vez de sair, então as gravações agendadas continuam. Ative o ícone da bandeja para trazer a janela de volta. O menu dele também tem Restaurar, Controles do reprodutor, Parar gravação(ões) enquanto algo grava, e Sair.
+Quando Opções > Minimizar para a bandeja do sistema está ligado, fechar ou minimizar a janela principal a esconde na área de notificação em vez de sair, então as gravações agendadas continuam. Ative o ícone da bandeja para trazer a janela de volta. O menu dele também tem Restaurar, Controles do reprodutor, Parar gravação(ões) enquanto algo grava, e Sair. Sair usa a mesma confirmação que fechar a janela: cada gravação em espera é listada com o horário local agendado, para que você possa cancelar a saída em vez de perdê-la sem querer.
 
 Para sair do programa por completo, use Arquivo > Sair (Ctrl+Q).
 
@@ -343,6 +347,8 @@ No Windows o programa pode se atualizar sozinho. Ajuda > Verificar atualizaçõe
 Quando há uma atualização, você é avisado do que há de novo e perguntado se quer instalá-la. O download é verificado antes de qualquer coisa ser instalada. O programa se fecha durante a atualização e reinicia sozinho ao terminar, depois diz se deu certo. Suas configurações, favoritos e gravações são mantidos.
 
 No Linux, instale o pacote novo por cima do antigo.
+
+Ajuda > Novidades lista as mudanças de cada versão, da mais recente para a mais antiga. Os títulos das seções estão sempre no seu idioma. As notas das três versões mais recentes aparecem no seu idioma depois de traduzidas, o que pode acontecer pouco depois do lançamento; até lá, e nas versões mais antigas, aparecem em inglês.
 
 ## Solução de problemas {#troubleshooting}
 

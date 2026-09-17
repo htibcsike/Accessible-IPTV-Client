@@ -260,10 +260,11 @@ El programa puede grabar cualquier canal a un archivo mientras ve otra cosa, o s
 - Grabaciones > Detener grabación detiene la grabación del canal resaltado, y Detener todas las grabaciones las detiene todas.
 - Grabaciones > Abrir carpeta de grabaciones abre la carpeta donde se guardan los archivos.
 - Grabaciones > Establecer carpeta de descarga… elige esa carpeta. Las descargas de repetición también van allí.
+- Cada grabación escribe un archivo de registro en la carpeta logs, dentro de la carpeta de grabaciones. Si una grabación termina con una advertencia o un error, su mensaje incluye un resumen de las líneas de advertencia, error y error grave encontradas en el registro. Abra el registro para ver los detalles.
 
 Grabar lo que ve en el reproductor integrado usa la misma conexión al proveedor, así que funciona incluso con cuentas que permiten un solo flujo a la vez.
 
-Detener una grabación puede tardar un momento mientras el archivo se finaliza. Al cerrar el programa, las grabaciones en curso terminan sus archivos por sí solas.
+Detener una grabación puede tardar un momento mientras se finaliza su archivo. Al salir de la aplicación también se detienen las grabaciones que sigan en curso; antes, el programa les concede un breve margen para finalizar sus archivos.
 
 ### Formato de grabación {#recording-formats}
 
@@ -281,14 +282,17 @@ Para grabar un programa futuro, elija Programar grabación sobre un programa en 
 Grabaciones > Grabaciones programadas… enumera cada grabación programada, en curso y terminada con su hora, título, canal, estado y formato.
 
 - La tecla de aplicaciones o Shift+F10 sobre una grabación abre su menú: Actualizar, Cancelar y Eliminar.
-- Eliminar quita la grabación resaltada de la lista; una en curso se detiene primero tras preguntarle.
+- Se puede seleccionar más de una grabación; Ctrl+A selecciona todas las filas.
+- Supr o Supr del teclado numérico pide confirmación y luego elimina las grabaciones seleccionadas. Si alguna de ellas sigue en curso, el programa la detiene primero.
 - Escape cierra la ventana.
 
-Las grabaciones programadas comienzan solas mientras el programa está en ejecución, incluso minimizado a la bandeja del sistema.
+Las grabaciones programadas comienzan solas mientras el programa está en ejecución, incluso minimizado a la bandeja del sistema. La ventana se actualiza sola al abrirla y cada vez que una grabación empieza, termina o se cancela, así que la orden Actualizar rara vez hace falta.
+
+El programa pregunta antes de cerrarse si quedan grabaciones programadas esperando a empezar, porque solo pueden empezar mientras el programa está abierto. Si lo cierra de todos modos, esas grabaciones no se iniciarán.
 
 ### Margen de programación {#schedule-padding}
 
-Los programas rara vez empiezan y terminan exactamente a tiempo. Grabaciones > Margen de programación… fija cuántos minutos antes de un programa comienza una grabación programada, y cuántos minutos después de su fin sigue grabando. Las grabaciones manuales no se ven afectadas.
+Los programas rara vez empiezan y terminan exactamente a tiempo. Grabaciones > Margen de programación… fija cuántos minutos antes de un programa comienza una grabación programada, y cuántos minutos después de su fin sigue grabando. Las grabaciones manuales no se ven afectadas. Las descargas de repetición usan los mismos minutos: la ventana de archivo que se pide al proveedor se amplía con ellos siempre que el proveedor pueda servirla, y la descarga se reintenta cuando el archivo llega más corto que el programa.
 
 ### Apagado tras las grabaciones {#shutdown-after-recordings}
 
@@ -332,7 +336,7 @@ El programa está disponible en inglés, español, árabe, portugués de Brasil,
 
 ### Bandeja del sistema {#system-tray}
 
-Cuando Opciones > Minimizar a la bandeja del sistema está activado, cerrar o minimizar la ventana principal la oculta en el área de notificación en lugar de salir, así las grabaciones programadas siguen. Active el icono de la bandeja para recuperar la ventana. Su menú también tiene Restaurar, Controles del reproductor, Detener grabación(es) mientras algo graba, y Salir.
+Cuando Opciones > Minimizar a la bandeja del sistema está activado, cerrar o minimizar la ventana principal la oculta en el área de notificación en lugar de salir, así las grabaciones programadas siguen. Active el icono de la bandeja para recuperar la ventana. Su menú también tiene Restaurar, Controles del reproductor, Detener grabación(es) mientras algo graba, y Salir. Salir usa la misma confirmación que cerrar la ventana: cada grabación en espera se nombra con su hora local programada, para que pueda cancelar la salida en vez de saltársela sin querer.
 
 Para salir del programa por completo, use Archivo > Salir (Ctrl+Q).
 
@@ -343,6 +347,8 @@ En Windows el programa puede actualizarse solo. Ayuda > Buscar actualizaciones�
 Cuando hay una actualización, se le dice qué hay de nuevo y se le pregunta si instalarla. La descarga se comprueba antes de instalar nada. El programa se cierra durante la actualización y se reinicia solo al terminar; luego le dice si tuvo éxito. Sus ajustes, favoritos y grabaciones se conservan.
 
 En Linux, instale el paquete nuevo sobre el antiguo.
+
+Ayuda > Novedades muestra los cambios de cada versión, de la más reciente a la más antigua. Los títulos de las secciones siempre están en su idioma. Las notas de las tres versiones más recientes se muestran en su idioma una vez traducidas, lo que puede ocurrir poco después de una versión; hasta entonces, y para versiones anteriores, aparecen en inglés.
 
 ## Solución de problemas {#troubleshooting}
 

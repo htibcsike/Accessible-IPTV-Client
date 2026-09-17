@@ -260,10 +260,11 @@ Das Programm kann jeden Sender in eine Datei aufnehmen, während Sie etwas ander
 - Aufnahmen > Aufnahme stoppen stoppt die Aufnahme des markierten Senders, Alle Aufnahmen stoppen stoppt alle.
 - Aufnahmen > Aufnahmeordner öffnen öffnet den Ordner, in dem die Dateien landen.
 - Aufnahmen > Download-Ordner festlegen… wählt diesen Ordner. Nachholen-Downloads landen ebenfalls dort.
+- Jede Aufnahme schreibt eine Protokolldatei in den Ordner logs im Aufnahmeordner. Endet eine Aufnahme mit einer Warnung oder einem Fehler, enthält ihre Meldung eine Zusammenfassung der im Protokoll gefundenen Warnungs-, Fehler- und Schwerwiegender-Fehler-Zeilen. Die Einzelheiten stehen im Protokoll.
 
 Das Aufnehmen des laufenden Programms im integrierten Player benutzt dieselbe Verbindung zum Anbieter und funktioniert daher auch bei Konten, die nur einen Stream zurzeit erlauben.
 
-Das Stoppen einer Aufnahme kann einen Moment dauern, bis die Datei fertiggestellt ist. Beim Schließen des Programms dürfen laufende Aufnahmen ihre Dateien eigenständig abschließen.
+Das Stoppen einer Aufnahme kann einen Moment dauern, bis ihre Datei fertiggestellt ist. Beim Beenden des Programms werden noch laufende Aufnahmen ebenfalls gestoppt; das Programm gibt ihnen vorher eine kurze Frist, um ihre Dateien fertigzustellen.
 
 ### Aufnahmeformat {#recording-formats}
 
@@ -281,14 +282,17 @@ Um eine künftige Sendung aufzunehmen, wählen Sie Aufnahme planen auf einer Sen
 Aufnahmen > Geplante Aufnahmen… listet jede geplante, laufende und fertige Aufnahme mit Zeit, Titel, Sender, Status und Format.
 
 - Die Anwendungstaste oder Shift+F10 auf einer Aufnahme öffnet ihr Menü: Aktualisieren, Abbrechen und Löschen.
-- Löschen entfernt die markierte Aufnahme aus der Liste; eine laufende wird vorher nach Rückfrage gestoppt.
+- Es lassen sich mehrere Aufnahmen markieren; Ctrl+A markiert alle Zeilen.
+- Entf oder Entf auf dem Ziffernblock fragt nach und entfernt dann die markierten Aufnahmen. Laufen davon noch welche, stoppt das Programm sie zuerst.
 - Escape schließt das Fenster.
 
-Geplante Aufnahmen starten von selbst, während das Programm läuft, auch wenn es in den Infobereich minimiert ist.
+Geplante Aufnahmen starten von selbst, während das Programm läuft, auch wenn es in den Infobereich minimiert ist. Das Fenster aktualisiert sich von selbst, wenn Sie es öffnen und wann immer eine Aufnahme beginnt, endet oder abgebrochen wird; der Befehl Aktualisieren ist daher selten nötig.
+
+Das Programm fragt vor dem Schließen nach, solange geplante Aufnahmen noch auf ihren Start warten, denn sie können nur starten, während das Programm läuft. Schließen Sie es trotzdem, starten die wartenden Aufnahmen nicht.
 
 ### Zeitpuffer für Aufnahmen {#schedule-padding}
 
-Sendungen beginnen und enden selten genau auf die Minute. Aufnahmen > Zeitpuffer für Aufnahmen… legt fest, wie viele Minuten vor einer Sendung eine geplante Aufnahme beginnt und wie viele Minuten nach ihrem Ende sie weiterläuft. Manuelle Aufnahmen sind nicht betroffen.
+Sendungen beginnen und enden selten genau auf die Minute. Aufnahmen > Zeitpuffer für Aufnahmen… legt fest, wie viele Minuten vor einer Sendung eine geplante Aufnahme beginnt und wie viele Minuten nach ihrem Ende sie weiterläuft. Manuelle Aufnahmen sind nicht betroffen. Nachholen-Downloads verwenden dieselben Minuten: Das beim Anbieter angeforderte Archivfenster wird um sie erweitert, wann immer der Anbieter es liefern kann, und der Download wird wiederholt, wenn die Datei kürzer als die Sendung ankommt.
 
 ### Herunterfahren nach Aufnahmen {#shutdown-after-recordings}
 
@@ -332,7 +336,7 @@ Das Programm gibt es auf Englisch, Spanisch, Arabisch, Brasilianisches Portugies
 
 ### Infobereich {#system-tray}
 
-Wenn Optionen > In den Infobereich minimieren eingeschaltet ist, versteckt das Schließen oder Minimieren des Hauptfensters es im Benachrichtigungsbereich, statt das Programm zu beenden; so laufen geplante Aufnahmen weiter. Aktivieren Sie das Symbol im Infobereich, um das Fenster zurückzuholen. Sein Menü hat auch Wiederherstellen, Player-Steuerung, während einer Aufnahme Aufnahme(n) stoppen, sowie Beenden.
+Wenn Optionen > In den Infobereich minimieren eingeschaltet ist, versteckt das Schließen oder Minimieren des Hauptfensters es im Benachrichtigungsbereich, statt das Programm zu beenden; so laufen geplante Aufnahmen weiter. Aktivieren Sie das Symbol im Infobereich, um das Fenster zurückzuholen. Sein Menü hat auch Wiederherstellen, Player-Steuerung, während einer Aufnahme Aufnahme(n) stoppen, sowie Beenden. Beenden verwendet dieselbe Rückfrage wie das Schließen des Fensters: Jede wartende Aufnahme wird mit ihrer geplanten Ortszeit genannt, damit Sie das Beenden abbrechen können, statt sie versehentlich auszulassen.
 
 Um das Programm ganz zu beenden, benutzen Sie Datei > Beenden (Ctrl+Q).
 
@@ -343,6 +347,8 @@ Unter Windows kann sich das Programm selbst aktualisieren. Hilfe > Nach Updates 
 Gibt es ein Update, erfahren Sie, was neu ist, und werden gefragt, ob Sie es installieren wollen. Der Download wird geprüft, bevor etwas installiert wird. Das Programm schließt sich während des Updates und startet danach von selbst neu, dann meldet es, ob es gelang. Ihre Einstellungen, Favoriten und Aufnahmen bleiben erhalten.
 
 Unter Linux installieren Sie stattdessen das neue Paket über das alte.
+
+Hilfe > Neuigkeiten listet die Änderungen jeder Version auf, die neueste zuerst. Die Abschnittsüberschriften sind immer in Ihrer Sprache. Die Hinweise zu den drei neuesten Versionen erscheinen in Ihrer Sprache, sobald sie übersetzt sind, was kurz nach einer Veröffentlichung geschehen kann; bis dahin, und für ältere Versionen, sind sie auf Englisch.
 
 ## Fehlerbehebung {#troubleshooting}
 

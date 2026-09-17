@@ -260,10 +260,11 @@ Il programma può registrare qualsiasi canale in un file mentre si guarda altro,
 - Registrazioni > Ferma la registrazione ferma la registrazione del canale evidenziato, e Ferma tutte le registrazioni le ferma tutte.
 - Registrazioni > Apri cartella delle registrazioni apre la cartella dove i file sono salvati.
 - Registrazioni > Imposta cartella download… sceglie quella cartella. I download dei replay vanno lì anch'essi.
+- Ogni registrazione scrive un file di registro nella cartella logs dentro la cartella delle registrazioni. Se una registrazione termina con un avviso o un errore, il suo messaggio include un riepilogo delle righe di avviso, errore ed errore fatale trovate nel registro. Apri il registro per i dettagli.
 
 Registrare ciò che si guarda nel lettore integrato usa la stessa connessione al provider, quindi funziona anche con account che permettono un solo flusso alla volta.
 
-Fermare una registrazione può richiedere un attimo mentre il file viene concluso. Chiudere il programma lascia che le registrazioni in corso concludano i loro file da sole.
+Fermare una registrazione può richiedere un momento mentre il file viene finalizzato. Quando l'applicazione si chiude, anche le registrazioni ancora in corso vengono fermate; il programma concede prima un breve margine per finalizzare i file.
 
 ### Formato di registrazione {#recording-formats}
 
@@ -281,14 +282,17 @@ Per registrare una trasmissione futura, scegliere Programma registrazione su una
 Registrazioni > Registrazioni programmate… elenca ogni registrazione programmata, in corso e conclusa con orario, titolo, canale, stato e formato.
 
 - Il tasto applicazioni o Shift+F10 su una registrazione apre il suo menu: Aggiorna, Annulla ed Elimina.
-- Elimina toglie la registrazione evidenziata dall'elenco; una in corso viene prima fermata dopo aver chiesto.
+- Si può selezionare più di una registrazione; Ctrl+A seleziona tutte le righe.
+- Canc o Canc del tastierino numerico chiede conferma, poi rimuove le registrazioni selezionate. Se alcune sono ancora in corso, il programma le ferma prima.
 - Escape chiude la finestra.
 
-Le registrazioni programmate partono da sole mentre il programma gira, anche minimizzato nella barra delle applicazioni.
+Le registrazioni programmate partono da sole mentre il programma gira, anche minimizzato nella barra delle applicazioni. La finestra si aggiorna da sola quando la apri e ogni volta che una registrazione inizia, finisce o viene annullata, quindi il comando Aggiorna serve di rado.
+
+Il programma chiede conferma prima di chiudersi se ci sono registrazioni programmate ancora in attesa di iniziare, perché possono iniziare solo mentre il programma è aperto. Se lo chiudi comunque, le registrazioni in attesa non partiranno.
 
 ### Margine di programmazione {#schedule-padding}
 
-Le trasmissioni raramente iniziano e finiscono esattamente in orario. Registrazioni > Margine di programmazione… fissa quanti minuti prima di una trasmissione parte una registrazione programmata, e quanti minuti dopo la sua fine continua a registrare. Le registrazioni manuali non sono toccate.
+Le trasmissioni raramente iniziano e finiscono esattamente in orario. Registrazioni > Margine di programmazione… fissa quanti minuti prima di una trasmissione parte una registrazione programmata, e quanti minuti dopo la sua fine continua a registrare. Le registrazioni manuali non sono toccate. I download dei replay usano gli stessi minuti: la finestra d'archivio richiesta al provider viene allargata di tanto ogni volta che il provider può fornirla, e il download viene ritentato quando il file arriva più corto del programma.
 
 ### Spegnere dopo le registrazioni {#shutdown-after-recordings}
 
@@ -332,7 +336,7 @@ Il programma è disponibile in inglese, spagnolo, arabo, portoghese brasiliano, 
 
 ### Barra delle applicazioni {#system-tray}
 
-Quando Opzioni > Riduci a icona nella barra delle applicazioni è attiva, chiudere o minimizzare la finestra principale la nasconde nell'area di notifica invece di uscire, così le registrazioni programmate continuano. Attivare l'icona della barra per riportare la finestra. Il suo menu ha anche Ripristina, Controlli del lettore, Ferma registrazione(i) mentre qualcosa registra, ed Esci.
+Quando Opzioni > Riduci a icona nella barra delle applicazioni è attiva, chiudere o minimizzare la finestra principale la nasconde nell'area di notifica invece di uscire, così le registrazioni programmate continuano. Attivare l'icona della barra per riportare la finestra. Il suo menu ha anche Ripristina, Controlli del lettore, Ferma registrazione(i) mentre qualcosa registra, ed Esci. Esci usa la stessa conferma della chiusura della finestra: ogni registrazione in attesa è indicata con l'ora locale programmata, così puoi annullare l'uscita invece di saltarla per sbaglio.
 
 Per uscire del tutto dal programma, usare File > Esci (Ctrl+Q).
 
@@ -343,6 +347,8 @@ Su Windows il programma può aggiornarsi da solo. Aiuto > Controlla aggiornament
 Quando c'è un aggiornamento, si dice cosa c'è di nuovo e si chiede se installarlo. Il download è controllato prima di installare qualsiasi cosa. Il programma si chiude durante l'aggiornamento e riparte da solo alla fine, poi dice se è riuscito. Impostazioni, preferiti e registrazioni sono conservati.
 
 Su Linux, installare il nuovo pacchetto sopra il vecchio.
+
+Aiuto > Novità elenca le modifiche di ogni versione, dalla più recente. I titoli delle sezioni sono sempre nella tua lingua. Le note delle tre versioni più recenti compaiono nella tua lingua una volta tradotte, cosa che può avvenire poco dopo un rilascio; fino ad allora, e per le versioni precedenti, sono in inglese.
 
 ## Risoluzione dei problemi {#troubleshooting}
 

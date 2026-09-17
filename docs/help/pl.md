@@ -260,10 +260,11 @@ Program może nagrywać dowolny kanał do pliku, podczas gdy oglądasz coś inne
 - Nagrania > Zatrzymaj nagrywanie zatrzymuje nagrywanie podświetlonego kanału, a Zatrzymaj wszystkie nagrania zatrzymuje wszystkie.
 - Nagrania > Otwórz folder nagrań otwiera folder, gdzie zapisywane są pliki.
 - Nagrania > Ustaw folder pobierania... wybiera ten folder. Pobieranie powtórek też tam trafia.
+- Każde nagranie zapisuje plik dziennika w folderze logs wewnątrz folderu nagrań. Jeśli nagranie kończy się ostrzeżeniem lub błędem, jego komunikat zawiera podsumowanie znalezionych w dzienniku wierszy z ostrzeżeniami, błędami i błędami krytycznymi. Szczegóły znajdziesz w dzienniku.
 
 Nagrywanie oglądanego programu we wbudowanym odtwarzaczu używa tego samego połączenia z dostawcą, więc działa także przy kontach pozwalających na jeden strumień naraz.
 
-Zatrzymanie nagrania może chwilę zająć, dopóki plik jest kończony. Zamknięcie programu pozwala bieżącym nagraniom samodzielnie dokończyć swoje pliki.
+Zatrzymanie nagrania może chwilę potrwać, zanim jego plik zostanie domknięty. Przy zamykaniu aplikacji trwające jeszcze nagrania również są zatrzymywane; program najpierw daje im krótką chwilę na domknięcie plików.
 
 ### Format nagrywania {#recording-formats}
 
@@ -281,14 +282,17 @@ Aby nagrać przyszłą audycję, wybierz Zaplanuj nagrywanie na audycji w Pokaż
 Nagrania > Zaplanowane nagrania... wypisuje każde zaplanowane, trwające i zakończone nagranie z czasem, tytułem, kanałem, statusem i formatem.
 
 - Klawisz aplikacji albo Shift+F10 na nagraniu otwiera jego menu: Odśwież, Anuluj i Usuń.
-- Usuń zabiera podświetlone nagranie z listy; trwające jest najpierw zatrzymywane po zapytaniu.
+- Można zaznaczyć więcej niż jedno nagranie; Ctrl+A zaznacza wszystkie wiersze.
+- Delete lub Delete na klawiaturze numerycznej prosi o potwierdzenie, a potem usuwa zaznaczone nagrania. Jeśli któreś z nich jeszcze trwa, program najpierw je zatrzymuje.
 - Escape zamyka okno.
 
-Zaplanowane nagrania startują same, gdy program działa, także zminimalizowany do zasobnika systemowego.
+Zaplanowane nagrania startują same, gdy program działa, także zminimalizowany do zasobnika systemowego. Okno odświeża się samo po otwarciu i za każdym razem, gdy nagranie się zaczyna, kończy lub zostaje anulowane, więc polecenie Odśwież rzadko jest potrzebne.
+
+Program pyta przed zamknięciem, jeśli zaplanowane nagrania wciąż czekają na start, bo mogą się zacząć tylko wtedy, gdy program działa. Jeśli mimo to go zamkniesz, oczekujące nagrania się nie zaczną.
 
 ### Margines nagrywania {#schedule-padding}
 
-Audycje rzadko zaczynają się i kończą dokładnie na czas. Nagrania > Margines nagrywania... ustawia, ile minut przed audycją zaczyna się zaplanowane nagranie i ile minut po jej końcu nagrywa dalej. Nagrania ręczne nie są dotknięte.
+Audycje rzadko zaczynają się i kończą dokładnie na czas. Nagrania > Margines nagrywania... ustawia, ile minut przed audycją zaczyna się zaplanowane nagranie i ile minut po jej końcu nagrywa dalej. Nagrania ręczne nie są dotknięte. Pobieranie powtórek używa tych samych minut: okno archiwum żądane od dostawcy jest o nie poszerzane, gdy tylko dostawca może je udostępnić, a pobieranie jest ponawiane, gdy plik okaże się krótszy niż program.
 
 ### Wyłączanie po nagraniach {#shutdown-after-recordings}
 
@@ -332,7 +336,7 @@ Program jest dostępny po angielsku, hiszpańsku, arabsku, portugalsku brazylijs
 
 ### Zasobnik systemowy {#system-tray}
 
-Gdy Opcje > Minimalizuj do zasobnika systemowego jest włączone, zamknięcie albo zminimalizowanie okna głównego ukrywa je w obszarze powiadomień zamiast kończyć program, więc zaplanowane nagrania trwają dalej. Aktywuj ikonę zasobnika, aby przywrócić okno. Jego menu ma też Przywróć, Sterowanie odtwarzaczem, Zatrzymaj nagranie(a) gdy coś nagrywa, oraz Zakończ.
+Gdy Opcje > Minimalizuj do zasobnika systemowego jest włączone, zamknięcie albo zminimalizowanie okna głównego ukrywa je w obszarze powiadomień zamiast kończyć program, więc zaplanowane nagrania trwają dalej. Aktywuj ikonę zasobnika, aby przywrócić okno. Jego menu ma też Przywróć, Sterowanie odtwarzaczem, Zatrzymaj nagranie(a) gdy coś nagrywa, oraz Zakończ. Zakończ używa tego samego potwierdzenia co zamknięcie okna: każde oczekujące nagranie jest podane z zaplanowaną godziną lokalną, więc możesz anulować zamknięcie, zamiast przypadkiem je pominąć.
 
 Aby całkiem zakończyć program, użyj Plik > Zakończ (Ctrl+Q).
 
@@ -343,6 +347,8 @@ Pod Windows program może aktualizować się sam. Pomoc > Sprawdź aktualizacje.
 Gdy jest aktualizacja, dowiesz się, co nowego, i zostaniesz zapytany, czy ją zainstalować. Pobieranie jest sprawdzane, zanim cokolwiek zostanie zainstalowane. Program zamyka się podczas aktualizacji i sam restartuje po jej zakończeniu, po czym mówi, czy się udała. Twoje ustawienia, ulubione i nagrania są zachowywane.
 
 Pod Linuksem zainstaluj raczej nowy pakiet na starym.
+
+Pomoc > Co nowego pokazuje zmiany w każdej wersji, od najnowszej. Nagłówki sekcji są zawsze w Twoim języku. Informacje o trzech najnowszych wersjach są wyświetlane w Twoim języku po przetłumaczeniu, co może nastąpić chwilę po wydaniu; do tego czasu, a także dla starszych wersji, są po angielsku.
 
 ## Rozwiązywanie problemów {#troubleshooting}
 
