@@ -49,8 +49,8 @@ def test_update_helper_supports_elevated_installer_mode_and_portable_config():
     helper = (ROOT / "update_helper.ps1").read_text(encoding="utf-8")
 
     assert "$InstallerPath" in helper
-    assert "Start-Process -FilePath $InstallerPath" in helper
-    assert "-Verb RunAs" in helper
+    assert "$psi.FileName = $InstallerPath" in helper
+    assert '$psi.Verb = "runas"' in helper
     assert helper.index("if ($InstallerPath)") < helper.index("Portable zip updates replace the app directory")
     assert 'Join-Path $env:APPDATA "AccessibleIPTVClient"' in helper
     assert '$newConfig = Join-Path $InstallDir "iptvclient.conf"' in helper
@@ -84,8 +84,9 @@ def test_update_helper_verifies_the_restart_and_retries():
     assert "$app.HasExited" in helper
     assert "explorer.exe" in helper
     assert "Could not restart the app after the update." in helper
-    # Both update paths go through it; neither fires and forgets any more.
-    assert helper.count("Start-AppAfterUpdate -ExePath") == 2
+    # Both update paths go through it, and so does a failed update, which
+    # brings the old app back to report it; nothing fires and forgets.
+    assert helper.count("Start-AppAfterUpdate -ExePath") == 3
     assert "Start-Process -FilePath $exePath -WorkingDirectory $InstallDir" not in helper
 
 
@@ -125,7 +126,7 @@ def _update_helper_message_catalog():
 def test_update_helper_has_unicode_safe_messages_for_every_app_language():
     helper, catalog = _update_helper_message_catalog()
     expected_languages = {"en", *i18n.SHIPPED_CATALOGS}
-    message_keys = {"prepare", "install", "start", "error"}
+    message_keys = {"prepare", "consent", "install", "start", "error"}
 
     assert set(catalog) == expected_languages
     for language, messages in catalog.items():
@@ -148,7 +149,7 @@ def test_update_helper_has_unicode_safe_messages_for_every_app_language():
     assert "$statusWindow = Show-UpdateStatus -Message $updateMessages.prepare" in helper
     assert helper.count("-Message $updateMessages.install") == 2
     assert helper.count("-Message $updateMessages.start") == 2
-    assert helper.count("-Message $updateMessages.error") == 6
+    assert helper.count("-Message $updateMessages.error") == 1
 
 
 def test_update_helper_messages_do_not_repeat_the_application_name():
@@ -179,9 +180,11 @@ def test_app_passes_its_resolved_language_to_both_update_paths():
         r'"-Language",\s+helper_language,',
         main,
     )
-    assert len(language_arguments) == 2
-    assert main.count("helper_language = i18n.resolved_language()") == 2
-    assert main.count('helper_language not in ("en", *i18n.SHIPPED_CATALOGS)') == 2
+    # Both update paths share one launcher, so the language is passed once.
+    assert len(language_arguments) == 1
+    assert main.count("helper_language = i18n.resolved_language()") == 1
+    assert main.count('helper_language not in ("en", *i18n.SHIPPED_CATALOGS)') == 1
+    assert main.count("self._start_update_helper(helper_ps1, [") == 2
 
 
 def test_update_helper_uses_selected_messages_for_every_status():
@@ -189,7 +192,57 @@ def test_update_helper_uses_selected_messages_for_every_status():
     assert "Show-UpdateStatus -Message $updateMessages.prepare" in helper
     assert helper.count("-Message $updateMessages.install") == 2
     assert helper.count("-Message $updateMessages.start") == 2
-    assert helper.count("-Message $updateMessages.error") == 6
+    assert helper.count("-Message $updateMessages.error") == 1
+    assert "-Message $updateMessages.consent" in helper
     assert '-Message "Installing the update.' not in helper
     assert '-Message "Starting the updated' not in helper
     assert '-Message "The update did not finish.' not in helper
+
+
+def test_update_helper_elevation_prompt_is_owned_by_the_status_window():
+    """Issue #26: a hidden helper's RunAs became a flashing taskbar button.
+
+    The UAC request needs an owner window, or Windows does not put the consent
+    prompt in front of the user, and the installer waits unseen for ever.
+    """
+    helper = (ROOT / "update_helper.ps1").read_text(encoding="utf-8")
+
+    assert "$psi.ErrorDialogParentHandle = $statusWindow.Handle" in helper
+    assert "Start-Process -FilePath $InstallerPath" not in helper
+    # A declined prompt (ERROR_CANCELLED) is reported, not left in silence.
+    assert "NativeErrorCode -eq 1223" in helper
+    # The wait for the installer is capped, and it leaves its own log.
+    assert "-TimeoutSeconds 900" in helper
+    assert "/LOG=" in helper
+
+
+def test_update_helper_logs_before_anything_can_fail():
+    helper = (ROOT / "update_helper.ps1").read_text(encoding="utf-8")
+
+    started = helper.index('Write-Log "Update helper started')
+    assert started < helper.index("$UpdateMessagesJson = @'")
+    assert started < helper.index("Show-UpdateStatus -Message")
+    assert helper.index("function Write-Log") < started
+    assert "trap {" in helper
+
+
+def test_update_helper_failures_bring_the_app_back_or_say_so():
+    """Every failure restarts the old app (which reports it) or shows a box."""
+    helper = (ROOT / "update_helper.ps1").read_text(encoding="utf-8")
+
+    body = helper[helper.index("function Complete-FailedUpdate"):]
+    body = body[:body.index("\nfunction ")]
+    assert "Start-AppAfterUpdate -ExePath $oldExe" in body
+    assert "MessageBox]::Show(" in body
+    assert "$logPath" in body
+    # The old ten-second error flash in an unfocusable window is gone.
+    assert "Wait-Pumped -Milliseconds 10000" not in helper
+
+
+def test_batch_launcher_is_gone():
+    """cmd /c split a helper path with a space in it; nothing may use it."""
+    assert not (ROOT / "update_helper.bat").exists()
+    assert "update_helper.bat" not in (ROOT / "main.spec").read_text(encoding="utf-8")
+    main = (ROOT / "main.py").read_text(encoding="utf-8")
+    assert "update_helper.bat" not in main
+    assert '"cmd",\n            "/d"' not in main

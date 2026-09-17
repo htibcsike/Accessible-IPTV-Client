@@ -81,6 +81,103 @@ def popen_hidden(cmd, **kwargs):
         return subprocess.Popen(cmd, creationflags=base_flags, **kwargs)
 
 
+# --- starting update_helper.ps1 ---------------------------------------------
+
+UPDATE_LOG_NAME = "AccessibleIPTVClient_update.log"
+# PowerShell's own output (parse errors, a refused -File) lands here; the
+# helper's step log above cannot record a helper that never ran.
+UPDATE_CONSOLE_LOG_NAME = "AccessibleIPTVClient_update_console.log"
+
+
+def update_log_path() -> str:
+    return os.path.join(tempfile.gettempdir(), UPDATE_LOG_NAME)
+
+
+def windows_powershell_path() -> str:
+    """Windows PowerShell 5.1, which every supported Windows has, by full path."""
+    system_root = os.environ.get("SYSTEMROOT") or os.environ.get("WINDIR") or r"C:\Windows"
+    path = os.path.join(system_root, "System32", "WindowsPowerShell", "v1.0", "powershell.exe")
+    return path if os.path.exists(path) else "powershell.exe"
+
+
+def clean_powershell_env() -> dict:
+    """Our environment minus PowerShell 7's module paths.
+
+    Windows PowerShell 5.1 inheriting pwsh 7's PSModulePath loads the wrong
+    Microsoft.PowerShell.Management and loses Get-Process and friends.
+    """
+    env = os.environ.copy()
+    for key in list(env):
+        if "PSMODULE" in key.upper() or "POWERSHELL" in key.upper():
+            del env[key]
+    return env
+
+
+def update_helper_command(helper_ps1: str, helper_args: Iterable[str]) -> list:
+    """powershell.exe straight onto the helper, with no cmd.exe in between.
+
+    The helper used to go through ``cmd /c update_helper.bat``. When the helper
+    path had a space in it (a user profile named "First Last" puts one in
+    %TEMP%), cmd stripped the quotes, ran "C:\\Users\\First", and the helper
+    never started. Its error went to a detached stderr, so the app simply
+    closed and nothing was installed (issue #26).
+    """
+    return [
+        windows_powershell_path(),
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy", "Bypass",
+        "-WindowStyle", "Hidden",
+        "-File", helper_ps1,
+        *[str(arg) for arg in helper_args],
+    ]
+
+
+def launch_update_helper(helper_ps1: str, helper_args: Iterable[str]) -> subprocess.Popen:
+    """Start the detached update helper and return its process."""
+    cmd = update_helper_command(helper_ps1, helper_args)
+    LOG.info("Starting update helper: %s", subprocess.list2cmdline(cmd))
+    console_path = os.path.join(tempfile.gettempdir(), UPDATE_CONSOLE_LOG_NAME)
+    try:
+        console = open(console_path, "wb")
+    except OSError:
+        LOG.debug("launch_update_helper: cannot open %s", console_path, exc_info=True)
+        console = None
+    try:
+        return popen_hidden(
+            cmd,
+            cwd=os.path.dirname(helper_ps1) or None,
+            env=clean_powershell_env(),
+            stdout=console if console is not None else subprocess.DEVNULL,
+            stderr=subprocess.STDOUT if console is not None else subprocess.DEVNULL,
+        )
+    finally:
+        if console is not None:
+            console.close()
+
+
+def allow_any_foreground_window() -> None:
+    """Let the helper we are about to start take focus (ASFW_ANY).
+
+    Only the foreground process may grant this, and a hidden background
+    process without it cannot activate its window; its UAC request is also
+    shown as a flashing taskbar button instead of the consent prompt.
+    """
+    if os.name != "nt":
+        return
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        allow = ctypes.WinDLL("user32", use_last_error=True).AllowSetForegroundWindow
+        allow.argtypes = [wintypes.DWORD]
+        allow.restype = wintypes.BOOL
+        if not allow(0xFFFFFFFF):
+            LOG.debug("AllowSetForegroundWindow refused (error %s)", ctypes.get_last_error())
+    except Exception:
+        LOG.debug("allow_any_foreground_window failed", exc_info=True)
+
+
 # --- "an update is being installed" marker ---------------------------------
 #
 # The Windows installer deletes and rewrites the app's ``_internal`` directory,

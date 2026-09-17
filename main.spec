@@ -102,7 +102,6 @@ a = Analysis(
         ('CHANGELOG.md', '.'),
         ('init.mp4', '.'),
         ('ffmpeg.exe', '.'),
-        ('update_helper.bat', '.'),
         ('update_helper.ps1', '.'),
     ] + locale_datas + help_datas,
     hiddenimports=hidden_imports,

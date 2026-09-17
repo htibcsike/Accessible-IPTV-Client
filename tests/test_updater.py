@@ -347,3 +347,77 @@ def test_sweep_stale_update_dirs_removes_only_old_update_dirs(tmp_path):
 
 def test_sweep_stale_update_dirs_tolerates_missing_temp_dir(tmp_path):
     assert updater.sweep_stale_update_dirs(str(tmp_path / "missing")) == 0
+
+
+def test_update_helper_command_runs_powershell_without_cmd(tmp_path):
+    """Issue #26: `cmd /c "<path with space>" ...` never ran the helper."""
+    helper = tmp_path / "has space" / "update_helper.ps1"
+    cmd = updater.update_helper_command(str(helper), ["-InstallDir", r"C:\Program Files\X"])
+
+    assert os.path.basename(cmd[0]).lower() == "powershell.exe"
+    assert "cmd" not in [part.lower() for part in cmd]
+    assert cmd[cmd.index("-File") + 1] == str(helper)
+    assert cmd[-2:] == ["-InstallDir", r"C:\Program Files\X"]
+    assert "-NoProfile" in cmd and "Bypass" in cmd
+
+
+def test_clean_powershell_env_drops_module_paths(monkeypatch):
+    monkeypatch.setenv("PSModulePath", r"C:\pwsh7\Modules")
+    monkeypatch.setenv("KEEP_ME", "1")
+    env = updater.clean_powershell_env()
+    assert not any("PSMODULE" in key.upper() for key in env)
+    assert env["KEEP_ME"] == "1"
+
+
+def test_launch_update_helper_captures_powershell_output(monkeypatch, tmp_path):
+    captured = {}
+    monkeypatch.setattr(updater.tempfile, "gettempdir", lambda: str(tmp_path))
+
+    def fake_popen(cmd, **kwargs):
+        captured["cmd"] = cmd
+        captured.update(kwargs)
+        return "proc"
+
+    monkeypatch.setattr(updater, "popen_hidden", fake_popen)
+    helper = tmp_path / "helper" / "update_helper.ps1"
+    assert updater.launch_update_helper(str(helper), ["-ExeName", "IPTVClient.exe"]) == "proc"
+
+    assert captured["cwd"] == str(helper.parent)
+    assert captured["stderr"] == updater.subprocess.STDOUT
+    assert captured["stdout"].closed  # our copy is closed; the child has its own
+    assert (tmp_path / updater.UPDATE_CONSOLE_LOG_NAME).exists()
+    assert updater.update_log_path() == str(tmp_path / updater.UPDATE_LOG_NAME)
+
+
+@pytest.mark.skipif(os.name != "nt", reason="foreground rights are Windows-only")
+def test_allow_any_foreground_window_does_not_raise():
+    updater.allow_any_foreground_window()
+
+
+@pytest.mark.skipif(os.name != "nt", reason="needs Windows PowerShell")
+def test_update_helper_actually_starts_from_a_path_with_a_space(tmp_path):
+    """End to end: the staged helper runs and writes its ready file."""
+    import shutil
+    import subprocess
+    import time
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    helper_dir = tmp_path / "user name" / "helper"
+    helper_dir.mkdir(parents=True)
+    helper = helper_dir / "update_helper.ps1"
+    shutil.copy2(os.path.join(root, "update_helper.ps1"), helper)
+    ready = helper_dir / "update_window_ready"
+    missing = tmp_path / "missing"
+    proc = subprocess.Popen(updater.update_helper_command(str(helper), [
+        "-ParentPid", "999999",
+        "-InstallDir", str(tmp_path / "no such install"),
+        "-StagingDir", str(missing),
+        "-BackupDir", str(tmp_path / "backup"),
+        "-ExeName", "IPTVClient.exe",
+        "-ReadyFile", str(ready),
+        "-SelfTest",
+    ]), env=updater.clean_powershell_env(), stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output, _unused = proc.communicate(timeout=60)
+    assert proc.returncode == 0, output
+    assert ready.exists(), output

@@ -687,3 +687,65 @@ def test_update_handoff_gives_up_on_a_helper_that_never_reports(monkeypatch, tmp
     clock[0] = appmod._UPDATE_HANDOFF_MAX_WAIT_SECONDS + 1
     later[-1][1]()
     assert later[-1][0] == appmod._UPDATE_HANDOFF_LINGER_MS
+
+
+def test_update_handoff_stays_open_when_the_helper_dies_first(monkeypatch, tmp_path):
+    """Issue #26: the helper failed to start and the app closed anyway."""
+    scheduled = []
+    monkeypatch.setattr(appmod.wx, "CallLater", lambda ms, fn: scheduled.append((ms, fn)))
+    failures = []
+    client = _update_client(
+        _fail_update_handoff=lambda detail: failures.append(detail),
+        _show_update_installing_progress=lambda: None,
+        _finish_update_handoff=lambda: client.closed.append(True),
+    )
+    dead = types.SimpleNamespace(poll=lambda: 1, returncode=1)
+    appmod.IPTVClient._close_for_update_install(client, str(tmp_path / "never"), dead)
+
+    assert scheduled == []
+    assert not client.closed
+    assert len(failures) == 1 and "code 1" in failures[0]
+
+
+def test_update_handoff_closes_once_a_live_helper_reports_in(monkeypatch, tmp_path):
+    scheduled = []
+    monkeypatch.setattr(appmod.wx, "CallLater", lambda ms, fn: scheduled.append((ms, fn)))
+    handoffs = []
+    client = _update_client(
+        _fail_update_handoff=lambda detail: pytest.fail(detail),
+        _show_update_installing_progress=lambda: None,
+        _finish_update_handoff=lambda: handoffs.append(True),
+    )
+    ready = tmp_path / "ready"
+    alive = types.SimpleNamespace(poll=lambda: None, returncode=None)
+    appmod.IPTVClient._close_for_update_install(client, str(ready), alive)
+    assert scheduled[-1][0] == appmod._UPDATE_HANDOFF_POLL_MS
+
+    ready.write_text("")
+    scheduled[-1][1]()
+    assert scheduled[-1][0] == appmod._UPDATE_HANDOFF_LINGER_MS
+    scheduled[-1][1]()
+    assert handoffs == [True]
+
+
+def test_failed_handoff_keeps_the_app_and_names_the_log(monkeypatch, tmp_path):
+    boxes = []
+    cleared = []
+    monkeypatch.setattr(appmod, "message_box", lambda *a, **kw: boxes.append(a))
+    monkeypatch.setattr(appmod, "get_user_config_dir", lambda create=True: str(tmp_path))
+    monkeypatch.setattr(appmod.updater, "clear_update_pending", lambda d: cleared.append(d))
+    destroyed = []
+    client = _update_client(
+        _update_install_pending=True,
+        _destroy_update_progress=lambda **kw: destroyed.append(kw),
+    )
+    appmod.IPTVClient._fail_update_handoff(client, "boom")
+
+    assert client._update_install_pending is False
+    assert destroyed == [{}]  # end_flow defaults to True: the gate reopens
+    assert cleared == [str(tmp_path)]
+    assert not client.closed
+    message, title, _style = boxes[0]
+    assert title == "Update Error"
+    assert "will stay open" in message
+    assert appmod.updater.update_log_path() in message

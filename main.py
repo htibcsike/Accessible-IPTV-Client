@@ -4691,28 +4691,13 @@ class IPTVClient(wx.Frame):
                 progress(_("Verifying signature..."), None)
                 updater.verify_authenticode(installer_path, manifest.signing_thumbprints)
 
-                helper_source = os.path.join(get_app_dir(), "update_helper.bat")
-                helper_ps1_source = os.path.join(get_app_dir(), "update_helper.ps1")
-                if not os.path.exists(helper_source):
-                    helper_source = os.path.join(get_app_dir(), "_internal", "update_helper.bat")
-                if not os.path.exists(helper_ps1_source):
-                    helper_ps1_source = os.path.join(get_app_dir(), "_internal", "update_helper.ps1")
-
-                if not os.path.exists(helper_source) or not os.path.exists(helper_ps1_source):
-                    raise updater.UpdateError(_("Update helper is missing from this build."))
-
-                helper_dir = os.path.join(temp_root, "helper")
-                os.makedirs(helper_dir, exist_ok=True)
-                helper_bat = os.path.join(helper_dir, "update_helper.bat")
-                helper_ps1 = os.path.join(helper_dir, "update_helper.ps1")
-                shutil.copy2(helper_source, helper_bat)
-                shutil.copy2(helper_ps1_source, helper_ps1)
+                helper_ps1 = self._stage_update_helper(temp_root)
 
                 progress(_("Preparing to restart..."), None)
                 updater.write_update_pending(get_user_config_dir(), manifest.version)
                 wx.CallAfter(
                     self._launch_installer_update_helper,
-                    helper_bat,
+                    helper_ps1,
                     os.path.dirname(sys.executable),
                     installer_path,
                     os.path.basename(sys.executable),
@@ -4749,30 +4734,13 @@ class IPTVClient(wx.Frame):
             install_dir = os.path.dirname(sys.executable)
             backup_dir = f"{install_dir}.bak.{datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
 
-            helper_source = os.path.join(get_app_dir(), "update_helper.bat")
-            helper_ps1_source = os.path.join(get_app_dir(), "update_helper.ps1")
-            
-            # PyInstaller 6+ onedir layout puts datas in _internal
-            if not os.path.exists(helper_source):
-                helper_source = os.path.join(get_app_dir(), "_internal", "update_helper.bat")
-            if not os.path.exists(helper_ps1_source):
-                helper_ps1_source = os.path.join(get_app_dir(), "_internal", "update_helper.ps1")
-
-            if not os.path.exists(helper_source) or not os.path.exists(helper_ps1_source):
-                raise updater.UpdateError(_("Update helper is missing from this build."))
-
-            helper_dir = os.path.join(temp_root, "helper")
-            os.makedirs(helper_dir, exist_ok=True)
-            helper_bat = os.path.join(helper_dir, "update_helper.bat")
-            helper_ps1 = os.path.join(helper_dir, "update_helper.ps1")
-            shutil.copy2(helper_source, helper_bat)
-            shutil.copy2(helper_ps1_source, helper_ps1)
+            helper_ps1 = self._stage_update_helper(temp_root)
 
             progress(_("Preparing to restart..."), None)
             updater.write_update_pending(get_user_config_dir(), manifest.version)
             wx.CallAfter(
                 self._launch_update_helper,
-                helper_bat,
+                helper_ps1,
                 install_dir,
                 staging_dir,
                 backup_dir,
@@ -4812,103 +4780,93 @@ class IPTVClient(wx.Frame):
                 except Exception:
                     LOG.debug("IPTVClient._download_update_worker: ignored exception", exc_info=True)
 
+    @staticmethod
+    def _stage_update_helper(temp_root: str) -> str:
+        """Copy update_helper.ps1 out of the install directory it is about to replace."""
+        source = os.path.join(get_app_dir(), "update_helper.ps1")
+        if not os.path.exists(source):
+            # PyInstaller 6+ onedir layout puts datas in _internal
+            source = os.path.join(get_app_dir(), "_internal", "update_helper.ps1")
+        if not os.path.exists(source):
+            raise updater.UpdateError(_("Update helper is missing from this build."))
+        helper_dir = os.path.join(temp_root, "helper")
+        os.makedirs(helper_dir, exist_ok=True)
+        helper_ps1 = os.path.join(helper_dir, "update_helper.ps1")
+        shutil.copy2(source, helper_ps1)
+        return helper_ps1
+
     def _launch_installer_update_helper(
         self,
-        helper_bat: str,
+        helper_ps1: str,
         install_dir: str,
         installer_path: str,
         exe_name: str,
     ):
-        ready_path = self._update_handoff_ready_path(helper_bat)
-        helper_language = i18n.resolved_language()
-        if helper_language not in ("en", *i18n.SHIPPED_CATALOGS):
-            helper_language = "en"
-        cmd = [
-            "cmd",
-            "/d",
-            "/c",
-            helper_bat,
-            "-ParentPid",
-            str(os.getpid()),
-            "-InstallDir",
-            install_dir,
-            "-InstallerPath",
-            installer_path,
-            "-ExeName",
-            exe_name,
-            "-ReadyFile",
-            ready_path,
-            "-Language",
-            helper_language,
-        ]
-        # Say what is about to happen in the progress dialog that is already on
-        # screen rather than in a box the user has to dismiss. The helper only
-        # waits 30 seconds for this process to exit before killing it, and a
-        # modal warning left unread used to eat that entire window.
-        self._show_update_installing_progress()
-        try:
-            updater.popen_hidden(cmd, cwd=os.path.dirname(helper_bat))
-        except OSError as exc:
-            self._destroy_update_progress()
-            updater.clear_update_pending(get_user_config_dir())
-            message_box(
-                _("Update failed to start: {error}").format(error=exc),
-                _("Update Error"),
-                wx.OK | wx.ICON_ERROR,
-            )
-            return
-        self._update_install_pending = True
-        self._close_for_update_install(ready_path)
+        self._start_update_helper(helper_ps1, [
+            "-InstallDir", install_dir,
+            "-InstallerPath", installer_path,
+            "-ExeName", exe_name,
+        ])
+
     def _launch_update_helper(
         self,
-        helper_bat: str,
+        helper_ps1: str,
         install_dir: str,
         staging_dir: str,
         backup_dir: str,
         exe_name: str,
     ):
-        ready_path = self._update_handoff_ready_path(helper_bat)
+        self._start_update_helper(helper_ps1, [
+            "-InstallDir", install_dir,
+            "-StagingDir", staging_dir,
+            "-BackupDir", backup_dir,
+            "-ExeName", exe_name,
+        ])
+
+    def _start_update_helper(self, helper_ps1: str, helper_args: List[str]) -> None:
+        ready_path = self._update_handoff_ready_path(helper_ps1)
         helper_language = i18n.resolved_language()
         if helper_language not in ("en", *i18n.SHIPPED_CATALOGS):
             helper_language = "en"
-        cmd = [
-            "cmd",
-            "/d",
-            "/c",
-            helper_bat,
-            "-ParentPid",
-            str(os.getpid()),
-            "-InstallDir",
-            install_dir,
-            "-StagingDir",
-            staging_dir,
-            "-BackupDir",
-            backup_dir,
-            "-ExeName",
-            exe_name,
-            "-ReadyFile",
-            ready_path,
-            "-Language",
-            helper_language,
+        helper_args = [
+            "-ParentPid", str(os.getpid()),
+            *helper_args,
+            "-ReadyFile", ready_path,
+            "-Language", helper_language,
         ]
         # Say what is about to happen in the progress dialog that is already on
         # screen rather than in a box the user has to dismiss. The helper only
         # waits 30 seconds for this process to exit before killing it, and a
         # modal warning left unread used to eat that entire window.
         self._show_update_installing_progress()
+        # The helper runs hidden and in the background, so Windows refuses to
+        # let it take focus: its status window was never read, and the UAC
+        # prompt for the installer was demoted to a flashing taskbar button
+        # that a screen reader user never hears about. We are the foreground
+        # process right now, so hand that right on before we go.
+        updater.allow_any_foreground_window()
         try:
-            updater.popen_hidden(cmd, cwd=os.path.dirname(helper_bat))
+            process = updater.launch_update_helper(helper_ps1, helper_args)
         except OSError as exc:
-            self._destroy_update_progress()
-            updater.clear_update_pending(get_user_config_dir())
-            message_box(
-                _("Update failed to start: {error}").format(error=exc),
-                _("Update Error"),
-                wx.OK | wx.ICON_ERROR,
-            )
+            self._fail_update_handoff(str(exc))
             return
         self._update_install_pending = True
-        self._close_for_update_install(ready_path)
+        self._close_for_update_install(ready_path, process)
+
+    def _fail_update_handoff(self, detail: str) -> None:
+        """The helper never got going: stay open and say so, with a log to send."""
+        LOG.error("Update helper did not start: %s", detail)
+        self._update_install_pending = False
+        self._destroy_update_progress()
+        updater.clear_update_pending(get_user_config_dir())
+        message_box(
+            _("The update could not be started, so {app} will stay open. "
+              "Please try again from Help > Check for Updates...").format(
+                  app=app_meta.APP_DISPLAY_NAME)
+            + "\n\n" + _("Update log: {path}").format(path=updater.update_log_path()),
+            _("Update Error"),
+            wx.OK | wx.ICON_ERROR,
+        )
 
     def _show_update_installing_progress(self) -> None:
         """Carry the download dialog straight into the install, no click.
@@ -4956,7 +4914,8 @@ class IPTVClient(wx.Frame):
         """Where the helper reports that its own status window is on screen."""
         return os.path.join(os.path.dirname(helper_bat), "update_window_ready")
 
-    def _close_for_update_install(self, ready_path: Optional[str] = None) -> None:
+    def _close_for_update_install(self, ready_path: Optional[str] = None,
+                                  process=None) -> None:
         """Quit for the installer - but not before the helper's window is up.
 
         The app has to exit for the install to run, so its own progress dialog
@@ -4968,11 +4927,21 @@ class IPTVClient(wx.Frame):
         the usual moment on top of it, so the two windows overlap instead of
         leaving a hole between them. The wait is capped: a helper that never
         reports in must not strand the user in a dialog that will not close.
+
+        A helper that has already exited without reporting in never started
+        the update. Closing anyway is what left the app simply gone, with
+        nothing installed and nothing said (issue #26), so stay open instead.
         """
         deadline = time.monotonic() + _UPDATE_HANDOFF_MAX_WAIT_SECONDS
 
         def wait_for_helper_window():
-            if (ready_path and not os.path.exists(ready_path)
+            ready = bool(ready_path) and os.path.exists(ready_path)
+            if not ready and process is not None and process.poll() is not None:
+                self._fail_update_handoff(
+                    "update helper exited with code {code} before it started".format(
+                        code=process.returncode))
+                return
+            if (ready_path and not ready
                     and time.monotonic() < deadline):
                 # Keep pulsing: an un-updated progress dialog is the thing that
                 # goes grey and stops answering while we sit here.
@@ -5006,7 +4975,8 @@ class IPTVClient(wx.Frame):
                 _("The update to v{version} did not finish, so {app} is still "
                   "v{current}. You can try again from Help > Check for "
                   "Updates...").format(
-                      version=target, app=app_meta.APP_DISPLAY_NAME, current=current),
+                      version=target, app=app_meta.APP_DISPLAY_NAME, current=current)
+                + "\n\n" + _("Update log: {path}").format(path=updater.update_log_path()),
                 _("Update Not Completed"),
                 wx.OK | wx.ICON_WARNING,
             )
