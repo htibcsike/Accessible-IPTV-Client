@@ -17,6 +17,9 @@ import app_meta  # noqa: E402
 import release_notes as notes_format  # noqa: E402
 import updater  # noqa: E402
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import translation_audit  # noqa: E402
+
 DEFAULT_SIGNTOOL = r"C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe"
 FFMPEG_NAME = "ffmpeg.exe"
 BUNDLED_CONFIG_NAME = "iptvclient.conf"
@@ -848,6 +851,9 @@ def main():
     if args.mode == "release":
         tag, next_version, commits, bump = compute_next_version()
         release_notes = build_release_notes(commits)
+        # Before any file changes: every language except Hungarian must be
+        # fully translated, including the bullets of this release.
+        translation_audit.require_complete(next_version, release_notes)
         update_version_file(next_version)
         update_changelog(next_version, release_notes)
         sync_translations()
@@ -903,6 +909,8 @@ def main():
         print_dry_run(next_version, tag, bump, assets)
         print("")
         print(release_notes)
+        print("")
+        translation_audit.report(translation_audit.run_audit(next_version, release_notes))
 
 
 if __name__ == "__main__":

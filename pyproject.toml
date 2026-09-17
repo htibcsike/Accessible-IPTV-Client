@@ -41,4 +41,4 @@ filterwarnings = [
 # missing when imported from tests/.
 include = ["."]
 exclude = ["build", "dist", ".pytest-tmp", ".pytest-work", ".pytest-runs", "locale"]
-extraPaths = ["."]
+extraPaths = [".", "tools"]

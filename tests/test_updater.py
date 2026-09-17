@@ -399,7 +399,6 @@ def test_update_helper_actually_starts_from_a_path_with_a_space(tmp_path):
     """End to end: the staged helper runs and writes its ready file."""
     import shutil
     import subprocess
-    import time
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     helper_dir = tmp_path / "user name" / "helper"
