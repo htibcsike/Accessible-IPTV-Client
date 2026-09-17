@@ -99,3 +99,32 @@ def test_release_commit_stages_changelog(monkeypatch):
     assert commands[0] == ["git", "add", "app_meta.py", "CHANGELOG.md", "locale"]
     assert commands[1] == ["git", "commit", "-m", "chore(release): v1.2.3"]
     assert commands[2] == ["git", "tag", "v1.2.3"]
+
+
+def test_body_prose_mentioning_a_section_label_is_not_breaking():
+    """v2.0.0 regression: a translation commit whose body mentions the
+    "Breaking changes" section label was substring-matched and bumped major.
+    Classification must read the subject (and a real footer), not body prose.
+    """
+    commit = {
+        "subject": "i18n(hu): finalize v1.136.0 release-note localization",
+        "body": (
+            "- two recurring-label corrections (Breaking changes, No notable "
+            "changes.)\n- refresh What's New introduction\n"
+        ),
+    }
+    assert release.classify_commit(commit) == "Other"
+    assert release.determine_bump([commit]) == "patch"
+
+
+def test_explicit_breaking_markers_still_classify_as_breaking():
+    assert release.classify_commit({"subject": "feat!: drop old config", "body": ""}) == "Breaking"
+    assert release.classify_commit({"subject": "chore: x", "body": "BREAKING CHANGE: removed key"}) == "Breaking"
+    assert release.classify_commit({"subject": "docs: x", "body": "Breaking changes:\n- removed key"}) == "Breaking"
+    assert release.determine_bump([{"subject": "fix!: y", "body": ""}]) == "major"
+
+
+def test_classification_does_not_read_body_prose_for_other_sections():
+    docs = {"subject": "i18n(hu): fix catalogues", "body": "keeps the feature wording intact and bug notes out"}
+    assert release.classify_commit(docs) == "Other"
+    assert release.classify_commit({"subject": "refactor: tidy", "body": "no feature or bug here"}) == "Other"

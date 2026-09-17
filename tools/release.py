@@ -92,18 +92,38 @@ def get_commits_since(tag):
 
 def classify_commit(commit):
     subject = commit["subject"]
-    body = commit["body"]
-    text = f"{subject}\n{body}".lower()
-    if "breaking change" in text or re.search(r"^[a-z]+\!:", subject.lower()):
-        return "Breaking"
     lowered = subject.lower()
-    if lowered.startswith("feat") or "feature" in text:
+    # Classification reads the commit subject and a real BREAKING CHANGE
+    # footer only. Body prose that merely mentions a section label - for
+    # example a translation commit describing the "Breaking changes"
+    # heading - must neither classify the commit as Breaking nor bump the
+    # major version, so the body is never substring-searched here.
+    if re.search(r"^[a-z]+!:", lowered) or "breaking change:" in lowered:
+        return "Breaking"
+    if re.search(r"^breaking[ _-]?changes?\s*:", commit["body"], re.IGNORECASE | re.MULTILINE):
+        return "Breaking"
+    if re.match(r"^([a-z][a-z0-9-]*)(\([^)]*\))?(!)?:\s*", lowered):
+        match = re.match(r"^([a-z][a-z0-9-]*)(?:\(([^)]*)\))?(?:!)?:", lowered)
+        c_type, scope = match.group(1), match.group(2) or ""
+        # Same priority order as the historical heuristics: feat first,
+        # then the accessibility scope, then docs, then fix.
+        if c_type == "feat":
+            return "Features"
+        if scope and re.search(r"accessibility|a11y|nvda", scope):
+            return "Accessibility"
+        if c_type == "docs":
+            return "Documentation"
+        if c_type in ("fix", "bugfix"):
+            return "Fixes"
+        return "Other"
+    # Unprefixed subjects keep the historical substring heuristics.
+    if lowered.startswith("feat") or "feature" in lowered:
         return "Features"
     if re.match(r"^[a-z]+\((?:accessibility|a11y|nvda)\)", lowered) or lowered.startswith("a11y"):
         return "Accessibility"
     if lowered.startswith("docs"):
         return "Documentation"
-    if lowered.startswith("fix") or "fix" in text or "bug" in text:
+    if lowered.startswith("fix") or "fix" in lowered or "bug" in lowered:
         return "Fixes"
     return "Other"
 
