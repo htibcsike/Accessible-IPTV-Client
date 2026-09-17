@@ -358,7 +358,7 @@ A program teljes bezárásához használja a Fájl > Kilépés (Ctrl+Q) parancso
 
 Windows alatt a program képes önmagát frissíteni. A Súgó > Frissítések keresése… paranccsal azonnal ellenőrizheti, hogy elérhető-e új verzió. A Beállítások > Frissítések automatikus keresése beállítás engedélyezésekor a program ugyanezt időnként a háttérben is elvégzi.
 
-Ha új verzió érhető el, a program ismerteti a változásokat, majd engedélyt kér a telepítésre. A letöltött csomagot telepítés előtt ellenőrzi. A frissítés során az alkalmazás bezárul; a művelet befejeztével automatikusan újraindul, és tájékoztat a telepítés eredményéről. A beállítások, a kedvencek és a felvételek megmaradnak.
+Ha új verzió érhető el, a program ismerteti a változásokat, majd engedélyt kér a telepítésre. A letöltött csomagot telepítés előtt ellenőrzi. A program a frissítés telepítése előtt bezárul, majd a telepítés befejezése után automatikusan újraindul, és tájékoztat a telepítés eredményéről. A beállítások, a kedvencek és a felvételek megmaradnak.
 
 Linux alatt az új csomagot a korábbi verzió fölé kell telepíteni.
 
