@@ -1,6 +1,13 @@
 # Changelog
 
 Readable release history for Accessible IPTV Client. New entries are prepended automatically by `build.bat release`. Older entries were reconstructed from the [Forgejo mirror](https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client).
+## v1.137.0 - 2026-09-18
+
+### Features
+
+- Install casting with the Debian package
+- Cast to Chromecast, AirPlay, UPnP/DLNA, Sonos, Roku and Kodi with Caster's engine
+
 ## v1.136.9 - 2026-09-18
 
 ### Bug fixes

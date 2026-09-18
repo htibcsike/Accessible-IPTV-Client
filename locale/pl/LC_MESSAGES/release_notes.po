@@ -12,27 +12,27 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:26
-msgid "Keep What's New translation commits out of the release notes (#27)"
-msgstr "Zmiany, które tylko tłumaczą listę nowości, nie trafiają już do informacji o wydaniu (#27)"
+#: CHANGELOG.md:9
+msgid "Cast to Chromecast, AirPlay, UPnP/DLNA, Sonos, Roku and Kodi with Caster's engine"
+msgstr "Przesyłanie na Chromecast, AirPlay, UPnP/DLNA, Sonos, Roku i Kodi silnikiem Castera"
 
-#: CHANGELOG.md:10
+#: CHANGELOG.md:8
+msgid "Install casting with the Debian package"
+msgstr "Przesyłanie instaluje się razem z pakietem Debiana"
+
+#: CHANGELOG.md:17
 msgid "Keep other devices on the network out of the casting proxy"
 msgstr "Inne urządzenia w sieci nie mogą już korzystać z serwera pośredniczącego do przesyłania"
 
-#: CHANGELOG.md:8
+#: CHANGELOG.md:15
 msgid "Never mix an old partial guide download into a new one, and check update signatures more strictly"
 msgstr "Stary, niedokończony plik przewodnika nie jest już łączony z nowym, a podpisy aktualizacji są sprawdzane dokładniej"
 
-#: CHANGELOG.md:9
+#: CHANGELOG.md:16
 msgid "Record rtmp, rtsp and udp channels, and stop recordings canceled while starting"
 msgstr "Nagrywanie kanałów rtmp, rtsp i udp oraz zatrzymywanie nagrań anulowanych podczas uruchamiania"
 
-#: CHANGELOG.md:16
+#: CHANGELOG.md:23
 msgid "Say why an update failed and never leave a broken install (#26)"
 msgstr "Informowanie, dlaczego aktualizacja się nie powiodła, i niepozostawianie uszkodzonej instalacji (#26)"
-
-#: CHANGELOG.md:22
-msgid "Show OK and Cancel in the app's language in every dialog (#29)"
-msgstr "Przyciski OK i Anuluj są wyświetlane w języku aplikacji we wszystkich oknach dialogowych (#29)"
 
