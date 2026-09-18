@@ -25,7 +25,7 @@ msgstr "(Журнал отладки EPG ещё не записан.)"
 msgid "(No title)"
 msgstr "(Без названия)"
 
-#: updater.py:696
+#: updater.py:693
 msgid "(thumbprint {thumbprint})."
 msgstr "(отпечаток {thumbprint})."
 
@@ -94,34 +94,34 @@ msgstr "Активна"
 msgid "Active recordings: {count}"
 msgstr "Активные записи: {count}"
 
-#: playlist.py:3119
-#: playlist.py:3238
+#: playlist.py:3134
+#: playlist.py:3253
 msgid "Add"
 msgstr "Добавить"
 
-#: playlist.py:2829
-#: playlist.py:2918
+#: playlist.py:2844
+#: playlist.py:2933
 msgid "Add File"
 msgstr "Добавить файл"
 
-#: playlist.py:2921
+#: playlist.py:2936
 msgid "Add Stalker Portal"
 msgstr "Добавить Stalker Portal"
 
-#: playlist.py:3172
+#: playlist.py:3187
 msgid "Add Stalker Portal Account"
 msgstr "Добавить учётную запись Stalker Portal"
 
-#: playlist.py:2830
-#: playlist.py:2919
+#: playlist.py:2845
+#: playlist.py:2934
 msgid "Add URL"
 msgstr "Добавить URL"
 
-#: playlist.py:2920
+#: playlist.py:2935
 msgid "Add Xtream Codes"
 msgstr "Добавить Xtream Codes"
 
-#: playlist.py:3057
+#: playlist.py:3072
 msgid "Add Xtream Codes Account"
 msgstr "Добавить учётную запись Xtream Codes"
 
@@ -137,8 +137,8 @@ msgstr "Добавить в избранное"
 msgid "All Channels"
 msgstr "Все каналы"
 
-#: playlist.py:2862
-#: playlist.py:2952
+#: playlist.py:2877
+#: playlist.py:2967
 msgid "All files"
 msgstr "Все файлы"
 
@@ -158,9 +158,9 @@ msgstr "Разрешённые форматы"
 msgid "An update is already in progress."
 msgstr "Обновление уже выполняется."
 
-#: playlist.py:3212
-#: playlist.py:3213
-#: playlist.py:3215
+#: playlist.py:3227
+#: playlist.py:3228
+#: playlist.py:3230
 msgid "Attempt to add provider XMLTV"
 msgstr "Попытаться добавить XMLTV поставщика"
 
@@ -219,19 +219,19 @@ msgstr "Аудио: {name}"
 msgid "Authentication failed – the server rejected these credentials"
 msgstr "Ошибка проверки подлинности – сервер отклонил эти учётные данные"
 
-#: updater.py:692
+#: updater.py:689
 msgid "Authenticode status was {status}."
 msgstr "Статус Authenticode: {status}."
 
-#: updater.py:662
+#: updater.py:658
 msgid "Authenticode verification failed: {detail}"
 msgstr "Не удалось выполнить проверку Authenticode: {detail}"
 
-#: updater.py:667
+#: updater.py:663
 msgid "Authenticode verification returned invalid data."
 msgstr "Проверка Authenticode вернула недопустимые данные."
 
-#: updater.py:648
+#: updater.py:644
 msgid "Authenticode verification timed out."
 msgstr "Проверка Authenticode превысила время ожидания."
 
@@ -245,9 +245,9 @@ msgstr "Автоматически проверять обновления"
 msgid "Automatic"
 msgstr "Автоматически"
 
-#: playlist.py:3099
-#: playlist.py:3100
-#: playlist.py:3102
+#: playlist.py:3114
+#: playlist.py:3115
+#: playlist.py:3117
 msgid "Automatically add XMLTV URL"
 msgstr "Автоматически добавлять URL XMLTV"
 
@@ -255,11 +255,11 @@ msgstr "Автоматически добавлять URL XMLTV"
 msgid "Banned"
 msgstr "Заблокирована"
 
-#: playlist.py:3225
+#: playlist.py:3240
 msgid "Base URL of the Stalker/Ministra portal"
 msgstr "Базовый URL портала Stalker/Ministra"
 
-#: playlist.py:3107
+#: playlist.py:3122
 msgid "Base URL of the Xtream Codes server"
 msgstr "Базовый URL сервера Xtream Codes"
 
@@ -306,10 +306,10 @@ msgstr "Встроенный плеер недоступен:\n{detail}"
 #: main.py:8932
 #: main.py:9120
 #: options.py:825
-#: playlist.py:2842
-#: playlist.py:2933
-#: playlist.py:3120
-#: playlist.py:3239
+#: playlist.py:2857
+#: playlist.py:2948
+#: playlist.py:3135
+#: playlist.py:3254
 msgid "Cancel"
 msgstr "Отмена"
 
@@ -473,11 +473,11 @@ msgstr "Проверка {account}..."
 msgid "Choose Audio Track"
 msgstr "Выбор звуковой дорожки"
 
-#: playlist.py:2864
+#: playlist.py:2879
 msgid "Choose EPG XML file"
 msgstr "Выберите XML-файл EPG"
 
-#: playlist.py:2954
+#: playlist.py:2969
 msgid "Choose M3U file"
 msgstr "Выберите файл M3U"
 
@@ -526,7 +526,7 @@ msgstr "Копировать сведения"
 msgid "Copy Log and Debug Information"
 msgstr "Копировать журнал и отладочные сведения"
 
-#: playlist.py:2784
+#: playlist.py:2799
 msgid "Copy URL"
 msgstr "Копировать URL"
 
@@ -607,7 +607,7 @@ msgid "Could not open the EPG window: {error}"
 msgstr "Не удалось открыть окно телепрограммы: {error}"
 
 #: main.py:8421
-#: playlist.py:2756
+#: playlist.py:2771
 msgid "Could not open the clipboard."
 msgstr "Не удалось открыть буфер обмена."
 
@@ -625,7 +625,7 @@ msgstr "Не удалось подключиться к порталу: {error}"
 msgid "Could not resolve stream URL:\n{error}"
 msgstr "Не удалось разрешить URL потока:\n{error}"
 
-#: updater.py:650
+#: updater.py:646
 msgid "Could not run Authenticode verification: {detail}"
 msgstr "Не удалось выполнить проверку Authenticode: {detail}"
 
@@ -675,15 +675,15 @@ msgid "Days since expiry"
 msgstr "Дней после окончания срока"
 
 #: main.py:9122
-#: playlist.py:2787
+#: playlist.py:2802
 msgid "Delete"
 msgstr "Удалить"
 
-#: playlist.py:3021
+#: playlist.py:3036
 msgid "Delete Playlist"
 msgstr "Удалить плейлист"
 
-#: playlist.py:3018
+#: playlist.py:3033
 msgid "Delete the playlist “{name}”?\n\nThis removes it from the list of playlists. It cannot be undone."
 msgstr "Удалить плейлист «{name}»?\n\nОн будет удалён из списка плейлистов. Отменить это действие нельзя."
 
@@ -713,8 +713,8 @@ msgstr "Отключена"
 msgid "Disconnected from the cast device. Open the cast menu to pick another device."
 msgstr "Отключено от устройства трансляции. Откройте меню трансляции, чтобы выбрать другое устройство."
 
-#: playlist.py:3106
-#: playlist.py:3224
+#: playlist.py:3121
+#: playlist.py:3239
 msgid "Display name"
 msgstr "Отображаемое имя"
 
@@ -810,7 +810,7 @@ msgstr "Требуется обновление базы данных телеп
 
 #: main.py:2794
 #: main.py:2911
-#: playlist.py:2817
+#: playlist.py:2832
 msgid "EPG Manager"
 msgstr "Менеджер EPG"
 
@@ -853,11 +853,11 @@ msgstr "Прошло: {time}"
 msgid "Ended"
 msgstr "Завершено"
 
-#: playlist.py:2872
+#: playlist.py:2887
 msgid "Enter EPG XML URL"
 msgstr "Введите URL XML EPG"
 
-#: playlist.py:2962
+#: playlist.py:2977
 msgid "Enter M3U URL"
 msgstr "Введите URL M3U"
 
@@ -920,7 +920,7 @@ msgstr "Выйти из полноэкранного режима"
 msgid "Exit Player"
 msgstr "Закрыть плеер"
 
-#: updater.py:698
+#: updater.py:695
 msgid "Expected thumbprints: {thumbprints}."
 msgstr "Ожидаемые отпечатки: {thumbprints}."
 
@@ -1039,7 +1039,7 @@ msgstr "Полный экран"
 msgid "Full ffmpeg log:\n{path}"
 msgstr "Полный журнал ffmpeg:\n{path}"
 
-#: playlist.py:2861
+#: playlist.py:2876
 msgid "GZip XML"
 msgstr "GZip XML"
 
@@ -1102,11 +1102,11 @@ msgstr "Не удалось выполнить импорт"
 msgid "Import Started"
 msgstr "Импорт начат"
 
-#: playlist.py:2622
+#: playlist.py:2637
 msgid "Importing EPG"
 msgstr "Импорт EPG"
 
-#: playlist.py:2632
+#: playlist.py:2647
 msgid "Importing EPG data…"
 msgstr "Импорт данных EPG…"
 
@@ -1114,7 +1114,7 @@ msgstr "Импорт данных EPG…"
 msgid "In Progress"
 msgstr "Выполняется"
 
-#: playlist.py:3103
+#: playlist.py:3118
 msgid "Include the provider's XMLTV guide automatically"
 msgstr "Автоматически включать XMLTV-гид поставщика"
 
@@ -1180,20 +1180,20 @@ msgstr "Загрузка плейлистов..."
 msgid "Logs"
 msgstr "Журналы"
 
-#: playlist.py:2951
+#: playlist.py:2966
 msgid "M3U files"
 msgstr "Файлы M3U"
 
 #: account_info.py:388
-#: playlist.py:3228
+#: playlist.py:3243
 msgid "MAC address"
 msgstr "MAC-адрес"
 
-#: playlist.py:3277
+#: playlist.py:3292
 msgid "MAC address must contain six octets (e.g., 00:1A:79:12:34:56)."
 msgstr "MAC-адрес должен содержать шесть октетов (например, 00:1A:79:12:34:56)."
 
-#: playlist.py:3228
+#: playlist.py:3243
 msgid "MAC address presented to the portal"
 msgstr "MAC-адрес, предъявляемый порталу"
 
@@ -1236,7 +1236,7 @@ msgstr "Пропущено"
 msgid "Movies"
 msgstr "Фильмы"
 
-#: playlist.py:2709
+#: playlist.py:2724
 msgid "Name"
 msgstr "Название"
 
@@ -1381,8 +1381,8 @@ msgstr "Сейчас: {title} ({start} – {end})"
 #: main.py:8871
 #: main.py:8931
 #: options.py:825
-#: playlist.py:2841
-#: playlist.py:2932
+#: playlist.py:2856
+#: playlist.py:2947
 msgid "OK"
 msgstr "ОК"
 
@@ -1407,19 +1407,19 @@ msgstr "Открыть проект Accessible IPTV Client на GitHub"
 msgid "Opening"
 msgstr "Открытие"
 
-#: playlist.py:3106
+#: playlist.py:3121
 msgid "Optional nickname for this Xtream Codes account"
 msgstr "Необязательное прозвище для этой учётной записи Xtream Codes"
 
-#: playlist.py:3224
+#: playlist.py:3239
 msgid "Optional nickname for this portal account"
 msgstr "Необязательное прозвище для этой учётной записи портала"
 
-#: playlist.py:3227
+#: playlist.py:3242
 msgid "Optional portal account password"
 msgstr "Необязательный пароль учётной записи портала"
 
-#: playlist.py:3226
+#: playlist.py:3241
 msgid "Optional portal account username"
 msgstr "Необязательное имя пользователя учётной записи портала"
 
@@ -1480,7 +1480,7 @@ msgstr "Не удалось выполнить сопряжение: {error}"
 msgid "Pairing finished but no credentials returned."
 msgstr "Сопряжение завершено, но учётные данные не возвращены."
 
-#: playlist.py:3109
+#: playlist.py:3124
 msgid "Password"
 msgstr "Пароль"
 
@@ -1555,11 +1555,11 @@ msgstr "Плейлист"
 
 #: main.py:2793
 #: main.py:2910
-#: playlist.py:2905
+#: playlist.py:2920
 msgid "Playlist Manager"
 msgstr "Менеджер плейлистов"
 
-#: playlist.py:3110
+#: playlist.py:3125
 msgid "Playlist type"
 msgstr "Тип плейлиста"
 
@@ -1574,12 +1574,12 @@ msgstr "Просмотр плейлиста"
 msgid "Please try another channel or try again later."
 msgstr "Попробуйте другой канал или повторите попытку позже."
 
-#: playlist.py:3273
+#: playlist.py:3288
 msgid "Portal URL is required."
 msgstr "URL-адрес портала обязателен."
 
-#: playlist.py:3107
-#: playlist.py:3225
+#: playlist.py:3122
+#: playlist.py:3240
 msgid "Portal base URL"
 msgstr "Базовый URL портала"
 
@@ -1613,7 +1613,7 @@ msgstr "Предпочитаемая аудиодорожка"
 msgid "Preferred Audio Track..."
 msgstr "Предпочитаемая аудиодорожка..."
 
-#: playlist.py:3111
+#: playlist.py:3126
 msgid "Preferred stream container format"
 msgstr "Предпочитаемый формат контейнера потока"
 
@@ -1644,7 +1644,7 @@ msgstr "Прогресс: {percent}%"
 
 #: account_info.py:111
 #: main.py:1801
-#: playlist.py:3032
+#: playlist.py:3047
 msgid "Provider"
 msgstr "Поставщик"
 
@@ -1664,7 +1664,7 @@ msgid "Provider quality (copy, MP4)"
 msgstr "Качество поставщика (копия, MP4)"
 
 #: main.py:1806
-#: playlist.py:3037
+#: playlist.py:3052
 msgid "Provider – {name}"
 msgstr "Поставщик – {name}"
 
@@ -1672,7 +1672,7 @@ msgstr "Поставщик – {name}"
 msgid "Python: {version}"
 msgstr "Python: {version}"
 
-#: playlist.py:3221
+#: playlist.py:3236
 msgid "Randomise MAC"
 msgstr "Случайный MAC"
 
@@ -1797,8 +1797,8 @@ msgstr "Удалить из избранного"
 msgid "Remove scheduled recording '{title}' from the list?"
 msgstr "Удалить запланированную запись «{title}» из списка?"
 
-#: playlist.py:2710
-#: playlist.py:2786
+#: playlist.py:2725
+#: playlist.py:2801
 msgid "Rename"
 msgstr "Переименовать"
 
@@ -1924,7 +1924,7 @@ msgstr "Выберите учётную запись, чтобы провери�
 msgid "Select the audio output device for the built-in player."
 msgstr "Выберите устройство вывода звука для встроенного проигрывателя."
 
-#: playlist.py:3110
+#: playlist.py:3125
 msgid "Select the playlist format to download"
 msgstr "Выберите формат плейлиста для скачивания"
 
@@ -2009,7 +2009,7 @@ msgid "Stalker Portal"
 msgstr "Stalker Portal"
 
 #: main.py:1805
-#: playlist.py:3036
+#: playlist.py:3051
 msgid "Stalker Portal – {name}"
 msgstr "Stalker Portal – {name}"
 
@@ -2113,7 +2113,7 @@ msgstr "Поток отключён. Возможно, он недоступен
 msgid "Stream lost"
 msgstr "Поток потерян"
 
-#: playlist.py:3111
+#: playlist.py:3126
 msgid "Stream output"
 msgstr "Вывод потока"
 
@@ -2286,7 +2286,7 @@ msgstr "Дорожка {id}"
 msgid "Trial account"
 msgstr "Пробная учётная запись"
 
-#: playlist.py:3216
+#: playlist.py:3231
 msgid "Try to add the portal's XMLTV guide automatically"
 msgstr "Попытаться автоматически добавить XMLTV-гид портала"
 
@@ -2294,7 +2294,7 @@ msgstr "Попытаться автоматически добавить XMLTV-�
 msgid "Type"
 msgstr "Тип"
 
-#: playlist.py:2753
+#: playlist.py:2768
 msgid "URL copied to the clipboard."
 msgstr "URL скопирован в буфер обмена."
 
@@ -2328,7 +2328,7 @@ msgid "Unexpected account response from the Xtream server"
 msgstr "Неожиданный ответ об учётной записи от сервера Xtream"
 
 #: main.py:9632
-#: updater.py:692
+#: updater.py:689
 msgid "Unknown"
 msgstr "Неизвестно"
 
@@ -2449,17 +2449,17 @@ msgid "User Guide"
 msgstr "Руководство пользователя"
 
 #: account_info.py:386
-#: playlist.py:3108
+#: playlist.py:3123
 msgid "Username"
 msgstr "Имя пользователя"
 
-#: playlist.py:3139
+#: playlist.py:3154
 msgid "Username, password, and URL are required."
 msgstr "Требуются имя пользователя, пароль и URL."
 
-#: playlist.py:3139
-#: playlist.py:3273
-#: playlist.py:3277
+#: playlist.py:3154
+#: playlist.py:3288
+#: playlist.py:3292
 msgid "Validation"
 msgstr "Проверка"
 
@@ -2524,7 +2524,7 @@ msgstr "Если канал предлагает несколько аудиод
 msgid "Windows did not get permission to install the update."
 msgstr "Windows не получила разрешение на установку обновления."
 
-#: playlist.py:2860
+#: playlist.py:2875
 msgid "XML files"
 msgstr "Файлы XML"
 
@@ -2532,16 +2532,16 @@ msgstr "Файлы XML"
 msgid "Xtream Codes"
 msgstr "Xtream Codes"
 
-#: playlist.py:3109
+#: playlist.py:3124
 msgid "Xtream Codes password"
 msgstr "Пароль Xtream Codes"
 
-#: playlist.py:3108
+#: playlist.py:3123
 msgid "Xtream Codes username"
 msgstr "Имя пользователя Xtream Codes"
 
 #: main.py:1803
-#: playlist.py:3034
+#: playlist.py:3049
 msgid "Xtream Codes – {name}"
 msgstr "Xtream Codes – {name}"
 
@@ -2610,15 +2610,15 @@ msgstr "{kind} – {who}"
 msgid "{kind} – {who} (detected)"
 msgstr "{kind} – {who} (обнаружена)"
 
-#: playlist.py:3076
-#: playlist.py:3191
+#: playlist.py:3091
+#: playlist.py:3206
 msgid "{label} field"
 msgstr "Поле {label}"
 
-#: playlist.py:3070
-#: playlist.py:3072
-#: playlist.py:3185
-#: playlist.py:3187
+#: playlist.py:3085
+#: playlist.py:3087
+#: playlist.py:3200
+#: playlist.py:3202
 msgid "{label} label"
 msgstr "Метка {label}"
 

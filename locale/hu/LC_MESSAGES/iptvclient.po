@@ -25,7 +25,7 @@ msgstr "(Még nem készült EPG-hibakeresési napló.)"
 msgid "(No title)"
 msgstr "(Nincs cím)"
 
-#: updater.py:696
+#: updater.py:693
 msgid "(thumbprint {thumbprint})."
 msgstr "(ujjlenyomat: {thumbprint})."
 
@@ -94,34 +94,34 @@ msgstr "Aktív"
 msgid "Active recordings: {count}"
 msgstr "Folyamatban lévő rögzítések: {count}"
 
-#: playlist.py:3119
-#: playlist.py:3238
+#: playlist.py:3134
+#: playlist.py:3253
 msgid "Add"
 msgstr "Hozzáadás"
 
-#: playlist.py:2829
-#: playlist.py:2918
+#: playlist.py:2844
+#: playlist.py:2933
 msgid "Add File"
 msgstr "Fájl hozzáadása"
 
-#: playlist.py:2921
+#: playlist.py:2936
 msgid "Add Stalker Portal"
 msgstr "Stalker Portal hozzáadása"
 
-#: playlist.py:3172
+#: playlist.py:3187
 msgid "Add Stalker Portal Account"
 msgstr "Stalker Portal-fiók hozzáadása"
 
-#: playlist.py:2830
-#: playlist.py:2919
+#: playlist.py:2845
+#: playlist.py:2934
 msgid "Add URL"
 msgstr "URL hozzáadása"
 
-#: playlist.py:2920
+#: playlist.py:2935
 msgid "Add Xtream Codes"
 msgstr "Xtream Codes hozzáadása"
 
-#: playlist.py:3057
+#: playlist.py:3072
 msgid "Add Xtream Codes Account"
 msgstr "Xtream Codes-fiók hozzáadása"
 
@@ -137,8 +137,8 @@ msgstr "Hozzáadás a kedvencekhez"
 msgid "All Channels"
 msgstr "Összes csatorna"
 
-#: playlist.py:2862
-#: playlist.py:2952
+#: playlist.py:2877
+#: playlist.py:2967
 msgid "All files"
 msgstr "Minden fájl"
 
@@ -158,9 +158,9 @@ msgstr "Engedélyezett formátumok"
 msgid "An update is already in progress."
 msgstr "Már folyamatban van egy frissítés."
 
-#: playlist.py:3212
-#: playlist.py:3213
-#: playlist.py:3215
+#: playlist.py:3227
+#: playlist.py:3228
+#: playlist.py:3230
 msgid "Attempt to add provider XMLTV"
 msgstr "A szolgáltató XMLTV-forrásának automatikus beállítása"
 
@@ -219,19 +219,19 @@ msgstr "Hang: {name}"
 msgid "Authentication failed – the server rejected these credentials"
 msgstr "A hitelesítés nem sikerült – a kiszolgáló elutasította a bejelentkezési adatokat"
 
-#: updater.py:692
+#: updater.py:689
 msgid "Authenticode status was {status}."
 msgstr "Az Authenticode-ellenőrzés állapota: {status}."
 
-#: updater.py:662
+#: updater.py:658
 msgid "Authenticode verification failed: {detail}"
 msgstr "Az Authenticode-ellenőrzés nem sikerült: {detail}"
 
-#: updater.py:667
+#: updater.py:663
 msgid "Authenticode verification returned invalid data."
 msgstr "Az Authenticode-ellenőrzés során kapott adatok érvénytelenek."
 
-#: updater.py:648
+#: updater.py:644
 msgid "Authenticode verification timed out."
 msgstr "Az Authenticode-ellenőrzés időtúllépés miatt megszakadt."
 
@@ -245,9 +245,9 @@ msgstr "Frissítések automatikus keresése"
 msgid "Automatic"
 msgstr "Automatikus"
 
-#: playlist.py:3099
-#: playlist.py:3100
-#: playlist.py:3102
+#: playlist.py:3114
+#: playlist.py:3115
+#: playlist.py:3117
 msgid "Automatically add XMLTV URL"
 msgstr "XMLTV-URL automatikus hozzáadása"
 
@@ -255,11 +255,11 @@ msgstr "XMLTV-URL automatikus hozzáadása"
 msgid "Banned"
 msgstr "Kitiltva"
 
-#: playlist.py:3225
+#: playlist.py:3240
 msgid "Base URL of the Stalker/Ministra portal"
 msgstr "A Stalker/Ministra portál alap-URL-címe"
 
-#: playlist.py:3107
+#: playlist.py:3122
 msgid "Base URL of the Xtream Codes server"
 msgstr "Az Xtream Codes-kiszolgáló alap-URL-címe"
 
@@ -306,10 +306,10 @@ msgstr "A beépített lejátszó nem érhető el:\n{detail}"
 #: main.py:8932
 #: main.py:9120
 #: options.py:825
-#: playlist.py:2842
-#: playlist.py:2933
-#: playlist.py:3120
-#: playlist.py:3239
+#: playlist.py:2857
+#: playlist.py:2948
+#: playlist.py:3135
+#: playlist.py:3254
 msgid "Cancel"
 msgstr "Mégse"
 
@@ -473,11 +473,11 @@ msgstr "{account} ellenőrzése…"
 msgid "Choose Audio Track"
 msgstr "Hangsáv kiválasztása"
 
-#: playlist.py:2864
+#: playlist.py:2879
 msgid "Choose EPG XML file"
 msgstr "Műsorújság XML-fájljának kiválasztása"
 
-#: playlist.py:2954
+#: playlist.py:2969
 msgid "Choose M3U file"
 msgstr "M3U-fájl kiválasztása"
 
@@ -526,7 +526,7 @@ msgstr "Adatok másolása"
 msgid "Copy Log and Debug Information"
 msgstr "Napló- és hibakeresési adatok másolása"
 
-#: playlist.py:2784
+#: playlist.py:2799
 msgid "Copy URL"
 msgstr "URL másolása"
 
@@ -607,7 +607,7 @@ msgid "Could not open the EPG window: {error}"
 msgstr "Nem sikerült megnyitni a műsorújság ablakát: {error}"
 
 #: main.py:8421
-#: playlist.py:2756
+#: playlist.py:2771
 msgid "Could not open the clipboard."
 msgstr "Nem sikerült megnyitni a vágólapot."
 
@@ -625,7 +625,7 @@ msgstr "Nem sikerült elérni a portált: {error}"
 msgid "Could not resolve stream URL:\n{error}"
 msgstr "Nem sikerült meghatározni az adás URL-címét:\n{error}"
 
-#: updater.py:650
+#: updater.py:646
 msgid "Could not run Authenticode verification: {detail}"
 msgstr "Nem sikerült futtatni az Authenticode-ellenőrzést: {detail}"
 
@@ -675,15 +675,15 @@ msgid "Days since expiry"
 msgstr "Lejárat óta eltelt napok"
 
 #: main.py:9122
-#: playlist.py:2787
+#: playlist.py:2802
 msgid "Delete"
 msgstr "Törlés"
 
-#: playlist.py:3021
+#: playlist.py:3036
 msgid "Delete Playlist"
 msgstr "Lejátszási lista törlése"
 
-#: playlist.py:3018
+#: playlist.py:3033
 msgid "Delete the playlist “{name}”?\n\nThis removes it from the list of playlists. It cannot be undone."
 msgstr "Biztosan törli a következő lejátszási listát: „{name}”?\n\nEzzel eltávolítja a lejátszási listák közül. A művelet nem vonható vissza."
 
@@ -713,8 +713,8 @@ msgstr "Letiltva"
 msgid "Disconnected from the cast device. Open the cast menu to pick another device."
 msgstr "A kapcsolat megszakadt az átküldéshez használt eszközzel. Másik eszköz kiválasztásához nyissa meg az Átküldés menüt."
 
-#: playlist.py:3106
-#: playlist.py:3224
+#: playlist.py:3121
+#: playlist.py:3239
 msgid "Display name"
 msgstr "Megjelenítendő név"
 
@@ -810,7 +810,7 @@ msgstr "A műsorújság-adatbázist frissíteni kell"
 
 #: main.py:2794
 #: main.py:2911
-#: playlist.py:2817
+#: playlist.py:2832
 msgid "EPG Manager"
 msgstr "Műsorújság kezelése"
 
@@ -853,11 +853,11 @@ msgstr "Eltelt idő: {time}"
 msgid "Ended"
 msgstr "Véget ért"
 
-#: playlist.py:2872
+#: playlist.py:2887
 msgid "Enter EPG XML URL"
 msgstr "Adja meg a műsorújság XML-forrásának URL-címét:"
 
-#: playlist.py:2962
+#: playlist.py:2977
 msgid "Enter M3U URL"
 msgstr "Adja meg az M3U-forrás URL-címét:"
 
@@ -920,7 +920,7 @@ msgstr "Kilépés a teljes képernyős nézetből"
 msgid "Exit Player"
 msgstr "Kilépés a lejátszóból"
 
-#: updater.py:698
+#: updater.py:695
 msgid "Expected thumbprints: {thumbprints}."
 msgstr "Elvárt tanúsítvány-ujjlenyomatok: {thumbprints}."
 
@@ -1039,7 +1039,7 @@ msgstr "Teljes képernyő"
 msgid "Full ffmpeg log:\n{path}"
 msgstr "Teljes FFmpeg-napló:\n{path}"
 
-#: playlist.py:2861
+#: playlist.py:2876
 msgid "GZip XML"
 msgstr "GZip-tömörített XML"
 
@@ -1102,11 +1102,11 @@ msgstr "Az importálás nem sikerült"
 msgid "Import Started"
 msgstr "Az importálás megkezdődött"
 
-#: playlist.py:2622
+#: playlist.py:2637
 msgid "Importing EPG"
 msgstr "Műsorújság importálása"
 
-#: playlist.py:2632
+#: playlist.py:2647
 msgid "Importing EPG data…"
 msgstr "A műsorújság adatainak importálása…"
 
@@ -1114,7 +1114,7 @@ msgstr "A műsorújság adatainak importálása…"
 msgid "In Progress"
 msgstr "Folyamatban"
 
-#: playlist.py:3103
+#: playlist.py:3118
 msgid "Include the provider's XMLTV guide automatically"
 msgstr "A szolgáltató XMLTV-forrásának automatikus beállítása"
 
@@ -1180,20 +1180,20 @@ msgstr "Lejátszási listák betöltése…"
 msgid "Logs"
 msgstr "Naplók"
 
-#: playlist.py:2951
+#: playlist.py:2966
 msgid "M3U files"
 msgstr "M3U-fájlok"
 
 #: account_info.py:388
-#: playlist.py:3228
+#: playlist.py:3243
 msgid "MAC address"
 msgstr "MAC-cím"
 
-#: playlist.py:3277
+#: playlist.py:3292
 msgid "MAC address must contain six octets (e.g., 00:1A:79:12:34:56)."
 msgstr "A MAC-címet hat oktett formájában adja meg, például: 00:1A:79:12:34:56."
 
-#: playlist.py:3228
+#: playlist.py:3243
 msgid "MAC address presented to the portal"
 msgstr "A portálhoz használt MAC-cím"
 
@@ -1236,7 +1236,7 @@ msgstr "Elmaradt"
 msgid "Movies"
 msgstr "Filmek"
 
-#: playlist.py:2709
+#: playlist.py:2724
 msgid "Name"
 msgstr "Név"
 
@@ -1381,8 +1381,8 @@ msgstr "Most: {title} ({start} – {end})"
 #: main.py:8871
 #: main.py:8931
 #: options.py:825
-#: playlist.py:2841
-#: playlist.py:2932
+#: playlist.py:2856
+#: playlist.py:2947
 msgid "OK"
 msgstr "OK"
 
@@ -1407,19 +1407,19 @@ msgstr "Az Accessible IPTV Client projekt megnyitása a GitHubon"
 msgid "Opening"
 msgstr "Megnyitás"
 
-#: playlist.py:3106
+#: playlist.py:3121
 msgid "Optional nickname for this Xtream Codes account"
 msgstr "Az Xtream Codes-fiók tetszőleges elnevezése"
 
-#: playlist.py:3224
+#: playlist.py:3239
 msgid "Optional nickname for this portal account"
 msgstr "A portálfiók tetszőleges elnevezése"
 
-#: playlist.py:3227
+#: playlist.py:3242
 msgid "Optional portal account password"
 msgstr "A portálfiók jelszava (nem kötelező)"
 
-#: playlist.py:3226
+#: playlist.py:3241
 msgid "Optional portal account username"
 msgstr "A portálfiók felhasználóneve (nem kötelező)"
 
@@ -1480,7 +1480,7 @@ msgstr "A párosítás nem sikerült: {error}"
 msgid "Pairing finished but no credentials returned."
 msgstr "A párosítás befejeződött, de nem érkeztek hitelesítési adatok."
 
-#: playlist.py:3109
+#: playlist.py:3124
 msgid "Password"
 msgstr "Jelszó"
 
@@ -1555,11 +1555,11 @@ msgstr "Lejátszási lista"
 
 #: main.py:2793
 #: main.py:2910
-#: playlist.py:2905
+#: playlist.py:2920
 msgid "Playlist Manager"
 msgstr "Lejátszási lista kezelése"
 
-#: playlist.py:3110
+#: playlist.py:3125
 msgid "Playlist type"
 msgstr "Lejátszási lista típusa"
 
@@ -1574,12 +1574,12 @@ msgstr "Lejátszási lista nézete"
 msgid "Please try another channel or try again later."
 msgstr "Válasszon másik csatornát, vagy próbálja újra később."
 
-#: playlist.py:3273
+#: playlist.py:3288
 msgid "Portal URL is required."
 msgstr "Adja meg a portál URL-címét."
 
-#: playlist.py:3107
-#: playlist.py:3225
+#: playlist.py:3122
+#: playlist.py:3240
 msgid "Portal base URL"
 msgstr "A portál alap-URL-címe"
 
@@ -1613,7 +1613,7 @@ msgstr "Előnyben részesített hangsáv"
 msgid "Preferred Audio Track..."
 msgstr "Előnyben részesített hangsáv…"
 
-#: playlist.py:3111
+#: playlist.py:3126
 msgid "Preferred stream container format"
 msgstr "Előnyben részesített konténerformátum"
 
@@ -1644,7 +1644,7 @@ msgstr "Előrehaladás: {percent}%"
 
 #: account_info.py:111
 #: main.py:1801
-#: playlist.py:3032
+#: playlist.py:3047
 msgid "Provider"
 msgstr "Szolgáltató"
 
@@ -1664,7 +1664,7 @@ msgid "Provider quality (copy, MP4)"
 msgstr "Eredeti minőség (újrakódolás nélkül, MP4)"
 
 #: main.py:1806
-#: playlist.py:3037
+#: playlist.py:3052
 msgid "Provider – {name}"
 msgstr "Szolgáltató – {name}"
 
@@ -1672,7 +1672,7 @@ msgstr "Szolgáltató – {name}"
 msgid "Python: {version}"
 msgstr "Python: {version}"
 
-#: playlist.py:3221
+#: playlist.py:3236
 msgid "Randomise MAC"
 msgstr "Véletlenszerű MAC-cím generálása"
 
@@ -1797,8 +1797,8 @@ msgstr "Eltávolítás a kedvencekből"
 msgid "Remove scheduled recording '{title}' from the list?"
 msgstr "Eltávolítja a listáról a következő ütemezett felvételt: „{title}”?"
 
-#: playlist.py:2710
-#: playlist.py:2786
+#: playlist.py:2725
+#: playlist.py:2801
 msgid "Rename"
 msgstr "Átnevezés"
 
@@ -1924,7 +1924,7 @@ msgstr "Válasszon fiókot az állapotának ellenőrzéséhez:"
 msgid "Select the audio output device for the built-in player."
 msgstr "Válassza ki a beépített lejátszó hangkimeneti eszközét."
 
-#: playlist.py:3110
+#: playlist.py:3125
 msgid "Select the playlist format to download"
 msgstr "Válassza ki a letöltendő lejátszási lista formátumát"
 
@@ -2009,7 +2009,7 @@ msgid "Stalker Portal"
 msgstr "Stalker Portal"
 
 #: main.py:1805
-#: playlist.py:3036
+#: playlist.py:3051
 msgid "Stalker Portal – {name}"
 msgstr "Stalker Portal – {name}"
 
@@ -2113,7 +2113,7 @@ msgstr "Az adás megszakadt. Lehet, hogy jelenleg nem érhető el, vagy működ�
 msgid "Stream lost"
 msgstr "Az adás megszakadt"
 
-#: playlist.py:3111
+#: playlist.py:3126
 msgid "Stream output"
 msgstr "Kimeneti formátum"
 
@@ -2286,7 +2286,7 @@ msgstr "{id}. sáv"
 msgid "Trial account"
 msgstr "Próbafiók"
 
-#: playlist.py:3216
+#: playlist.py:3231
 msgid "Try to add the portal's XMLTV guide automatically"
 msgstr "Az XMLTV-műsorújság automatikus betöltése a portálról, ha elérhető"
 
@@ -2294,7 +2294,7 @@ msgstr "Az XMLTV-műsorújság automatikus betöltése a portálról, ha elérhe
 msgid "Type"
 msgstr "Típus"
 
-#: playlist.py:2753
+#: playlist.py:2768
 msgid "URL copied to the clipboard."
 msgstr "Az URL-cím a vágólapra került."
 
@@ -2328,7 +2328,7 @@ msgid "Unexpected account response from the Xtream server"
 msgstr "Váratlan fiókválasz érkezett az Xtream-kiszolgálótól"
 
 #: main.py:9632
-#: updater.py:692
+#: updater.py:689
 msgid "Unknown"
 msgstr "Ismeretlen"
 
@@ -2449,17 +2449,17 @@ msgid "User Guide"
 msgstr "Felhasználói útmutató"
 
 #: account_info.py:386
-#: playlist.py:3108
+#: playlist.py:3123
 msgid "Username"
 msgstr "Felhasználónév"
 
-#: playlist.py:3139
+#: playlist.py:3154
 msgid "Username, password, and URL are required."
 msgstr "Adja meg a felhasználónevet, a jelszót és az URL-címet."
 
-#: playlist.py:3139
-#: playlist.py:3273
-#: playlist.py:3277
+#: playlist.py:3154
+#: playlist.py:3288
+#: playlist.py:3292
 msgid "Validation"
 msgstr "Ellenőrzés"
 
@@ -2524,7 +2524,7 @@ msgstr "Ha egy csatorna több hangsávot kínál, a beépített lejátszó autom
 msgid "Windows did not get permission to install the update."
 msgstr "A Windows nem kapott engedélyt a frissítés telepítéséhez."
 
-#: playlist.py:2860
+#: playlist.py:2875
 msgid "XML files"
 msgstr "XML-fájlok"
 
@@ -2532,16 +2532,16 @@ msgstr "XML-fájlok"
 msgid "Xtream Codes"
 msgstr "Xtream Codes"
 
-#: playlist.py:3109
+#: playlist.py:3124
 msgid "Xtream Codes password"
 msgstr "Xtream Codes-fiók jelszava"
 
-#: playlist.py:3108
+#: playlist.py:3123
 msgid "Xtream Codes username"
 msgstr "Xtream Codes-fiók felhasználóneve"
 
 #: main.py:1803
-#: playlist.py:3034
+#: playlist.py:3049
 msgid "Xtream Codes – {name}"
 msgstr "Xtream Codes – {name}"
 
@@ -2610,15 +2610,15 @@ msgstr "{kind} – {who}"
 msgid "{kind} – {who} (detected)"
 msgstr "{kind} – {who} (észlelt)"
 
-#: playlist.py:3076
-#: playlist.py:3191
+#: playlist.py:3091
+#: playlist.py:3206
 msgid "{label} field"
 msgstr "{label} mező"
 
-#: playlist.py:3070
-#: playlist.py:3072
-#: playlist.py:3185
-#: playlist.py:3187
+#: playlist.py:3085
+#: playlist.py:3087
+#: playlist.py:3200
+#: playlist.py:3202
 msgid "{label} label"
 msgstr "{label} címke"
 

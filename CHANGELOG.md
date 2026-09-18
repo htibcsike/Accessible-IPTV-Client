@@ -1,6 +1,14 @@
 # Changelog
 
 Readable release history for Accessible IPTV Client. New entries are prepended automatically by `build.bat release`. Older entries were reconstructed from the [Forgejo mirror](https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client).
+## v1.136.9 - 2026-09-18
+
+### Bug fixes
+
+- Never mix an old partial guide download into a new one, and check update signatures more strictly
+- Record rtmp, rtsp and udp channels, and stop recordings canceled while starting
+- Keep other devices on the network out of the casting proxy
+
 ## v1.136.8 - 2026-09-18
 
 ### Bug fixes
