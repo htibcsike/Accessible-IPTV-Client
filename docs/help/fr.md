@@ -302,9 +302,9 @@ Il ne se déclenche jamais tant que quelque chose enregistre encore ou attend da
 
 ## Diffusion {#casting}
 
-La diffusion envoie une chaîne vers un téléviseur ou une enceinte de votre réseau : appareils Chromecast, rendereurs DLNA et UPnP, et appareils AirPlay comme Apple TV et HomePod.
+La diffusion envoie une chaîne vers un téléviseur ou une enceinte de votre réseau : Chromecast et autres appareils Google Cast, enceintes AirPlay, rendereurs DLNA et UPnP, enceintes Sonos, lecteurs Roku et Kodi.
 
-Fichier > Diffuser vers… analyse votre réseau et liste les appareils trouvés. Choisissez un appareil puis Connecter. Certains appareils AirPlay demandent d'abord Appairer…, qui réclame le code affiché sur le téléviseur. Une fois connecté, la lecture d'une chaîne l'envoie vers l'appareil. Choisir de nouveau Diffuser vers… déconnecte.
+Fichier > Diffuser vers… analyse votre réseau et liste les appareils trouvés, chacun suivi de son type. Choisissez un appareil puis Connecter. Une fois connecté, la lecture d'une chaîne l'envoie vers l'appareil. Les enceintes, comme AirPlay et Sonos, diffusent le son de la chaîne. Choisir de nouveau Diffuser vers… déconnecte.
 
 Le bouton Diffuser du lecteur intégré, Lecteur > Diffuser / Connecter… (Ctrl+Shift+C) et Ctrl+C dans le lecteur font pareil.
 

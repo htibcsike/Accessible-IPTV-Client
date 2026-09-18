@@ -2,6 +2,8 @@
 import http.server
 import socketserver
 import threading
+import re
+import urllib.error
 import urllib.request
 import urllib.parse
 import socket
@@ -747,6 +749,34 @@ def is_allowed_upstream_url(url) -> bool:
     return scheme in _ALLOWED_UPSTREAM_SCHEMES
 
 
+_URI_ATTR_RX = re.compile(r'URI="([^"]*)"')
+
+
+def rewrite_playlist_for_gateway(text: str, base_url: str, to_gateway) -> str:
+    """Point every URI in an HLS playlist at the header gateway.
+
+    ``base_url`` is where the playlist really came from (after redirects), so
+    relative URIs are resolved against the upstream, not the gateway path.
+    """
+    def convert(uri: str) -> str:
+        uri = uri.strip()
+        if not uri:
+            return uri
+        absolute = urllib.parse.urljoin(base_url, uri)
+        return to_gateway(absolute) if is_allowed_upstream_url(absolute) else uri
+
+    out = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            out.append(line)
+        elif stripped.startswith('#'):
+            out.append(_URI_ATTR_RX.sub(lambda m: 'URI="%s"' % convert(m.group(1)), line))
+        else:
+            out.append(convert(stripped))
+    return "\n".join(out) + "\n"
+
+
 def _is_safe_segment_name(name: str) -> bool:
     """Reject path traversal / separators in a transcode segment filename."""
     if not name or name in (".", ".."):
@@ -800,10 +830,114 @@ class StreamProxyHandler(http.server.BaseHTTPRequestHandler):
             return None
         return parsed._replace(path=parsed.path[len(prefix) - 1:])
 
+    def do_HEAD(self):
+        parsed = self._strip_access_token(urllib.parse.urlparse(self.path))
+        if parsed is None or not parsed.path.startswith('/g/'):
+            return self.send_error(404)
+        return self._serve_gateway(parsed, head=True)
+
+    # ------------------------------------------------------------------ #
+    # /g/<sid>/<scheme>/<host>/<path>: the channel's own URL, fetched with
+    # the channel's HTTP headers.
+    #
+    # Casting hands a URL to code that fetches it without our headers:
+    # Caster's engine (probe, relay, RAOP pipe) and the receivers
+    # themselves. A channel that needs a User-Agent or Referer is refused
+    # by its provider on every one of those requests. The gateway adds
+    # them. The upstream path is kept in the gateway path, so a playlist's
+    # relative segment URLs resolve back through the gateway on their own;
+    # absolute ones are rewritten to it.
+    # ------------------------------------------------------------------ #
+    _GATEWAY_PLAYLIST_LIMIT = 4 * 1024 * 1024
+    _GATEWAY_PASS_HEADERS = ('Range', 'Accept', 'If-Range')
+    _GATEWAY_RETURN_HEADERS = ('Content-Type', 'Content-Length', 'Content-Range',
+                               'Accept-Ranges', 'Last-Modified', 'ETag')
+
+    def _serve_gateway(self, parsed, head=False):
+        parts = parsed.path.split('/', 5)
+        if len(parts) < 5:
+            return self.send_error(404)
+        sid, scheme, netloc = parts[2], parts[3], parts[4]
+        rest = parts[5] if len(parts) > 5 else ''
+        upstream = f"{scheme}://{netloc}/{rest}" + (f"?{parsed.query}" if parsed.query else "")
+        if not is_allowed_upstream_url(upstream):
+            return self.send_error(403)
+        proxy = get_proxy()
+        headers = proxy.gateway_headers(sid)
+        if headers is None:
+            return self.send_error(404)
+        request_headers = dict(headers)
+        if not any(k.lower() == 'user-agent' for k in request_headers):
+            request_headers['User-Agent'] = self.headers.get('User-Agent') or _DEFAULT_UPSTREAM_USER_AGENT
+        for name in self._GATEWAY_PASS_HEADERS:
+            value = self.headers.get(name)
+            if value:
+                request_headers[name] = value
+        req = urllib.request.Request(upstream, headers=request_headers,
+                                     method='HEAD' if head else 'GET')
+        try:
+            resp = urllib.request.urlopen(req, timeout=20)
+        except urllib.error.HTTPError as err:
+            try:
+                self.send_response(err.code)
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Content-Length', '0')
+                self.end_headers()
+            finally:
+                err.close()
+            return
+        except Exception as err:
+            LOG.info("Gateway could not reach upstream: %s", type(err).__name__)
+            return self.send_error(502)
+        with resp:
+            ctype = (resp.headers.get('Content-Type') or '').lower()
+            path_lower = urllib.parse.urlsplit(resp.geturl()).path.lower()
+            playlist = 'mpegurl' in ctype or path_lower.endswith(('.m3u8', '.m3u'))
+            if playlist and not head:
+                body = resp.read(self._GATEWAY_PLAYLIST_LIMIT + 1)
+                if len(body) <= self._GATEWAY_PLAYLIST_LIMIT:
+                    text = body.decode('utf-8-sig', errors='replace')
+                    data = rewrite_playlist_for_gateway(
+                        text, resp.geturl(), lambda url: proxy.gateway_url(url, sid)).encode('utf-8')
+                    self.send_response(resp.status)
+                    self.send_header('Content-Type', resp.headers.get('Content-Type')
+                                     or 'application/vnd.apple.mpegurl')
+                    self.send_header('Content-Length', str(len(data)))
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self._send_no_cache_headers()
+                    self.end_headers()
+                    self.wfile.write(data)
+                    return
+                prefix = body
+            else:
+                prefix = b''
+            self.send_response(resp.status)
+            for name in self._GATEWAY_RETURN_HEADERS:
+                value = resp.headers.get(name)
+                if value and not (prefix and name == 'Content-Length'):
+                    self.send_header(name, value)
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            if head:
+                return
+            try:
+                if prefix:
+                    self.wfile.write(prefix)
+                while True:
+                    chunk = resp.read(64 * 1024)
+                    if not chunk:
+                        break
+                    self.wfile.write(chunk)
+            except OSError:
+                # The receiver or the engine hung up; the upstream closes with resp.
+                LOG.debug("Gateway client disconnected", exc_info=True)
+
     def do_GET(self):
         parsed = self._strip_access_token(urllib.parse.urlparse(self.path))
         if parsed is None:
             return self.send_error(404)
+        if parsed.path.startswith('/g/'):
+            return self._serve_gateway(parsed)
 
         # 1. --- Route: /audio or /stream (High-Speed Buffered Proxy) ---
         if parsed.path in ('/audio', '/stream', '/proxy'):
@@ -1086,6 +1220,8 @@ class StreamProxy:
         # Secret first path segment of every URL we hand out; see
         # StreamProxyHandler._strip_access_token.
         self.token = secrets.token_urlsafe(16)
+        # Header gateway sessions: sid -> the channel's request headers.
+        self._gateway_sessions = {}
         self.converters = {}
         self.converter_sources = {}
         self.lock = threading.Lock()
@@ -1167,6 +1303,30 @@ class StreamProxy:
 
     def base_url(self):
         return f"http://{self.host}:{self.port}/{self.token}"
+
+    def gateway_url(self, target_url, sid):
+        """``target_url`` as served through the header gateway session ``sid``."""
+        parts = urllib.parse.urlsplit(target_url)
+        path = parts.path or "/"
+        url = f"{self.base_url()}/g/{sid}/{parts.scheme.lower()}/{parts.netloc}{path}"
+        return url + (f"?{parts.query}" if parts.query else "")
+
+    def get_gateway_url(self, target_url, headers):
+        """A LAN URL that fetches ``target_url`` with ``headers`` attached.
+
+        Sessions are keyed by the header set, so every URL of one channel -
+        playlist, segments, redirects - shares one session.
+        """
+        clean = normalize_request_headers(headers, add_default_user_agent=False)
+        sid = hashlib.sha256(json.dumps(clean, sort_keys=True).encode()).hexdigest()[:20]
+        with self.lock:
+            self._gateway_sessions[sid] = clean
+        return self.gateway_url(target_url, sid)
+
+    def gateway_headers(self, sid):
+        with self.lock:
+            headers = self._gateway_sessions.get(sid)
+        return dict(headers) if headers is not None else None
 
     def get_stream_url(self, target_url, headers=None, mode="auto"):
         params = {'url': target_url, 'mode': mode}

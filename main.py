@@ -7354,7 +7354,8 @@ class IPTVClient(wx.Frame):
                 # Run async cast play in background thread
                 def do_cast():
                     try:
-                        caster.play(url, title or _("IPTV Stream"), channel=channel)
+                        caster.play(url, title or _("IPTV Stream"), channel=channel,
+                                    exclusive=bool(single_stream_provider_key(url)))
                         self._active_cast_source_url = url
                     except Exception as e:
                         err_msg = str(e)
@@ -7491,14 +7492,12 @@ class IPTVClient(wx.Frame):
 
         def do_cast(device):
             try:
-                creds = self.config.get("cast_credentials", {}).get(device.identifier)
-                caster.connect(device, credentials=creds)
-                # Use the active caster directly so we can forward headers from the current stream.
-                if caster.active_caster:
-                    caster.dispatch(caster.active_caster.play(url, title, headers=headers))
-                    self._active_cast_source_url = url
-                else:
-                    raise RuntimeError("Caster not connected.")
+                caster.connect(device)
+                # The player's own headers: it may be showing a stream that is
+                # not a channel row (catch-up, a recording's relay).
+                caster.play(url, title, headers=headers,
+                            exclusive=bool(single_stream_provider_key(url)))
+                self._active_cast_source_url = url
                 wx.CallAfter(self._handoff_internal_player_after_cast, url, title)
                 wx.CallAfter(lambda: message_box(_("Casting to {device}...").format(device=device.display_name), _("Casting"), wx.OK | wx.ICON_INFORMATION))
             except Exception as e:
@@ -8078,8 +8077,7 @@ class IPTVClient(wx.Frame):
                 # Connect in background
                 def do_connect():
                     try:
-                        creds = self.config.get("cast_credentials", {}).get(device.identifier)
-                        caster.connect(device, credentials=creds)
+                        caster.connect(device)
                         wx.CallAfter(lambda: message_box(_("Connected to {device}").format(device=device.display_name), _("Connected"), wx.OK))
                     except Exception as e:
                         err_msg = str(e)
@@ -8118,14 +8116,10 @@ class CastDiscoveryDialog(wx.Dialog):
 
         btn_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.pair_btn = wx.Button(panel, label=_("Pair..."))
-        self.pair_btn.Disable()
-
         self.ok_btn = wx.Button(panel, id=wx.ID_OK, label=_("Connect"))
         self.ok_btn.Disable()
         cancel_btn = wx.Button(panel, id=wx.ID_CANCEL, label=_("Cancel"))
         
-        btn_sizer.Add(self.pair_btn, 0, wx.ALL, 5)
         btn_sizer.AddStretchSpacer(1)
         btn_sizer.Add(self.ok_btn, 0, wx.ALL, 5)
         btn_sizer.Add(cancel_btn, 0, wx.ALL, 5)
@@ -8138,7 +8132,6 @@ class CastDiscoveryDialog(wx.Dialog):
         
         self.listbox.Bind(wx.EVT_LISTBOX, self._on_select)
         self.listbox.Bind(wx.EVT_LISTBOX_DCLICK, self._on_dclick)
-        self.pair_btn.Bind(wx.EVT_BUTTON, self._on_pair)
         
         self.CenterOnParent()
         
@@ -8173,96 +8166,12 @@ class CastDiscoveryDialog(wx.Dialog):
         sel = self.listbox.GetSelection()
         if sel != wx.NOT_FOUND and 0 <= sel < len(self.devices):
             self.ok_btn.Enable()
-            dev = self.devices[sel]
-            # Enable Pair button for AirPlay devices
-            self.pair_btn.Enable(dev.protocol.value == "AirPlay")
         else:
             self.ok_btn.Disable()
-            self.pair_btn.Disable()
 
     def _on_dclick(self, event):
         if self.listbox.GetSelection() != wx.NOT_FOUND:
             self.EndModal(wx.ID_OK)
-
-    def _on_pair(self, event):
-        device = self.get_selected_device()
-        if not device:
-            return
-        
-        # Disable UI
-        self.pair_btn.Disable()
-        self.ok_btn.Disable()
-        self.status_lbl.SetLabel(_("Starting pairing with {device}...").format(device=device.name))
-        
-        def do_pair_flow():
-            handler = None
-            try:
-                # Step 1: Begin Pairing
-                handler = self.caster.start_pairing(device) # This is sync now
-                self.caster.dispatch(handler.begin())
-                
-                # Step 2: Ask User for PIN
-                def ask_pin():
-                    dlg = wx.TextEntryDialog(self, _("Enter PIN displayed on {device}:").format(device=device.name), _("Pairing"))
-                    if dlg.ShowModal() == wx.ID_OK:
-                        return dlg.GetValue().strip()
-                    return None
-                
-                # We need to run the dialog on main thread
-                pin_result = [None]
-                evt = threading.Event()
-                def show_dialog_main():
-                    pin_result[0] = ask_pin()
-                    evt.set()
-                
-                wx.CallAfter(show_dialog_main)
-                evt.wait()
-                
-                pin = pin_result[0]
-                if not pin:
-                    # User cancelled
-                    self.caster.dispatch(handler.close())
-                    wx.CallAfter(self.status_lbl.SetLabel, _("Pairing cancelled."))
-                    return
-
-                # Step 3: Submit PIN
-                handler.pin(pin)
-                
-                # Step 4: Finish
-                self.caster.dispatch(handler.finish())
-                
-                # Step 5: Save Credentials
-                creds = handler.service.credentials
-                if creds:
-                    wx.CallAfter(self._save_creds_and_notify, device, creds)
-                else:
-                    wx.CallAfter(lambda: message_box(_("Pairing finished but no credentials returned."), _("Pairing Failed"), wx.OK | wx.ICON_ERROR))
-
-            except Exception as e:
-                err_msg = str(e)
-                wx.CallAfter(lambda: message_box(_("Pairing error: {error}").format(error=err_msg), _("Error"), wx.OK | wx.ICON_ERROR))
-                wx.CallAfter(self.status_lbl.SetLabel, _("Pairing failed: {error}").format(error=err_msg))
-                if handler:
-                    try:
-                        self.caster.dispatch(handler.close())
-                    except Exception:
-                        LOG.debug("CastDiscoveryDialog._on_pair.do_pair_flow: ignored exception", exc_info=True)
-            finally:
-                wx.CallAfter(self._on_select, None) # Re-enable buttons
-        
-        threading.Thread(target=do_pair_flow, daemon=True).start()
-
-    def _save_creds_and_notify(self, device, creds):
-        # Save to main config
-        cfg = self.parent_frame.config
-        if "cast_credentials" not in cfg:
-            cfg["cast_credentials"] = {}
-        
-        cfg["cast_credentials"][device.identifier] = creds
-        save_config(cfg)
-        
-        message_box(_("Successfully paired with {device}!").format(device=device.name), _("Pairing Complete"), wx.OK)
-        self.status_lbl.SetLabel(_("Paired with {device}. Ready to connect.").format(device=device.name))
 
     def get_selected_device(self) -> Optional[object]:
         sel = self.listbox.GetSelection()

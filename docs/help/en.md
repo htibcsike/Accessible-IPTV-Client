@@ -311,9 +311,9 @@ It never fires while something is still recording or waiting in the schedule. Wh
 
 ## Casting {#casting}
 
-Casting sends a channel to a TV or speaker on your network: Chromecast devices, DLNA and UPnP renderers, and AirPlay devices such as Apple TV and HomePod.
+Casting sends a channel to a TV or speaker on your network: Chromecast and other Google Cast devices, AirPlay speakers, DLNA and UPnP renderers, Sonos speakers, Roku players and Kodi.
 
-File > Cast To searches your network and lists the devices it finds. Choose a device and Connect. Some AirPlay devices need Pair first, which asks for the code shown on the TV. Once connected, playing a channel sends it to the device. Choose Cast To again to disconnect.
+File > Cast To searches your network and lists the devices it finds, each followed by its type. Choose a device and Connect. Once connected, playing a channel sends it to the device. Speakers, such as AirPlay and Sonos, play the channel's sound. Choose Cast To again to disconnect.
 
 The Cast button in the built-in player, Player > Cast / Connect (Ctrl+Shift+C) and Ctrl+C in the player do the same.
 

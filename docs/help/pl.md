@@ -302,9 +302,9 @@ Nigdy nie działa, gdy coś jeszcze nagrywa albo czeka w harmonogramie. Gdy przy
 
 ## Przesyłanie {#casting}
 
-Przesyłanie wysyła kanał na telewizor albo głośnik w twojej sieci: urządzenia Chromecast, renderery DLNA i UPnP oraz urządzenia AirPlay, takie jak Apple TV i HomePod.
+Przesyłanie wysyła kanał na telewizor albo głośnik w twojej sieci: Chromecast i inne urządzenia Google Cast, głośniki AirPlay, renderery DLNA i UPnP, głośniki Sonos, odtwarzacze Roku i Kodi.
 
-Plik > Przesyłaj do... przeszukuje twoją sieć i wypisuje znalezione urządzenia. Wybierz urządzenie i Połącz. Niektóre urządzenia AirPlay najpierw chcą Paruj..., które pyta o kod pokazany na telewizorze. Po połączeniu odtwarzanie kanału wysyła go na urządzenie. Ponowne wybranie Przesyłaj do... rozłącza.
+Plik > Przesyłaj do... przeszukuje twoją sieć i wypisuje znalezione urządzenia, każde z jego rodzajem. Wybierz urządzenie i Połącz. Po połączeniu odtwarzanie kanału wysyła go na urządzenie. Głośniki, takie jak AirPlay i Sonos, odtwarzają dźwięk kanału. Ponowne wybranie Przesyłaj do... rozłącza.
 
 Przycisk Przesyłaj we wbudowanym odtwarzaczu, Odtwarzacz > Przesyłaj / Połącz... (Ctrl+Shift+C) i Ctrl+C w odtwarzaczu robią to samo.
 

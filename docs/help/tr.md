@@ -301,9 +301,9 @@ Hâlâ bir şey kaydediyorken ya da programda beklerken hiçbir zaman devreye gi
 
 ## Yayınlama {#casting}
 
-Yayınlama, bir kanalı ağınızda bir TV'ye ya da hoparlöre gönderir: Chromecast cihazları, DLNA ve UPnP işleyicileri, ve Apple TV ile HomePod gibi AirPlay cihazları.
+Yayınlama, bir kanalı ağınızda bir TV'ye ya da hoparlöre gönderir: Chromecast ve diğer Google Cast cihazları, AirPlay hoparlörleri, DLNA ve UPnP işleyicileri, Sonos hoparlörleri, Roku oynatıcıları ve Kodi.
 
-Dosya > Şuraya yayınla... ağınızı tarar ve bulduğu cihazları listeler. Bir cihaz ve Bağlan'ı seçin. Bazı AirPlay cihazları önce Eşleştir... ister; TV'de gösterilen kodu sorar. Bağlandıktan sonra bir kanal oynatmak onu cihaza gönderir. Yeniden Şuraya yayınla... seçmek bağlantıyı keser.
+Dosya > Şuraya yayınla... ağınızı tarar ve bulduğu cihazları, her birinin ardından türüyle listeler. Bir cihaz ve Bağlan'ı seçin. Bağlandıktan sonra bir kanal oynatmak onu cihaza gönderir. AirPlay ve Sonos gibi hoparlörler kanalın sesini çalar. Yeniden Şuraya yayınla... seçmek bağlantıyı keser.
 
 Yerleşik oynatıcıdaki Yayınla düğmesi, Oynatıcı > Yayınla / Bağlan... (Ctrl+Shift+C) ve oynatıcıda Ctrl+C aynı şeyi yapar.
 

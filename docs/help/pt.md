@@ -302,9 +302,9 @@ Nunca entra em ação enquanto algo ainda grava ou espera na agenda. Chegada a h
 
 ## Transmissão {#casting}
 
-A transmissão envia um canal para uma TV ou caixa de som da sua rede: dispositivos Chromecast, renderizadores DLNA e UPnP, e dispositivos AirPlay como Apple TV e HomePod.
+A transmissão envia um canal para uma TV ou caixa de som da sua rede: Chromecast e outros dispositivos Google Cast, caixas de som AirPlay, renderizadores DLNA e UPnP, caixas de som Sonos, reprodutores Roku e Kodi.
 
-Arquivo > Transmitir para… procura na sua rede e lista os dispositivos encontrados. Escolha um dispositivo e Conectar. Alguns dispositivos AirPlay precisam primeiro de Emparelhar…, que pede o código mostrado na TV. Uma vez conectado, reproduzir um canal o envia ao dispositivo. Escolher de novo Transmitir para… desconecta.
+Arquivo > Transmitir para… procura na sua rede e lista os dispositivos encontrados, cada um seguido do seu tipo. Escolha um dispositivo e Conectar. Uma vez conectado, reproduzir um canal o envia ao dispositivo. As caixas de som, como AirPlay e Sonos, tocam o som do canal. Escolher de novo Transmitir para… desconecta.
 
 O botão Transmitir do reprodutor integrado, Reprodutor > Transmitir / Conectar… (Ctrl+Shift+C) e Ctrl+C no reprodutor fazem o mesmo.
 

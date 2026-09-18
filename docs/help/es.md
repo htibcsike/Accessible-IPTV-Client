@@ -302,9 +302,9 @@ Nunca se activa mientras algo siga grabando o esperando en la agenda. Cuando lle
 
 ## Transmisión {#casting}
 
-Transmitir envía un canal a un televisor o altavoz de su red: dispositivos Chromecast, renderizadores DLNA y UPnP, y dispositivos AirPlay como Apple TV y HomePod.
+Transmitir envía un canal a un televisor o altavoz de su red: Chromecast y otros dispositivos Google Cast, altavoces AirPlay, renderizadores DLNA y UPnP, altavoces Sonos, reproductores Roku y Kodi.
 
-Archivo > Transmitir a… busca en su red y enumera los dispositivos que encuentra. Elija un dispositivo y Conectar. Algunos dispositivos AirPlay necesitan primero Emparejar…, que pide el código mostrado en el televisor. Una vez conectado, reproducir un canal lo envía al dispositivo. Elegir de nuevo Transmitir a… desconecta.
+Archivo > Transmitir a… busca en su red y enumera los dispositivos que encuentra, cada uno seguido de su tipo. Elija un dispositivo y Conectar. Una vez conectado, reproducir un canal lo envía al dispositivo. Los altavoces, como AirPlay y Sonos, reproducen el sonido del canal. Elegir de nuevo Transmitir a… desconecta.
 
 El botón Transmitir del reproductor integrado, Reproductor > Transmitir / Conectar… (Ctrl+Shift+C) y Ctrl+C en el reproductor hacen lo mismo.
 

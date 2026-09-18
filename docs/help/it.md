@@ -302,9 +302,9 @@ Non scatta mai mentre qualcosa sta ancora registrando o aspetta in coda. Arrivat
 
 ## Trasmissione {#casting}
 
-La trasmissione manda un canale a una TV o un altoparlante della propria rete: dispositivi Chromecast, renderer DLNA e UPnP, e dispositivi AirPlay come Apple TV e HomePod.
+La trasmissione manda un canale a una TV o un altoparlante della propria rete: Chromecast e altri dispositivi Google Cast, altoparlanti AirPlay, renderer DLNA e UPnP, altoparlanti Sonos, lettori Roku e Kodi.
 
-File > Trasmetti a… esplora la rete ed elenca i dispositivi trovati. Scegliere un dispositivo e Connetti. Alcuni dispositivi AirPlay chiedono prima Associa…, che richiede il codice mostrato sulla TV. Una volta connesso, riprodurre un canale lo manda al dispositivo. Scegliere di nuovo Trasmetti a… disconnette.
+File > Trasmetti a… esplora la rete ed elenca i dispositivi trovati, ciascuno seguito dal suo tipo. Scegliere un dispositivo e Connetti. Una volta connesso, riprodurre un canale lo manda al dispositivo. Gli altoparlanti, come AirPlay e Sonos, riproducono l'audio del canale. Scegliere di nuovo Trasmetti a… disconnette.
 
 Il pulsante Trasmetti del lettore integrato, Lettore > Trasmetti / Connetti… (Ctrl+Shift+C) e Ctrl+C nel lettore fanno lo stesso.
 

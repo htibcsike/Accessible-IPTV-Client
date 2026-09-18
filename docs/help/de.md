@@ -302,9 +302,9 @@ Es greift nie, während noch etwas aufgenommen wird oder wartet. Ist es so weit,
 
 ## Übertragen {#casting}
 
-Übertragen schickt einen Sender an ein Fernsehgerät oder einen Lautsprecher in Ihrem Netz: Chromecast-Geräte, DLNA- und UPnP-Renderer sowie AirPlay-Geräte wie Apple TV und HomePod.
+Übertragen schickt einen Sender an ein Fernsehgerät oder einen Lautsprecher in Ihrem Netz: Chromecast und andere Google-Cast-Geräte, AirPlay-Lautsprecher, DLNA- und UPnP-Renderer, Sonos-Lautsprecher, Roku-Player und Kodi.
 
-Datei > Übertragen an… durchsucht Ihr Netz und listet die gefundenen Geräte. Wählen Sie ein Gerät und Verbinden. Manche AirPlay-Geräte verlangen zuerst Koppeln…, das nach dem auf dem Fernseher gezeigten Code fragt. Nach dem Verbinden schickt das Abspielen eines Senders ihn an das Gerät. Erneutes Übertragen an… trennt.
+Datei > Übertragen an… durchsucht Ihr Netz und listet die gefundenen Geräte, jeweils gefolgt von ihrer Art. Wählen Sie ein Gerät und Verbinden. Nach dem Verbinden schickt das Abspielen eines Senders ihn an das Gerät. Lautsprecher wie AirPlay und Sonos geben den Ton des Senders wieder. Erneutes Übertragen an… trennt.
 
 Die Übertragen-Schaltfläche im integrierten Player, Player > Übertragen / Verbinden… (Ctrl+Shift+C) und Ctrl+C im Player tun dasselbe.
 
