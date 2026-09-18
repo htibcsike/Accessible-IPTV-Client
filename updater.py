@@ -595,6 +595,11 @@ def find_executable(root: str, exe_name: str) -> Optional[str]:
     return None
 
 
+# Get-AuthenticodeSignature statuses a pinned certificate may pass with: a
+# trusted chain, or a chain ending in a root this machine does not trust.
+_PIN_ACCEPTED_STATUSES = frozenset({"valid", "unknownerror", "nottrusted"})
+
+
 def verify_authenticode(exe_path: str, allowed_thumbprints: Iterable[str]) -> None:
     allowed = set(_normalize_thumbprints(allowed_thumbprints))
     LOG.debug("verify_authenticode: exe=%s, allowed_thumbprints=%s", exe_path, allowed)
@@ -620,30 +625,21 @@ $thumb = if ($sig.SignerCertificate) {{ $sig.SignerCertificate.Thumbprint }} els
         os.write(script_fd, ps_script.encode('utf-8-sig'))
         os.close(script_fd)
         
-        # Use cmd.exe to launch Windows PowerShell with a clean environment
-        # This bypasses Python environment variables that can cause module loading issues
-        # (e.g., PSMODULEPATH conflicts between pwsh 7 and Windows PowerShell 5.1)
-        windows_ps = os.path.join(os.environ.get("SYSTEMROOT", "C:\\Windows"),
-                                   "System32", "WindowsPowerShell", "v1.0", "powershell.exe")
-        if not os.path.exists(windows_ps):
-            windows_ps = "powershell.exe"  # Fall back to PATH
-        
+        # Windows PowerShell 5.1 straight, never through cmd.exe: cmd mangles a
+        # quoted path with a space in it (issue #26), and %TEMP% has one for a
+        # user profile named "First Last". The environment is cleaned of pwsh
+        # 7's module paths, which break 5.1's own modules.
         cmd = [
-            "cmd", "/c", windows_ps,
+            windows_powershell_path(),
             "-NoProfile",
             "-NonInteractive",
             "-ExecutionPolicy", "Bypass",
             "-File", script_path,
         ]
-        
-        # Clean environment - remove PS-related vars that cause module conflicts
-        clean_env = os.environ.copy()
-        for k in list(clean_env.keys()):
-            if 'PSMODULE' in k.upper() or 'POWERSHELL' in k.upper():
-                del clean_env[k]
-        
+
         try:
-            result = run_hidden(cmd, capture_output=True, text=True, errors="replace", timeout=30, env=clean_env)
+            result = run_hidden(cmd, capture_output=True, text=True, errors="replace",
+                                timeout=30, env=clean_powershell_env())
         except subprocess.TimeoutExpired as exc:
             raise UpdateError(_("Authenticode verification timed out.")) from exc
         except OSError as exc:
@@ -672,9 +668,10 @@ $thumb = if ($sig.SignerCertificate) {{ $sig.SignerCertificate.Thumbprint }} els
     
     LOG.debug("verify_authenticode: status=%s, thumbprint=%s", status, thumbprint)
 
-    # A pinned thumbprint always wins: an exact match passes regardless of the
-    # CA's trust assessment (handles self-signed / not-yet-trusted certs).
-    if thumbprint and thumbprint in allowed:
+    # A pinned thumbprint overrides only the CA's trust assessment (self-signed
+    # or not-yet-trusted certificates). It never excuses a file whose contents
+    # no longer match its signature (HashMismatch) or that is not signed.
+    if thumbprint and thumbprint in allowed and status.lower() in _PIN_ACCEPTED_STATUSES:
         LOG.debug("verify_authenticode: PASS - thumbprint %s in allowed set", thumbprint)
         return
 

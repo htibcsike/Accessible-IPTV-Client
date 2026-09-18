@@ -501,3 +501,46 @@ def test_update_helper_extracts_the_installer_error(tmp_path):
         "Defaulting to Abort for suppressed message box (Abort/Retry/Ignore): "
         "C:\\Program Files\\AccessibleIPTVClient\\_internal\\python314.dll "
         "An error occurred while trying to replace the existing file: DeleteFile failed; code 5.")
+
+
+
+class _SignatureResult:
+    def __init__(self, status, thumbprint):
+        self.returncode = 0
+        self.stdout = json.dumps({"Status": status, "StatusMessage": "", "Thumbprint": thumbprint})
+        self.stderr = ""
+
+
+def _fake_signature(monkeypatch, status, thumbprint, commands=None):
+    def run(cmd, **_kwargs):
+        if commands is not None:
+            commands.append(cmd)
+        return _SignatureResult(status, thumbprint)
+
+    monkeypatch.setattr(updater, "run_hidden", run)
+
+
+def test_pinned_certificate_does_not_excuse_a_tampered_file(monkeypatch, tmp_path):
+    _fake_signature(monkeypatch, "HashMismatch", "AB CD")
+    with pytest.raises(updater.UpdateError):
+        updater.verify_authenticode(str(tmp_path / "app.exe"), ["ABCD"])
+
+
+def test_pinned_certificate_does_not_pass_an_unsigned_file(monkeypatch, tmp_path):
+    _fake_signature(monkeypatch, "NotSigned", "ABCD")
+    with pytest.raises(updater.UpdateError):
+        updater.verify_authenticode(str(tmp_path / "app.exe"), ["ABCD"])
+
+
+def test_pinned_self_signed_certificate_still_passes(monkeypatch, tmp_path):
+    _fake_signature(monkeypatch, "UnknownError", "ABCD")
+    updater.verify_authenticode(str(tmp_path / "app.exe"), ["ABCD"])
+
+
+def test_authenticode_check_runs_powershell_without_cmd(monkeypatch, tmp_path):
+    """Same trap as issue #26: cmd /c mangles a quoted path with a space."""
+    commands = []
+    _fake_signature(monkeypatch, "Valid", "ABCD", commands)
+    updater.verify_authenticode(str(tmp_path / "has space" / "app.exe"), ["ABCD"])
+    assert os.path.basename(commands[0][0]).lower() == "powershell.exe"
+    assert "cmd" not in [part.lower() for part in commands[0]]

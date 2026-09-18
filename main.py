@@ -4732,7 +4732,7 @@ class IPTVClient(wx.Frame):
 
             staging_dir = os.path.dirname(new_exe)
             install_dir = os.path.dirname(sys.executable)
-            backup_dir = f"{install_dir}.bak.{datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+            backup_dir = f"{install_dir}.bak.{datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S')}"
 
             helper_ps1 = self._stage_update_helper(temp_root)
 

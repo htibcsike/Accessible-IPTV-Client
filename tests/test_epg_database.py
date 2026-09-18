@@ -712,3 +712,33 @@ def test_get_all_now_next_returns_now_and_next_per_channel(tmp_path):
     assert ch1["next"]["description"] == ""
     assert "now" not in result["ch2"]
     assert result["ch2"]["next"]["title"] == "Only Next"
+
+
+def test_gz_download_does_not_resume_a_partial_file_from_an_earlier_run(monkeypatch):
+    """Resuming yesterday's partial against today's feed spliced two different files."""
+    raw = b"todays-epg-payload " * 5000
+    full_gz = gzip.compress(raw)
+
+    url = "https://example.invalid/epg-download-stale-partial.xml.gz"
+    temp_path = _epg_gz_temp_path(url)
+    _remove_if_exists(temp_path)
+    stale = gzip.compress(b"yesterdays-epg-payload " * 5000)[:4000]
+    with open(temp_path, "wb") as handle:
+        handle.write(stale)
+    old = playlist.time.time() - playlist._EPG_PARTIAL_MAX_AGE_SECONDS - 60
+    os.utime(temp_path, (old, old))
+
+    requests = []
+
+    def urlopen(req, timeout=None):
+        requests.append(req.get_header("Range"))
+        return _FakeGzHttpResponse(full_gz, {"Content-Length": str(len(full_gz))})
+
+    monkeypatch.setattr(playlist.urllib.request, "urlopen", urlopen)
+
+    stream = _http_download_gz_with_resume(url, max_attempts=1)
+    try:
+        assert stream.read() == raw
+    finally:
+        stream.close()
+    assert requests == [None]

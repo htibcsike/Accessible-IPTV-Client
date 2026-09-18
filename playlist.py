@@ -1032,6 +1032,9 @@ def epg_database_has_usable_data(db_path: str, now_utc: Optional[datetime.dateti
 # =========================
 # EPG gzip download (resumable)
 # =========================
+_EPG_PARTIAL_MAX_AGE_SECONDS = 30 * 60
+
+
 class _TempGzipStream:
     """File-like wrapper that deletes the temp gz on close."""
     def __init__(self, temp_path: str, owning_lock: Optional[threading.Lock] = None):
@@ -1107,6 +1110,18 @@ def _http_download_gz_with_resume(url: str, max_attempts: int = 4, chunk_size: i
             return True
         except Exception:
             return False
+
+    # The temp name depends only on the URL, so a partial file can be left from
+    # an earlier run. Resuming it against a feed that has since been
+    # regenerated splices two different files: the byte count still matches
+    # and only the head is probed, so the import failed partway or read junk.
+    # Resume only what this run (or one just before it) downloaded.
+    try:
+        if os.path.exists(temp_path) and \
+                time.time() - os.path.getmtime(temp_path) > _EPG_PARTIAL_MAX_AGE_SECONDS:
+            os.remove(temp_path)
+    except OSError:
+        _logger.debug("_http_download_gz_with_resume: ignored exception", exc_info=True)
 
     attempts = 0
     last_err = None
