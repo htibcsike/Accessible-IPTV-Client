@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:12
+#: CHANGELOG.md:18
 msgid "Keep What's New translation commits out of the release notes (#27)"
 msgstr "仅翻译新功能说明的提交不再出现在发行说明中 (#27)"
 
 #: CHANGELOG.md:8
+msgid "Say why an update failed and never leave a broken install (#26)"
+msgstr "说明更新失败的原因，并且绝不留下损坏的安装 (#26)"
+
+#: CHANGELOG.md:14
 msgid "Show OK and Cancel in the app's language in every dialog (#29)"
 msgstr "所有对话框中的“确定”和“取消”按钮均以应用的语言显示 (#29)"
-
-#: CHANGELOG.md:22
-msgid "Stop a release until every language except Hungarian is translated"
-msgstr "在除匈牙利语外的所有语言都翻译完成之前，暂停发布"
 
