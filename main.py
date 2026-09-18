@@ -4969,17 +4969,30 @@ class IPTVClient(wx.Frame):
         if not target:
             return
         current = app_meta.APP_VERSION
+        result = updater.read_update_result()
+        updater.clear_update_result()
         if updater.is_newer_version(current, target):
-            # We came back on the old version: the install did not land.
-            message_box(
-                _("The update to v{version} did not finish, so {app} is still "
-                  "v{current}. You can try again from Help > Check for "
-                  "Updates...").format(
-                      version=target, app=app_meta.APP_DISPLAY_NAME, current=current)
-                + "\n\n" + _("Update log: {path}").format(path=updater.update_log_path()),
-                _("Update Not Completed"),
-                wx.OK | wx.ICON_WARNING,
-            )
+            # We came back on the old version: the install did not land. Say
+            # why, and hand over the logs in one step: a bare log path was all
+            # this box used to give, and six failed attempts in a row reached
+            # the issue tracker without a cause (issue #26).
+            message = _("The update to v{version} did not finish, so {app} is still "
+                        "v{current}. You can try again from Help > Check for "
+                        "Updates...").format(
+                            version=target, app=app_meta.APP_DISPLAY_NAME, current=current)
+            reason = updater.describe_update_failure(result)
+            if reason:
+                message += "\n\n" + _("Reason: {reason}").format(reason=reason)
+            message += "\n\n" + _("Update log: {path}").format(path=updater.update_log_path())
+            logs = updater.collect_update_logs()
+            if not logs:
+                message_box(message, _("Update Not Completed"), wx.OK | wx.ICON_WARNING)
+                return
+            message += "\n\n" + _("Copy the update logs to the clipboard, so you can "
+                                  "paste them into a bug report?")
+            if message_box(message, _("Update Not Completed"),
+                           wx.YES_NO | wx.ICON_WARNING) == wx.YES:
+                self._copy_update_logs(logs)
             return
         # Success: say so once, then let the pending marker go. A screen
         # reader user otherwise has to infer completion from the fact that
@@ -4991,6 +5004,22 @@ class IPTVClient(wx.Frame):
             _("Update Complete"),
             wx.OK | wx.ICON_INFORMATION,
         )
+
+    def _copy_update_logs(self, logs: str) -> None:
+        try:
+            if not wx.TheClipboard.Open():
+                raise RuntimeError(_("The clipboard is unavailable."))
+            try:
+                wx.TheClipboard.SetData(wx.TextDataObject(logs))
+            finally:
+                wx.TheClipboard.Close()
+        except Exception as err:
+            LOG.warning("Could not copy the update logs: %s", err)
+            message_box(_("Could not copy the update logs:\n{error}").format(error=err),
+                        _("Update Not Completed"), wx.OK | wx.ICON_ERROR)
+            return
+        message_box(_("The update logs were copied to the clipboard."),
+                    _("Update Not Completed"), wx.OK | wx.ICON_INFORMATION)
 
     @staticmethod
     def _bool_pref(value, default: bool = False) -> bool:

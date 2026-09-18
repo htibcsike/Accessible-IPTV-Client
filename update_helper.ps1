@@ -17,6 +17,11 @@ param(
 
 Set-Location $env:TEMP
 $logPath = Join-Path $env:TEMP "AccessibleIPTVClient_update.log"
+# Why the update failed, for the app to report when it starts again. The step
+# log alone only ever reached the user as a path they had to go and open, so
+# a failure could be reported six times over without anyone learning its cause
+# (issue #26). updater.read_update_result reads this file.
+$resultPath = Join-Path $env:TEMP "AccessibleIPTVClient_update_result.json"
 
 function Write-Log {
     param([string]$Message)
@@ -34,6 +39,8 @@ if ($SelfTest) {
     if ($ReadyFile) { New-Item -ItemType File -Path $ReadyFile -Force | Out-Null }
     exit 0
 }
+
+try { Remove-Item -LiteralPath $resultPath -Force -ErrorAction SilentlyContinue } catch { }
 
 trap {
     Write-Log "Unhandled error: $($_.Exception.Message) at line $($_.InvocationInfo.ScriptLineNumber)"
@@ -259,9 +266,77 @@ function Update-StatusMessage {
 # disk still starts, start it: it reports the failed update itself, in its own
 # language, with the log path. Only if it cannot start does this helper show a
 # message box, which takes focus and waits for OK.
+# What each Inno Setup exit code means, from the Inno Setup documentation.
+$InnoExitCodes = @{
+    1 = "Setup failed to initialize."
+    2 = "Setup was cancelled before the installation started."
+    3 = "A fatal error occurred while preparing the installation."
+    4 = "A fatal error occurred during the installation."
+    5 = "The installation was cancelled or aborted, for example because a file could not be replaced."
+    6 = "Setup was terminated by another process."
+    7 = "Setup found a problem that stops the installation, for example files in use."
+    8 = "Setup needs Windows to restart before it can install."
+}
+
+# The lines of the Inno Setup log that say what went wrong: the message box
+# Setup answered by itself in silent mode (it defaults to Abort), or failing
+# that the last lines that mention an error.
+function Get-InstallerError {
+    param([string]$Path)
+    try {
+        if (-not (Test-Path -LiteralPath $Path)) { return "" }
+        $lines = @(Get-Content -LiteralPath $Path -ErrorAction Stop)
+    } catch {
+        return ""
+    }
+    $picked = @()
+    for ($i = $lines.Count - 1; $i -ge 0; $i--) {
+        if ($lines[$i] -match 'Defaulting to \w+ for suppressed message box|Message box \(') {
+            $picked += $lines[$i]
+            for ($j = $i + 1; $j -lt $lines.Count -and $lines[$j] -match '^\s{4,}'; $j++) {
+                $picked += $lines[$j]
+            }
+            break
+        }
+    }
+    if (-not $picked) {
+        $picked = @($lines | Where-Object {
+            $_ -match '(?i)error|fail|fatal|denied|in use' -and $_ -notmatch '(?i)successfully'
+        } | Select-Object -Last 4)
+    }
+    $text = (($picked | ForEach-Object { ($_ -replace '^\d{4}-\d\d-\d\d [\d:.]+\s+', '').Trim() }) |
+        Where-Object { $_ }) -join " "
+    if ($text.Length -gt 600) { $text = $text.Substring(0, 600) + "..." }
+    return $text
+}
+
+function Write-UpdateResult {
+    param([string]$Kind, [string]$Reason, $ExitCode = $null, [string]$InstallerError = "")
+    try {
+        $result = [ordered]@{
+            status          = "failed"
+            kind            = $Kind
+            reason          = $Reason
+            exit_code       = $ExitCode
+            installer_error = $InstallerError
+            time            = (Get-Date).ToString("o")
+        }
+        [System.IO.File]::WriteAllText($resultPath, ($result | ConvertTo-Json -Compress), (New-Object System.Text.UTF8Encoding($false)))
+    } catch {
+        Write-Log "Could not write the update result: $($_.Exception.Message)"
+    }
+}
+
 function Complete-FailedUpdate {
-    param($Window, [string]$Reason, [int]$Code = 1)
+    param($Window, [string]$Reason, [int]$Code = 1, [string]$Kind = "other",
+          $ExitCode = $null, [string]$InstallerLog = "")
     Write-Log "Update failed: $Reason"
+    $installerError = ""
+    if ($InstallerLog) {
+        $installerError = Get-InstallerError -Path $InstallerLog
+        if ($installerError) { Write-Log "Installer error: $installerError" }
+    }
+    Write-UpdateResult -Kind $Kind -Reason $Reason -ExitCode $ExitCode -InstallerError $installerError
     Update-StatusMessage -Window $Window -Message $updateMessages.error
     $restarted = $false
     $oldExe = Join-Path $InstallDir $ExeName
@@ -461,12 +536,12 @@ if ($InstallerPath) {
         $inner = $_.Exception
         while ($inner.InnerException) { $inner = $inner.InnerException }
         if ($inner -is [System.ComponentModel.Win32Exception] -and $inner.NativeErrorCode -eq 1223) {
-            Complete-FailedUpdate -Window $statusWindow -Reason "Permission to run the installer was declined."
+            Complete-FailedUpdate -Window $statusWindow -Kind "declined" -Reason "Permission to run the installer was declined."
         }
-        Complete-FailedUpdate -Window $statusWindow -Reason "Failed to launch installer: $($inner.Message)"
+        Complete-FailedUpdate -Window $statusWindow -Kind "launch" -Reason "Failed to launch installer: $($inner.Message)"
     }
     if (-not $proc) {
-        Complete-FailedUpdate -Window $statusWindow -Reason "The installer did not start."
+        Complete-FailedUpdate -Window $statusWindow -Kind "launch" -Reason "The installer did not start."
     }
     Write-Log "Installer running (PID $($proc.Id)); its log is $installerLog"
     Update-StatusMessage -Window $statusWindow -Message $updateMessages.install
@@ -474,12 +549,14 @@ if ($InstallerPath) {
     # Pumped, and capped: a silent installer that never returns must still end
     # in a message rather than a status window that sits there for ever.
     if (-not (Wait-ForProcessExit -Process $proc -Window $statusWindow -TimeoutSeconds 900)) {
-        Complete-FailedUpdate -Window $statusWindow -Reason "Installer still running after 15 minutes; see $installerLog"
+        Complete-FailedUpdate -Window $statusWindow -Kind "timeout" -InstallerLog $installerLog -Reason "Installer still running after 15 minutes; see $installerLog"
     }
     # Settle the process object so ExitCode is populated before it is read.
     try { $proc.WaitForExit() } catch { }
-    if ($proc.ExitCode -ne 0) {
-        Complete-FailedUpdate -Window $statusWindow -Code $proc.ExitCode -Reason "Installer failed with exit code $($proc.ExitCode); see $installerLog"
+    $installerExit = $proc.ExitCode
+    if ($installerExit -ne 0) {
+        $meaning = if ($null -ne $installerExit -and $InnoExitCodes.ContainsKey([int]$installerExit)) { " " + $InnoExitCodes[[int]$installerExit] } else { "" }
+        Complete-FailedUpdate -Window $statusWindow -Code ([int]$installerExit) -Kind "installer" -ExitCode $installerExit -InstallerLog $installerLog -Reason "Installer failed with exit code $installerExit.$meaning See $installerLog"
     }
     Write-Log "Installer finished successfully."
 

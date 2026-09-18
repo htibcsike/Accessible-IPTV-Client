@@ -541,6 +541,9 @@ def test_finished_update_is_silent_on_success_and_loud_on_failure(monkeypatch, t
     pending = {"version": appmod.app_meta.APP_VERSION}
     monkeypatch.setattr(appmod.updater, "read_update_pending", lambda _d: dict(pending))
     monkeypatch.setattr(appmod.updater, "clear_update_pending", lambda _d: None)
+    monkeypatch.setattr(appmod.updater, "read_update_result", lambda: None)
+    monkeypatch.setattr(appmod.updater, "clear_update_result", lambda: None)
+    monkeypatch.setattr(appmod.updater, "collect_update_logs", lambda: "")
 
     # Came back on the version we were aiming for: one confirmation, then the
     # pending marker is consumed either way.
@@ -551,6 +554,35 @@ def test_finished_update_is_silent_on_success_and_loud_on_failure(monkeypatch, t
     pending["version"] = "9999.0.0"
     appmod.IPTVClient._report_finished_update(types.SimpleNamespace())
     assert boxes == ["Update Complete", "Update Not Completed"]
+
+
+def test_failed_update_says_why_and_offers_the_logs(monkeypatch, tmp_path):
+    """Issue #26: six failures in a row reached the tracker with no cause."""
+    bodies = []
+    copied = []
+    cleared = []
+    monkeypatch.setattr(appmod, "message_box",
+                        lambda *a, **kw: bodies.append(a) or appmod.wx.YES)
+    monkeypatch.setattr(appmod, "get_user_config_dir", lambda create=False: str(tmp_path))
+    monkeypatch.setattr(appmod.updater, "read_update_pending",
+                        lambda _d: {"version": "9999.0.0"})
+    monkeypatch.setattr(appmod.updater, "clear_update_pending", lambda _d: None)
+    monkeypatch.setattr(appmod.updater, "read_update_result", lambda: {
+        "kind": "installer", "exit_code": 5,
+        "installer_error": "DeleteFile failed; code 5. Access is denied."})
+    monkeypatch.setattr(appmod.updater, "clear_update_result", lambda: cleared.append(True))
+    monkeypatch.setattr(appmod.updater, "collect_update_logs", lambda: "=== logs ===")
+    client = types.SimpleNamespace(_copy_update_logs=copied.append)
+
+    appmod.IPTVClient._report_finished_update(client)
+
+    message, title, style = bodies[0]
+    assert title == "Update Not Completed"
+    assert "exit code 5" in message
+    assert "DeleteFile failed; code 5. Access is denied." in message
+    assert style == appmod.wx.YES_NO | appmod.wx.ICON_WARNING
+    assert copied == ["=== logs ==="]
+    assert cleared == [True]
 
 
 def test_update_success_confirmation_names_the_new_version(monkeypatch, tmp_path):

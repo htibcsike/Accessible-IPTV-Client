@@ -246,3 +246,34 @@ def test_batch_launcher_is_gone():
     main = (ROOT / "main.py").read_text(encoding="utf-8")
     assert "update_helper.bat" not in main
     assert '"cmd",\n            "/d"' not in main
+
+
+
+def test_inno_installer_restores_the_old_runtime_when_an_update_fails():
+    """Issue #26: [InstallDelete] is never rolled back.
+
+    An update that stopped on a file in use rolled back to an install with its
+    whole _internal directory gone, and the app then died at start with "No
+    module named '_socket'". The old runtime is moved aside instead and put
+    back unless the install finished.
+    """
+    script = (ROOT / "installer" / "AccessibleIPTVClient.iss").read_text(encoding="utf-8")
+
+    assert "\n[InstallDelete]" not in script
+    assert 'Name: "{app}\\_internal"' not in script
+    assert "procedure CurStepChanged(CurStep: TSetupStep);" in script
+    assert "RenameFile(InternalDir(), InternalBackupDir)" in script
+    assert "procedure DeinitializeSetup();" in script
+    assert "RenameFile(InternalBackupDir, InternalDir())" in script
+    assert "InstallFinished := True;" in script
+
+
+def test_update_helper_records_why_an_update_failed():
+    helper = (ROOT / "update_helper.ps1").read_text(encoding="utf-8")
+
+    assert 'Join-Path $env:TEMP "AccessibleIPTVClient_update_result.json"' in helper
+    assert "Write-UpdateResult -Kind $Kind" in helper
+    assert '-Kind "declined"' in helper
+    assert '-Kind "installer" -ExitCode $installerExit -InstallerLog $installerLog' in helper
+    # Tests run -SelfTest; it must not touch a real result in the user's %TEMP%.
+    assert helper.index("if ($SelfTest)") < helper.index("Remove-Item -LiteralPath $resultPath")

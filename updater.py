@@ -93,6 +93,89 @@ def update_log_path() -> str:
     return os.path.join(tempfile.gettempdir(), UPDATE_LOG_NAME)
 
 
+# update_helper.ps1 writes why an update failed here, so the app can say it
+# instead of only pointing at a log (issue #26).
+UPDATE_RESULT_NAME = "AccessibleIPTVClient_update_result.json"
+INSTALLER_LOG_NAME = "AccessibleIPTVClient_installer.log"
+# A GitHub comment holds 65,536 characters; leave room for the user's words.
+_UPDATE_LOGS_MAX_CHARS = 60000
+
+
+def update_result_path(temp_dir: Optional[str] = None) -> str:
+    return os.path.join(temp_dir or tempfile.gettempdir(), UPDATE_RESULT_NAME)
+
+
+def read_update_result(temp_dir: Optional[str] = None) -> Optional[dict]:
+    """The failure the helper recorded for the last update, if any."""
+    try:
+        with open(update_result_path(temp_dir), "r", encoding="utf-8-sig") as handle:
+            data = json.load(handle)
+    except (OSError, ValueError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def clear_update_result(temp_dir: Optional[str] = None) -> None:
+    try:
+        os.remove(update_result_path(temp_dir))
+    except OSError:
+        LOG.debug("clear_update_result: nothing to remove", exc_info=True)
+
+
+def describe_update_failure(result: Optional[dict]) -> str:
+    """One or two translated sentences saying why the update did not install."""
+    if not result:
+        return ""
+    kind = str(result.get("kind") or "")
+    code = result.get("exit_code")
+    if kind == "declined":
+        text = _("Windows did not get permission to install the update.")
+    elif kind == "launch":
+        text = _("The installer could not be started.")
+    elif kind == "timeout":
+        text = _("The installer was still running after 15 minutes.")
+    elif kind == "installer" and code is not None:
+        text = _("The installer stopped with exit code {code}.").format(code=code)
+    else:
+        text = str(result.get("reason") or "").strip()
+    detail = str(result.get("installer_error") or "").strip()
+    if detail:
+        text = (text + "\n" if text else "") + _("Installer message: {message}").format(message=detail)
+    return text
+
+
+def collect_update_logs(temp_dir: Optional[str] = None,
+                        max_chars: int = _UPDATE_LOGS_MAX_CHARS) -> str:
+    """The update logs as one block of text to paste into a bug report.
+
+    The installer log is by far the longest and its end is what matters, so it
+    is the one cut from the front when everything does not fit.
+    """
+    root = temp_dir or tempfile.gettempdir()
+    parts = []
+    for name in (UPDATE_LOG_NAME, UPDATE_CONSOLE_LOG_NAME, UPDATE_RESULT_NAME, INSTALLER_LOG_NAME):
+        try:
+            with open(os.path.join(root, name), "r", encoding="utf-8-sig", errors="replace") as handle:
+                text = handle.read().strip()
+        except OSError:
+            continue
+        if text:
+            parts.append([name, text])
+    if not parts:
+        return ""
+
+    def render() -> str:
+        return "\n\n".join(f"=== {name} ===\n{text}" for name, text in parts)
+
+    combined = render()
+    overflow = len(combined) - max_chars
+    if overflow > 0:
+        longest = max(parts, key=lambda part: len(part[1]))
+        longest[1] = "...\n" + longest[1][overflow + 4:]
+        combined = render()
+    return combined[-max_chars:]
+
+
 def windows_powershell_path() -> str:
     """Windows PowerShell 5.1, which every supported Windows has, by full path."""
     system_root = os.environ.get("SYSTEMROOT") or os.environ.get("WINDIR") or r"C:\Windows"

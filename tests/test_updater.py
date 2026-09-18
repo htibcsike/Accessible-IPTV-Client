@@ -420,3 +420,84 @@ def test_update_helper_actually_starts_from_a_path_with_a_space(tmp_path):
     output, _unused = proc.communicate(timeout=60)
     assert proc.returncode == 0, output
     assert ready.exists(), output
+
+
+
+def test_update_result_round_trip(tmp_path):
+    assert updater.read_update_result(str(tmp_path)) is None
+    (tmp_path / updater.UPDATE_RESULT_NAME).write_text(
+        '\ufeff{"status": "failed", "kind": "installer", "exit_code": 5}', encoding="utf-8")
+    assert updater.read_update_result(str(tmp_path))["exit_code"] == 5
+    updater.clear_update_result(str(tmp_path))
+    updater.clear_update_result(str(tmp_path))
+    assert updater.read_update_result(str(tmp_path)) is None
+
+
+def test_update_result_survives_garbage(tmp_path):
+    (tmp_path / updater.UPDATE_RESULT_NAME).write_text("not json", encoding="utf-8")
+    assert updater.read_update_result(str(tmp_path)) is None
+
+
+def test_describe_update_failure_names_the_cause():
+    """Issue #26: "did not finish" alone gave nobody anything to act on."""
+    assert updater.describe_update_failure(None) == ""
+    assert "permission" in updater.describe_update_failure({"kind": "declined"})
+    assert "could not be started" in updater.describe_update_failure({"kind": "launch"})
+    assert "15 minutes" in updater.describe_update_failure({"kind": "timeout"})
+    text = updater.describe_update_failure({
+        "kind": "installer", "exit_code": 5,
+        "installer_error": "DeleteFile failed; code 5. Access is denied.",
+    })
+    assert "exit code 5" in text
+    assert "DeleteFile failed; code 5. Access is denied." in text
+    # Portable-update failures carry only the helper's own English reason.
+    assert updater.describe_update_failure(
+        {"kind": "other", "reason": "Could not put the update in place."}
+    ) == "Could not put the update in place."
+
+
+def test_collect_update_logs_joins_every_log_and_trims_the_installer_log(tmp_path):
+    assert updater.collect_update_logs(str(tmp_path)) == ""
+    (tmp_path / updater.UPDATE_LOG_NAME).write_text("helper started\nUpdate failed", encoding="utf-8")
+    (tmp_path / updater.UPDATE_RESULT_NAME).write_text('{"kind": "installer"}', encoding="utf-8")
+    (tmp_path / updater.INSTALLER_LOG_NAME).write_text(
+        "early line\n" + "x" * 5000 + "\nRolling back changes.", encoding="utf-8")
+
+    logs = updater.collect_update_logs(str(tmp_path), max_chars=2000)
+    assert len(logs) <= 2000
+    assert "=== AccessibleIPTVClient_update.log ===\nhelper started\nUpdate failed" in logs
+    assert '"kind": "installer"' in logs
+    # The end of the installer log is where the failure is; its start goes.
+    assert logs.endswith("Rolling back changes.")
+    assert "early line" not in logs
+
+
+@pytest.mark.skipif(os.name != "nt", reason="needs Windows PowerShell")
+def test_update_helper_extracts_the_installer_error(tmp_path):
+    """The answer Inno gave itself in silent mode is what the user is told."""
+    import subprocess
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    with open(os.path.join(root, "update_helper.ps1"), encoding="ascii") as handle:
+        helper = handle.read()
+    function = helper[helper.index("function Get-InstallerError"):helper.index("function Write-UpdateResult")]
+    log = tmp_path / "installer.log"
+    log.write_text(
+        "2026-09-18 08:31:49.945   DeleteFile: The existing file appears to be in use (5). Retrying.\n"
+        "2026-09-18 08:31:50.959   Defaulting to Abort for suppressed message box (Abort/Retry/Ignore):\n"
+        "                          C:\\Program Files\\AccessibleIPTVClient\\_internal\\python314.dll\n"
+        "                          \n"
+        "                          An error occurred while trying to replace the existing file:\n"
+        "                          DeleteFile failed; code 5.\n"
+        "2026-09-18 08:31:50.959   User canceled the installation process.\n",
+        encoding="utf-8")
+    script = tmp_path / "t.ps1"
+    script.write_text(function + "\nGet-InstallerError -Path '" + str(log) + "'\n", encoding="utf-8-sig")
+    out = subprocess.run(
+        [updater.windows_powershell_path(), "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script)],
+        capture_output=True, text=True, timeout=60, env=updater.clean_powershell_env())
+    assert out.returncode == 0, out.stderr
+    assert out.stdout.strip() == (
+        "Defaulting to Abort for suppressed message box (Abort/Retry/Ignore): "
+        "C:\\Program Files\\AccessibleIPTVClient\\_internal\\python314.dll "
+        "An error occurred while trying to replace the existing file: DeleteFile failed; code 5.")

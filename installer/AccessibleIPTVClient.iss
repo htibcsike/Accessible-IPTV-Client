@@ -55,8 +55,11 @@ hungarian.LaunchProgram=%1 indítása
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
-[InstallDelete]
-Type: filesandordirs; Name: "{app}\_internal"
+; The old _internal directory is not deleted with [InstallDelete]: Inno never
+; undoes those deletions, so an update that failed part-way (a file in use)
+; rolled back to an app with half its runtime missing, and it would not start
+; at all. It is moved aside instead, and put back if the install does not
+; finish (see [Code]).
 
 [Files]
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "iptvclient.conf,epg.db,epg.db-wal,epg.db-shm,epg.db-journal,scheduled_recordings.json,iptv_cache\*,cache\*,logs\*,*.log"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -68,3 +71,55 @@ Name: "{autodesktop}\{#MyAppDisplayName}"; Filename: "{app}\{#MyAppExeName}"; Wo
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#MyAppDisplayName}}"; Flags: nowait postinstall skipifsilent
+
+[Code]
+var
+  InternalBackupDir: String;
+  InstallFinished: Boolean;
+
+function InternalDir(): String;
+begin
+  Result := ExpandConstant('{app}\_internal');
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssInstall then
+  begin
+    if DirExists(InternalDir()) then
+    begin
+      InternalBackupDir := ExpandConstant('{app}\_internal.update-backup');
+      if DirExists(InternalBackupDir) then
+        DelTree(InternalBackupDir, True, True, True);
+      if RenameFile(InternalDir(), InternalBackupDir) then
+        Log('Moved the old runtime aside: ' + InternalBackupDir)
+      else
+      begin
+        // Something still holds a file in it. Install over the top instead:
+        // a file that cannot be replaced then fails the install, and Inno's
+        // own rollback restores every file it had already replaced.
+        Log('Could not move the old runtime aside; installing over it.');
+        InternalBackupDir := '';
+      end;
+    end;
+  end
+  else if CurStep = ssPostInstall then
+  begin
+    InstallFinished := True;
+    if (InternalBackupDir <> '') and DirExists(InternalBackupDir) then
+      DelTree(InternalBackupDir, True, True, True);
+  end;
+end;
+
+procedure DeinitializeSetup();
+begin
+  // Runs after Inno's rollback has removed the files this install created.
+  if InstallFinished or (InternalBackupDir = '') or not DirExists(InternalBackupDir) then
+    Exit;
+  if DirExists(InternalDir()) then
+    DelTree(InternalDir(), True, True, True);
+  if RenameFile(InternalBackupDir, InternalDir()) then
+    Log('Install did not finish; restored the old runtime.')
+  else
+    Log('Install did not finish, and the old runtime could not be restored from ' + InternalBackupDir);
+end;
