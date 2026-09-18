@@ -821,6 +821,11 @@ if _HAS_WX:
             self.txt = wx.TextCtrl(self, value=self.path)
             browse = wx.Button(self, label=_("Browse..."))
             btns = self.CreateButtonSizer(wx.OK | wx.CANCEL)
+            # Stock buttons take wxWidgets' own captions; use the app's (issue #29).
+            for button_id, label in ((wx.ID_OK, _("OK")), (wx.ID_CANCEL, _("Cancel"))):
+                button = self.FindWindowById(button_id)
+                if button:
+                    button.SetLabel(label)
             sizer.Add(wx.StaticText(self, label=_("Enter player executable or path:")), 0, wx.ALL, 5)
             sizer.Add(self.txt, 0, wx.EXPAND | wx.ALL, 5)
             sizer.Add(browse, 0, wx.ALL, 5)

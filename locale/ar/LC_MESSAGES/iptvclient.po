@@ -21,7 +21,7 @@ msgid "(No EPG debug log has been written yet.)"
 msgstr "(لم يُكتب أي سجل تصحيح لدليل البرامج بعد.)"
 
 #: main.py:8726
-#: main.py:9597
+#: main.py:9602
 msgid "(No title)"
 msgstr "(بلا عنوان)"
 
@@ -146,7 +146,7 @@ msgstr "جميع الملفات"
 msgid "All playlists"
 msgstr "كل قوائم التشغيل"
 
-#: main.py:8980
+#: main.py:8985
 msgid "All recordings have finished.\n\nThe computer will shut down by itself. Seconds remaining: {seconds}"
 msgstr "انتهت جميع التسجيلات.\n\nسيتم إيقاف تشغيل الكمبيوتر تلقائيًا. الثواني المتبقية: {seconds}"
 
@@ -300,8 +300,16 @@ msgid "Built-in player unavailable:\n{detail}"
 msgstr "المشغّل المدمج غير متوفر:\n{detail}"
 
 #: internal_player.py:136
+#: main.py:8097
 #: main.py:8494
-#: main.py:9086
+#: main.py:8842
+#: main.py:8903
+#: main.py:9091
+#: options.py:825
+#: playlist.py:2842
+#: playlist.py:2933
+#: playlist.py:3120
+#: playlist.py:3239
 msgid "Cancel"
 msgstr "إلغاء"
 
@@ -309,11 +317,11 @@ msgstr "إلغاء"
 msgid "Cancel Download"
 msgstr "إلغاء التنزيل"
 
-#: main.py:8956
+#: main.py:8961
 msgid "Cancel Shutdown"
 msgstr "إلغاء إيقاف التشغيل"
 
-#: main.py:9115
+#: main.py:9120
 msgid "Canceled"
 msgstr "تم الإلغاء"
 
@@ -413,7 +421,7 @@ msgstr "الفئات"
 msgid "Changes in each version of {app}, newest first. Notes for the latest versions appear in your language once they have been translated; older entries stay in English."
 msgstr "التغييرات في كل إصدار من {app}، بدءًا من الأحدث. تظهر ملاحظات أحدث الإصدارات بلغتك بعد ترجمتها؛ وتبقى الإدخالات الأقدم بالإنجليزية."
 
-#: main.py:9041
+#: main.py:9046
 msgid "Channel"
 msgstr "قناة"
 
@@ -428,8 +436,8 @@ msgid "Channel missing command reference"
 msgstr "القناة تفتقد مرجع الأمر"
 
 #: main.py:2741
-#: main.py:9463
-#: main.py:9465
+#: main.py:9468
+#: main.py:9470
 msgid "Channels"
 msgstr "القنوات"
 
@@ -477,7 +485,7 @@ msgstr "اختر ملف M3U"
 #: main.py:369
 #: main.py:555
 #: main.py:8288
-#: main.py:9238
+#: main.py:9243
 msgid "Close"
 msgstr "إغلاق"
 
@@ -485,7 +493,7 @@ msgstr "إغلاق"
 msgid "Community and support"
 msgstr "المجتمع والدعم"
 
-#: main.py:9112
+#: main.py:9117
 msgid "Completed"
 msgstr "اكتمل"
 
@@ -637,7 +645,7 @@ msgstr "تعذّر بدء التسجيل:\n{error}"
 msgid "Created"
 msgstr "تاريخ الإنشاء"
 
-#: main.py:9230
+#: main.py:9235
 msgid "Currently airing programs"
 msgstr "البرامج المعروضة حاليًا"
 
@@ -658,7 +666,7 @@ msgstr "الأيام المتبقية"
 msgid "Days since expiry"
 msgstr "الأيام المنقضية بعد انتهاء الصلاحية"
 
-#: main.py:9088
+#: main.py:9093
 #: playlist.py:2787
 msgid "Delete"
 msgstr "حذف"
@@ -672,7 +680,7 @@ msgid "Delete the playlist “{name}”?\n\nThis removes it from the list of pla
 msgstr "هل تريد حذف قائمة التشغيل «{name}»؟\n\nسيتم إزالتها من قائمة قوائم التشغيل، ولا يمكن التراجع عن ذلك."
 
 #: main.py:8677
-#: main.py:9627
+#: main.py:9632
 msgid "Description"
 msgstr "الوصف"
 
@@ -824,7 +832,7 @@ msgstr "سيبدأ استيراد EPG في الخلفية. يمكنك متابع
 msgid "EPG is not enabled."
 msgstr "EPG غير مُمكّن."
 
-#: main.py:9608
+#: main.py:9613
 msgid "EPG: {channel}"
 msgstr "EPG: {channel}"
 
@@ -849,14 +857,14 @@ msgstr "أدخل عنوان URL الخاص بـ M3U"
 msgid "Enter PIN displayed on {device}:"
 msgstr "أدخل رمز PIN المعروض على {device}:"
 
-#: options.py:824
+#: options.py:829
 msgid "Enter player executable or path:"
 msgstr "أدخل الملف التنفيذي للمشغّل أو مساره:"
 
 #: main.py:2760
 #: main.py:2762
 #: main.py:8680
-#: main.py:9630
+#: main.py:9635
 msgid "Episode description"
 msgstr "وصف الحلقة"
 
@@ -924,7 +932,7 @@ msgstr "ينتهي في"
 msgid "Extracting update..."
 msgstr "جارٍ استخراج التحديث..."
 
-#: main.py:9113
+#: main.py:9118
 msgid "Failed"
 msgstr "فشل"
 
@@ -985,11 +993,11 @@ msgstr "الميزات"
 msgid "File"
 msgstr "ملف"
 
-#: main.py:9217
+#: main.py:9222
 msgid "Filter (Tab):"
 msgstr "تصفية (Tab):"
 
-#: main.py:9219
+#: main.py:9224
 msgid "Filter programs"
 msgstr "تصفية البرامج"
 
@@ -1006,7 +1014,7 @@ msgstr "البحث عن التالي"
 msgid "Follow Serrebi on GitHub"
 msgstr "تابع Serrebi على GitHub"
 
-#: main.py:9043
+#: main.py:9048
 msgid "Format"
 msgstr "التنسيق"
 
@@ -1199,15 +1207,15 @@ msgstr "رسالة من المزوّد"
 msgid "Minimize to System Tray"
 msgstr "تصغير إلى علبة النظام"
 
-#: main.py:8878
+#: main.py:8883
 msgid "Minutes after programme:"
 msgstr "دقائق بعد البرنامج:"
 
-#: main.py:8877
+#: main.py:8882
 msgid "Minutes before programme:"
 msgstr "دقائق قبل البرنامج:"
 
-#: main.py:9114
+#: main.py:9119
 msgid "Missed"
 msgstr "فات"
 
@@ -1281,7 +1289,7 @@ msgstr "لم يتم العثور على قنوات."
 
 #: main.py:3147
 #: main.py:8746
-#: main.py:9732
+#: main.py:9737
 msgid "No description available for this programme."
 msgstr "لا يوجد وصف لهذا البرنامج."
 
@@ -1357,6 +1365,12 @@ msgid "Now: {title} ({start} – {end})"
 msgstr "الآن: {title} ({start} – {end})"
 
 #: internal_player.py:135
+#: main.py:305
+#: main.py:8842
+#: main.py:8902
+#: options.py:825
+#: playlist.py:2841
+#: playlist.py:2932
 msgid "OK"
 msgstr "موافق"
 
@@ -1485,8 +1499,8 @@ msgstr "النظام: {platform}"
 
 #: internal_player.py:727
 #: main.py:3181
-#: main.py:9236
-#: main.py:9415
+#: main.py:9241
+#: main.py:9420
 msgid "Play"
 msgstr "تشغيل"
 
@@ -1608,7 +1622,7 @@ msgstr "جارٍ التحضير لإعادة التشغيل..."
 msgid "Press Escape to hide this window; the download continues. View > Show Downloads (Ctrl+Shift+D) brings it back."
 msgstr "اضغط Escape لإخفاء هذه النافذة؛ يستمر التنزيل. يعيدها الأمر عرض > إظهار التنزيلات (Ctrl+Shift+D)."
 
-#: main.py:9231
+#: main.py:9236
 msgid "Program - Channel"
 msgstr "البرنامج - القناة"
 
@@ -1682,7 +1696,7 @@ msgstr "تسجيل"
 #: main.py:3908
 #: main.py:3916
 #: main.py:3919
-#: main.py:9110
+#: main.py:9115
 msgid "Recording"
 msgstr "جارٍ التسجيل"
 
@@ -1738,8 +1752,8 @@ msgid "Recordings"
 msgstr "التسجيلات"
 
 #: main.py:8286
-#: main.py:9046
-#: main.py:9082
+#: main.py:9051
+#: main.py:9087
 msgid "Refresh"
 msgstr "تحديث"
 
@@ -1755,7 +1769,7 @@ msgstr "جارٍ تحديث البث..."
 msgid "Release history"
 msgstr "سجل الإصدارات"
 
-#: main.py:9177
+#: main.py:9182
 msgid "Remove all scheduled recordings from the list?"
 msgstr "هل تريد إزالة جميع التسجيلات المجدولة من القائمة؟"
 
@@ -1763,7 +1777,7 @@ msgstr "هل تريد إزالة جميع التسجيلات المجدولة م
 msgid "Remove from Favorites"
 msgstr "إزالة من المفضلة"
 
-#: main.py:9180
+#: main.py:9185
 msgid "Remove scheduled recording '{title}' from the list?"
 msgstr "هل تريد إزالة التسجيل المجدول '{title}' من القائمة؟"
 
@@ -1780,7 +1794,7 @@ msgstr "استعادة"
 msgid "Resume"
 msgstr "استئناف"
 
-#: main.py:8867
+#: main.py:8872
 msgid "Schedule Padding"
 msgstr "هامش الجدولة"
 
@@ -1796,10 +1810,10 @@ msgstr "هامش الجدولة..."
 #: main.py:3460
 #: main.py:3475
 #: main.py:3482
-#: main.py:9237
-#: main.py:9417
-#: main.py:9699
-#: main.py:9741
+#: main.py:9242
+#: main.py:9422
+#: main.py:9704
+#: main.py:9746
 msgid "Schedule Recording"
 msgstr "جدولة التسجيل"
 
@@ -1807,7 +1821,7 @@ msgstr "جدولة التسجيل"
 msgid "Schedule Recording..."
 msgstr "جدولة التسجيل..."
 
-#: main.py:9109
+#: main.py:9114
 msgid "Scheduled"
 msgstr "مجدول"
 
@@ -1815,10 +1829,10 @@ msgstr "مجدول"
 msgid "Scheduled Recording"
 msgstr "تسجيل مجدول"
 
-#: main.py:9026
-#: main.py:9161
-#: main.py:9170
-#: main.py:9181
+#: main.py:9031
+#: main.py:9166
+#: main.py:9175
+#: main.py:9186
 msgid "Scheduled Recordings"
 msgstr "التسجيلات المجدولة"
 
@@ -1839,7 +1853,7 @@ msgid "Scheduled recording:\n{title}\n{time}"
 msgstr "التسجيل المجدول:\n{title}\n{time}"
 
 #: main.py:5375
-#: main.py:9038
+#: main.py:9043
 msgid "Scheduled recordings"
 msgstr "التسجيلات المجدولة"
 
@@ -1861,7 +1875,7 @@ msgstr "تحديد مشغّل مخصص"
 msgid "Select Device to Cast"
 msgstr "تحديد الجهاز للبث"
 
-#: options.py:832
+#: options.py:837
 msgid "Select Player Executable"
 msgstr "تحديد الملف التنفيذي للمشغّل"
 
@@ -1873,7 +1887,7 @@ msgstr "حدد قناة أولاً."
 msgid "Select a channel to record first."
 msgstr "حدد قناة للتسجيل أولاً."
 
-#: main.py:9741
+#: main.py:9746
 msgid "Select a programme first."
 msgstr "حدد برنامجًا أولاً."
 
@@ -1881,8 +1895,8 @@ msgstr "حدد برنامجًا أولاً."
 msgid "Select a programme, then press Enter to open it, or use the context menu to download it. Press Escape to close."
 msgstr "اختر برنامجًا، ثم اضغط Enter لفتحه، أو استخدم قائمة السياق لتنزيله. اضغط Escape للإغلاق."
 
-#: main.py:9161
-#: main.py:9170
+#: main.py:9166
+#: main.py:9175
 msgid "Select a scheduled recording first."
 msgstr "حدد تسجيلاً مجدولاً أولاً."
 
@@ -1958,11 +1972,11 @@ msgstr "إظهار عنوان البث"
 #: main.py:3965
 #: main.py:4026
 #: main.py:4036
-#: main.py:8943
+#: main.py:8948
 msgid "Shut Down After Recordings"
 msgstr "إيقاف التشغيل بعد التسجيلات"
 
-#: main.py:8957
+#: main.py:8962
 msgid "Shut Down Now"
 msgstr "إيقاف التشغيل الآن"
 
@@ -1987,7 +2001,7 @@ msgstr "Stalker Portal – {name}"
 msgid "Start Recording"
 msgstr "بدء التسجيل"
 
-#: main.py:8870
+#: main.py:8875
 msgid "Start scheduled recordings early or keep recording after the programme ends. Manual recordings are not changed."
 msgstr "ابدأ التسجيلات المجدولة مبكراً أو استمر في التسجيل بعد انتهاء البرنامج. لا تتأثر التسجيلات اليدوية."
 
@@ -2007,7 +2021,7 @@ msgstr "يبدأ في {start}: {title}"
 #: account_info.py:469
 #: account_info.py:471
 #: account_info.py:515
-#: main.py:9042
+#: main.py:9047
 msgid "Status"
 msgstr "الحالة"
 
@@ -2042,7 +2056,7 @@ msgstr "إيقاف التسجيل/التسجيلات"
 msgid "Stopped"
 msgstr "متوقف"
 
-#: main.py:9111
+#: main.py:9116
 msgid "Stopping"
 msgstr "جارٍ الإيقاف"
 
@@ -2206,8 +2220,8 @@ msgstr "هذا البرنامج مجدول بالفعل للتسجيل."
 msgid "This programme is not available as catch-up content yet."
 msgstr "هذا البرنامج غير متاح للمشاهدة اللاحقة بعد."
 
-#: main.py:9039
-#: main.py:9617
+#: main.py:9044
+#: main.py:9622
 msgid "Time"
 msgstr "الوقت"
 
@@ -2215,8 +2229,8 @@ msgstr "الوقت"
 msgid "Time remaining: {time}"
 msgstr "الوقت المتبقي: {time}"
 
-#: main.py:9040
-#: main.py:9618
+#: main.py:9045
+#: main.py:9623
 msgid "Title"
 msgstr "العنوان"
 
@@ -2280,7 +2294,7 @@ msgstr "غير مصنّف"
 msgid "Unexpected account response from the Xtream server"
 msgstr "استجابة حساب غير متوقعة من خادم Xtream"
 
-#: main.py:9598
+#: main.py:9603
 #: updater.py:609
 msgid "Unknown"
 msgstr "غير معروف"
@@ -2462,7 +2476,7 @@ msgid "What's New"
 msgstr "ما الجديد"
 
 #: main.py:2913
-#: main.py:9204
+#: main.py:9209
 msgid "What's on Now"
 msgstr "ما يُعرض الآن"
 
@@ -2539,8 +2553,8 @@ msgstr "{app} محدّث (v{version})."
 msgid "{app} was successfully updated to v{version}."
 msgstr "تم تحديث {app} بنجاح إلى الإصدار v{version}."
 
-#: main.py:9225
-#: main.py:9370
+#: main.py:9230
+#: main.py:9375
 msgid "{count} programs"
 msgstr "{count} برنامج"
 

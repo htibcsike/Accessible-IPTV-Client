@@ -302,7 +302,7 @@ class AccessibleAboutDialog(wx.Dialog):
         # those children in a panel sizer leaves wxMSW without a usable command
         # route, which made the original About dialog impossible to dismiss.
         button_sizer = wx.StdDialogButtonSizer()
-        self.ok_btn = wx.Button(panel, id=wx.ID_OK)
+        self.ok_btn = wx.Button(panel, id=wx.ID_OK, label=_("OK"))
         self.close_btn = wx.Button(panel, id=wx.ID_CANCEL, label=_("Close"))
         button_sizer.AddButton(self.ok_btn)
         button_sizer.AddButton(self.close_btn)
@@ -8094,7 +8094,7 @@ class CastDiscoveryDialog(wx.Dialog):
 
         self.ok_btn = wx.Button(panel, id=wx.ID_OK, label=_("Connect"))
         self.ok_btn.Disable()
-        cancel_btn = wx.Button(panel, id=wx.ID_CANCEL)
+        cancel_btn = wx.Button(panel, id=wx.ID_CANCEL, label=_("Cancel"))
         
         btn_sizer.Add(self.pair_btn, 0, wx.ALL, 5)
         btn_sizer.AddStretchSpacer(1)
@@ -8838,6 +8838,11 @@ class AudioTrackPreferenceDialog(wx.Dialog):
         sizer.Add(hint, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         sizer.Add(self.CreateButtonSizer(wx.OK | wx.CANCEL), 0, wx.ALL | wx.ALIGN_RIGHT, 10)
+        # Stock buttons take wxWidgets' own captions; use the app's (issue #29).
+        for button_id, label in ((wx.ID_OK, _("OK")), (wx.ID_CANCEL, _("Cancel"))):
+            button = self.FindWindowById(button_id)
+            if button:
+                button.SetLabel(label)
         self.SetSizerAndFit(sizer)
         self.CenterOnParent()
         wx.CallAfter(self.ad_check.SetFocus)
@@ -8894,8 +8899,8 @@ class RecordingPaddingDialog(wx.Dialog):
         sizer.Add(grid, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
 
         buttons = wx.StdDialogButtonSizer()
-        self.ok_btn = wx.Button(self, id=wx.ID_OK)
-        self.cancel_btn = wx.Button(self, id=wx.ID_CANCEL)
+        self.ok_btn = wx.Button(self, id=wx.ID_OK, label=_("OK"))
+        self.cancel_btn = wx.Button(self, id=wx.ID_CANCEL, label=_("Cancel"))
         buttons.AddButton(self.ok_btn)
         buttons.AddButton(self.cancel_btn)
         buttons.Realize()

@@ -134,3 +134,30 @@ def test_no_hardcoded_provider_credentials(path):
         f"{path.name} looks like it contains real provider credentials "
         f"on line(s) {offenders}"
     )
+
+
+_STOCK_IDS = {"ID_OK", "ID_CANCEL", "ID_CLOSE", "ID_YES", "ID_NO", "ID_APPLY", "ID_SAVE"}
+
+
+def _app_sources():
+    return sorted(REPO_ROOT.glob("*.py"))
+
+
+@pytest.mark.parametrize("path", _app_sources(), ids=lambda p: p.name)
+def test_stock_buttons_carry_a_translated_label(path):
+    """Issue #29: ``wx.Button(parent, wx.ID_CANCEL)`` takes its caption from
+    wxWidgets' locale, so a Hungarian dialog said "Cancel" instead of "Mégse".
+    Every stock-id button must pass a label through gettext."""
+    tree = ast.parse(_read(path))
+    offenders = []
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "Button"):
+            continue
+        ids = [arg for arg in node.args[1:2]] + [kw.value for kw in node.keywords if kw.arg == "id"]
+        if not any(isinstance(value, ast.Attribute) and value.attr in _STOCK_IDS for value in ids):
+            continue
+        has_label = len(node.args) >= 3 or any(kw.arg == "label" for kw in node.keywords)
+        if not has_label:
+            offenders.append(node.lineno)
+    assert not offenders, f"{path.name}: stock button without a label on lines {offenders}"
