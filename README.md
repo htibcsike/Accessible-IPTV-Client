@@ -70,10 +70,10 @@ See the [changelog](CHANGELOG.md) for release-by-release changes.
 
 The package is architecture-independent and runs the app with the system Python, so apt supplies wxPython, python-vlc, the VLC plugins, and ffmpeg. It is built and install-tested on Debian 13 (trixie); other apt-based distributions work as long as they ship `python3-wxgtk4.0` and `python3-vlc`.
 
-Casting is optional there, because Debian's `python3-pychromecast` is older than the app needs and pyatv is not packaged at all. Everything else works without them; to add casting:
+Casting works there too. Debian's `python3-pychromecast` is older than the app needs and pyatv is not packaged at all, so installing the package downloads the casting libraries with pip into a private environment under `/usr/lib/accessible-iptv-client/venv`, which the launcher then uses; wxPython and python-vlc still come from apt. That step needs network access. Without it the app installs and runs without casting, and this adds casting later:
 
 ```bash
-pip3 install --user "pychromecast>=14" "async-upnp-client>=0.38" "pyatv>=0.14"
+sudo dpkg-reconfigure accessible-iptv-client
 ```
 
 There is no built-in updater on Linux — install the next `.deb` over the current one. Where your data lands on Linux is existing app behaviour that the package does not change: `iptvclient.conf` and `scheduled_recordings.json` go in your home directory, while the EPG database (`epg.db`), the playlist cache, and the EPG debug log go in your temp directory — so an imported guide is cleared whenever `/tmp` is, typically at reboot. Point `TMPDIR` somewhere persistent before launching if you want the guide to survive.

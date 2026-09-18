@@ -58,12 +58,26 @@ DEPENDS = [
     "vlc-plugin-base",
     "vlc-plugin-video-output",
     "ffmpeg",
+    # The casting libraries live in a private virtual environment (see
+    # POSTINST): Debian's pychromecast is too old and pyatv is not packaged.
+    "python3-venv",
 ]
 RECOMMENDS = ["vlc", "python3-psutil"]
 
-# Casting needs newer releases than Debian carries (pychromecast >= 14), and
-# pyatv/async-upnp-client are not packaged at all, so they stay out of the
-# dependency fields; casting.py degrades gracefully when they are absent.
+# Casting libraries, installed by postinst into VENV_DIR. They cannot be
+# shipped inside this Architecture: all package: pyatv needs compiled modules
+# (miniaudio, pydantic-core) that differ per CPU. The venv sees the system
+# site-packages, so wxPython and python-vlc still come from Debian. Without
+# network at install time the app still runs without casting, and
+# `dpkg-reconfigure accessible-iptv-client` tries again.
+CASTING_REQUIREMENTS = [
+    "pychromecast>=14.0.0",
+    "pyatv>=0.14.0",
+    "zeroconf>=0.131.0",
+    "soco>=0.30.0",
+]
+VENV_DIR = f"{INSTALL_LIB_DIR}/venv"
+CASTING_LOG = f"/var/log/{PACKAGE}-casting.log"
 DESCRIPTION_SHORT = "keyboard-first IPTV player for screen reader users"
 DESCRIPTION_LONG = """\
  Accessible IPTV Client is a keyboard-first IPTV player built to work well with
@@ -75,9 +89,12 @@ DESCRIPTION_LONG = """\
  scheduled recordings, and playback either in the built-in libVLC player or an
  external player.
  .
- Casting (Chromecast, DLNA, AirPlay) is optional and needs Python packages that
- Debian does not carry in a new enough version. Install them with pip to enable
- it: pychromecast (>= 14), async-upnp-client (>= 0.38) and pyatv (>= 0.14).
+ Casting sends channels to Chromecast, AirPlay, UPnP/DLNA, Sonos, Roku and
+ Kodi receivers. Its Python libraries (pychromecast, pyatv, soco) are newer
+ than Debian carries, so installing the package downloads them with pip into a
+ private environment under /usr/lib/accessible-iptv-client/venv. Without
+ network access the app still installs and runs, without casting; run
+ "dpkg-reconfigure accessible-iptv-client" later to add it.
 """
 
 # .desktop entry. No Icon= line: the project ships no icon asset, and inventing
@@ -99,9 +116,73 @@ StartupNotify=true
 LAUNCHER = f"""\
 #!/bin/sh
 # Launcher installed by the {PACKAGE} Debian package.
+# The casting environment's Python when postinst could build it (it sees the
+# system packages too), the system Python otherwise.
 set -e
-exec /usr/bin/python3 "{INSTALL_LIB_DIR}/main.py" "$@"
+PYTHON=/usr/bin/python3
+if [ -x "{VENV_DIR}/bin/python3" ]; then
+    PYTHON="{VENV_DIR}/bin/python3"
+fi
+exec "$PYTHON" "{INSTALL_LIB_DIR}/main.py" "$@"
 """
+
+_PIP_ARGS = " ".join(f"'{req}'" for req in CASTING_REQUIREMENTS)
+
+POSTINST = f"""\
+#!/bin/sh
+# Build the private casting environment. Never fail the install over it: the
+# app runs without casting, and "dpkg-reconfigure {PACKAGE}" retries.
+set -e
+
+case "$1" in
+    configure|reconfigure)
+        if [ -n "$ACCESSIBLE_IPTV_SKIP_CASTING" ]; then
+            echo "{PACKAGE}: skipping the casting libraries (ACCESSIBLE_IPTV_SKIP_CASTING)."
+            exit 0
+        fi
+        echo "{PACKAGE}: installing the casting libraries (needs network access)..."
+        # set -e does not apply inside an if condition, so each step is
+        # chained: the result is the final import check's.
+        if (
+            date
+            {{ [ -x "{VENV_DIR}/bin/python3" ] || {{ rm -rf "{VENV_DIR}" &&
+                python3 -m venv --system-site-packages "{VENV_DIR}"; }}; }} &&
+            "{VENV_DIR}/bin/python3" -m pip install --disable-pip-version-check --no-input --upgrade --timeout 60 {_PIP_ARGS} &&
+            "{VENV_DIR}/bin/python3" -c "import pychromecast, pyatv, zeroconf"
+        ) >"{CASTING_LOG}" 2>&1; then
+            echo "{PACKAGE}: casting is ready."
+        else
+            rm -rf "{VENV_DIR}"
+            echo "{PACKAGE}: could not install the casting libraries; see {CASTING_LOG}." >&2
+            echo "{PACKAGE}: the app works without casting. Once the network is available, run:" >&2
+            echo "    sudo dpkg-reconfigure {PACKAGE}" >&2
+        fi
+        ;;
+esac
+
+exit 0
+"""
+
+POSTRM = f"""\
+#!/bin/sh
+# postinst built the casting environment, so dpkg does not know its files.
+set -e
+
+case "$1" in
+    remove|purge)
+        rm -rf "{VENV_DIR}"
+        rm -f "{CASTING_LOG}"
+        ;;
+esac
+
+exit 0
+"""
+
+
+def maintainer_scripts() -> list[tuple[str, str, int]]:
+    """(name, text, mode) of the DEBIAN/ control-area scripts."""
+    return [("postinst", POSTINST, 0o755), ("postrm", POSTRM, 0o755)]
+
 
 MAN_PAGE = f""".TH ACCESSIBLE-IPTV-CLIENT 1 "" "{app_meta.APP_VERSION}" "User Commands"
 .SH NAME
@@ -394,6 +475,7 @@ def build_with_dpkg(staged: Staged, version: str, maintainer: str, output_path: 
     for name, text, mode in (
         ("control", control_file(version, staged.installed_size_kb(), maintainer), 0o644),
         ("md5sums", staged.md5sums(), 0o644),
+        *maintainer_scripts(),
     ):
         target = os.path.join(debian_dir, name)
         with open(target, "w", encoding="utf-8", newline="\n") as handle:
@@ -410,6 +492,7 @@ def build_without_dpkg(staged: Staged, version: str, maintainer: str, output_pat
     control_entries = [
         ("control", control_file(version, staged.installed_size_kb(), maintainer).encode("utf-8"), 0o644),
         ("md5sums", staged.md5sums().encode("utf-8"), 0o644),
+        *((name, text.encode("utf-8"), mode) for name, text, mode in maintainer_scripts()),
     ]
     members = [
         ("debian-binary", b"2.0\n"),

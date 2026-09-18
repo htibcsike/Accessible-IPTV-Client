@@ -36,6 +36,30 @@ test -x /usr/bin/accessible-iptv-client || { echo "FAIL: launcher is not executa
 echo "=== import check"
 python3 -c 'import wx, vlc; print("wx", wx.version())'
 
+echo "=== casting check"
+# postinst builds this environment with pip; the launcher runs the app with it.
+VENV_PY=/usr/lib/accessible-iptv-client/venv/bin/python3
+test -x "$VENV_PY" || { echo "FAIL: the casting environment was not built" >&2;
+    cat /var/log/accessible-iptv-client-casting.log >&2 || true; exit 1; }
+"$VENV_PY" - <<'PY'
+import sys
+
+sys.path.insert(0, "/usr/lib/accessible-iptv-client")
+
+import pyatv, pychromecast, soco, wx, vlc  # noqa: F401 - system and venv packages together
+import casting
+
+manager = casting.CastingManager()
+manager.start()
+try:
+    # No receivers in a container; this proves every protocol's scan runs.
+    devices = manager.discover_all(timeout=2)
+    print("discovery ran, found", len(devices), "receiver(s)")
+finally:
+    manager.stop()
+print("PASS: casting libraries installed and every protocol scan ran")
+PY
+
 echo "=== launching under Xvfb"
 Xvfb "$DISPLAY" -screen 0 1280x800x24 >/tmp/xvfb.log 2>&1 &
 sleep 2
