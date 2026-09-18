@@ -128,3 +128,31 @@ def test_classification_does_not_read_body_prose_for_other_sections():
     docs = {"subject": "i18n(hu): fix catalogues", "body": "keeps the feature wording intact and bug notes out"}
     assert release.classify_commit(docs) == "Other"
     assert release.classify_commit({"subject": "refactor: tidy", "body": "no feature or bug here"}) == "Other"
+
+
+def test_release_note_translation_commits_stay_out_of_the_changelog():
+    """Issue #27: translating What's New must not create a new bullet."""
+    commits = [
+        {"subject": "i18n(hu): finish the remaining What's New translations (#26)", "body": "",
+         "files": ["locale/hu/LC_MESSAGES/release_notes.po",
+                   "locale/hu/LC_MESSAGES/release_notes.mo"]},
+        {"subject": "i18n(hu): fix a menu label", "body": "",
+         "files": ["locale/hu/LC_MESSAGES/iptvclient.po",
+                   "locale/hu/LC_MESSAGES/release_notes.po"]},
+        {"subject": "chore: tidy the build", "body": "Changelog: skip", "files": ["build.bat"]},
+        {"subject": "fix: label the Cancel buttons", "body": "", "files": ["playlist.py"]},
+        {"subject": "docs: no file list", "body": ""},
+    ]
+    notes = release.build_release_notes(commits)
+    assert "What's New translations" not in notes
+    assert "Tidy the build" not in notes
+    assert "fix a menu label" in notes
+    assert "- Label the Cancel buttons" in notes
+    assert "- No file list" in notes
+
+
+def test_release_note_only_commits_alone_give_no_notable_changes():
+    commits = [{"subject": "i18n(hu): translate What's New", "body": "",
+                "files": ["locale/hu/LC_MESSAGES/release_notes.po"]}]
+    assert release.build_release_notes(commits).endswith("No notable changes.")
+    assert release.determine_bump(commits) == "patch"

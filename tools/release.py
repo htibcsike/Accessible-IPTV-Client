@@ -76,21 +76,44 @@ def find_last_version_tag():
 
 def get_commits_since(tag):
     range_ref = f"{tag}..HEAD" if tag else "HEAD"
+    # One record per commit: \x1e, subject and body, \x1f, changed file names.
     raw = git(
         "log",
         range_ref,
-        "--pretty=format:%s%n%b%x1e",
+        "--name-only",
+        "--pretty=format:%x1e%s%n%b%x1f",
     )
     commits = []
     for entry in raw.split("\x1e"):
-        entry = entry.strip()
-        if not entry:
+        message, _, names = entry.partition("\x1f")
+        message = message.strip()
+        if not message:
             continue
-        lines = entry.splitlines()
+        lines = message.splitlines()
         subject = lines[0].strip() if lines else ""
         body = "\n".join(lines[1:]).strip() if len(lines) > 1 else ""
-        commits.append({"subject": subject, "body": body})
+        files = [name.strip() for name in names.splitlines() if name.strip()]
+        commits.append({"subject": subject, "body": body, "files": files})
     return commits
+
+
+# Catalogues that hold only What's New translations. A commit touching nothing
+# else translates the changelog itself; listing it would add a new untranslated
+# bullet each time the previous ones are translated (issue #27).
+_NOTES_CATALOGUE = re.compile(r"^locale/[^/]+/LC_MESSAGES/release_notes\.(?:po|mo|pot)$")
+_SKIP_FOOTER = re.compile(r"^changelog\s*:\s*(?:skip|none)\s*$", re.IGNORECASE | re.MULTILINE)
+
+
+def is_changelog_exempt(commit):
+    """True for a commit kept in git history but left out of the release notes.
+
+    That is one whose only changes are release-note catalogues, or one with an
+    explicit ``Changelog: skip`` footer.
+    """
+    if _SKIP_FOOTER.search(commit.get("body") or ""):
+        return True
+    files = [name.replace("\\", "/") for name in commit.get("files") or ()]
+    return bool(files) and all(_NOTES_CATALOGUE.match(name) for name in files)
 
 
 def classify_commit(commit):
@@ -105,8 +128,8 @@ def classify_commit(commit):
         return "Breaking"
     if re.search(r"^breaking[ _-]?changes?\s*:", commit["body"], re.IGNORECASE | re.MULTILINE):
         return "Breaking"
-    if re.match(r"^([a-z][a-z0-9-]*)(\([^)]*\))?(!)?:\s*", lowered):
-        match = re.match(r"^([a-z][a-z0-9-]*)(?:\(([^)]*)\))?(?:!)?:", lowered)
+    match = re.match(r"^([a-z][a-z0-9-]*)(?:\(([^)]*)\))?(?:!)?:", lowered)
+    if match:
         c_type, scope = match.group(1), match.group(2) or ""
         # Same priority order as the historical heuristics: feat first,
         # then the accessibility scope, then docs, then fix.
@@ -136,6 +159,8 @@ def summarize_commits(commits):
     for commit in commits:
         subject = commit["subject"]
         if not subject or subject.lower().startswith("merge"):
+            continue
+        if is_changelog_exempt(commit):
             continue
         sections[classify_commit(commit)].append(subject)
     return sections
