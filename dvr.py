@@ -147,6 +147,10 @@ class DVRScheduler:
         self.clock = clock
         self.poll_seconds = max(0.2, float(poll_seconds))
         self._lock = threading.RLock()
+        # Serializes whole saves. The scheduler thread and the UI both save,
+        # and two writers sharing one .tmp file made os.replace fail with
+        # "access denied" on Windows.
+        self._save_lock = threading.Lock()
         self._jobs: Dict[str, Dict[str, object]] = {}
         self._stop_event = threading.Event()
         self._wake_event = threading.Event()
@@ -191,15 +195,18 @@ class DVRScheduler:
         if not self.path:
             return
         os.makedirs(os.path.dirname(self.path), exist_ok=True)
-        with self._lock:
-            jobs = sorted(self._jobs.values(), key=lambda j: float(j.get("start_ts") or 0))
-            payload = {"version": 1, "jobs": jobs}
-        tmp = self.path + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as fh:
-            json.dump(payload, fh, indent=2, sort_keys=True)
-            fh.flush()
-            os.fsync(fh.fileno())
-        os.replace(tmp, self.path)
+        with self._save_lock:
+            with self._lock:
+                # Serialize while holding the lock: the job dicts are live and
+                # another thread may be changing them.
+                jobs = sorted(self._jobs.values(), key=lambda j: float(j.get("start_ts") or 0))
+                text = json.dumps({"version": 1, "jobs": jobs}, indent=2, sort_keys=True)
+            tmp = self.path + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as fh:
+                fh.write(text)
+                fh.flush()
+                os.fsync(fh.fileno())
+            os.replace(tmp, self.path)
 
     def start(self) -> None:
         if self._thread and self._thread.is_alive():
@@ -274,11 +281,14 @@ class DVRScheduler:
             job = self._jobs.get(str(job_id))
             if not job:
                 return
-            job["status"] = STATUS_COMPLETED if success else STATUS_FAILED
             job["recording_id"] = None
             if output_path:
                 job["output_path"] = output_path
-            job["message"] = message
+            # A canceled job's recording ending afterwards keeps it canceled,
+            # with the user's reason, instead of turning it "completed".
+            if job.get("status") != STATUS_CANCELED:
+                job["status"] = STATUS_COMPLETED if success else STATUS_FAILED
+                job["message"] = message
         self.save()
         self._notify_update()
 
@@ -329,8 +339,20 @@ class DVRScheduler:
                     current["recording_id"] = rec_id
                     if out_path:
                         current["output_path"] = out_path
+                # on_start can take many seconds (it probes the stream's audio
+                # tracks first). A cancel or delete in that window found no
+                # recording to stop, so this one must be stopped now or it
+                # runs forever: the scheduler never stops a canceled job.
+                abandoned = not current or current.get("status") != STATUS_RECORDING
+                snapshot = dict(current) if current else dict(job, recording_id=rec_id)
             self.save()
             self._notify_update()
+            if abandoned:
+                LOG.info("Scheduled recording %s was canceled while starting; stopping it", job_id)
+                try:
+                    self.on_stop(snapshot)
+                except Exception:
+                    LOG.exception("Could not stop a recording canceled while starting")
         except Exception as err:
             LOG.exception("Scheduled recording failed to start")
             with self._lock:

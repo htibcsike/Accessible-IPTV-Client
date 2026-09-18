@@ -279,3 +279,84 @@ def test_stop_timeout_outlasts_the_recorder_finalize_budget():
     assert dvr.STOP_TIMEOUT_SECONDS > recorder.FINALIZE_GRACE_SECONDS
     # A multi-gigabyte capture, which is exactly the case that used to break.
     assert dvr.STOP_TIMEOUT_SECONDS > 5 * 1024 ** 3 / recorder.FINALIZE_REWRITE_BYTES_PER_SECOND
+
+
+
+def _job_scheduler(tmp_path, on_start, on_stop, now):
+    scheduler = dvr.DVRScheduler(
+        str(tmp_path / "schedule.json"),
+        on_start=on_start,
+        on_stop=on_stop,
+        clock=lambda: now[0],
+        poll_seconds=1,
+    )
+    start = datetime.datetime.fromtimestamp(1010, datetime.timezone.utc)
+    end = datetime.datetime.fromtimestamp(1020, datetime.timezone.utc)
+    scheduler.add_job(dvr.build_job(
+        {"name": "DVR Test Channel", "url": "http://example/stream"},
+        _sample_program(start, end), "provider_mkv", job_id="job1"))
+    return scheduler
+
+
+def test_cancel_while_starting_stops_the_recording(tmp_path):
+    """on_start probes audio tracks for seconds; a cancel then found nothing to stop.
+
+    The recording started anyway and, being canceled, was never stopped by the
+    scheduler: it ran until the user noticed.
+    """
+    now = [1010.0]
+    stopped = []
+    holder = {}
+
+    def on_start(job):
+        # The user cancels while the start is still in progress.
+        holder["scheduler"].cancel_job(job["id"])
+        return 7
+
+    def on_stop(job):
+        stopped.append(job.get("recording_id"))
+
+    holder["scheduler"] = scheduler = _job_scheduler(tmp_path, on_start, on_stop, now)
+    scheduler.tick()
+
+    assert stopped == [7]
+    assert scheduler.get_job("job1")["status"] == dvr.STATUS_CANCELED
+
+
+def test_finished_recording_of_a_canceled_job_stays_canceled(tmp_path):
+    now = [1010.0]
+    scheduler = _job_scheduler(tmp_path, lambda job: 3, lambda job: None, now)
+    scheduler.tick()
+    scheduler.cancel_job("job1")
+
+    scheduler.mark_finished("job1", success=True, output_path="C:/rec.mkv", message="")
+
+    job = scheduler.get_job("job1")
+    assert job["status"] == dvr.STATUS_CANCELED
+    assert job["message"] == "Canceled by user."
+    assert job["output_path"] == "C:/rec.mkv"
+
+
+def test_saves_from_several_threads_do_not_collide(tmp_path):
+    """The scheduler thread and the UI both save; a shared .tmp broke os.replace."""
+    now = [0.0]
+    scheduler = _job_scheduler(tmp_path, lambda job: None, lambda job: None, now)
+    errors = []
+
+    def hammer():
+        try:
+            for _ in range(40):
+                scheduler.save()
+        except Exception as err:  # pragma: no cover - the failure being tested
+            errors.append(err)
+
+    threads = [threading.Thread(target=hammer) for _ in range(4)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert errors == []
+    reloaded = dvr.DVRScheduler(str(tmp_path / "schedule.json"),
+                                on_start=lambda job: None, on_stop=lambda job: None)
+    assert reloaded.get_job("job1") is not None

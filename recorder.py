@@ -18,7 +18,7 @@ import re
 import subprocess
 import threading
 import time
-from typing import Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 LOG = logging.getLogger(__name__)
 
@@ -273,6 +273,10 @@ def _header_input_args(headers: Optional[Dict[str, object]]) -> List[str]:
     return args
 
 
+def _is_http_url(url: str) -> bool:
+    return str(url or "").lower().startswith(("http://", "https://"))
+
+
 def _close_stdin(proc: "subprocess.Popen") -> None:
     try:
         if proc.stdin:
@@ -312,15 +316,23 @@ def build_ffmpeg_command(
         cmd += ["-stats_period", "1"]
     else:
         cmd += ["-nostats"]
-    # Reconnect/robustness for long-running HTTP(S) live captures.
-    cmd += [
-        "-rw_timeout", "15000000",
-        "-reconnect", "1",
-        "-reconnect_streamed", "1",
-        "-reconnect_delay_max", "5",
-    ]
-    # Per-channel auth headers must precede -i to apply to the input.
-    cmd += _header_input_args(headers)
+    # ``-rw_timeout`` is a generic protocol option; the rest are HTTP-only, and
+    # ffmpeg refuses to open any other input (rtmp://, rtsp://, udp://) when
+    # given them ("Option reconnect not found"), so those channels never
+    # recorded at all.
+    cmd += ["-rw_timeout", "15000000"]
+    if _is_http_url(url):
+        # Reconnect/robustness for long-running HTTP(S) live captures.
+        cmd += [
+            "-reconnect", "1",
+            "-reconnect_streamed", "1",
+            "-reconnect_delay_max", "5",
+        ]
+        # Per-channel auth headers must precede -i to apply to the input.
+        cmd += _header_input_args(headers)
+    elif str(url).lower().startswith("rtsp://"):
+        # Same transport the built-in player asks for.
+        cmd += ["-rtsp_transport", "tcp"]
     cmd += ["-i", url]
 
     if duration and duration > 0:
@@ -445,7 +457,7 @@ def probe_audio_streams(url: str, headers: Optional[Dict[str, object]] = None,
     """
     cmd = [get_ffmpeg_path(), "-hide_banner", "-nostdin",
            "-rw_timeout", "10000000", "-analyzeduration", "3000000"]
-    if str(url).lower().startswith(("http://", "https://")):
+    if _is_http_url(url):
         # HTTP-only options: any other input (a file, udp://) rejects them
         # outright ("Option user_agent not found") and lists nothing.
         cmd += _header_input_args(headers)
@@ -495,7 +507,7 @@ class Recording:
         self.detached = False
         # The local relay the built-in player watches this recording through,
         # when it was started with ``share_with_player``.
-        self.relay = None
+        self.relay: Any = None
         # Filled in when ffmpeg exits: how many warnings/errors/fatals the
         # whole recording log holds, so a capture that struggled is easy to
         # spot without reading the log yourself.
@@ -519,6 +531,8 @@ class RecordingManager:
         self._lock = threading.Lock()
         self._recordings: "Dict[int, Recording]" = {}
         self._reserved_connection_keys = set()
+        # Output paths chosen for recordings that are still starting.
+        self._reserved_paths = set()
         self._next_id = 1
 
     # -- queries -----------------------------------------------------------
@@ -572,8 +586,27 @@ class RecordingManager:
             raise RuntimeError("A recording is already using this provider's only stream.")
 
         os.makedirs(out_dir, exist_ok=True)
-        out_path = self._unique_output_path(out_dir, display_name, format_extension(fmt),
-                                            when=file_time)
+        with self._lock:
+            out_path = self._unique_output_path(out_dir, display_name, format_extension(fmt),
+                                                when=file_time)
+            # Held until the recording is registered: ffmpeg only creates its
+            # file once the input opens, which can be seconds away.
+            self._reserved_paths.add(out_path)
+        try:
+            return self._start_reserved(
+                url, display_name, fmt, headers, out_dir, out_path,
+                key=key, metadata=metadata, on_finish=on_finish, duration=duration,
+                show_stats=show_stats, keep_partial=keep_partial, audio_track=audio_track,
+                audio_track_count=audio_track_count, share_with_player=share_with_player,
+                connection_key=connection_key)
+        finally:
+            with self._lock:
+                self._reserved_paths.discard(out_path)
+
+    def _start_reserved(self, url, display_name, fmt, headers, out_dir, out_path, *, key,
+                        metadata, on_finish, duration, show_stats, keep_partial,
+                        audio_track, audio_track_count, share_with_player,
+                        connection_key) -> Recording:
         # ffmpeg cannot resume a partial file, so for download-style captures the
         # output goes to a ``.part`` sibling and is renamed into place only when
         # the download completes; a canceled or failed run leaves nothing behind.
@@ -592,8 +625,7 @@ class RecordingManager:
 
         # ffmpeg writes its diagnostics straight into the log file rather than into a
         # pipe we drain. That keeps the complete stderr for every recording, and it
-        # means the log survives -- and ffmpeg keeps running -- when the app exits
-        # while a capture is still finalizing.
+        # means the log survives even when ffmpeg has to be terminated on exit.
         log_path = recording_log_path(out_dir, out_path)
         log_handle = self._open_log(log_path, cmd, url)
         creation_flags = subprocess.CREATE_NO_WINDOW if hasattr(subprocess, "CREATE_NO_WINDOW") else 0
@@ -636,7 +668,14 @@ class RecordingManager:
             self._reserved_connection_keys.discard(connection_key)
         if share_with_player:
             from recording_relay import RecordingRelay
-            rec.relay = RecordingRelay(process.stdout)
+            try:
+                rec.relay = RecordingRelay(process.stdout)
+            except Exception:
+                # Nothing would read ffmpeg's stdout copy, so the pipe would fill
+                # and stall the recording itself. Give up on it cleanly instead.
+                LOG.exception("Could not start the player relay for %s", out_path)
+                self._abandon_start(rec)
+                raise
 
         if not log_path:
             threading.Thread(target=self._drain_stderr, args=(rec,), daemon=True).start()
@@ -676,12 +715,41 @@ class RecordingManager:
         # aired, to the minute as the EPG lists it; a live capture for the
         # moment it started.
         stamp = when.strftime("%Y-%m-%d %H-%M") if when else time.strftime("%Y-%m-%d %H-%M-%S")
+        # Callers hold ``self._lock``. A download writes to ``<name>.part`` and
+        # ffmpeg creates nothing until its input opens, so the finished name
+        # alone does not show that a path is in use.
+        in_use = set(self._reserved_paths)
+        for rec in self._recordings.values():
+            in_use.add(os.path.normcase(rec.out_path))
+        in_use = {os.path.normcase(path) for path in in_use}
+
+        def taken(path: str) -> bool:
+            return (os.path.normcase(path) in in_use or os.path.exists(path)
+                    or os.path.exists(path + ".part"))
+
         candidate = os.path.join(out_dir, f"{base} - {stamp}.{ext}")
         counter = 2
-        while os.path.exists(candidate):
+        while taken(candidate):
             candidate = os.path.join(out_dir, f"{base} - {stamp} ({counter}).{ext}")
             counter += 1
         return candidate
+
+    def _abandon_start(self, rec: Recording) -> None:
+        """Undo a start that failed after ffmpeg was already launched."""
+        proc = rec.process
+        try:
+            proc.kill()
+            proc.wait(timeout=TERMINATE_GRACE_SECONDS)
+        except Exception:
+            LOG.debug("RecordingManager._abandon_start: ignored exception", exc_info=True)
+        _close_stdin(proc)
+        with self._lock:
+            self._recordings.pop(rec.id, None)
+        if rec.partial_path:
+            try:
+                os.remove(rec.partial_path)
+            except OSError:
+                LOG.debug("RecordingManager._abandon_start: ignored exception", exc_info=True)
 
     def _open_log(self, log_path: str, cmd: List[str], url: str):
         """Open the per-recording ffmpeg log, or return None if we cannot write one."""
@@ -774,16 +842,47 @@ class RecordingManager:
         except OSError:
             LOG.debug("RecordingManager._settle_partial_output: ignored exception", exc_info=True)
 
+    @staticmethod
+    def _stop_for_exit(rec: Recording, proc: "subprocess.Popen") -> None:
+        """Shutdown: a short clean-finalize window, then terminate, then kill.
+
+        Never orphan ffmpeg: it can keep the provider stream open after the
+        application is gone, so the scheduler re-arms the job at next launch and
+        starts a second competing capture.
+        """
+        try:
+            proc.wait(timeout=DETACH_WAIT_SECONDS)
+            return
+        except Exception:
+            LOG.warning("ffmpeg did not stop %s within %.0fs during shutdown; "
+                        "terminating it.", rec.out_path, DETACH_WAIT_SECONDS)
+        rec.detached = True
+        try:
+            proc.terminate()
+            proc.wait(timeout=TERMINATE_GRACE_SECONDS)
+            return
+        except Exception:
+            LOG.warning("ffmpeg did not terminate %s; killing it.", rec.out_path)
+        try:
+            proc.kill()
+            proc.wait(timeout=TERMINATE_GRACE_SECONDS)
+        except Exception:
+            LOG.exception("Could not kill ffmpeg during shutdown: %s", rec.out_path)
+
     def _graceful_stop(self, rec: Recording, *, wait: bool = False, detach: bool = False) -> None:
         proc = rec.process
         rec.stopped_by_user = True
         if not proc or proc.poll() is not None:
             return
         if rec.stopping:
-            if wait:
+            if detach:
+                # Exit while an earlier stop is still finalizing (a big MP4 can
+                # take minutes). Its own thread dies with the app, so without
+                # this ffmpeg outlived us and held the provider's stream slot.
+                self._stop_for_exit(rec, proc)
+            elif wait:
                 try:
-                    proc.wait(timeout=DETACH_WAIT_SECONDS if detach
-                              else finalize_timeout_seconds(rec.fmt, rec.out_path))
+                    proc.wait(timeout=finalize_timeout_seconds(rec.fmt, rec.out_path))
                 except Exception:
                     LOG.debug("RecordingManager._graceful_stop: ignored exception", exc_info=True)
             return
@@ -801,27 +900,7 @@ class RecordingManager:
                 LOG.debug("RecordingManager._graceful_stop._finalize: ignored exception", exc_info=True)
 
             if detach:
-                # Shutdown.  Do not orphan FFmpeg: it can keep the provider stream
-                # open after the application is gone, so the scheduler re-arms the
-                # job at next launch and starts a second competing capture.
-                try:
-                    proc.wait(timeout=DETACH_WAIT_SECONDS)
-                    return
-                except Exception:
-                    LOG.warning("ffmpeg did not stop %s within %.0fs during shutdown; "
-                                "terminating it.", rec.out_path, DETACH_WAIT_SECONDS)
-                rec.detached = True
-                try:
-                    proc.terminate()
-                    proc.wait(timeout=TERMINATE_GRACE_SECONDS)
-                    return
-                except Exception:
-                    LOG.warning("ffmpeg did not terminate %s; killing it.", rec.out_path)
-                try:
-                    proc.kill()
-                    proc.wait(timeout=TERMINATE_GRACE_SECONDS)
-                except Exception:
-                    LOG.exception("Could not kill ffmpeg during shutdown: %s", rec.out_path)
+                self._stop_for_exit(rec, proc)
                 return
 
             # Finalizing is disk-bound and scales with the size of the capture, so the

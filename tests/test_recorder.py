@@ -638,3 +638,81 @@ def test_canceled_download_leaves_no_partial_file(tmp_path):
             assert not os.path.exists(final)
         finally:
             manager.stop_all(wait=True)
+
+
+@pytest.mark.parametrize("url", [
+    "rtmp://host/live/stream",
+    "rtsp://host/stream",
+    "udp://@239.0.0.1:1234",
+])
+def test_non_http_inputs_get_no_http_only_options(url):
+    """ffmpeg refuses to open any non-HTTP input given these ("Option reconnect not found")."""
+    cmd = build_ffmpeg_command(FFMPEG, url, "out.mkv", "provider_mkv",
+                               {"User-Agent": "UA", "Referer": "http://r/", "X-Token": "t"})
+    before_input = cmd[:cmd.index("-i")]
+    for option in ("-reconnect", "-reconnect_streamed", "-reconnect_delay_max",
+                   "-user_agent", "-referer", "-headers"):
+        assert option not in before_input, option
+    assert "-rw_timeout" in before_input
+    assert cmd[cmd.index("-i") + 1] == url
+
+
+def test_rtsp_input_uses_tcp_like_the_player():
+    cmd = build_ffmpeg_command(FFMPEG, "rtsp://host/stream", "out.mkv", "provider_mkv")
+    assert cmd[cmd.index("-rtsp_transport") + 1] == "tcp"
+    assert cmd.index("-rtsp_transport") < cmd.index("-i")
+
+
+def test_unique_output_path_skips_a_download_still_in_progress(tmp_path):
+    """A download writes <name>.part until it completes; its name is taken."""
+    import datetime
+    manager = recorder.RecordingManager()
+    aired = datetime.datetime(2026, 9, 10, 20, 30)
+    first = manager._unique_output_path(str(tmp_path), "Show - TV", "mkv", when=aired)
+    open(first + ".part", "w", encoding="utf-8").close()
+    second = manager._unique_output_path(str(tmp_path), "Show - TV", "mkv", when=aired)
+    assert second != first
+
+
+def test_unique_output_path_skips_a_name_reserved_by_a_starting_recording(tmp_path):
+    import datetime
+    manager = recorder.RecordingManager()
+    aired = datetime.datetime(2026, 9, 10, 20, 30)
+    first = manager._unique_output_path(str(tmp_path), "Show - TV", "mkv", when=aired)
+    manager._reserved_paths.add(first)
+    assert manager._unique_output_path(str(tmp_path), "Show - TV", "mkv", when=aired) != first
+
+
+def test_exit_stops_ffmpeg_that_is_still_finalizing_an_earlier_stop(tmp_path):
+    """A stop already in progress used to make exit wait 5 s and leave ffmpeg running."""
+    proc = _StubProcess(exits_after_waits=99)
+    rec = _stub_recording(proc, tmp_path / "big.mp4")
+    rec.stopping = True  # the user stopped it earlier; it is still writing the file
+
+    recorder.RecordingManager()._graceful_stop(rec, wait=True, detach=True)
+
+    assert proc.terminated
+    assert rec.detached
+
+
+def test_relay_failure_does_not_leave_ffmpeg_running(tmp_path, monkeypatch):
+    """Nothing would drain ffmpeg's stdout copy, so the recording itself would stall."""
+    import recording_relay
+
+    proc = _StubProcess(exits_after_waits=99)
+    proc.stdout = io.BytesIO()
+    monkeypatch.setattr(recorder.subprocess, "Popen", lambda *a, **kw: proc)
+
+    def broken_relay(_source):
+        raise OSError("no port")
+
+    monkeypatch.setattr(recording_relay, "RecordingRelay", broken_relay)
+    manager = recorder.RecordingManager()
+
+    with pytest.raises(OSError):
+        manager.start("http://host/live.ts", "Title", "provider_mkv", None, str(tmp_path),
+                      share_with_player=True)
+
+    assert proc.killed
+    assert manager.list_active() == []
+    assert manager._reserved_paths == set()
