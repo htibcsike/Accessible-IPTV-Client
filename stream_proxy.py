@@ -14,6 +14,7 @@ import shutil
 import os
 import time
 import hashlib
+import secrets
 import collections
 
 import sys
@@ -728,6 +729,24 @@ class StreamBuffer:
             return self.closed
 
 
+_ALLOWED_UPSTREAM_SCHEMES = ("http", "https")
+
+
+def is_allowed_upstream_url(url) -> bool:
+    """Only fetch http(s) upstreams on behalf of a request.
+
+    The proxy listens on the LAN while casting. urllib also opens ``file://``
+    and ``ftp://`` URLs, so an unchecked ``url=`` parameter let any device on
+    the network read local files (the config with provider passwords) or use
+    the app as an open relay.
+    """
+    try:
+        scheme = urllib.parse.urlsplit(str(url or "")).scheme.lower()
+    except ValueError:
+        return False
+    return scheme in _ALLOWED_UPSTREAM_SCHEMES
+
+
 def _is_safe_segment_name(name: str) -> bool:
     """Reject path traversal / separators in a transcode segment filename."""
     if not name or name in (".", ".."):
@@ -768,14 +787,32 @@ class StreamProxyHandler(http.server.BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers', '*')
         self.end_headers()
 
+    def _strip_access_token(self, parsed):
+        """The request path without its secret prefix, or None when it is wrong.
+
+        Every URL the proxy hands out starts with ``/<token>/``. A device on
+        the LAN that did not get a URL from us cannot guess it, so it cannot
+        use the proxy at all.
+        """
+        token = get_proxy().token
+        prefix = "/" + token + "/"
+        if not token or not parsed.path.startswith(prefix):
+            return None
+        return parsed._replace(path=parsed.path[len(prefix) - 1:])
+
     def do_GET(self):
-        parsed = urllib.parse.urlparse(self.path)
+        parsed = self._strip_access_token(urllib.parse.urlparse(self.path))
+        if parsed is None:
+            return self.send_error(404)
 
         # 1. --- Route: /audio or /stream (High-Speed Buffered Proxy) ---
         if parsed.path in ('/audio', '/stream', '/proxy'):
             query = urllib.parse.parse_qs(parsed.query)
             target_url = query.get('url', [None])[0]
             if not target_url: return self.send_error(400)
+            if not is_allowed_upstream_url(target_url):
+                LOG.info("Proxy refused a non-HTTP upstream URL")
+                return self.send_error(403)
             mode = (query.get('mode', [None])[0] or '').strip().lower()
             
             headers_json = query.get('headers', [None])[0]
@@ -951,7 +988,7 @@ class StreamProxyHandler(http.server.BaseHTTPRequestHandler):
                             "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:2\n"
                             "#EXT-X-MEDIA-SEQUENCE:0\n#EXT-X-DISCONTINUITY\n"
                             "#EXTINF:1.0,\n"
-                            f"http://{get_proxy().host}:{get_proxy().port}/bootstrap.ts\n"
+                            f"{get_proxy().base_url()}/bootstrap.ts\n"
                         ).encode('utf-8')
                         self.send_response(200)
                         self.send_header('Content-Type', 'application/vnd.apple.mpegurl')
@@ -972,7 +1009,7 @@ class StreamProxyHandler(http.server.BaseHTTPRequestHandler):
                             if drop_unstable_start else lines
                         )
                         stats = hls_playlist_stats(effective_lines)
-                        base = f"http://{get_proxy().host}:{get_proxy().port}/transcode/{session_id}/"
+                        base = f"{get_proxy().base_url()}/transcode/{session_id}/"
                         data = rewrite_hls_playlist(effective_lines, base).encode("utf-8")
                         LOG.debug(
                             "Serving HLS playlist for session %s: media_sequence=%s segments=%s duration=%.2fs first=%s",
@@ -1046,6 +1083,9 @@ class StreamProxy:
         self.thread = None
         self.port = 0
         self.host = self._get_local_ip()
+        # Secret first path segment of every URL we hand out; see
+        # StreamProxyHandler._strip_access_token.
+        self.token = secrets.token_urlsafe(16)
         self.converters = {}
         self.converter_sources = {}
         self.lock = threading.Lock()
@@ -1125,6 +1165,9 @@ class StreamProxy:
         self._cleanup_thread = None
         self._remove_firewall_rule()
 
+    def base_url(self):
+        return f"http://{self.host}:{self.port}/{self.token}"
+
     def get_stream_url(self, target_url, headers=None, mode="auto"):
         params = {'url': target_url, 'mode': mode}
         if headers:
@@ -1132,7 +1175,7 @@ class StreamProxy:
                 clean = normalize_request_headers(headers, add_default_user_agent=False)
                 params['headers'] = base64.b64encode(json.dumps(clean).encode()).decode()
             else: params['headers'] = headers
-        return f"http://{self.host}:{self.port}/stream?{urllib.parse.urlencode(params)}"
+        return f"{self.base_url()}/stream?{urllib.parse.urlencode(params)}"
 
     def get_audio_url(self, target_url, headers=None):
         return self.get_stream_url(target_url, headers, mode="audio")
@@ -1146,6 +1189,10 @@ class StreamProxy:
         else:
             session_id = source_key
 
+        # Stopping a converter waits up to 7 s for ffmpeg, so it happens after
+        # the lock is released: every request handler needs this lock to find
+        # its converter, and holding it here froze all cast playback meanwhile.
+        retired = []
         with self.lock:
             if fresh_session:
                 old_sessions = list(self.converter_sources.values())
@@ -1153,13 +1200,18 @@ class StreamProxy:
                 for old_session in old_sessions:
                     old_converter = self.converters.pop(old_session, None)
                     if old_converter:
-                        old_converter.stop()
+                        retired.append(old_converter)
                 self.converters[session_id] = HLSConverter(target_url, headers, transcode_profile)
                 self.converter_sources[source_key] = session_id
             elif session_id not in self.converters:
                 self.converters[session_id] = HLSConverter(target_url, headers, transcode_profile)
             else: self.converters[session_id].touch()
-        return f"http://{self.host}:{self.port}/transcode/{session_id}/stream.m3u8"
+        for old_converter in retired:
+            try:
+                old_converter.stop()
+            except Exception:
+                LOG.debug("StreamProxy.get_transcoded_url: ignored exception", exc_info=True)
+        return f"{self.base_url()}/transcode/{session_id}/stream.m3u8"
 
     def get_converter(self, session_id):
         with self.lock: return self.converters.get(session_id)

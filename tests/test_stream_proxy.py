@@ -452,3 +452,58 @@ def test_hls_playlist_readiness_uses_filtered_stable_window(tmp_path):
     assert ready
     assert stats["media_sequence"] == 4
     assert stats["first_segment"] == "seg_4.ts"
+
+
+
+def test_proxy_only_fetches_http_upstreams():
+    """urllib opens file:// too; the LAN-facing proxy must never serve local files."""
+    assert stream_proxy_module.is_allowed_upstream_url("http://host/live.ts")
+    assert stream_proxy_module.is_allowed_upstream_url("HTTPS://host/live.m3u8")
+    assert not stream_proxy_module.is_allowed_upstream_url("file:///C:/Users/me/iptvclient.conf#.mp3")
+    assert not stream_proxy_module.is_allowed_upstream_url("ftp://host/x.mp3")
+    assert not stream_proxy_module.is_allowed_upstream_url("")
+
+
+def test_proxy_urls_carry_the_access_token():
+    proxy = StreamProxy()
+    proxy.host = "127.0.0.1"
+    proxy.port = 12345
+    url = proxy.get_stream_url("http://host/live.ts")
+    assert url.startswith("http://127.0.0.1:12345/" + proxy.token + "/stream?")
+    assert len(proxy.token) >= 16
+    assert StreamProxy().token != proxy.token
+
+
+class _RecordingHandler(stream_proxy_module.StreamProxyHandler):
+    def __init__(self, path):
+        self.path = path
+        self.errors = []
+        self.client_address = ("192.0.2.1", 9999)
+
+    def send_error(self, code, *_args, **_kwargs):
+        self.errors.append(code)
+
+
+def _with_token(monkeypatch, token):
+    proxy = StreamProxy()
+    proxy.token = token
+    monkeypatch.setattr(stream_proxy_module, "get_proxy", lambda: proxy)
+    return proxy
+
+
+def test_proxy_refuses_requests_without_the_token(monkeypatch):
+    _with_token(monkeypatch, "secret-token")
+    for path in ("/stream?url=http%3A%2F%2Fhost%2Fx.mp3",
+                 "/wrong/stream?url=http%3A%2F%2Fhost%2Fx.mp3",
+                 "/bootstrap.ts"):
+        handler = _RecordingHandler(path)
+        handler.do_GET()
+        assert handler.errors == [404], path
+
+
+def test_proxy_refuses_a_file_url_even_with_the_token(monkeypatch):
+    _with_token(monkeypatch, "secret-token")
+    target = urllib.parse.quote("file:///C:/Users/me/iptvclient.conf#.mp3", safe="")
+    handler = _RecordingHandler("/secret-token/stream?mode=audio&url=" + target)
+    handler.do_GET()
+    assert handler.errors == [403]
