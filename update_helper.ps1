@@ -259,6 +259,84 @@ function Update-StatusMessage {
     } catch {
         Write-Log "Status window update failed: $($_.Exception.Message)"
     }
+    # A stage change nobody hears about is the "the window disappeared" of
+    # issue #30: the app has already closed or UAC has just handed the screen
+    # back, and the status window is left behind whatever now has focus.
+    # Bring it forward once per stage - unless the user has deliberately moved
+    # to another window, in which case the new text waits for them in the
+    # title and the taskbar button.
+    Focus-StatusWindow -Window $Window -Stage $Message
+}
+
+# --- Status window focus (issue #30) ---
+# The status window used to be shown once and never brought forward again.
+# Two moments then stranded a screen-reader user with nothing focused and
+# nothing announced: the app closing (focus fell to the desktop) and the UAC
+# prompt handing the screen back (focus returned to the app that had just
+# exited). The window was still there - TopMost, title updating - but to NVDA
+# it had disappeared. So each stage change re-focuses the window once, which
+# makes NVDA read the new title. The exception is a user who has moved to
+# another window on purpose: from then on the update must not keep stealing
+# focus back, so Watch-StatusWindowFocus latches that and Focus-StatusWindow
+# stays away. The UAC secure desktop reports no foreground window at all, so
+# answering the prompt never counts as switching away.
+if (-not ("UpdateHelperFocus" -as [type])) {
+    try {
+        Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+public static class UpdateHelperFocus {
+    [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
+}
+'@
+    } catch {
+        Write-Log "Could not load the focus helper: $($_.Exception.Message)"
+    }
+}
+
+$script:StatusWindowHandle = [IntPtr]::Zero
+# Focus is only watched once the window has been brought forward at least
+# once. Before that, the app's own progress dialog is legitimately in front,
+# and watching then would mistake it for the user leaving.
+$script:StatusFocusWatch = $false
+$script:UserLeftStatusWindow = $false
+
+function Watch-StatusWindowFocus {
+    if (-not $script:StatusFocusWatch -or $script:UserLeftStatusWindow) { return }
+    if ($script:StatusWindowHandle -eq [IntPtr]::Zero) { return }
+    if (-not ("UpdateHelperFocus" -as [type])) { return }
+    try {
+        $foreground = [UpdateHelperFocus]::GetForegroundWindow()
+    } catch {
+        return
+    }
+    # No foreground window at all means the secure desktop (the UAC prompt)
+    # has the screen; that is part of the update, not the user switching away.
+    if ($foreground -eq [IntPtr]::Zero) { return }
+    if ($foreground -ne $script:StatusWindowHandle) {
+        $script:UserLeftStatusWindow = $true
+        Write-Log "Focus moved to another window; the update will not take it back."
+    }
+}
+
+function Focus-StatusWindow {
+    param($Window, [string]$Stage = "")
+    if (-not $Window) { return }
+    if ($script:UserLeftStatusWindow) {
+        Write-Log "Not re-focusing the status window ($Stage): the user switched away."
+        return
+    }
+    if (-not ("UpdateHelperFocus" -as [type])) { return }
+    try {
+        $script:StatusWindowHandle = $Window.Handle
+        $granted = [UpdateHelperFocus]::SetForegroundWindow($Window.Handle)
+        $Window.Activate()
+        $script:StatusFocusWatch = $true
+        Write-Log "Status window focused for '$Stage' (SetForegroundWindow: $granted)."
+    } catch {
+        Write-Log "Could not focus the status window ($Stage): $($_.Exception.Message)"
+    }
 }
 
 # Every failure ends here. The status window has nothing focusable, so an
@@ -368,6 +446,7 @@ function Wait-Pumped {
     while ((Get-Date) -lt $deadline) {
         if ($Window) {
             try { [System.Windows.Forms.Application]::DoEvents() } catch { }
+            Watch-StatusWindowFocus
         }
         Start-Sleep -Milliseconds 50
     }
@@ -470,6 +549,13 @@ if ($parentProcess) {
     Stop-Process -Id $ParentPid -Force -ErrorAction SilentlyContinue
     Wait-Pumped -Milliseconds 1000 -Window $statusWindow
 }
+
+# The app's own window is gone now, and Windows hands focus to whatever is
+# next in line - usually not this window, which is why the update seemed to
+# vanish the moment the app closed (issue #30). Take focus once here, while
+# the update is still the task the user is engaged with; after this,
+# Watch-StatusWindowFocus respects the user moving elsewhere on purpose.
+Focus-StatusWindow -Window $statusWindow -Stage "application closed"
 
 # Kill any processes running from the install directory. The app itself is
 # normally the only one, but a recording interrupted while FFmpeg was

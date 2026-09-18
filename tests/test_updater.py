@@ -504,6 +504,54 @@ def test_update_helper_extracts_the_installer_error(tmp_path):
 
 
 
+@pytest.mark.skipif(os.name != "nt", reason="needs Windows PowerShell")
+def test_update_helper_status_window_focus_rules(tmp_path):
+    """Issue #30: re-focus once per stage, never steal it back after the user leaves."""
+    import subprocess
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    with open(os.path.join(root, "update_helper.ps1"), encoding="ascii") as handle:
+        helper = handle.read()
+    update_status = helper[helper.index("function Update-StatusMessage"):helper.index("# --- Status window focus")]
+    focus_block = helper[helper.index("# --- Status window focus"):helper.index("# Every failure ends here")]
+    script = tmp_path / "t.ps1"
+    script.write_text(
+        "function Write-Log { param([string]$Message) $script:logs += $Message }\n"
+        "$script:logs = @()\n"
+        + update_status + "\n" + focus_block + "\n"
+        "$script:activations = 0\n"
+        "$label = New-Object PSObject -Property @{ Text = '' }\n"
+        "$win = New-Object PSObject -Property @{ Controls = @{ 'StatusLabel' = $label }; Text = ''; Handle = [IntPtr]::Zero }\n"
+        "$win | Add-Member ScriptMethod Refresh { }\n"
+        "$win | Add-Member ScriptMethod Activate { $script:activations += 1 }\n"
+        # A stage change sets the text and takes focus once.
+        "Update-StatusMessage -Window $win -Message 'Installing the update.'\n"
+        "if ($label.Text -ne 'Installing the update.') { throw 'label not set' }\n"
+        "if (-not $win.Text.Contains('Installing the update.')) { throw 'title not set' }\n"
+        "if ($script:activations -ne 1) { throw \"expected one focus grab, got $script:activations\" }\n"
+        "if (-not $script:StatusFocusWatch) { throw 'focus watch not enabled' }\n"
+        # The user switches to another window: that latches, once.
+        "$script:StatusWindowHandle = [IntPtr]1\n"
+        "Watch-StatusWindowFocus\n"
+        "if (-not $script:UserLeftStatusWindow) { throw 'switching away was not noticed' }\n"
+        # Later stages still update the text but never take focus back.
+        "Update-StatusMessage -Window $win -Message 'Starting the updated application...'\n"
+        "if (-not $label.Text.StartsWith('Starting')) { throw 'stage text not updated after user left' }\n"
+        "if ($script:activations -ne 1) { throw 'focus was taken back after the user left' }\n"
+        # Our own window holding the foreground is not 'leaving'.
+        "$script:UserLeftStatusWindow = $false\n"
+        "$script:StatusWindowHandle = [UpdateHelperFocus]::GetForegroundWindow()\n"
+        "Watch-StatusWindowFocus\n"
+        "if ($script:UserLeftStatusWindow) { throw 'own foreground counted as leaving' }\n"
+        "'FOCUS-TEST-OK'\n",
+        encoding="utf-8-sig")
+    out = subprocess.run(
+        [updater.windows_powershell_path(), "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script)],
+        capture_output=True, text=True, timeout=60, env=updater.clean_powershell_env())
+    assert out.returncode == 0, out.stderr + out.stdout
+    assert "FOCUS-TEST-OK" in out.stdout
+
+
 class _SignatureResult:
     def __init__(self, status, thumbprint):
         self.returncode = 0
