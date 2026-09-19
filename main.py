@@ -5089,9 +5089,6 @@ class IPTVClient(wx.Frame):
             hwnd = self.GetHandle()
             SW_RESTORE = 9
             SW_SHOW = 5
-            VK_MENU = 0x12  # Alt key
-            KEYEVENTF_EXTENDEDKEY = 0x0001
-            KEYEVENTF_KEYUP = 0x0002
             SWP_NOMOVE = 0x0002
             SWP_NOSIZE = 0x0001
             HWND_TOP = 0
@@ -5115,11 +5112,15 @@ class IPTVClient(wx.Frame):
                 
                 # Move window to top of Z-order
                 user32.SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE)
-                
-                # Simulate Alt key press to unlock foreground
-                user32.keybd_event(VK_MENU, 0, KEYEVENTF_EXTENDEDKEY, 0)
-                user32.keybd_event(VK_MENU, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0)
-                
+
+                # No synthetic Alt press here. It is the well-known trick for
+                # unlocking SetForegroundWindow, and it is also exactly what
+                # opens a menu bar: every restore from the tray, every second
+                # copy brought to the front and every finished update pressed
+                # Alt for the user and left them in the menu instead of in the
+                # channel list. AttachThreadInput above already gives us the
+                # right to take the foreground.
+
                 # Set foreground and focus
                 user32.BringWindowToTop(hwnd)
                 user32.SetForegroundWindow(hwnd)

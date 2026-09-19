@@ -313,3 +313,17 @@ def test_update_helper_reopens_the_focus_latch_when_the_update_needs_the_window(
     assert "the update failed" in stages
     assert "the update was stopped" in stages
     assert "the update is complete" in stages
+
+
+def test_a_finished_update_takes_its_window_away():
+    """The update is over: nothing to read, nothing to dismiss, no window."""
+    helper, _catalog = _update_helper_message_catalog()
+    success = helper[helper.index("function Complete-SuccessfulUpdate"):
+                     helper.index("function Complete-FailedUpdate")]
+    # The restart-failed branch still waits to be dismissed; the success one
+    # must not, and must hand the foreground to the app it has just started.
+    finished = success[success.index("Reset-StatusFocusLatch -Stage \"the update is complete\""):]
+    assert "Wait-ForDismissal" not in finished
+    assert "Grant-ForegroundToNextProcess" in finished
+    assert "Close-StatusWindow" in finished
+    assert "$script:CompleteLingerMs" in finished

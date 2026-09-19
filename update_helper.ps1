@@ -269,6 +269,10 @@ $script:StatusButton = $null
 $script:StatusMessage = ""
 $script:StatusButtonAction = ""
 $script:AllowStatusClose = $false
+# How long the finished update stays on screen: long enough for "Update
+# complete" to be spoken, short enough that the window is gone by the time the
+# user starts using the application again. Nothing in it is clickable by then.
+$script:CompleteLingerMs = 4000
 $script:CancelRequested = $false
 $script:StatusDismissed = $false
 
@@ -867,9 +871,14 @@ function Complete-SuccessfulUpdate {
     # again by itself and the window gives the app its focus back when it goes.
     Reset-StatusFocusLatch -Stage "the update is complete"
     Update-StatusMessage -Window $Window -Message $text
-    # Long enough to be read at any speech rate, with a Close button for
-    # anyone who would rather move on at once.
-    Wait-ForDismissal -Window $Window -Milliseconds 9000 -ButtonText $updateMessages.close
+    # Then get out of the way. A finished update is finished: this window has
+    # no business staying on screen, and a Close button here only gave the
+    # user something else to deal with before they could use the application.
+    # The pause is just long enough for the message to be spoken.
+    Wait-Pumped -Milliseconds $script:CompleteLingerMs -Window $Window
+    # The restarted app should be what the user lands in, not whatever Windows
+    # picks when this window disappears.
+    Grant-ForegroundToNextProcess
     Close-StatusWindow -Window $Window
 }
 

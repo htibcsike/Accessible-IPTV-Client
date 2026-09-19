@@ -703,6 +703,11 @@ def test_update_success_confirmation_names_the_new_version(monkeypatch, tmp_path
     monkeypatch.setattr(appmod.updater, "read_update_pending",
                         lambda _d: {"version": appmod.app_meta.APP_VERSION})
     monkeypatch.setattr(appmod.updater, "clear_update_pending", lambda _d: None)
+    # Without this the test reads the real result file in %TEMP%: a genuine
+    # update - or a run of tools/smoke_update_window.py - on the machine
+    # running the tests then decides whether this confirmation appears.
+    monkeypatch.setattr(appmod.updater, "read_update_result", lambda: None)
+    monkeypatch.setattr(appmod.updater, "clear_update_result", lambda: None)
 
     appmod.IPTVClient._report_finished_update(types.SimpleNamespace())
 
@@ -897,3 +902,22 @@ def test_a_live_helper_keeps_the_folder_it_is_running_from(tmp_path):
     appmod.IPTVClient._discard_update_download(client, str(temp_root),
                                                types.SimpleNamespace(poll=lambda: 0))
     assert not temp_root.exists()
+
+
+def test_the_app_never_presses_alt_to_take_the_foreground():
+    """Alt is what opens a menu bar.
+
+    Synthesising an Alt keypress is the well-known trick for unlocking
+    SetForegroundWindow, and it left the user in the menu bar instead of the
+    channel list after every restore from the tray, every time a second copy
+    brought the running one to the front, and at the end of every update.
+    """
+    source = (ROOT / "main.py").read_text(encoding="utf-8")
+    foreground = source[source.index("def _force_foreground"):
+                        source.index("def _restore_focus_after_tray")]
+    assert "keybd_event" not in foreground
+    assert "VK_MENU" not in foreground
+    # The part that really grants the right is still there.
+    assert "AttachThreadInput" in foreground
+    assert "SetForegroundWindow" in foreground
+    assert "keybd_event" not in source, "no other path may press keys either"
