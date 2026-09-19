@@ -260,7 +260,7 @@ Program może nagrywać dowolny kanał do pliku, podczas gdy oglądasz coś inne
 - Nagrania > Zatrzymaj nagrywanie zatrzymuje nagrywanie podświetlonego kanału, a Zatrzymaj wszystkie nagrania zatrzymuje wszystkie.
 - Nagrania > Otwórz folder nagrań otwiera folder, gdzie zapisywane są pliki.
 - Nagrania > Ustaw folder pobierania... wybiera ten folder. Pobieranie powtórek też tam trafia.
-- Każde nagranie zapisuje plik dziennika w folderze logs wewnątrz folderu nagrań. Jeśli nagranie kończy się ostrzeżeniem lub błędem, jego komunikat zawiera podsumowanie znalezionych w dzienniku wierszy z ostrzeżeniami, błędami i błędami krytycznymi. Szczegóły znajdziesz w dzienniku.
+- Każde nagranie zapisuje plik dziennika w folderze logs wewnątrz folderu nagrań. Jeśli nagranie kończy się ostrzeżeniem lub błędem, jego komunikat zawiera podsumowanie znalezionych w dzienniku wierszy z ostrzeżeniami, błędami i błędami krytycznymi. Szczegóły znajdziesz w dzienniku. Dziennik kończy się podsumowaniem: ile nagranie miało trwać, ile trwa w rzeczywistości oraz wszystkie ostrzeżenia i błędy pogrupowane według rodzaju, z czasem ich wystąpienia.
 
 Nagrywanie oglądanego programu we wbudowanym odtwarzaczu używa tego samego połączenia z dostawcą, więc działa także przy kontach pozwalających na jeden strumień naraz.
 

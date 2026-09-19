@@ -272,7 +272,7 @@ A program bármely csatorna adását képes fájlba rögzíteni akkor is, ha kö
 - A Felvételek > Rögzítés leállítása paranccsal befejezheti a kijelölt csatornán folyó felvételt. Az Összes rögzítés leállítása valamennyi aktív felvételt befejezi.
 - A Felvételek > Felvételek mappájának megnyitása paranccsal megnyithatja a mentett fájlokat tartalmazó mappát.
 - A Felvételek > Letöltési mappa beállítása… paranccsal választhatja ki ezt a mappát. Az archív műsorok letöltött fájljai is ide kerülnek.
-- Minden rögzítéshez külön naplófájl készül a felvételek mappáján belüli logs almappában. Ha egy rögzítés figyelmeztetéssel vagy hibával fejeződik be, a megjelenő üzenet összesíti a naplóban talált figyelmeztetéseket, hibákat és végzetes hibákat. A részletekért nyissa meg a naplófájlt.
+- Minden rögzítéshez külön naplófájl készül a felvételek mappáján belüli logs almappában. Ha egy rögzítés figyelmeztetéssel vagy hibával fejeződik be, a megjelenő üzenet összesíti a naplóban talált figyelmeztetéseket, hibákat és végzetes hibákat. A részletekért nyissa meg a naplófájlt. A napló végén összefoglaló található: milyen hosszúra tervezték a felvételt, milyen hosszú lett valójában, valamint az összes figyelmeztetés és hiba típus szerint csoportosítva, az előfordulásuk időpontjaival.
 
 Ha a beépített lejátszóban éppen nézett csatornát kezdi rögzíteni, a lejátszás és a rögzítés ugyanazt a szolgáltatói kapcsolatot használja. Emiatt a funkció olyan fiókokkal is működik, amelyek egyszerre csak egy adatfolyamot engedélyeznek.
 

@@ -269,7 +269,7 @@ The program can record any channel to a file while you watch something else, or 
 - Recordings > Stop Recording stops the highlighted channel's recording, and Stop All Recordings stops them all.
 - Recordings > Open Recordings Folder opens the folder the files are saved in.
 - Recordings > Set Download Folder chooses that folder. Catch-up downloads go there too.
-- Every recording writes a log file into the logs folder inside the recordings folder. If a recording ends with a warning or error, its message includes a summary of any warning, error and fatal-error lines found in the log. Open the log for the details.
+- Every recording writes a log file into the logs folder inside the recordings folder. If a recording ends with a warning or error, its message includes a summary of any warning, error and fatal-error lines found in the log. Open the log for the details. The log ends with a summary: how long the recording was meant to be, how long it turned out, and every warning and error grouped by kind, with the times they happened.
 
 Recording what you are watching in the built-in player uses the same connection to the provider, so it works even with accounts that allow only one stream at a time.
 

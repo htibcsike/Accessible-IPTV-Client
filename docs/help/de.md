@@ -260,7 +260,7 @@ Das Programm kann jeden Sender in eine Datei aufnehmen, während Sie etwas ander
 - Aufnahmen > Aufnahme stoppen stoppt die Aufnahme des markierten Senders, Alle Aufnahmen stoppen stoppt alle.
 - Aufnahmen > Aufnahmeordner öffnen öffnet den Ordner, in dem die Dateien landen.
 - Aufnahmen > Download-Ordner festlegen… wählt diesen Ordner. Nachholen-Downloads landen ebenfalls dort.
-- Jede Aufnahme schreibt eine Protokolldatei in den Ordner logs im Aufnahmeordner. Endet eine Aufnahme mit einer Warnung oder einem Fehler, enthält ihre Meldung eine Zusammenfassung der im Protokoll gefundenen Warnungs-, Fehler- und Schwerwiegender-Fehler-Zeilen. Die Einzelheiten stehen im Protokoll.
+- Jede Aufnahme schreibt eine Protokolldatei in den Ordner logs im Aufnahmeordner. Endet eine Aufnahme mit einer Warnung oder einem Fehler, enthält ihre Meldung eine Zusammenfassung der im Protokoll gefundenen Warnungs-, Fehler- und Schwerwiegender-Fehler-Zeilen. Die Einzelheiten stehen im Protokoll. Am Ende des Protokolls steht eine Zusammenfassung: wie lang die Aufnahme werden sollte, wie lang sie geworden ist, und alle Warnungen und Fehler nach Art gruppiert, mit den Zeitpunkten, zu denen sie auftraten.
 
 Das Aufnehmen des laufenden Programms im integrierten Player benutzt dieselbe Verbindung zum Anbieter und funktioniert daher auch bei Konten, die nur einen Stream zurzeit erlauben.
 

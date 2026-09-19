@@ -259,7 +259,7 @@ Program, siz başka bir şey izlerken ya da hiçbir şey oynamazken herhangi bir
 - Kayıtlar > Kaydı durdur vurgulanan kanalın kaydını durdurur; Tüm kayıtları durdur hepsini durdurur.
 - Kayıtlar > Kayıt klasörünü aç, dosyaların kaydedildiği klasörü açar.
 - Kayıtlar > İndirme klasörünü ayarla... o klasörü seçer. Geri izleme indirmeleri de oraya gider.
-- Her kayıt, kayıt klasörünün içindeki logs klasörüne bir günlük dosyası yazar. Bir kayıt uyarı ya da hatayla biterse iletisi, günlükte bulunan uyarı, hata ve ölümcül hata satırlarının bir özetini içerir. Ayrıntılar için günlüğü açın.
+- Her kayıt, kayıt klasörünün içindeki logs klasörüne bir günlük dosyası yazar. Bir kayıt uyarı ya da hatayla biterse iletisi, günlükte bulunan uyarı, hata ve ölümcül hata satırlarının bir özetini içerir. Ayrıntılar için günlüğü açın. Günlüğün sonunda bir özet bulunur: kaydın ne kadar sürmesi gerektiği, gerçekte ne kadar sürdüğü ve türlerine göre gruplanmış tüm uyarılar ve hatalar, ortaya çıktıkları zamanlarla birlikte.
 
 Yerleşik oynatıcıda izlediğinizi kaydetmek sağlayıcıyla aynı bağlantıyı kullanır; bir kerede yalnızca bir akışa izin veren hesaplarda bile çalışır.
 

@@ -3586,7 +3586,7 @@ class IPTVClient(wx.Frame):
             headers,
             out_dir,
             key="dvr:{id}".format(id=job.get("id")),
-            metadata={"dvr_job_id": job.get("id")},
+            metadata={"dvr_job_id": job.get("id"), "planned_stop_ts": job.get("stop_ts")},
             on_finish=self._on_recording_finished,
             audio_track=audio_track,
             audio_track_count=audio_count,

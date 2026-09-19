@@ -260,7 +260,7 @@ Il programma può registrare qualsiasi canale in un file mentre si guarda altro,
 - Registrazioni > Ferma la registrazione ferma la registrazione del canale evidenziato, e Ferma tutte le registrazioni le ferma tutte.
 - Registrazioni > Apri cartella delle registrazioni apre la cartella dove i file sono salvati.
 - Registrazioni > Imposta cartella download… sceglie quella cartella. I download dei replay vanno lì anch'essi.
-- Ogni registrazione scrive un file di registro nella cartella logs dentro la cartella delle registrazioni. Se una registrazione termina con un avviso o un errore, il suo messaggio include un riepilogo delle righe di avviso, errore ed errore fatale trovate nel registro. Apri il registro per i dettagli.
+- Ogni registrazione scrive un file di registro nella cartella logs dentro la cartella delle registrazioni. Se una registrazione termina con un avviso o un errore, il suo messaggio include un riepilogo delle righe di avviso, errore ed errore fatale trovate nel registro. Apri il registro per i dettagli. Il registro termina con un riepilogo: quanto doveva durare la registrazione, quanto è durata davvero e tutti gli avvisi e gli errori raggruppati per tipo, con i momenti in cui si sono verificati.
 
 Registrare ciò che si guarda nel lettore integrato usa la stessa connessione al provider, quindi funziona anche con account che permettono un solo flusso alla volta.
 

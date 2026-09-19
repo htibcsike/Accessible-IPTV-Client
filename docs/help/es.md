@@ -260,7 +260,7 @@ El programa puede grabar cualquier canal a un archivo mientras ve otra cosa, o s
 - Grabaciones > Detener grabación detiene la grabación del canal resaltado, y Detener todas las grabaciones las detiene todas.
 - Grabaciones > Abrir carpeta de grabaciones abre la carpeta donde se guardan los archivos.
 - Grabaciones > Establecer carpeta de descarga… elige esa carpeta. Las descargas de repetición también van allí.
-- Cada grabación escribe un archivo de registro en la carpeta logs, dentro de la carpeta de grabaciones. Si una grabación termina con una advertencia o un error, su mensaje incluye un resumen de las líneas de advertencia, error y error grave encontradas en el registro. Abra el registro para ver los detalles.
+- Cada grabación escribe un archivo de registro en la carpeta logs, dentro de la carpeta de grabaciones. Si una grabación termina con una advertencia o un error, su mensaje incluye un resumen de las líneas de advertencia, error y error grave encontradas en el registro. Abra el registro para ver los detalles. El registro termina con un resumen: cuánto debía durar la grabación, cuánto duró en realidad y todas las advertencias y errores agrupados por tipo, con los momentos en que ocurrieron.
 
 Grabar lo que ve en el reproductor integrado usa la misma conexión al proveedor, así que funciona incluso con cuentas que permiten un solo flujo a la vez.
 

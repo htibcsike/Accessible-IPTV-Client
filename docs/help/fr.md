@@ -260,7 +260,7 @@ Le programme peut enregistrer n'importe quelle chaîne dans un fichier pendant q
 - Enregistrements > Arrêter l'enregistrement arrête l'enregistrement de la chaîne surlignée, et Arrêter tous les enregistrements les arrête tous.
 - Enregistrements > Ouvrir le dossier des enregistrements ouvre le dossier où les fichiers sont enregistrés.
 - Enregistrements > Définir le dossier de téléchargement… choisit ce dossier. Les téléchargements de rattrapage y vont aussi.
-- Chaque enregistrement écrit un fichier journal dans le dossier logs du dossier des enregistrements. Si un enregistrement se termine par un avertissement ou une erreur, son message contient un résumé des lignes d'avertissement, d'erreur et d'erreur fatale trouvées dans le journal. Ouvrez le journal pour les détails.
+- Chaque enregistrement écrit un fichier journal dans le dossier logs du dossier des enregistrements. Si un enregistrement se termine par un avertissement ou une erreur, son message contient un résumé des lignes d'avertissement, d'erreur et d'erreur fatale trouvées dans le journal. Ouvrez le journal pour les détails. Le journal se termine par un résumé : la durée prévue de l'enregistrement, sa durée réelle, et tous les avertissements et erreurs regroupés par type, avec les moments où ils se sont produits.
 
 Enregistrer ce que vous regardez dans le lecteur intégré utilise la même connexion au fournisseur ; cela fonctionne donc même avec les comptes qui n'autorisent qu'un flux à la fois.
 

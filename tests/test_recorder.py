@@ -716,3 +716,139 @@ def test_relay_failure_does_not_leave_ffmpeg_running(tmp_path, monkeypatch):
     assert proc.killed
     assert manager.list_active() == []
     assert manager._reserved_paths == set()
+
+
+def test_decoder_prefixed_problems_are_counted(tmp_path):
+    """``[h264 @ addr] [error]`` lines are errors too; they used to count as none."""
+    log = tmp_path / "rec.log"
+    log.write_text(
+        "[h264 @ 00000244d66ec580] [error] mmco: unref short failure\n"
+        "[h264 @ 00000244d66ec580] [warning] Increasing reorder buffer to 2\n"
+        "2026-09-19 20:20:08.100 [Parsed_volume_0 @ 0000] [Eval @ 0001] [error] bad\n"
+        "[info] Output #0, mp3, to 'out.mp3':\n",
+        encoding="utf-8",
+    )
+    assert recorder.count_log_problems(str(log)) == {
+        "warnings": 1, "errors": 2, "fatals": 0}
+    # The finish dialog shows the line without ffmpeg's date prefix.
+    assert recorder.read_log_problems(str(log))[-1] == (
+        "[Parsed_volume_0 @ 0000] [Eval @ 0001] [error] bad")
+
+
+def test_parse_log_line_reads_time_level_and_component():
+    parsed = recorder.parse_log_line(
+        "2026-09-19 20:20:07.514 [h264 @ 00000244d66ec580] [error] mmco: unref short failure")
+    assert parsed["level"] == "error"
+    assert parsed["component"] == "h264"
+    assert parsed["message"] == "mmco: unref short failure"
+    assert parsed["when"].second == 7 and parsed["when"].microsecond == 514000
+    plain = recorder.parse_log_line("[warning] Non-monotonic DTS")
+    assert plain["when"] is None and plain["component"] == ""
+    assert recorder.parse_log_line("# ffmpeg -i x") is None
+    assert recorder.parse_log_line("[q] command received. Exiting.") is None
+
+
+def test_summary_groups_problems_by_kind_and_places_them_in_time(tmp_path):
+    log = tmp_path / "rec.log"
+    log.write_text("\n".join([
+        "# 2026-09-19 20:20:07",
+        "2026-09-19 20:20:07.100 [h264 @ 0000] [error] mmco: unref short failure",
+        "2026-09-19 20:20:07.110 [h264 @ 0000] [error] mmco: unref short failure",
+        "2026-09-19 20:20:07.200 [info] Input #0, mpegts, from 'x':",
+        "2026-09-19 20:20:08.000 [info] Output #0, mp3, to 'out.mp3':",
+        # Same message, different numbers: one kind.
+        "2026-09-19 20:32:11.000 [http @ 0002] [warning] Will reconnect at 100 in 0 second(s)",
+        "2026-09-19 21:01:44.000 [http @ 0002] [warning] Will reconnect at 900 in 0 second(s)",
+        "2026-09-19 21:05:00.000 [mp3 @ 0003] [error] Packet corrupt",
+        "    Last message repeated 2 times",
+        "2026-09-19 21:29:50.000 [info] size=  107025KiB time=01:09:54.38 bitrate= 209.0kbits/s",
+    ]) + "\n", encoding="utf-8")
+
+    summary = recorder.summarize_log(str(log))
+    assert summary["output_opened"] and summary["timestamps"]
+    opening, recording = summary["phases"]["opening"], summary["phases"]["recording"]
+    assert [(k["message"], k["count"]) for k in opening] == [("mmco: unref short failure", 2)]
+    reconnect, corrupt = recording
+    assert reconnect["count"] == 2 and reconnect["offsets"] == [723.0, 2496.0]
+    assert corrupt["count"] == 3
+    assert recorder.count_log_problems(str(log)) == {"warnings": 2, "errors": 5, "fatals": 0}
+
+    lines = recorder.format_recording_summary(
+        out_path="out.mp3", started_at=1000.0, ended_at=1000.0 + 4194,
+        planned_seconds=4200.0, written_seconds=recorder.parse_ffmpeg_progress(str(log)),
+        file_size=109593600, ending="stopped on request (exit code 0).", summary=summary)
+    text = "\n".join(lines)
+    assert all(line.startswith("#") for line in lines)
+    assert "# Planned length: 1:10:00" in text
+    assert "# Recorded length: 1:09:54 (99.9% of planned, 0:00:06 short)" in text
+    assert "# Problems while opening the stream: 0 warnings, 2 errors, 0 fatal errors" in text
+    assert "# Problems during the recording: 2 warnings, 3 errors, 0 fatal errors" in text
+    assert ("2 times: warning from http: Will reconnect at 100 in 0 second(s). "
+            "At 0:12:03, 0:41:36.") in text
+    assert "3 times: error from mp3: Packet corrupt. At 0:44:52." in text
+    # The summary is not read back as more problems.
+    with open(log, "a", encoding="utf-8") as handle:
+        handle.write(text + "\n")
+    assert recorder.count_log_problems(str(log)) == {"warnings": 2, "errors": 5, "fatals": 0}
+
+
+def test_summary_of_a_recording_that_never_started_writing(tmp_path):
+    log = tmp_path / "rec.log"
+    log.write_text("[http @ 0001] [error] HTTP error 403 Forbidden\n"
+                   "[in#0 @ 0002] [fatal] Error opening input files: Server returned 403\n",
+                   encoding="utf-8")
+    text = "\n".join(recorder.format_recording_summary(
+        out_path="out.mkv", started_at=0.0, ended_at=2.0, planned_seconds=None,
+        written_seconds=None, file_size=None, ending="ffmpeg failed (exit code 1).",
+        summary=recorder.summarize_log(str(log))))
+    assert "# Planned length: none, recorded until stopped" in text
+    assert "# Recorded length: unknown" in text
+    assert "# File size: no file was written" in text
+    assert "never started writing" in text
+    assert "once: fatal from in#0: Error opening input files: Server returned 403" in text
+
+
+def test_scheduled_stop_time_gives_the_planned_length():
+    assert recorder._planned_seconds(90.0, {}, 1000.0) == 90.0
+    assert recorder._planned_seconds(None, {"planned_stop_ts": 1600.0}, 1000.0) == 600.0
+    assert recorder._planned_seconds(None, {"planned_stop_ts": 900.0}, 1000.0) is None
+    assert recorder._planned_seconds(None, {}, 1000.0) is None
+
+
+def test_log_timestamps_are_asked_for_only_when_ffmpeg_supports_them():
+    cmd = build_ffmpeg_command(FFMPEG, "http://h/x", "out.mkv", "provider_mkv", None,
+                               log_datetime=True)
+    assert cmd[cmd.index("-loglevel") + 1] == "level+datetime+info"
+    assert recorder.ffmpeg_supports_log_datetime("") is False
+    missing = os.path.join(os.path.dirname(__file__), "no-such-ffmpeg.exe")
+    assert recorder.ffmpeg_supports_log_datetime(missing) is False
+    assert missing not in recorder._LOG_DATETIME_SUPPORT
+
+
+def test_finished_recording_log_ends_with_a_summary(tmp_path):
+    ffmpeg = _available_ffmpeg()
+    if not ffmpeg:
+        pytest.skip("ffmpeg is not available")
+    source = tmp_path / "source.ts"
+    _make_source_ts(ffmpeg, source)
+
+    with _looping_ts_server(source) as url:
+        finished = threading.Event()
+        manager = recorder.RecordingManager()
+        try:
+            rec = manager.start(url, "Summary", "provider_mkv", {}, str(tmp_path),
+                                on_finish=lambda *_args: finished.set(), duration=3)
+            assert finished.wait(60)
+        finally:
+            manager.stop_all(wait=True)
+
+    with open(rec.log_path, encoding="utf-8", errors="replace") as handle:
+        log = handle.read()
+    tail = log[log.index("# ===== Recording summary ====="):]
+    assert "# How it ended: finished normally." in tail
+    assert "# Planned length: 0:00:03" in tail
+    assert "# Recorded length: 0:00:0" in tail
+    assert "# File size: " in tail and "no file" not in tail
+    assert tail.rstrip().endswith("# ===== End of summary =====")
+    if recorder.ffmpeg_supports_log_datetime(ffmpeg):
+        assert "level+datetime+info" in log.splitlines()[1]

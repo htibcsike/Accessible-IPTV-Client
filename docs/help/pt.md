@@ -260,7 +260,7 @@ O programa pode gravar qualquer canal para um arquivo enquanto você assiste out
 - Gravações > Parar gravação para a gravação do canal destacado, e Parar todas as gravações para todas.
 - Gravações > Abrir pasta de gravações abre a pasta onde os arquivos são guardados.
 - Gravações > Definir pasta de descarga… escolhe essa pasta. As transferências de replay também vão para lá.
-- Cada gravação escreve um arquivo de registro na pasta logs, dentro da pasta de gravações. Se uma gravação terminar com um aviso ou erro, a mensagem inclui um resumo das linhas de aviso, erro e erro fatal encontradas no registro. Abra o registro para ver os detalhes.
+- Cada gravação escreve um arquivo de registro na pasta logs, dentro da pasta de gravações. Se uma gravação terminar com um aviso ou erro, a mensagem inclui um resumo das linhas de aviso, erro e erro fatal encontradas no registro. Abra o registro para ver os detalhes. O registro termina com um resumo: quanto a gravação deveria durar, quanto durou de fato e todos os avisos e erros agrupados por tipo, com os momentos em que ocorreram.
 
 Gravar o que você está assistindo no reprodutor integrado usa a mesma conexão com o provedor, então funciona mesmo com contas que permitem só um fluxo por vez.
 

@@ -83,8 +83,29 @@ DETACH_WAIT_SECONDS = 5.0
 RECORDING_LOG_DIRNAME = "logs"
 STDERR_TAIL_LINES = 12
 _LOG_TAIL_WINDOW_BYTES = 262144
-# ``-loglevel level+info`` prefixes every line with its severity.
-_PROBLEM_LINE_RE = re.compile(r"^\[(?:panic|fatal|error|warning)\]", re.IGNORECASE)
+# ``-loglevel level+datetime+info`` writes lines such as
+#   2026-09-19 20:20:07.514 [h264 @ 00000244d66ec580] [error] mmco: unref short failure
+# The date is missing when ffmpeg is too old for the ``datetime`` flag, and the
+# ``[component @ address]`` prefixes (there can be several) are missing on
+# ffmpeg's own messages, so both are optional.
+_LOG_LINE_RE = re.compile(
+    r"^(?:(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d(?:\.\d+)?) )?"
+    r"((?:\[[^\]]*\] )*)"
+    r"\[(panic|fatal|error|warning|info|verbose|debug|trace)\] ?(.*)$",
+    re.IGNORECASE)
+_PROBLEM_LEVELS = frozenset({"panic", "fatal", "error", "warning"})
+_LOG_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+# Without ``-loglevel repeat`` ffmpeg may fold identical lines into this one.
+_REPEATED_RE = re.compile(r"Last message repeated (\d+) times?")
+# The first line ffmpeg writes once the output is open: from here on the
+# recording is really being written.
+_OUTPUT_OPENED_RE = re.compile(r"^Output #\d+")
+# How many kinds of problem the summary lists per phase before it stops.
+_SUMMARY_MAX_KINDS = 20
+# Up to this many occurrences are listed one by one; beyond it only the first
+# and last are named.
+_SUMMARY_MAX_TIMES = 5
+_SUMMARY_MARKER = "# ===== Recording summary ====="
 
 # Stats lines written when a recording runs with ``show_stats``: the dialog
 # tails the log for the newest ``time=HH:MM:SS.xx`` to report real progress.
@@ -170,6 +191,85 @@ def format_size(num_bytes: Optional[float]) -> str:
     return "--"
 
 
+def parse_log_line(line: str) -> Optional[Dict[str, object]]:
+    """Split one ffmpeg log line into its time, level, component and message.
+
+    Returns None for lines without a level (the header, stats, ``[q] command
+    received``). ``when`` is None when ffmpeg did not time-stamp the line, and
+    ``component`` is the first ``[name @ address]`` prefix's name, if any.
+    """
+    match = _LOG_LINE_RE.match(line.strip())
+    if not match:
+        return None
+    stamp, prefixes, level, message = match.groups()
+    when = None
+    if stamp:
+        try:
+            when = datetime.datetime.strptime(
+                stamp if "." in stamp else stamp + ".0", _LOG_DATETIME_FORMAT)
+        except ValueError:
+            when = None
+    component = ""
+    if prefixes:
+        first = prefixes.split("] ", 1)[0].lstrip("[")
+        component = first.split(" @ ", 1)[0].strip()
+    return {"when": when, "level": level.lower(), "component": component,
+            "message": message.strip()}
+
+
+def strip_log_timestamp(line: str) -> str:
+    """A log line minus ffmpeg's date prefix, for dialogs that quote it."""
+    line = line.strip()
+    match = _LOG_LINE_RE.match(line)
+    if match and match.group(1):
+        return line[len(match.group(1)):].lstrip()
+    return line
+
+
+def _is_problem_line(line: str) -> bool:
+    parsed = parse_log_line(line)
+    return bool(parsed) and parsed["level"] in _PROBLEM_LEVELS
+
+
+def _read_log_lines(path: str) -> List[str]:
+    """Every line of a recording log. ffmpeg ends stats lines with a bare CR."""
+    try:
+        with open(path, "rb") as handle:
+            data = handle.read()
+    except OSError:
+        return []
+    return data.decode("utf-8", errors="replace").splitlines()
+
+
+_LOG_DATETIME_SUPPORT: Dict[str, bool] = {}
+
+
+def ffmpeg_supports_log_datetime(ffmpeg_path: str) -> bool:
+    """Whether this ffmpeg accepts ``-loglevel level+datetime+info``.
+
+    The flag arrived in ffmpeg 7; an older system ffmpeg (Linux) refuses to
+    start at all when given it, so ask once and remember the answer. A check
+    that could not run at all is not remembered.
+    """
+    if not ffmpeg_path:
+        return False
+    cached = _LOG_DATETIME_SUPPORT.get(ffmpeg_path)
+    if cached is not None:
+        return cached
+    creation_flags = subprocess.CREATE_NO_WINDOW if hasattr(subprocess, "CREATE_NO_WINDOW") else 0
+    try:
+        result = subprocess.run(
+            [ffmpeg_path, "-hide_banner", "-loglevel", "level+datetime+info", "-version"],
+            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            timeout=15, creationflags=creation_flags)
+        supported = result.returncode == 0
+    except Exception:
+        LOG.debug("ffmpeg_supports_log_datetime: check failed", exc_info=True)
+        return False
+    _LOG_DATETIME_SUPPORT[ffmpeg_path] = supported
+    return supported
+
+
 def recording_log_path(out_dir: str, out_path: str) -> str:
     """Where the full ffmpeg stderr for ``out_path`` is written."""
     base = os.path.splitext(os.path.basename(out_path))[0]
@@ -188,8 +288,8 @@ def read_log_problems(path: str, limit: int = STDERR_TAIL_LINES) -> List[str]:
             data = handle.read()
     except OSError:
         return []
-    lines = [line.strip() for line in data.decode("utf-8", errors="replace").splitlines()]
-    return [line for line in lines if _PROBLEM_LINE_RE.match(line)][-limit:]
+    lines = data.decode("utf-8", errors="replace").splitlines()
+    return [strip_log_timestamp(line) for line in lines if _is_problem_line(line)][-limit:]
 
 
 def count_log_problems(path: str) -> Dict[str, int]:
@@ -200,26 +300,199 @@ def count_log_problems(path: str) -> Dict[str, int]:
     the last dozen. This scans every line so the total is easy to find: it is
     what the app logs and reports when the recording ends, and it can be
     compared across the log files in ``<recordings>/logs``. Lines that are
-    neither warnings nor errors do not count.
+    neither warnings nor errors do not count. A decoder's own messages
+    (``[h264 @ ...] [error] ...``) count like ffmpeg's.
     """
     counts = {"warnings": 0, "errors": 0, "fatals": 0}
     if not path:
         return counts
-    try:
-        with open(path, "rb") as handle:
-            for raw in handle:
-                line = raw.decode("utf-8", errors="replace").strip()
-                if not line:
-                    continue
-                if line.startswith("[warning]"):
-                    counts["warnings"] += 1
-                elif line.startswith("[error]"):
-                    counts["errors"] += 1
-                elif line.startswith("[fatal]"):
-                    counts["fatals"] += 1
-    except OSError:
-        return counts
+    summary = summarize_log(path)
+    for phase in summary["phases"].values():
+        for kind in phase:
+            counts[_COUNT_KEYS[kind["level"]]] += kind["count"]
     return counts
+
+
+_COUNT_KEYS = {"warning": "warnings", "error": "errors", "fatal": "fatals", "panic": "fatals"}
+
+
+def summarize_log(path: str) -> Dict[str, object]:
+    """Group a recording log's problems by kind, split at the start of writing.
+
+    ``phases["opening"]`` holds what ffmpeg reported before the output file was
+    opened (joining the stream part-way and reading its start to identify it),
+    ``phases["recording"]`` everything after. Each kind is a dict with
+    ``level``, ``component``, ``message`` (the first occurrence), ``count`` and
+    ``offsets``: seconds since the output opened, one per occurrence, empty
+    when ffmpeg did not time-stamp its lines. ``output_opened`` says whether
+    the recording got as far as writing at all.
+    """
+    phases: Dict[str, List[Dict[str, object]]] = {"opening": [], "recording": []}
+    index: Dict[tuple, Dict[str, object]] = {}
+    opened_at: Optional[datetime.datetime] = None
+    output_opened = False
+    timestamps = False
+    last_kind: Optional[Dict[str, object]] = None
+    for line in _read_log_lines(path) if path else []:
+        repeated = _REPEATED_RE.search(line)
+        if repeated:
+            if last_kind is not None:
+                extra = int(repeated.group(1))
+                last_kind["count"] += extra
+                if last_kind["offsets"]:
+                    last_kind["offsets"].extend([last_kind["offsets"][-1]] * extra)
+            continue
+        parsed = parse_log_line(line)
+        if parsed is None:
+            continue
+        if parsed["when"] is not None:
+            timestamps = True
+        message = str(parsed["message"])
+        if not output_opened and parsed["level"] == "info" and _OUTPUT_OPENED_RE.match(message):
+            output_opened = True
+            opened_at = parsed["when"]
+            continue
+        if parsed["level"] not in _PROBLEM_LEVELS:
+            last_kind = None
+            continue
+        phase = "recording" if output_opened else "opening"
+        level = "fatal" if parsed["level"] == "panic" else str(parsed["level"])
+        # Numbers vary between otherwise identical messages (timestamps, sizes).
+        key = (phase, level, parsed["component"], re.sub(r"\d+", "#", message))
+        kind = index.get(key)
+        if kind is None:
+            kind = {"level": level, "component": parsed["component"], "message": message,
+                    "count": 0, "offsets": []}
+            index[key] = kind
+            phases[phase].append(kind)
+        kind["count"] += 1
+        if phase == "recording" and opened_at is not None and parsed["when"] is not None:
+            kind["offsets"].append(max(0.0, (parsed["when"] - opened_at).total_seconds()))
+        last_kind = kind
+    return {"phases": phases, "output_opened": output_opened,
+            "timestamps": timestamps and opened_at is not None}
+
+
+def _clock(seconds: float) -> str:
+    """h:mm:ss, always with hours, so times in a list line up."""
+    total = int(round(max(0.0, seconds)))
+    hours, remainder = divmod(total, 3600)
+    minutes, secs = divmod(remainder, 60)
+    return f"{hours}:{minutes:02d}:{secs:02d}"
+
+
+def _plural(count: int, word: str) -> str:
+    return f"{count} {word}" if count == 1 else f"{count} {word}s"
+
+
+def _problem_totals(kinds: List[Dict[str, object]]) -> str:
+    totals = {"warning": 0, "error": 0, "fatal": 0}
+    for kind in kinds:
+        totals[str(kind["level"])] += int(kind["count"])
+    return "{w}, {e}, {f}".format(
+        w=_plural(totals["warning"], "warning"), e=_plural(totals["error"], "error"),
+        f=_plural(totals["fatal"], "fatal error"))
+
+
+def _describe_kind(kind: Dict[str, object]) -> str:
+    count = int(kind["count"])
+    source = " from {c}".format(c=kind["component"]) if kind["component"] else ""
+    text = "{times}: {level}{source}: {message}".format(
+        times="once" if count == 1 else f"{count} times",
+        level=kind["level"], source=source, message=kind["message"])
+    # A burst within one second is one time, not the same time repeated.
+    clocks: List[str] = []
+    for value in kind["offsets"]:
+        if _clock(value) not in clocks:
+            clocks.append(_clock(value))
+    if clocks:
+        if len(clocks) <= _SUMMARY_MAX_TIMES:
+            text += ". At " + ", ".join(clocks) + "."
+        else:
+            text += ". First at {a}, last at {b}.".format(a=clocks[0], b=clocks[-1])
+    return text
+
+
+def format_recording_summary(
+    *,
+    out_path: str,
+    started_at: float,
+    ended_at: float,
+    planned_seconds: Optional[float],
+    written_seconds: Optional[float],
+    file_size: Optional[int],
+    ending: str,
+    summary: Dict[str, object],
+) -> List[str]:
+    """The lines appended to a recording log once ffmpeg has exited.
+
+    Everything a reader wants first: how long the file should be, how long it
+    is, and which problems were logged, grouped by kind and placed in time, so
+    nobody has to count repeated decoder lines by hand.
+    """
+    stamp = "%Y-%m-%d %H:%M:%S"
+    lines = [
+        _SUMMARY_MARKER,
+        "# File: {path}".format(path=out_path),
+        "# Started: {t}".format(t=time.strftime(stamp, time.localtime(started_at))),
+        "# Ended: {t} (ran for {d})".format(
+            t=time.strftime(stamp, time.localtime(ended_at)),
+            d=_clock(ended_at - started_at)),
+        "# How it ended: {e}".format(e=ending),
+    ]
+    if planned_seconds and planned_seconds > 0:
+        lines.append("# Planned length: {d}".format(d=_clock(planned_seconds)))
+    else:
+        lines.append("# Planned length: none, recorded until stopped")
+    if written_seconds and written_seconds > 0:
+        recorded = "# Recorded length: {d}".format(d=_clock(written_seconds))
+        if planned_seconds and planned_seconds > 0:
+            gap = planned_seconds - written_seconds
+            recorded += " ({p:.1f}% of planned".format(p=100.0 * written_seconds / planned_seconds)
+            if abs(gap) >= 1:
+                recorded += ", {diff} {how}".format(
+                    diff=_clock(abs(gap)), how="short" if gap > 0 else "over")
+            recorded += ")"
+        lines.append(recorded)
+    else:
+        lines.append("# Recorded length: unknown (ffmpeg did not report it)")
+    lines.append("# File size: {s}".format(
+        s=format_size(file_size) if file_size else "no file was written"))
+
+    phases = summary["phases"]
+    opening, recording = phases["opening"], phases["recording"]
+    lines.append("# Problems while opening the stream: {t}".format(
+        t=_problem_totals(opening) if opening else "none"))
+    if summary["output_opened"]:
+        lines.append("# Problems during the recording: {t}".format(
+            t=_problem_totals(recording) if recording else "none"))
+    else:
+        lines.append("# The recording never started writing: ffmpeg did not open the output file.")
+    for title, kinds in (("While opening the stream", opening),
+                         ("During the recording", recording)):
+        if not kinds:
+            continue
+        lines.append("#")
+        lines.append("# {title}:".format(title=title))
+        ordered = sorted(kinds, key=lambda k: (-int(k["count"]), str(k["message"])))
+        for kind in ordered[:_SUMMARY_MAX_KINDS]:
+            lines.append("#   " + _describe_kind(kind))
+        if len(ordered) > _SUMMARY_MAX_KINDS:
+            lines.append("#   ...and {n} other kinds; see above.".format(
+                n=len(ordered) - _SUMMARY_MAX_KINDS))
+    if opening and summary["output_opened"]:
+        lines.append("#")
+        lines.append("# Problems while opening the stream happen before anything is written:")
+        lines.append("# ffmpeg joins a live stream part-way through and reads its start to")
+        lines.append("# identify it. They are usually harmless.")
+    if recording:
+        lines.append("#")
+        if summary["timestamps"]:
+            lines.append("# Times are clock time since the recording started writing.")
+        else:
+            lines.append("# No times: this ffmpeg cannot time-stamp its log.")
+    lines.append("# ===== End of summary =====")
+    return lines
 
 
 def get_ffmpeg_path():
@@ -298,6 +571,7 @@ def build_ffmpeg_command(
     audio_track: Optional[int] = None,
     audio_track_count: int = 0,
     copy_to_stdout: bool = False,
+    log_datetime: bool = False,
 ) -> List[str]:
     """Construct the full ffmpeg argument list for one recording.
 
@@ -305,11 +579,15 @@ def build_ffmpeg_command(
     and ``audio_track_count`` how many the input has; None leaves the choice
     to ffmpeg, as before. ``copy_to_stdout`` adds a second output: an untouched
     MPEG-TS copy of the input on stdout, for the built-in player to watch.
+    ``log_datetime`` time-stamps every log line (see
+    ``ffmpeg_supports_log_datetime``), which is what places each problem in
+    time in the log's closing summary.
     """
     if fmt not in RECORDING_FORMATS:
         fmt = DEFAULT_RECORDING_FORMAT
 
-    cmd: List[str] = [ffmpeg_path, "-hide_banner", "-loglevel", "level+info", "-y"]
+    loglevel = "level+datetime+info" if log_datetime else "level+info"
+    cmd: List[str] = [ffmpeg_path, "-hide_banner", "-loglevel", loglevel, "-y"]
     if show_stats:
         # Write periodic stats lines into the log so a progress dialog can tail
         # them for the captured time. One line per second keeps logs small.
@@ -517,11 +795,29 @@ class Recording:
         # connection mid-file) still exits 0, so this is what tells a
         # short-but-"clean" download apart from a complete one.
         self.media_written_seconds: Optional[float] = None
+        # How long the capture was meant to run, when that is known: the
+        # requested duration, or a scheduled job's stop time. Only for the
+        # log's closing summary.
+        self.planned_seconds: Optional[float] = None
 
     @property
     def written_path(self) -> str:
         """The path ffmpeg is actually writing to (the .part file if any)."""
         return self.partial_path or self.out_path
+
+
+def _planned_seconds(duration: Optional[float], metadata: Dict[str, object],
+                     started_at: float) -> Optional[float]:
+    """How long a capture is meant to run: its duration, or until its stop time."""
+    if duration and duration > 0:
+        return float(duration)
+    try:
+        stop_ts = float(metadata.get("planned_stop_ts") or 0)
+    except (TypeError, ValueError):
+        return None
+    if stop_ts > started_at:
+        return stop_ts - started_at
+    return None
 
 
 class RecordingManager:
@@ -614,11 +910,13 @@ class RecordingManager:
         # keeps what was captured so far).
         partial_path = "" if keep_partial else out_path + ".part"
         force_format = FORMAT_MUXERS.get(format_extension(fmt)) if partial_path else None
-        cmd = build_ffmpeg_command(get_ffmpeg_path(), url, partial_path or out_path, fmt, headers,
+        ffmpeg_path = get_ffmpeg_path()
+        cmd = build_ffmpeg_command(ffmpeg_path, url, partial_path or out_path, fmt, headers,
                                    duration=duration, show_stats=show_stats,
                                    force_format=force_format, audio_track=audio_track,
                                    audio_track_count=audio_track_count,
-                                   copy_to_stdout=share_with_player)
+                                   copy_to_stdout=share_with_player,
+                                   log_datetime=ffmpeg_supports_log_datetime(ffmpeg_path))
         LOG.info("Starting recording: %s -> %s (%s)", display_name, out_path, fmt)
         if audio_track is not None:
             LOG.info("Recording audio track %d of %d", audio_track + 1, audio_track_count)
@@ -664,6 +962,7 @@ class RecordingManager:
             rec = Recording(rec_id, key or url, url, display_name, fmt, out_path, process,
                             metadata, log_path=log_path, command=cmd, partial_path=partial_path,
                             connection_key=connection_key)
+            rec.planned_seconds = _planned_seconds(duration, rec.metadata, rec.started_at)
             self._recordings[rec_id] = rec
             self._reserved_connection_keys.discard(connection_key)
         if share_with_player:
@@ -778,7 +1077,7 @@ class RecordingManager:
         try:
             for raw in proc.stderr:
                 line = raw.decode("utf-8", errors="replace").strip()
-                if line and _PROBLEM_LINE_RE.match(line):
+                if line and _is_problem_line(line):
                     rec.stderr_tail.append(line)
                     rec.stderr_tail = rec.stderr_tail[-STDERR_TAIL_LINES:]
         except Exception:
@@ -811,6 +1110,8 @@ class RecordingManager:
         # newest ``time=`` stats line (None when the log carries none).
         rec.media_written_seconds = parse_ffmpeg_progress(rec.log_path) if rec.log_path else None
         self._settle_partial_output(rec, rc)
+        if rec.log_path:
+            self._append_log_summary(rec, rc)
         with self._lock:
             self._recordings.pop(rec.id, None)
         LOG.info("Recording finished: %s (rc=%s, log=%s)", rec.out_path, rc, rec.log_path or "-")
@@ -819,6 +1120,39 @@ class RecordingManager:
                 on_finish(rec, rc if rc is not None else -1)
             except Exception:
                 LOG.exception("Recording on_finish callback failed")
+
+    @staticmethod
+    def _append_log_summary(rec: Recording, rc: Optional[int]) -> None:
+        """Close the recording's log with a readable summary of how it went."""
+        try:
+            path = rec.out_path if os.path.exists(rec.out_path) else rec.written_path
+            try:
+                size: Optional[int] = os.path.getsize(path)
+            except OSError:
+                size = None
+            if rec.finalize_timed_out or rec.detached:
+                ending = ("ffmpeg had to be stopped before it finished writing the file "
+                          "(exit code {rc}); the file may be incomplete.").format(rc=rc)
+            elif rec.stopped_by_user:
+                ending = "stopped on request (exit code {rc}).".format(rc=rc)
+            elif rc == 0:
+                ending = "finished normally."
+            else:
+                ending = "ffmpeg failed (exit code {rc}).".format(rc=rc)
+            lines = format_recording_summary(
+                out_path=path if size is not None else rec.out_path,
+                started_at=rec.started_at,
+                ended_at=time.time(),
+                planned_seconds=rec.planned_seconds,
+                written_seconds=rec.media_written_seconds,
+                file_size=size,
+                ending=ending,
+                summary=summarize_log(rec.log_path),
+            )
+            with open(rec.log_path, "ab") as handle:
+                handle.write(("\n" + "\n".join(lines) + "\n").encode("utf-8", errors="replace"))
+        except Exception:
+            LOG.debug("RecordingManager._append_log_summary: ignored exception", exc_info=True)
 
     def _settle_partial_output(self, rec: Recording, rc: int) -> None:
         """Rename a download's ``.part`` output into place, or discard it.
