@@ -12,23 +12,23 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:15
+#: CHANGELOG.md:21
 msgid "End every recording log with a summary of its length and problems"
 msgstr "すべての録画ログの末尾に、長さと問題の要約を追加しました"
 
-#: CHANGELOG.md:9
+#: CHANGELOG.md:15
 msgid "Keep one window on screen for the whole update (#30)"
 msgstr "更新中は画面に 1 つのウィンドウだけが表示されるようにしました (#30)"
 
-#: CHANGELOG.md:25
-msgid "Run one copy of the app, so a reopened app cannot ruin a recording"
-msgstr "アプリは 1 つだけ起動するようにし、開き直しても録画が失敗しないようにしました"
+#: CHANGELOG.md:8
+msgid "Keep the window heard, and confirm the update only once"
+msgstr "更新ウィンドウが読み上げられ続け、更新の完了は一度だけ知らされます"
 
-#: CHANGELOG.md:19
+#: CHANGELOG.md:25
 msgid "Show ffmpeg's error in a failed download, not its command line"
 msgstr "ダウンロードが失敗したとき、ffmpeg のコマンドラインではなくエラーを表示するようにしました"
 
-#: CHANGELOG.md:8
+#: CHANGELOG.md:14
 msgid "Stop Restart Manager aborting the silent install (#31)"
 msgstr "再起動マネージャーがサイレントインストールを中止しないようにしました (#31)"
 
