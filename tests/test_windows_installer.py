@@ -130,7 +130,7 @@ def test_update_helper_has_unicode_safe_messages_for_every_app_language():
     # than in a box from the restarted app; "cancel"/"close" label the one
     # button that window ever shows.
     message_keys = {"prepare", "consent", "install", "start", "error",
-                    "complete", "cancel", "close"}
+                    "complete", "restart", "cancel", "close"}
 
     assert set(catalog) == expected_languages
     for language, messages in catalog.items():
@@ -287,3 +287,29 @@ def test_update_helper_records_why_an_update_failed():
     assert '-Kind "installer" -ExitCode $installerExit -InstallerLog $installerLog' in helper
     # Tests run -SelfTest; it must not touch a real result in the user's %TEMP%.
     assert helper.index("if ($SelfTest)") < helper.index("Remove-Item -LiteralPath $resultPath")
+
+
+def test_update_helper_records_success_before_it_restarts_the_app():
+    """The app reports the update milliseconds after it shows its window.
+
+    Writing the result after the restart lost that race, and the new version
+    then opened its own "successfully updated" box on top of the update's own
+    window - the box this window exists to replace.
+    """
+    helper, _catalog = _update_helper_message_catalog()
+    assert helper.count("Write-UpdateSuccess -Version $newVersion") == 2
+    for start in ("Restarting app after installer update", "Restarting app: $exePath"):
+        restart = helper.index(start)
+        success = helper.rindex("Write-UpdateSuccess -Version $newVersion", 0, restart)
+        between = helper[success:restart]
+        assert "Start-AppAfterUpdate" not in between, start
+
+
+def test_update_helper_reopens_the_focus_latch_when_the_update_needs_the_window():
+    """Every moment the update becomes the user's task again resets it."""
+    helper, _catalog = _update_helper_message_catalog()
+    stages = re.findall(r'Reset-StatusFocusLatch -Stage "([^"]+)"', helper)
+    assert "the install is starting" in stages
+    assert "the update failed" in stages
+    assert "the update was stopped" in stages
+    assert "the update is complete" in stages

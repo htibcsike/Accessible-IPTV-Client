@@ -607,12 +607,10 @@ def test_update_helper_announces_that_the_update_worked(tmp_path):
         "if (-not $script:UserLeftStatusWindow) { throw 'the app taking focus went unnoticed' }\n"
         "$before = $script:activations\n"
         "$updateMessages = [PSCustomObject]@{ complete = 'Update complete. Version {version} is starting.'; close = 'Close' }\n"
-        "function Write-UpdateSuccess { param([string]$Version) $script:wrote = $Version }\n"
         "function Wait-ForDismissal { param($Window, [int]$Milliseconds, [string]$ButtonText) }\n"
         "function Close-StatusWindow { param($Window) $script:closed = $true }\n"
         "function Set-StatusProgress { param($Percent) }\n"
         "Complete-SuccessfulUpdate -Window $win -Restarted $true -Version '9.9.9'\n"
-        "if ($script:wrote -ne '9.9.9') { throw 'the result was not recorded for the app' }\n"
         "if (-not $win.Text.Contains('v9.9.9')) { throw \"no version in: $($win.Text)\" }\n"
         "if ($script:activations -le $before) { throw 'the confirmation was never focused' }\n"
         "if (-not $script:closed) { throw 'the window was not closed afterwards' }\n"
@@ -761,3 +759,49 @@ def test_authenticode_check_runs_powershell_without_cmd(monkeypatch, tmp_path):
     updater.verify_authenticode(str(tmp_path / "has space" / "app.exe"), ["ABCD"])
     assert os.path.basename(commands[0][0]).lower() == "powershell.exe"
     assert "cmd" not in [part.lower() for part in commands[0]]
+
+
+@pytest.mark.skipif(os.name != "nt", reason="needs Windows PowerShell")
+def test_update_helper_says_so_when_the_app_could_not_be_restarted(tmp_path):
+    """An update nobody can see running is not a completed update.
+
+    The install worked, but every restart attempt failed, so the window must
+    say that rather than "Update complete", and it must not tell the app the
+    update finished - nothing is running to read it anyway.
+    """
+    _run_helper_fragment(tmp_path, _FAKE_FOCUS + (
+        "$updateMessages = [PSCustomObject]@{ complete = 'Update complete.'; "
+        "restart = 'The update is installed, but the application could not be started.'; "
+        "close = 'Close' }\n"
+        "$script:wrote = 'nothing'\n"
+        "function Write-UpdateSuccess { param([string]$Version) $script:wrote = $Version }\n"
+        "function Wait-ForDismissal { param($Window, [int]$Milliseconds, [string]$ButtonText) }\n"
+        "function Close-StatusWindow { param($Window) $script:closed = $true }\n"
+        "function Set-StatusProgress { param($Percent) }\n"
+        "Complete-SuccessfulUpdate -Window $win -Restarted $false -Version '9.9.9'\n"
+        "if ($script:wrote -ne 'nothing') { throw 'a failed restart was recorded as success' }\n"
+        "if (-not $label.Text.StartsWith('The update is installed')) "
+        "{ throw \"wrong message: $($label.Text)\" }\n"
+        "if (-not $script:closed) { throw 'the window was left behind' }\n"
+    ))
+
+
+@pytest.mark.skipif(os.name != "nt", reason="needs Windows PowerShell")
+def test_update_helper_takes_the_window_back_when_the_update_needs_it(tmp_path):
+    """The app is usable during the download now, so the latch has to reopen.
+
+    Going back to the app while it downloads latches "the user switched
+    away" - which is right for the download, and wrong from the moment the
+    install starts: it used to leave NVDA with nothing for the whole install.
+    """
+    _run_helper_fragment(tmp_path, _FAKE_FOCUS + (
+        "Update-StatusMessage -Window $win -Message 'Downloading the update...'\n"
+        "$script:fg = [IntPtr]300\n"
+        "Watch-StatusWindowFocus\n"
+        "if (-not $script:UserLeftStatusWindow) { throw 'going back to the app went unnoticed' }\n"
+        "$before = $script:activations\n"
+        "Reset-StatusFocusLatch -Stage 'the install is starting'\n"
+        "Update-StatusMessage -Window $win -Message 'Installing the update.'\n"
+        "if ($script:UserLeftStatusWindow) { throw 'the latch was not reopened' }\n"
+        "if ($script:activations -le $before) { throw 'the install was never announced' }\n"
+    ))

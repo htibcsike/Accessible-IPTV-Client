@@ -462,6 +462,7 @@ def _update_client(**overrides):
     client._end_update_flow = lambda: appmod.IPTVClient._end_update_flow(client)
     client._update_window_is_up = lambda: appmod.IPTVClient._update_window_is_up(client)
     client._close_for_update_install = lambda: appmod.IPTVClient._close_for_update_install(client)
+    client._stop_update_helper = lambda: appmod.IPTVClient._stop_update_helper(client)
     client._UPDATE_STATUS_INTERVAL_SECONDS = appmod.IPTVClient._UPDATE_STATUS_INTERVAL_SECONDS
     for key, value in overrides.items():
         setattr(client, key, value)
@@ -864,3 +865,35 @@ def test_failed_handoff_keeps_the_app_and_names_the_log(monkeypatch, tmp_path):
     assert title == "Update Error"
     assert "will stay open" in message
     assert appmod.updater.update_log_path() in message
+
+
+def test_a_helper_we_give_up_on_is_not_left_on_screen(monkeypatch, tmp_path):
+    """Its window has no close button, so an abandoned helper is unclosable."""
+    monkeypatch.setattr(appmod, "message_box", lambda *a, **kw: None)
+    monkeypatch.setattr(appmod, "get_user_config_dir", lambda create=True: str(tmp_path))
+    monkeypatch.setattr(appmod.updater, "clear_update_pending", lambda _d: None)
+    stopped = []
+    helper = types.SimpleNamespace(poll=lambda: None, returncode=None,
+                                   terminate=lambda: stopped.append(True))
+    client = _update_client(_update_session_dir=str(tmp_path), _update_helper=helper)
+
+    appmod.IPTVClient._fail_update_handoff(client, "boom")
+
+    assert stopped == [True]
+
+
+def test_a_live_helper_keeps_the_folder_it_is_running_from(tmp_path):
+    """_abort_update_window ends the flow on the GUI thread, which clears our
+    own reference, so the caller's view of the helper is what counts."""
+    temp_root = tmp_path / "update"
+    temp_root.mkdir()
+    (temp_root / "update_helper.ps1").write_text("", encoding="utf-8")
+    client = _update_client(_update_helper=None)  # already cleared by the GUI thread
+    live = types.SimpleNamespace(poll=lambda: None)
+
+    appmod.IPTVClient._discard_update_download(client, str(temp_root), live)
+    assert temp_root.exists(), "the running helper's own script was deleted"
+
+    appmod.IPTVClient._discard_update_download(client, str(temp_root),
+                                               types.SimpleNamespace(poll=lambda: 0))
+    assert not temp_root.exists()

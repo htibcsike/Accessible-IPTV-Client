@@ -4791,28 +4791,35 @@ class IPTVClient(wx.Frame):
                 "version": manifest.version,
             })
         except updater.UpdateCancelled:
+            helper = getattr(self, "_update_helper", None)
             self._abort_update_window(_("Update cancelled."))
-            self._discard_update_download(temp_root)
+            self._discard_update_download(temp_root, helper)
         except updater.UpdateError as exc:
+            helper = getattr(self, "_update_helper", None)
             self._abort_update_window(_("Update failed: {error}").format(error=exc))
-            self._discard_update_download(temp_root)
+            self._discard_update_download(temp_root, helper)
         except Exception as exc:
             # A socket timeout or a failed subprocess must still end in a
             # window that says so, not in one that waits for ever.
             LOG.exception("Update worker failed unexpectedly: %s", exc)
+            helper = getattr(self, "_update_helper", None)
             self._abort_update_window(_("Update failed: {error}").format(error=exc))
-            self._discard_update_download(temp_root)
+            self._discard_update_download(temp_root, helper)
 
-    def _discard_update_download(self, temp_root: Optional[str]) -> None:
+    def _discard_update_download(self, temp_root: Optional[str], helper=None) -> None:
         """Throw away a download that came to nothing.
 
         The status window's own script lives in this directory and is still
         running, so a helper that is up keeps its folder; updater cleans stale
-        ones up at the next start instead.
+        ones up at the next start instead. ``helper`` is that process as the
+        caller saw it: _abort_update_window ends the flow on the GUI thread,
+        which clears our own reference, and deleting the folder out from under
+        a live helper takes away the script it is running and the message it
+        is about to show.
         """
         if not temp_root:
             return
-        process = getattr(self, "_update_helper", None)
+        process = helper if helper is not None else getattr(self, "_update_helper", None)
         if process is not None and process.poll() is None:
             return
         try:
@@ -4856,10 +4863,27 @@ class IPTVClient(wx.Frame):
         self._update_install_pending = True
         self._close_for_update_install()
 
+    def _stop_update_helper(self) -> None:
+        """Stop a helper we are giving up on, so its window cannot be orphaned.
+
+        That window has no close button and refuses Alt+F4 by design, and it
+        is waiting for an instruction that is never coming, so a helper left
+        behind here would sit on the screen until the user went looking for
+        PowerShell in Task Manager.
+        """
+        process = getattr(self, "_update_helper", None)
+        if process is None or process.poll() is not None:
+            return
+        try:
+            process.terminate()
+        except Exception:
+            LOG.debug("IPTVClient._stop_update_helper: ignored exception", exc_info=True)
+
     def _fail_update_handoff(self, detail: str) -> None:
         """The helper never got going: stay open and say so, with a log to send."""
         LOG.error("Update helper did not start: %s", detail)
         self._update_install_pending = False
+        self._stop_update_helper()
         self._end_update_flow()
         updater.clear_update_pending(get_user_config_dir())
         message_box(

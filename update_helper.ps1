@@ -66,7 +66,8 @@ $UpdateMessagesJson = @'
     "error": "The update did not finish. Please try again from the Help menu in the application.",
     "complete": "Update complete. Version {version} is starting. This window will close by itself.",
     "cancel": "Cancel",
-    "close": "Close"
+    "close": "Close",
+    "restart": "The update is installed, but the application could not be started. Please open it yourself."
   },
   "es": {
     "prepare": "Preparando la actualizaci\u00f3n. La aplicaci\u00f3n se est\u00e1 cerrando; la instalaci\u00f3n comenzar\u00e1 en cuanto se cierre.",
@@ -76,7 +77,8 @@ $UpdateMessagesJson = @'
     "error": "La actualizaci\u00f3n no termin\u00f3. Int\u00e9ntelo de nuevo desde el men\u00fa Ayuda de la aplicaci\u00f3n.",
     "complete": "Actualizaci\u00f3n completada. La versi\u00f3n {version} se est\u00e1 iniciando. Esta ventana se cerrar\u00e1 sola.",
     "cancel": "Cancelar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "restart": "La actualizaci\u00f3n est\u00e1 instalada, pero no se pudo iniciar la aplicaci\u00f3n. \u00c1brala usted mismo."
   },
   "ar": {
     "prepare": "\u062c\u0627\u0631\u064d \u062a\u062d\u0636\u064a\u0631 \u0627\u0644\u062a\u062d\u062f\u064a\u062b. \u064a\u062a\u0645 \u0625\u063a\u0644\u0627\u0642 \u0627\u0644\u062a\u0637\u0628\u064a\u0642\u061b \u0633\u064a\u0628\u062f\u0623 \u0627\u0644\u062a\u062b\u0628\u064a\u062a \u0628\u0645\u062c\u0631\u062f \u0625\u063a\u0644\u0627\u0642\u0647.",
@@ -86,7 +88,8 @@ $UpdateMessagesJson = @'
     "error": "\u0644\u0645 \u064a\u0643\u062a\u0645\u0644 \u0627\u0644\u062a\u062d\u062f\u064a\u062b. \u064a\u064f\u0631\u062c\u0649 \u0627\u0644\u0645\u062d\u0627\u0648\u0644\u0629 \u0645\u0631\u0629 \u0623\u062e\u0631\u0649 \u0645\u0646 \u0642\u0627\u0626\u0645\u0629 \u0627\u0644\u0645\u0633\u0627\u0639\u062f\u0629 \u0641\u064a \u0627\u0644\u062a\u0637\u0628\u064a\u0642.",
     "complete": "\u0627\u0643\u062a\u0645\u0644 \u0627\u0644\u062a\u062d\u062f\u064a\u062b. \u064a\u062c\u0631\u064a \u062a\u0634\u063a\u064a\u0644 \u0627\u0644\u0625\u0635\u062f\u0627\u0631 {version}. \u0633\u062a\u063a\u0644\u0642 \u0647\u0630\u0647 \u0627\u0644\u0646\u0627\u0641\u0630\u0629 \u062a\u0644\u0642\u0627\u0626\u064a\u064b\u0627.",
     "cancel": "\u0625\u0644\u063a\u0627\u0621",
-    "close": "\u0625\u063a\u0644\u0627\u0642"
+    "close": "\u0625\u063a\u0644\u0627\u0642",
+    "restart": "\u062a\u0645 \u062a\u062b\u0628\u064a\u062a \u0627\u0644\u062a\u062d\u062f\u064a\u062b\u060c \u0644\u0643\u0646 \u062a\u0639\u0630\u0651\u0631 \u062a\u0634\u063a\u064a\u0644 \u0627\u0644\u062a\u0637\u0628\u064a\u0642. \u064a\u064f\u0631\u062c\u0649 \u0641\u062a\u062d\u0647 \u0628\u0646\u0641\u0633\u0643."
   },
   "pt": {
     "prepare": "Preparando a atualiza\u00e7\u00e3o. O aplicativo est\u00e1 sendo fechado; a instala\u00e7\u00e3o come\u00e7ar\u00e1 assim que ele for fechado.",
@@ -96,7 +99,8 @@ $UpdateMessagesJson = @'
     "error": "A atualiza\u00e7\u00e3o n\u00e3o foi conclu\u00edda. Tente novamente pelo menu Ajuda do aplicativo.",
     "complete": "Atualiza\u00e7\u00e3o conclu\u00edda. A vers\u00e3o {version} est\u00e1 iniciando. Esta janela se fechar\u00e1 sozinha.",
     "cancel": "Cancelar",
-    "close": "Fechar"
+    "close": "Fechar",
+    "restart": "A atualiza\u00e7\u00e3o foi instalada, mas o aplicativo n\u00e3o p\u00f4de ser iniciado. Abra-o voc\u00ea mesmo."
   },
   "fr": {
     "prepare": "Pr\u00e9paration de la mise \u00e0 jour. L\u2019application est en cours de fermeture ; l\u2019installation commencera d\u00e8s qu\u2019elle sera ferm\u00e9e.",
@@ -106,7 +110,8 @@ $UpdateMessagesJson = @'
     "error": "La mise \u00e0 jour ne s\u2019est pas termin\u00e9e. R\u00e9essayez depuis le menu Aide de l\u2019application.",
     "complete": "Mise \u00e0 jour termin\u00e9e. La version {version} d\u00e9marre. Cette fen\u00eatre se fermera toute seule.",
     "cancel": "Annuler",
-    "close": "Fermer"
+    "close": "Fermer",
+    "restart": "La mise \u00e0 jour est install\u00e9e, mais l'application n'a pas pu d\u00e9marrer. Veuillez l'ouvrir vous-m\u00eame."
   },
   "de": {
     "prepare": "Das Update wird vorbereitet. Die Anwendung wird beendet; die Installation beginnt, sobald das Programm geschlossen ist.",
@@ -116,7 +121,8 @@ $UpdateMessagesJson = @'
     "error": "Das Update wurde nicht abgeschlossen. Bitte versuchen Sie es \u00fcber das Hilfe-Men\u00fc der Anwendung erneut.",
     "complete": "Update abgeschlossen. Version {version} wird gestartet. Dieses Fenster schlie\u00dft sich von selbst.",
     "cancel": "Abbrechen",
-    "close": "Schlie\u00dfen"
+    "close": "Schlie\u00dfen",
+    "restart": "Das Update ist installiert, aber die Anwendung konnte nicht gestartet werden. Bitte \u00f6ffnen Sie sie selbst."
   },
   "ru": {
     "prepare": "\u041f\u043e\u0434\u0433\u043e\u0442\u043e\u0432\u043a\u0430 \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u044f. \u041f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435 \u0437\u0430\u043a\u0440\u044b\u0432\u0430\u0435\u0442\u0441\u044f; \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0430 \u043d\u0430\u0447\u043d\u0451\u0442\u0441\u044f \u0441\u0440\u0430\u0437\u0443 \u043f\u043e\u0441\u043b\u0435 \u0437\u0430\u043a\u0440\u044b\u0442\u0438\u044f.",
@@ -126,7 +132,8 @@ $UpdateMessagesJson = @'
     "error": "\u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435 \u043d\u0435 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043d\u043e. \u041f\u043e\u0432\u0442\u043e\u0440\u0438\u0442\u0435 \u043f\u043e\u043f\u044b\u0442\u043a\u0443 \u0447\u0435\u0440\u0435\u0437 \u043c\u0435\u043d\u044e \u00ab\u0421\u043f\u0440\u0430\u0432\u043a\u0430\u00bb \u0432 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0438.",
     "complete": "\u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043d\u043e. \u0412\u0435\u0440\u0441\u0438\u044f {version} \u0437\u0430\u043f\u0443\u0441\u043a\u0430\u0435\u0442\u0441\u044f. \u042d\u0442\u043e \u043e\u043a\u043d\u043e \u0437\u0430\u043a\u0440\u043e\u0435\u0442\u0441\u044f \u0441\u0430\u043c\u043e.",
     "cancel": "\u041e\u0442\u043c\u0435\u043d\u0430",
-    "close": "\u0417\u0430\u043a\u0440\u044b\u0442\u044c"
+    "close": "\u0417\u0430\u043a\u0440\u044b\u0442\u044c",
+    "restart": "\u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435 \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043b\u0435\u043d\u043e, \u043d\u043e \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435 \u043d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0437\u0430\u043f\u0443\u0441\u0442\u0438\u0442\u044c. \u041e\u0442\u043a\u0440\u043e\u0439\u0442\u0435 \u0435\u0433\u043e \u0441\u0430\u043c\u043e\u0441\u0442\u043e\u044f\u0442\u0435\u043b\u044c\u043d\u043e."
   },
   "tr": {
     "prepare": "G\u00fcncelleme haz\u0131rlan\u0131yor. Uygulama kapan\u0131yor; kapand\u0131\u011f\u0131nda kurulum ba\u015flayacak.",
@@ -136,7 +143,8 @@ $UpdateMessagesJson = @'
     "error": "G\u00fcncelleme tamamlanamad\u0131. L\u00fctfen uygulamadaki Yard\u0131m men\u00fcs\u00fcnden yeniden deneyin.",
     "complete": "G\u00fcncelleme tamamland\u0131. {version} s\u00fcr\u00fcm\u00fc ba\u015flat\u0131l\u0131yor. Bu pencere kendili\u011finden kapanacak.",
     "cancel": "\u0130ptal",
-    "close": "Kapat"
+    "close": "Kapat",
+    "restart": "G\u00fcncelleme kuruldu, ancak uygulama ba\u015flat\u0131lamad\u0131. L\u00fctfen kendiniz a\u00e7\u0131n."
   },
   "it": {
     "prepare": "Preparazione dell\u2019aggiornamento. L\u2019applicazione si sta chiudendo; l\u2019installazione inizier\u00e0 non appena sar\u00e0 chiusa.",
@@ -146,7 +154,8 @@ $UpdateMessagesJson = @'
     "error": "L\u2019aggiornamento non \u00e8 stato completato. Riprova dal menu Aiuto dell\u2019applicazione.",
     "complete": "Aggiornamento completato. La versione {version} si sta avviando. Questa finestra si chiuder\u00e0 da sola.",
     "cancel": "Annulla",
-    "close": "Chiudi"
+    "close": "Chiudi",
+    "restart": "L'aggiornamento \u00e8 installato, ma non \u00e8 stato possibile avviare l'applicazione. Aprila tu stesso."
   },
   "pl": {
     "prepare": "Przygotowywanie aktualizacji. Program jest zamykany; instalacja rozpocznie si\u0119 zaraz po jego zamkni\u0119ciu.",
@@ -156,7 +165,8 @@ $UpdateMessagesJson = @'
     "error": "Aktualizacja nie zosta\u0142a uko\u0144czona. Spr\u00f3buj ponownie z menu Pomoc w aplikacji.",
     "complete": "Aktualizacja zako\u0144czona. Wersja {version} uruchamia si\u0119. To okno zamknie si\u0119 samo.",
     "cancel": "Anuluj",
-    "close": "Zamknij"
+    "close": "Zamknij",
+    "restart": "Aktualizacja zosta\u0142a zainstalowana, ale nie uda\u0142o si\u0119 uruchomi\u0107 aplikacji. Otw\u00f3rz j\u0105 samodzielnie."
   },
   "hi": {
     "prepare": "\u0905\u092a\u0921\u0947\u091f \u0915\u0940 \u0924\u0948\u092f\u093e\u0930\u0940 \u0939\u094b \u0930\u0939\u0940 \u0939\u0948\u0964 \u0910\u092a\u094d\u0932\u093f\u0915\u0947\u0936\u0928 \u092c\u0902\u0926 \u0939\u094b \u0930\u0939\u093e \u0939\u0948; \u0907\u0938\u0915\u0947 \u092c\u0902\u0926 \u0939\u094b\u0924\u0947 \u0939\u0940 \u0907\u0902\u0938\u094d\u091f\u0949\u0932\u0947\u0936\u0928 \u0936\u0941\u0930\u0942 \u0939\u094b \u091c\u093e\u090f\u0917\u093e\u0964",
@@ -166,7 +176,8 @@ $UpdateMessagesJson = @'
     "error": "\u0905\u092a\u0921\u0947\u091f \u092a\u0942\u0930\u093e \u0928\u0939\u0940\u0902 \u0939\u0941\u0906\u0964 \u0915\u0943\u092a\u092f\u093e \u0910\u092a \u0915\u0947 \u0938\u0939\u093e\u092f\u0924\u093e \u092e\u0947\u0928\u0942 \u0938\u0947 \u092b\u093f\u0930 \u0938\u0947 \u092a\u094d\u0930\u092f\u093e\u0938 \u0915\u0930\u0947\u0902\u0964",
     "complete": "\u0905\u0926\u094d\u092f\u0924\u0928 \u092a\u0942\u0930\u093e \u0939\u0941\u0906\u0964 \u0938\u0902\u0938\u094d\u0915\u0930\u0923 {version} \u0936\u0941\u0930\u0942 \u0939\u094b \u0930\u0939\u093e \u0939\u0948\u0964 \u092f\u0939 \u0935\u093f\u0902\u0921\u094b \u0905\u092a\u0928\u0947 \u0906\u092a \u092c\u0902\u0926 \u0939\u094b \u091c\u093e\u090f\u0917\u0940\u0964",
     "cancel": "\u0930\u0926\u094d\u0926 \u0915\u0930\u0947\u0902",
-    "close": "\u092c\u0902\u0926 \u0915\u0930\u0947\u0902"
+    "close": "\u092c\u0902\u0926 \u0915\u0930\u0947\u0902",
+    "restart": "\u0905\u0926\u094d\u092f\u0924\u0928 \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0939\u094b \u0917\u092f\u093e, \u0932\u0947\u0915\u093f\u0928 \u0905\u0928\u0941\u092a\u094d\u0930\u092f\u094b\u0917 \u0936\u0941\u0930\u0942 \u0928\u0939\u0940\u0902 \u0939\u094b \u0938\u0915\u093e\u0964 \u0915\u0943\u092a\u092f\u093e \u0907\u0938\u0947 \u0938\u094d\u0935\u092f\u0902 \u0916\u094b\u0932\u0947\u0902\u0964"
   },
   "zh": {
     "prepare": "\u6b63\u5728\u51c6\u5907\u66f4\u65b0\u3002\u5e94\u7528\u7a0b\u5e8f\u6b63\u5728\u5173\u95ed\uff1b\u5173\u95ed\u540e\u5c06\u7acb\u5373\u5f00\u59cb\u5b89\u88c5\u3002",
@@ -176,7 +187,8 @@ $UpdateMessagesJson = @'
     "error": "\u66f4\u65b0\u672a\u5b8c\u6210\u3002\u8bf7\u4ece\u5e94\u7528\u7a0b\u5e8f\u7684\u201c\u5e2e\u52a9\u201d\u83dc\u5355\u91cd\u8bd5\u3002",
     "complete": "\u66f4\u65b0\u5b8c\u6210\u3002\u7248\u672c {version} \u6b63\u5728\u542f\u52a8\u3002\u6b64\u7a97\u53e3\u5c06\u81ea\u52a8\u5173\u95ed\u3002",
     "cancel": "\u53d6\u6d88",
-    "close": "\u5173\u95ed"
+    "close": "\u5173\u95ed",
+    "restart": "\u66f4\u65b0\u5df2\u5b89\u88c5\uff0c\u4f46\u65e0\u6cd5\u542f\u52a8\u5e94\u7528\u7a0b\u5e8f\u3002\u8bf7\u81ea\u884c\u6253\u5f00\u5b83\u3002"
   },
   "ja": {
     "prepare": "\u66f4\u65b0\u3092\u6e96\u5099\u3057\u3066\u3044\u307e\u3059\u3002\u30a2\u30d7\u30ea\u30b1\u30fc\u30b7\u30e7\u30f3\u3092\u7d42\u4e86\u3057\u3066\u3044\u307e\u3059\u3002\u7d42\u4e86\u5f8c\u3059\u3050\u306b\u30a4\u30f3\u30b9\u30c8\u30fc\u30eb\u3092\u958b\u59cb\u3057\u307e\u3059\u3002",
@@ -186,7 +198,8 @@ $UpdateMessagesJson = @'
     "error": "\u66f4\u65b0\u304c\u5b8c\u4e86\u3057\u307e\u305b\u3093\u3067\u3057\u305f\u3002\u30a2\u30d7\u30ea\u30b1\u30fc\u30b7\u30e7\u30f3\u306e\uff3b\u30d8\u30eb\u30d7\uff3d\u30e1\u30cb\u30e5\u30fc\u304b\u3089\u3082\u3046\u4e00\u5ea6\u304a\u8a66\u3057\u304f\u3060\u3055\u3044\u3002",
     "complete": "\u66f4\u65b0\u304c\u5b8c\u4e86\u3057\u307e\u3057\u305f\u3002\u30d0\u30fc\u30b8\u30e7\u30f3 {version} \u3092\u8d77\u52d5\u3057\u3066\u3044\u307e\u3059\u3002\u3053\u306e\u30a6\u30a3\u30f3\u30c9\u30a6\u306f\u81ea\u52d5\u7684\u306b\u9589\u3058\u307e\u3059\u3002",
     "cancel": "\u30ad\u30e3\u30f3\u30bb\u30eb",
-    "close": "\u9589\u3058\u308b"
+    "close": "\u9589\u3058\u308b",
+    "restart": "\u66f4\u65b0\u306f\u30a4\u30f3\u30b9\u30c8\u30fc\u30eb\u3055\u308c\u307e\u3057\u305f\u304c\u3001\u30a2\u30d7\u30ea\u3092\u8d77\u52d5\u3067\u304d\u307e\u305b\u3093\u3067\u3057\u305f\u3002\u624b\u52d5\u3067\u958b\u3044\u3066\u304f\u3060\u3055\u3044\u3002"
   },
   "hu": {
     "prepare": "A friss\u00edt\u00e9s el\u0151k\u00e9sz\u00edt\u00e9se folyamatban van. Az alkalmaz\u00e1s bez\u00e1rul; a telep\u00edt\u00e9s a bez\u00e1r\u00e1s ut\u00e1n azonnal elindul.",
@@ -196,7 +209,8 @@ $UpdateMessagesJson = @'
     "error": "A friss\u00edt\u00e9s nem fejez\u0151d\u00f6tt be. Pr\u00f3b\u00e1lja \u00fajra az alkalmaz\u00e1s S\u00fag\u00f3 men\u00fcj\u00e9b\u0151l.",
     "complete": "A friss\u00edt\u00e9s befejez\u0151d\u00f6tt. A(z) {version} verzi\u00f3 indul. Ez az ablak mag\u00e1t\u00f3l bez\u00e1rul.",
     "cancel": "M\u00e9gse",
-    "close": "Bez\u00e1r\u00e1s"
+    "close": "Bez\u00e1r\u00e1s",
+    "restart": "A friss\u00edt\u00e9s telep\u00fclt, de az alkalmaz\u00e1st nem siker\u00fclt elind\u00edtani. K\u00e9rj\u00fck, nyissa meg saj\u00e1t maga."
   }
 }
 '@
@@ -218,6 +232,7 @@ function Get-UpdateMessages {
             consent = "Windows will now ask for permission to install the update. Please allow it."
             error = "The update did not finish. Please try again from the Help menu in the application."
             complete = "Update complete. Version {version} is starting. This window will close by itself."
+            restart = "The update is installed, but the application could not be started. Please open it yourself."
             cancel = "Cancel"
             close = "Close"
         }
@@ -658,6 +673,20 @@ function Watch-StatusWindowFocus {
     }
 }
 
+# From here on the update is what the user is waiting for again, so the window
+# may take focus once more. Before this, the download runs while the app is
+# still usable, and someone who goes back to watching television must not have
+# the focus pulled away by a progress message (issue #30's rule) - but that
+# must not then silence the install, the failure or the confirmation.
+function Reset-StatusFocusLatch {
+    param([string]$Stage = "")
+    if ($script:UserLeftStatusWindow) {
+        Write-Log "The update needs the window again ($Stage); focus may be taken once more."
+    }
+    $script:UserLeftStatusWindow = $false
+    $script:StatusFocusWatch = $false
+}
+
 function Focus-StatusWindow {
     param($Window, [string]$Stage = "")
     if (-not $Window) { return }
@@ -815,7 +844,15 @@ function Write-UpdateResult {
 # restarted app shows no box of its own (it checks for this result first).
 function Complete-SuccessfulUpdate {
     param($Window, [bool]$Restarted, [string]$Version = "")
-    Write-UpdateSuccess -Version $Version
+    if (-not $Restarted) {
+        # The update is installed, but nothing is running to say so.
+        Reset-StatusFocusLatch -Stage "the app could not be started"
+        Set-StatusProgress -Percent 100
+        Update-StatusMessage -Window $Window -Message $updateMessages.restart
+        Wait-ForDismissal -Window $Window -Milliseconds 120000 -ButtonText $updateMessages.close
+        Close-StatusWindow -Window $Window
+        return
+    }
     $text = $updateMessages.complete
     if ($Version) {
         $text = $text.Replace("{version}", "v" + $Version)
@@ -828,8 +865,7 @@ function Complete-SuccessfulUpdate {
     # update worked - would have been left unfocused and unread. This one
     # message is worth taking the focus back for; afterwards the latch closes
     # again by itself and the window gives the app its focus back when it goes.
-    $script:UserLeftStatusWindow = $false
-    $script:StatusFocusWatch = $false
+    Reset-StatusFocusLatch -Stage "the update is complete"
     Update-StatusMessage -Window $Window -Message $text
     # Long enough to be read at any speech rate, with a Close button for
     # anyone who would rather move on at once.
@@ -847,6 +883,7 @@ function Complete-FailedUpdate {
         if ($installerError) { Write-Log "Installer error: $installerError" }
     }
     Write-UpdateResult -Kind $Kind -Reason $Reason -ExitCode $ExitCode -InstallerError $installerError
+    Reset-StatusFocusLatch -Stage "the update failed"
     Update-StatusMessage -Window $Window -Message $updateMessages.error
     $restarted = $false
     $oldExe = Join-Path $InstallDir $ExeName
@@ -1113,6 +1150,7 @@ if ($SessionDir) {
         if (-not $reason) { $reason = $updateMessages.error }
         Write-Log "The app stopped the update: $reason"
         Set-StatusProgress -Percent 0
+        Reset-StatusFocusLatch -Stage "the update was stopped"
         Update-StatusMessage -Window $statusWindow -Message $reason
         Wait-ForDismissal -Window $statusWindow -Milliseconds 120000 -ButtonText $updateMessages.close
         Close-StatusWindow -Window $statusWindow
@@ -1120,6 +1158,7 @@ if ($SessionDir) {
     }
     Set-StatusButton -Action ""
     Set-StatusProgress -Percent $null
+    Reset-StatusFocusLatch -Stage "the install is starting"
     foreach ($pair in @(@("install_dir", "InstallDir"), @("exe_name", "ExeName"),
                         @("installer", "InstallerPath"), @("staging_dir", "StagingDir"),
                         @("backup_dir", "BackupDir"), @("restart_args", "RestartArgs"))) {
@@ -1261,6 +1300,12 @@ if ($InstallerPath) {
         Complete-FailedUpdate -Window $statusWindow -Reason "Executable not found after installer update: $exePath"
     }
     Update-StatusMessage -Window $statusWindow -Message $updateMessages.start
+    # Before the app starts, not after: it reports the update within
+    # milliseconds of showing its window, and the restart below waits five
+    # seconds proving the app survived. A result written after that race was
+    # lost, and the new version opened its own "updated" box on top of this
+    # window - the very box this window exists to replace.
+    Write-UpdateSuccess -Version $newVersion
     Write-Log "Restarting app after installer update: $exePath"
     $restarted = Start-AppAfterUpdate -ExePath $exePath -WorkDir $InstallDir -Arguments $RestartArgs -Window $statusWindow
     Write-Log "Installer updater completed."
@@ -1365,6 +1410,8 @@ if (Test-Path -LiteralPath $BackupDir) {
 }
 
 Update-StatusMessage -Window $statusWindow -Message $updateMessages.start
+# See the installer path: the result must be on disk before the app reads it.
+Write-UpdateSuccess -Version $newVersion
 Write-Log "Restarting app: $exePath"
 $restarted = Start-AppAfterUpdate -ExePath $exePath -WorkDir $InstallDir -Arguments $RestartArgs -Window $statusWindow
 
