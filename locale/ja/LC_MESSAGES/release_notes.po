@@ -12,27 +12,19 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:15
+#: CHANGELOG.md:21
 msgid "Cast to Chromecast, AirPlay, UPnP/DLNA, Sonos, Roku and Kodi with Caster's engine"
 msgstr "Caster のエンジンで Chromecast、AirPlay、UPnP/DLNA、Sonos、Roku、Kodi へキャスト"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "Install casting with the Debian package"
 msgstr "Debian パッケージでキャスト機能もインストール"
 
-#: CHANGELOG.md:23
-msgid "Keep other devices on the network out of the casting proxy"
-msgstr "ネットワーク上の他のデバイスがキャスト用プロキシを使えないようにしました"
-
-#: CHANGELOG.md:8
+#: CHANGELOG.md:14
 msgid "Keep the status window focused through the install (fixes #30)"
 msgstr "インストール中もステータス ウィンドウのフォーカスを維持 (fixes #30)"
 
-#: CHANGELOG.md:21
-msgid "Never mix an old partial guide download into a new one, and check update signatures more strictly"
-msgstr "古い途中までの番組表ダウンロードを新しいものと混ぜないようにし、更新の署名をより厳しく確認します"
-
-#: CHANGELOG.md:22
-msgid "Record rtmp, rtsp and udp channels, and stop recordings canceled while starting"
-msgstr "rtmp、rtsp、udp チャンネルを録画でき、開始中にキャンセルされた録画を停止します"
+#: CHANGELOG.md:8
+msgid "Skip the UAC notice when Windows will not ask, and keep the update focused"
+msgstr "Windows が許可を求めない場合は UAC の案内を表示せず、更新ウィンドウにフォーカスを保つようにしました"
 

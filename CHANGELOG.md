@@ -1,6 +1,12 @@
 # Changelog
 
 Readable release history for Accessible IPTV Client. New entries are prepended automatically by `build.bat release`. Older entries were reconstructed from the [Forgejo mirror](https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client).
+## v1.137.2 - 2026-09-19
+
+### Bug fixes
+
+- Skip the UAC notice when Windows will not ask, and keep the update focused
+
 ## v1.137.1 - 2026-09-18
 
 ### Bug fixes
