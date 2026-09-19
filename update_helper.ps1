@@ -278,8 +278,19 @@ function Update-StatusMessage {
 # makes NVDA read the new title. The exception is a user who has moved to
 # another window on purpose: from then on the update must not keep stealing
 # focus back, so Watch-StatusWindowFocus latches that and Focus-StatusWindow
-# stays away. The UAC secure desktop reports no foreground window at all, so
-# answering the prompt never counts as switching away.
+# stays away.
+#
+# Not every other foreground window is the user leaving, though. The silent
+# installer owns hidden windows, and the moment it starts one of them takes the
+# foreground: focus lands on something invisible and NVDA goes quiet for the
+# whole install. That used to latch as "the user left", so the window was never
+# brought back, and because this helper was then no longer in the foreground,
+# the restarted app could not take focus either and its "Update Complete" box
+# went unread. Windows owned by the installer (or its child processes) are
+# taken back at once. The UAC prompt - the secure desktop reports no foreground
+# window at all, and consent.exe when the prompt is on the normal desktop - and
+# the bare desktop or taskbar are neutral: they are not the user choosing
+# another app.
 if (-not ("UpdateHelperFocus" -as [type])) {
     try {
         Add-Type -TypeDefinition @'
@@ -288,6 +299,65 @@ using System.Runtime.InteropServices;
 public static class UpdateHelperFocus {
     [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
+    [DllImport("user32.dll")] public static extern bool AllowSetForegroundWindow(uint processId);
+    [DllImport("user32.dll")] static extern bool BringWindowToTop(IntPtr hWnd);
+    [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+    [DllImport("user32.dll")] static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool attach);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    static extern int GetClassName(IntPtr hWnd, System.Text.StringBuilder name, int size);
+    [DllImport("kernel32.dll")] static extern uint GetCurrentThreadId();
+    [DllImport("kernel32.dll")] static extern IntPtr GetCurrentProcess();
+    [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr handle);
+    [DllImport("advapi32.dll")] static extern bool OpenProcessToken(IntPtr process, uint access, out IntPtr token);
+    [DllImport("advapi32.dll")]
+    static extern bool GetTokenInformation(IntPtr token, int infoClass, out int info, int size, out int returned);
+
+    public static uint WindowProcessId(IntPtr hWnd) {
+        uint processId;
+        GetWindowThreadProcessId(hWnd, out processId);
+        return processId;
+    }
+
+    public static string WindowClass(IntPtr hWnd) {
+        var name = new System.Text.StringBuilder(256);
+        GetClassName(hWnd, name, name.Capacity);
+        return name.ToString();
+    }
+
+    // A background process may not simply take the foreground. Sharing the
+    // input state of the thread that has it lifts that restriction; only ever
+    // used against the installer's hidden windows, the desktop, or at a
+    // stage change the user is waiting on.
+    public static bool ForceForeground(IntPtr hWnd) {
+        if (SetForegroundWindow(hWnd)) return true;
+        IntPtr current = GetForegroundWindow();
+        uint ignored;
+        uint thread = current == IntPtr.Zero ? 0 : GetWindowThreadProcessId(current, out ignored);
+        uint self = GetCurrentThreadId();
+        if (thread == 0 || thread == self) return false;
+        if (!AttachThreadInput(self, thread, true)) return false;
+        try {
+            BringWindowToTop(hWnd);
+            return SetForegroundWindow(hWnd);
+        } finally {
+            AttachThreadInput(self, thread, false);
+        }
+    }
+
+    // TOKEN_ELEVATION_TYPE: 1 no split token (UAC off, a standard user, or the
+    // built-in Administrator), 2 already elevated, 3 an administrator's
+    // filtered token, which needs consent. -1 when it cannot be read.
+    public static int ElevationType() {
+        IntPtr token;
+        if (!OpenProcessToken(GetCurrentProcess(), 0x0008, out token)) return -1;
+        try {
+            int type, returned;
+            if (!GetTokenInformation(token, 18, out type, 4, out returned)) return -1;
+            return type;
+        } finally {
+            CloseHandle(token);
+        }
+    }
 }
 '@
     } catch {
@@ -295,28 +365,118 @@ public static class UpdateHelperFocus {
     }
 }
 
+$script:StatusWindow = $null
 $script:StatusWindowHandle = [IntPtr]::Zero
-# Focus is only watched once the window has been brought forward at least
-# once. Before that, the app's own progress dialog is legitimately in front,
-# and watching then would mistake it for the user leaving.
+# Focus is only watched once the window has really held the foreground. Before
+# that, the app's own progress dialog is legitimately in front, and watching
+# then would mistake it for the user leaving.
 $script:StatusFocusWatch = $false
 $script:UserLeftStatusWindow = $false
+$script:LastForeground = [IntPtr]::Zero
+# Processes this update started whose windows are never the user's choice:
+# the installer, and through Get-ForegroundOwnerKind its child processes.
+$script:UpdateOwnedPids = @()
+$script:ParentPidCache = @{}
+$script:TransientSince = $null
+$script:TransientGraceMs = 1500
+
+# Thin wrappers, so the rules below can be tested without taking real focus.
+function Get-ForegroundHandle {
+    try { return [UpdateHelperFocus]::GetForegroundWindow() } catch { return [IntPtr]::Zero }
+}
+
+function Invoke-ForceForeground {
+    param([IntPtr]$Handle)
+    return [UpdateHelperFocus]::ForceForeground($Handle)
+}
+
+function Get-ParentProcessId {
+    param([int]$ProcessId)
+    if ($script:ParentPidCache.ContainsKey($ProcessId)) { return $script:ParentPidCache[$ProcessId] }
+    $parent = 0
+    try {
+        $info = Get-CimInstance -ClassName Win32_Process -Filter "ProcessId=$ProcessId" -ErrorAction Stop
+        if ($info) { $parent = [int]$info.ParentProcessId }
+    } catch { }
+    $script:ParentPidCache[$ProcessId] = $parent
+    return $parent
+}
+
+# "self", "update" (the installer's windows), "neutral" (no window, the UAC
+# prompt, the desktop or taskbar), "transient" (Explorer's invisible window for
+# a foreground switch) or "other" (an application the user chose).
+function Get-ForegroundOwnerKind {
+    param([IntPtr]$Handle)
+    if ($Handle -eq [IntPtr]::Zero) { return "neutral" }
+    if ($Handle -eq $script:StatusWindowHandle) { return "self" }
+    try {
+        $windowClass = [UpdateHelperFocus]::WindowClass($Handle)
+        if ($windowClass -in @("Progman", "WorkerW", "Shell_TrayWnd", "Shell_SecondaryTrayWnd")) { return "neutral" }
+        if ($windowClass -eq "ForegroundStaging") { return "transient" }
+        $owner = [int][UpdateHelperFocus]::WindowProcessId($Handle)
+    } catch {
+        return "other"
+    }
+    if ($owner -eq $PID) { return "self" }
+    try {
+        if ((Get-Process -Id $owner -ErrorAction Stop).ProcessName -eq "consent") { return "neutral" }
+    } catch { }
+    # Inno Setup runs as Setup.exe plus the Setup.tmp it starts.
+    $current = $owner
+    for ($depth = 0; $depth -lt 3 -and $current -gt 0; $depth++) {
+        if ($script:UpdateOwnedPids -contains $current) { return "update" }
+        $current = Get-ParentProcessId -ProcessId $current
+    }
+    return "other"
+}
+
+# Which window took the foreground, for the log: "is this the user or not?"
+# is only answerable afterwards if the log says whose window it was.
+function Get-WindowDescription {
+    param([IntPtr]$Handle)
+    try {
+        $owner = [int][UpdateHelperFocus]::WindowProcessId($Handle)
+        $name = try { (Get-Process -Id $owner -ErrorAction Stop).ProcessName } catch { "?" }
+        return "class $([UpdateHelperFocus]::WindowClass($Handle)), process $name $owner, parent $(Get-ParentProcessId -ProcessId $owner)"
+    } catch {
+        return "unknown"
+    }
+}
 
 function Watch-StatusWindowFocus {
     if (-not $script:StatusFocusWatch -or $script:UserLeftStatusWindow) { return }
     if ($script:StatusWindowHandle -eq [IntPtr]::Zero) { return }
-    if (-not ("UpdateHelperFocus" -as [type])) { return }
-    try {
-        $foreground = [UpdateHelperFocus]::GetForegroundWindow()
-    } catch {
+    $foreground = Get-ForegroundHandle
+    # Only a change of foreground is classified; this runs every 50 ms. A
+    # transient shell window that has stayed put is the exception: nothing
+    # moves on from it by itself, so it is taken back after a short grace.
+    if ($foreground -eq $script:LastForeground) {
+        if ($script:TransientSince -and ((Get-Date) - $script:TransientSince).TotalMilliseconds -ge $script:TransientGraceMs) {
+            $script:TransientSince = $null
+            Write-Log "The foreground stayed on an invisible shell window; bringing the status window back."
+            Focus-StatusWindow -Window $script:StatusWindow -Stage "focus left on a shell window"
+        }
         return
     }
-    # No foreground window at all means the secure desktop (the UAC prompt)
-    # has the screen; that is part of the update, not the user switching away.
-    if ($foreground -eq [IntPtr]::Zero) { return }
-    if ($foreground -ne $script:StatusWindowHandle) {
-        $script:UserLeftStatusWindow = $true
-        Write-Log "Focus moved to another window; the update will not take it back."
+    $script:LastForeground = $foreground
+    $script:TransientSince = $null
+    switch (Get-ForegroundOwnerKind -Handle $foreground) {
+        "transient" {
+            # Windows 11 parks the foreground on Explorer's invisible
+            # ForegroundStaging window while it switches between windows - and
+            # when the silent installer starts, it stays parked there, so NVDA
+            # had nothing to read for the whole install. During a real Alt+Tab
+            # it is gone again long before the grace ends.
+            $script:TransientSince = Get-Date
+        }
+        "update" {
+            Write-Log "The installer took the foreground; bringing the status window back."
+            Focus-StatusWindow -Window $script:StatusWindow -Stage "installer took focus"
+        }
+        "other" {
+            $script:UserLeftStatusWindow = $true
+            Write-Log "Focus moved to another window ($(Get-WindowDescription -Handle $foreground)); the update will not take it back."
+        }
     }
 }
 
@@ -329,14 +489,65 @@ function Focus-StatusWindow {
     }
     if (-not ("UpdateHelperFocus" -as [type])) { return }
     try {
+        $script:StatusWindow = $Window
         $script:StatusWindowHandle = $Window.Handle
-        $granted = [UpdateHelperFocus]::SetForegroundWindow($Window.Handle)
+        $granted = Invoke-ForceForeground -Handle $Window.Handle
         $Window.Activate()
-        $script:StatusFocusWatch = $true
-        Write-Log "Status window focused for '$Stage' (SetForegroundWindow: $granted)."
+        $foreground = Get-ForegroundHandle
+        $script:LastForeground = $foreground
+        if ($foreground -eq $script:StatusWindowHandle) { $script:StatusFocusWatch = $true }
+        Write-Log "Status window focused for '$Stage' (foreground: $granted)."
     } catch {
         Write-Log "Could not focus the status window ($Stage): $($_.Exception.Message)"
     }
+}
+
+# Hand the right to take the foreground on to the app about to be started, so
+# its window - and the "Update Complete" box it shows - gets focus and is read.
+function Grant-ForegroundToNextProcess {
+    try { [void][UpdateHelperFocus]::AllowSetForegroundWindow([uint32]::MaxValue) } catch { }
+}
+
+# Whether starting the installer elevated will put a UAC prompt on screen. With
+# UAC off, or set to elevate administrators without asking, "Windows will now
+# ask for permission" announced a prompt that never came. Unsure means yes: an
+# unneeded warning is milder than a prompt nobody was told about.
+function Test-ElevationPromptExpected {
+    param($Policy = $null, $ElevationType = $null, $IsAdmin = $null)
+    try {
+        if ($null -eq $Policy) {
+            $Policy = Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -ErrorAction Stop
+        }
+        if ($null -eq $ElevationType) { $ElevationType = [UpdateHelperFocus]::ElevationType() }
+        if ($null -eq $IsAdmin) {
+            $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+            $IsAdmin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+        }
+    } catch {
+        return $true
+    }
+    $enableLua = $Policy.EnableLUA
+    if ($null -ne $enableLua -and [int]$enableLua -eq 0) {
+        # UAC is off: an administrator runs everything elevated already. A
+        # standard user gets the old Run As dialog, which does need an answer.
+        return (-not $IsAdmin)
+    }
+    switch ([int]$ElevationType) {
+        2 { return $false }
+        3 {
+            # 0 = elevate without prompting.
+            $behavior = $Policy.ConsentPromptBehaviorAdmin
+            return (-not ($null -ne $behavior -and [int]$behavior -eq 0))
+        }
+        1 {
+            # The built-in Administrator without Admin Approval Mode holds a
+            # full token. For a standard user, 0 = deny without prompting.
+            if ($IsAdmin) { return $false }
+            $behavior = $Policy.ConsentPromptBehaviorUser
+            return (-not ($null -ne $behavior -and [int]$behavior -eq 0))
+        }
+    }
+    return $true
 }
 
 # Every failure ends here. The status window has nothing focusable, so an
@@ -485,6 +696,7 @@ function Start-AppAfterUpdate {
     # this helper's own process tree.
     for ($attempt = 1; $attempt -le 2; $attempt++) {
         $app = $null
+        Grant-ForegroundToNextProcess
         try {
             $startArgs = @{
                 FilePath         = $ExePath
@@ -596,7 +808,14 @@ if ($InstallerPath) {
     $installerLog = Join-Path $env:TEMP "AccessibleIPTVClient_installer.log"
     $installerArgs = "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /LOG=`"$installerLog`" /DIR=`"$InstallDir`""
     Write-Log "Launching installer update: $InstallerPath $installerArgs"
-    Update-StatusMessage -Window $statusWindow -Message $updateMessages.consent
+    # Only announce a UAC prompt that will really appear. With UAC off, or set
+    # to elevate administrators silently, the message promised a prompt that
+    # never came.
+    $promptExpected = Test-ElevationPromptExpected
+    Write-Log "UAC prompt expected: $promptExpected"
+    if ($promptExpected) {
+        Update-StatusMessage -Window $statusWindow -Message $updateMessages.consent
+    }
     $proc = $null
     try {
         # Program Files needs elevation. Start-Process -Verb RunAs gave the
@@ -630,6 +849,7 @@ if ($InstallerPath) {
         Complete-FailedUpdate -Window $statusWindow -Kind "launch" -Reason "The installer did not start."
     }
     Write-Log "Installer running (PID $($proc.Id)); its log is $installerLog"
+    $script:UpdateOwnedPids += $proc.Id
     Update-StatusMessage -Window $statusWindow -Message $updateMessages.install
 
     # Pumped, and capped: a silent installer that never returns must still end

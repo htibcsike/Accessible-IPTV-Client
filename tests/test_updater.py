@@ -504,9 +504,8 @@ def test_update_helper_extracts_the_installer_error(tmp_path):
 
 
 
-@pytest.mark.skipif(os.name != "nt", reason="needs Windows PowerShell")
-def test_update_helper_status_window_focus_rules(tmp_path):
-    """Issue #30: re-focus once per stage, never steal it back after the user leaves."""
+def _run_helper_fragment(tmp_path, body):
+    """Run update_helper.ps1's status/focus functions with ``body`` appended."""
     import subprocess
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -518,38 +517,160 @@ def test_update_helper_status_window_focus_rules(tmp_path):
     script.write_text(
         "function Write-Log { param([string]$Message) $script:logs += $Message }\n"
         "$script:logs = @()\n"
-        + update_status + "\n" + focus_block + "\n"
-        "$script:activations = 0\n"
-        "$label = New-Object PSObject -Property @{ Text = '' }\n"
-        "$win = New-Object PSObject -Property @{ Controls = @{ 'StatusLabel' = $label }; Text = ''; Handle = [IntPtr]::Zero }\n"
-        "$win | Add-Member ScriptMethod Refresh { }\n"
-        "$win | Add-Member ScriptMethod Activate { $script:activations += 1 }\n"
+        + update_status + "\n" + focus_block + "\n" + body + "\n'FRAGMENT-OK'\n",
+        encoding="utf-8-sig")
+    out = subprocess.run(
+        [updater.windows_powershell_path(), "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script)],
+        capture_output=True, text=True, timeout=60, env=updater.clean_powershell_env())
+    assert out.returncode == 0, out.stderr + out.stdout
+    assert "FRAGMENT-OK" in out.stdout, out.stderr + out.stdout
+
+
+# A fake foreground: focusing sets it, the test moves it, and each handle's
+# owner is looked up in $kinds, so no real window ever takes focus.
+_FAKE_FOCUS = (
+    "$script:fg = [IntPtr]0\n"
+    "$script:kinds = @{}\n"
+    "function Get-ForegroundHandle { return $script:fg }\n"
+    "function Invoke-ForceForeground { param([IntPtr]$Handle) $script:fg = $Handle; return $true }\n"
+    "function Get-ForegroundOwnerKind { param([IntPtr]$Handle)\n"
+    "    if ($Handle -eq $script:StatusWindowHandle) { return 'self' }\n"
+    "    return $script:kinds[[int64]$Handle] }\n"
+    "$script:activations = 0\n"
+    "$label = New-Object PSObject -Property @{ Text = '' }\n"
+    "$win = New-Object PSObject -Property @{ Controls = @{ 'StatusLabel' = $label }; Text = ''; Handle = [IntPtr]7 }\n"
+    "$win | Add-Member ScriptMethod Refresh { }\n"
+    "$win | Add-Member ScriptMethod Activate { $script:activations += 1 }\n"
+    "$script:kinds[[int64]100] = 'update'\n"
+    "$script:kinds[[int64]200] = 'neutral'\n"
+    "$script:kinds[[int64]300] = 'other'\n"
+)
+
+
+@pytest.mark.skipif(os.name != "nt", reason="needs Windows PowerShell")
+def test_update_helper_status_window_focus_rules(tmp_path):
+    """Issue #30: re-focus once per stage, never steal it back after the user leaves."""
+    _run_helper_fragment(tmp_path, _FAKE_FOCUS + (
         # A stage change sets the text and takes focus once.
         "Update-StatusMessage -Window $win -Message 'Installing the update.'\n"
         "if ($label.Text -ne 'Installing the update.') { throw 'label not set' }\n"
         "if (-not $win.Text.Contains('Installing the update.')) { throw 'title not set' }\n"
         "if ($script:activations -ne 1) { throw \"expected one focus grab, got $script:activations\" }\n"
         "if (-not $script:StatusFocusWatch) { throw 'focus watch not enabled' }\n"
+        # Our own window holding the foreground is not 'leaving'.
+        "Watch-StatusWindowFocus\n"
+        "if ($script:UserLeftStatusWindow) { throw 'own foreground counted as leaving' }\n"
         # The user switches to another window: that latches, once.
-        "$script:StatusWindowHandle = [IntPtr]1\n"
+        "$script:fg = [IntPtr]300\n"
         "Watch-StatusWindowFocus\n"
         "if (-not $script:UserLeftStatusWindow) { throw 'switching away was not noticed' }\n"
         # Later stages still update the text but never take focus back.
         "Update-StatusMessage -Window $win -Message 'Starting the updated application...'\n"
         "if (-not $label.Text.StartsWith('Starting')) { throw 'stage text not updated after user left' }\n"
         "if ($script:activations -ne 1) { throw 'focus was taken back after the user left' }\n"
-        # Our own window holding the foreground is not 'leaving'.
-        "$script:UserLeftStatusWindow = $false\n"
-        "$script:StatusWindowHandle = [UpdateHelperFocus]::GetForegroundWindow()\n"
+    ))
+
+
+@pytest.mark.skipif(os.name != "nt", reason="needs Windows PowerShell")
+def test_update_helper_takes_focus_back_from_the_silent_installer(tmp_path):
+    """The installer's hidden window taking the foreground is not the user leaving.
+
+    It used to latch as "the user left", so the status window was never
+    brought back and NVDA stayed silent for the rest of the install.
+    """
+    _run_helper_fragment(tmp_path, _FAKE_FOCUS + (
+        "Update-StatusMessage -Window $win -Message 'Installing the update.'\n"
+        # The installer's hidden window steals the foreground: taken back.
+        "$script:fg = [IntPtr]100\n"
         "Watch-StatusWindowFocus\n"
-        "if ($script:UserLeftStatusWindow) { throw 'own foreground counted as leaving' }\n"
-        "'FOCUS-TEST-OK'\n",
-        encoding="utf-8-sig")
-    out = subprocess.run(
-        [updater.windows_powershell_path(), "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script)],
-        capture_output=True, text=True, timeout=60, env=updater.clean_powershell_env())
-    assert out.returncode == 0, out.stderr + out.stdout
-    assert "FOCUS-TEST-OK" in out.stdout
+        "if ($script:UserLeftStatusWindow) { throw 'installer window counted as the user leaving' }\n"
+        "if ($script:fg -ne $win.Handle) { throw 'focus not taken back from the installer' }\n"
+        "if ($script:activations -ne 2) { throw \"expected a second grab, got $script:activations\" }\n"
+        # The UAC prompt or the bare desktop: neither leaving nor grabbed.
+        "$script:fg = [IntPtr]200\n"
+        "Watch-StatusWindowFocus\n"
+        "if ($script:UserLeftStatusWindow) { throw 'desktop counted as the user leaving' }\n"
+        "if ($script:activations -ne 2) { throw 'focus grabbed from a neutral window' }\n"
+        "$script:fg = [IntPtr]0\n"
+        "Watch-StatusWindowFocus\n"
+        "if ($script:UserLeftStatusWindow) { throw 'the secure desktop counted as leaving' }\n"
+    ))
+
+
+@pytest.mark.skipif(os.name != "nt", reason="needs Windows PowerShell")
+def test_update_helper_takes_focus_back_from_a_parked_shell_window(tmp_path):
+    """Windows 11 parked the foreground on Explorer's ForegroundStaging window.
+
+    Seen in a real installer update: it latched as "the user left" and NVDA
+    stayed silent. A brief stop there (Alt+Tab) is left alone; one that stays
+    is taken back.
+    """
+    _run_helper_fragment(tmp_path, _FAKE_FOCUS + (
+        "$script:kinds[[int64]400] = 'transient'\n"
+        "$script:TransientGraceMs = 300\n"
+        "Update-StatusMessage -Window $win -Message 'Installing the update.'\n"
+        "$script:fg = [IntPtr]400\n"
+        "Watch-StatusWindowFocus\n"
+        "if ($script:UserLeftStatusWindow) { throw 'shell window counted as the user leaving' }\n"
+        "if ($script:activations -ne 1) { throw 'grabbed before the grace ended' }\n"
+        "Start-Sleep -Milliseconds 400\n"
+        "Watch-StatusWindowFocus\n"
+        "if ($script:fg -ne $win.Handle) { throw 'focus not taken back from the parked shell window' }\n"
+        # Passing through it on the way to another app: the user left, no grab.
+        "$script:fg = [IntPtr]400\n"
+        "Watch-StatusWindowFocus\n"
+        "$script:fg = [IntPtr]300\n"
+        "Watch-StatusWindowFocus\n"
+        "Start-Sleep -Milliseconds 400\n"
+        "Watch-StatusWindowFocus\n"
+        "if (-not $script:UserLeftStatusWindow) { throw 'Alt+Tab to another app not noticed' }\n"
+        "if ($script:activations -ne 2) { throw \"expected two grabs, got $script:activations\" }\n"
+    ))
+
+
+@pytest.mark.skipif(os.name != "nt", reason="needs Windows PowerShell")
+def test_update_helper_focus_is_not_watched_until_it_really_had_focus(tmp_path):
+    """A failed first grab must not turn the next foreground into 'the user left'."""
+    _run_helper_fragment(tmp_path, _FAKE_FOCUS + (
+        "function Invoke-ForceForeground { param([IntPtr]$Handle) return $false }\n"
+        "$script:fg = [IntPtr]300\n"
+        "Focus-StatusWindow -Window $win -Stage 'application closed'\n"
+        "if ($script:StatusFocusWatch) { throw 'watching without ever holding focus' }\n"
+        "Watch-StatusWindowFocus\n"
+        "if ($script:UserLeftStatusWindow) { throw 'latched without ever holding focus' }\n"
+    ))
+
+
+@pytest.mark.skipif(os.name != "nt", reason="needs Windows PowerShell")
+def test_update_helper_only_announces_a_uac_prompt_that_will_appear(tmp_path):
+    """No "Windows will ask for permission" when UAC is off or elevates silently."""
+    cases = [
+        # (EnableLUA, ConsentPromptBehaviorAdmin, ConsentPromptBehaviorUser, elevation type, admin, expected)
+        (1, 5, 3, 3, True, True),     # default UAC, administrator: prompt
+        (1, 0, 3, 3, True, False),    # administrator, "elevate without prompting"
+        (0, 5, 3, 1, True, False),    # UAC switched off
+        (0, 5, 3, 1, False, True),    # UAC off, standard user: Run As dialog
+        (1, 5, 3, 2, True, False),    # already elevated
+        (1, 5, 3, 1, True, False),    # built-in Administrator, full token
+        (1, 5, 3, 1, False, True),    # standard user: credentials prompt
+        (1, 5, 0, 1, False, False),   # standard user, "deny without prompting"
+        (None, None, None, 3, True, True),  # nothing readable: assume a prompt
+    ]
+    lines = []
+    for lua, admin_b, user_b, kind, is_admin, expected in cases:
+        props = []
+        for name, value in (("EnableLUA", lua), ("ConsentPromptBehaviorAdmin", admin_b),
+                            ("ConsentPromptBehaviorUser", user_b)):
+            if value is not None:
+                props.append(f"{name} = {value}")
+        policy = "New-Object PSObject -Property @{ " + "; ".join(props) + " }" if props else "New-Object PSObject"
+        lines.append(
+            f"$r = Test-ElevationPromptExpected -Policy ({policy}) -ElevationType {kind} "
+            f"-IsAdmin ${str(is_admin).lower()}\n"
+            f"if ($r -ne ${str(expected).lower()}) {{ throw 'case {lua},{admin_b},{user_b},{kind},{is_admin}: got ' + $r }}\n")
+    # And it runs against this machine's real policy without failing.
+    lines.append("$null = Test-ElevationPromptExpected\n")
+    _run_helper_fragment(tmp_path, "".join(lines))
 
 
 class _SignatureResult:
