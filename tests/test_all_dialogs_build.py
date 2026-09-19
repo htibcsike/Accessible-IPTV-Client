@@ -10,7 +10,7 @@ Skipped when wxPython or a usable display is unavailable.
 """
 import os
 import sys
-import time
+import threading
 import types
 from typing import Any
 
@@ -63,7 +63,9 @@ def test_about_dialog_builds(host):
 def test_cast_discovery_dialog_builds(host):
     # discover_all never finishes during the test, so the pending
     # wx.CallAfter can never fire against the destroyed dialog.
-    caster = types.SimpleNamespace(discover_all=lambda: time.sleep(30) or [])
+    # A fixed sleep woke up once a long suite had torn down the wx.App, and
+    # the CallAfter then failed on the daemon thread; block for good instead.
+    caster = types.SimpleNamespace(discover_all=lambda: threading.Event().wait() or [])
     dlg = CastDiscoveryDialog(host, caster)
     try:
         assert dlg.listbox.GetCount() == 0
