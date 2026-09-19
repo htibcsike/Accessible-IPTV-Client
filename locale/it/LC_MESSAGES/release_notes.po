@@ -12,19 +12,23 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:8
+#: CHANGELOG.md:15
 msgid "End every recording log with a summary of its length and problems"
 msgstr "Ogni registro di registrazione termina con un riepilogo della durata e dei problemi"
 
-#: CHANGELOG.md:18
+#: CHANGELOG.md:9
+msgid "Keep one window on screen for the whole update (#30)"
+msgstr "Una sola finestra resta sullo schermo per tutto l'aggiornamento (#30)"
+
+#: CHANGELOG.md:25
 msgid "Run one copy of the app, so a reopened app cannot ruin a recording"
 msgstr "Viene eseguita una sola copia dell'app, così riaprirla non rovina più una registrazione"
 
-#: CHANGELOG.md:12
+#: CHANGELOG.md:19
 msgid "Show ffmpeg's error in a failed download, not its command line"
 msgstr "Un download non riuscito mostra l'errore di ffmpeg, non la sua riga di comando"
 
-#: CHANGELOG.md:24
-msgid "Skip the UAC notice when Windows will not ask, and keep the update focused"
-msgstr "L'avviso UAC non compare più quando Windows non chiede l'autorizzazione, e la finestra di aggiornamento mantiene lo stato attivo"
+#: CHANGELOG.md:8
+msgid "Stop Restart Manager aborting the silent install (#31)"
+msgstr "Gestione riavvio non interrompe più l'installazione silenziosa (#31)"
 
