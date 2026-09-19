@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Accessible IPTV Client\n"
 "Report-Msgid-Bugs-To: https://github.com/serrebidev/Accessible-IPTV-Client/issues\n"
-"POT-Creation-Date: 2026-09-19 17:09+0000\n"
+"POT-Creation-Date: 2026-09-19 21:02+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,8 +21,8 @@ msgstr ""
 msgid "(No EPG debug log has been written yet.)"
 msgstr ""
 
-#: main.py:8700
-#: main.py:9576
+#: main.py:8705
+#: main.py:9581
 msgid "(No title)"
 msgstr ""
 
@@ -147,7 +147,7 @@ msgstr ""
 msgid "All playlists"
 msgstr ""
 
-#: main.py:8959
+#: main.py:8964
 msgid "All recordings have finished.\n\nThe computer will shut down by itself. Seconds remaining: {seconds}"
 msgstr ""
 
@@ -303,9 +303,9 @@ msgstr ""
 #: internal_player.py:136
 #: main.py:8157
 #: main.py:8468
-#: main.py:8816
-#: main.py:8877
-#: main.py:9065
+#: main.py:8821
+#: main.py:8882
+#: main.py:9070
 #: options.py:825
 #: playlist.py:2857
 #: playlist.py:2948
@@ -314,15 +314,15 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: main.py:8560
+#: main.py:8565
 msgid "Cancel Download"
 msgstr ""
 
-#: main.py:8935
+#: main.py:8940
 msgid "Cancel Shutdown"
 msgstr ""
 
-#: main.py:9094
+#: main.py:9099
 msgid "Canceled"
 msgstr ""
 
@@ -385,7 +385,7 @@ msgstr ""
 #: main.py:7601
 #: main.py:7625
 #: main.py:7628
-#: main.py:8631
+#: main.py:8636
 msgid "Catch-up"
 msgstr ""
 
@@ -403,11 +403,11 @@ msgstr ""
 msgid "Catch-up Download"
 msgstr ""
 
-#: main.py:8666
+#: main.py:8671
 msgid "Catch-up programmes"
 msgstr ""
 
-#: main.py:8632
+#: main.py:8637
 msgid "Catch-up: {name}"
 msgstr ""
 
@@ -422,7 +422,7 @@ msgstr ""
 msgid "Changes in each version of {app}, newest first. Notes for the latest versions appear in your language once they have been translated; older entries stay in English."
 msgstr ""
 
-#: main.py:9020
+#: main.py:9025
 msgid "Channel"
 msgstr ""
 
@@ -437,8 +437,8 @@ msgid "Channel missing command reference"
 msgstr ""
 
 #: main.py:2742
-#: main.py:9442
-#: main.py:9444
+#: main.py:9447
+#: main.py:9449
 msgid "Channels"
 msgstr ""
 
@@ -486,7 +486,7 @@ msgstr ""
 #: main.py:370
 #: main.py:556
 #: main.py:8262
-#: main.py:9217
+#: main.py:9222
 msgid "Close"
 msgstr ""
 
@@ -494,7 +494,7 @@ msgstr ""
 msgid "Community and support"
 msgstr ""
 
-#: main.py:9091
+#: main.py:9096
 msgid "Completed"
 msgstr ""
 
@@ -654,7 +654,7 @@ msgstr ""
 msgid "Created"
 msgstr ""
 
-#: main.py:9209
+#: main.py:9214
 msgid "Currently airing programs"
 msgstr ""
 
@@ -675,7 +675,7 @@ msgstr ""
 msgid "Days since expiry"
 msgstr ""
 
-#: main.py:9067
+#: main.py:9072
 #: playlist.py:2802
 msgid "Delete"
 msgstr ""
@@ -688,8 +688,8 @@ msgstr ""
 msgid "Delete the playlist “{name}”?\n\nThis removes it from the list of playlists. It cannot be undone."
 msgstr ""
 
-#: main.py:8651
-#: main.py:9606
+#: main.py:8656
+#: main.py:9611
 msgid "Description"
 msgstr ""
 
@@ -719,7 +719,7 @@ msgstr ""
 msgid "Display name"
 msgstr ""
 
-#: main.py:8558
+#: main.py:8563
 msgid "Do you really want to cancel this download? It cannot be resumed afterwards."
 msgstr ""
 
@@ -727,7 +727,7 @@ msgstr ""
 msgid "Documentation"
 msgstr ""
 
-#: main.py:8750
+#: main.py:8755
 msgid "Download"
 msgstr ""
 
@@ -751,7 +751,7 @@ msgstr ""
 msgid "Download ended early:\n{path}\n\nOnly {written} of {expected} arrived before the provider closed the connection. The incomplete file was kept."
 msgstr ""
 
-#: main.py:8509
+#: main.py:8514
 msgid "Download failed (code {code})."
 msgstr ""
 
@@ -759,7 +759,7 @@ msgstr ""
 msgid "Download failed (code {code}):\n{path}\n\n{detail}"
 msgstr ""
 
-#: main.py:8525
+#: main.py:8530
 msgid "Download failed - retrying (attempt {attempt} of {total}) in {seconds} seconds..."
 msgstr ""
 
@@ -784,7 +784,7 @@ msgstr ""
 msgid "Downloaded update failed SHA-256 verification."
 msgstr ""
 
-#: main.py:8549
+#: main.py:8554
 msgid "Downloaded: {size}"
 msgstr ""
 
@@ -796,8 +796,8 @@ msgid "Downloading update..."
 msgstr ""
 
 #: main.py:8434
-#: main.py:8538
-#: main.py:8542
+#: main.py:8543
+#: main.py:8547
 msgid "Downloading {name}"
 msgstr ""
 
@@ -841,11 +841,11 @@ msgstr ""
 msgid "EPG is not enabled."
 msgstr ""
 
-#: main.py:9587
+#: main.py:9592
 msgid "EPG: {channel}"
 msgstr ""
 
-#: main.py:8547
+#: main.py:8552
 msgid "Elapsed: {time}"
 msgstr ""
 
@@ -868,8 +868,8 @@ msgstr ""
 
 #: main.py:2761
 #: main.py:2763
-#: main.py:8654
-#: main.py:9609
+#: main.py:8659
+#: main.py:9614
 msgid "Episode description"
 msgstr ""
 
@@ -936,7 +936,7 @@ msgstr ""
 msgid "Extracting update..."
 msgstr ""
 
-#: main.py:9092
+#: main.py:9097
 msgid "Failed"
 msgstr ""
 
@@ -997,11 +997,11 @@ msgstr ""
 msgid "File"
 msgstr ""
 
-#: main.py:9196
+#: main.py:9201
 msgid "Filter (Tab):"
 msgstr ""
 
-#: main.py:9198
+#: main.py:9203
 msgid "Filter programs"
 msgstr ""
 
@@ -1018,7 +1018,7 @@ msgstr ""
 msgid "Follow Serrebi on GitHub"
 msgstr ""
 
-#: main.py:9022
+#: main.py:9027
 msgid "Format"
 msgstr ""
 
@@ -1215,15 +1215,15 @@ msgstr ""
 msgid "Minimize to System Tray"
 msgstr ""
 
-#: main.py:8857
+#: main.py:8862
 msgid "Minutes after programme:"
 msgstr ""
 
-#: main.py:8856
+#: main.py:8861
 msgid "Minutes before programme:"
 msgstr ""
 
-#: main.py:9093
+#: main.py:9098
 msgid "Missed"
 msgstr ""
 
@@ -1296,8 +1296,8 @@ msgid "No channels found."
 msgstr ""
 
 #: main.py:3148
-#: main.py:8720
-#: main.py:9711
+#: main.py:8725
+#: main.py:9716
 msgid "No description available for this programme."
 msgstr ""
 
@@ -1309,7 +1309,7 @@ msgstr ""
 msgid "No episodes found for this series."
 msgstr ""
 
-#: main.py:8518
+#: main.py:8523
 msgid "No error details were reported."
 msgstr ""
 
@@ -1374,15 +1374,15 @@ msgstr ""
 
 #: internal_player.py:135
 #: main.py:306
-#: main.py:8816
-#: main.py:8876
+#: main.py:8821
+#: main.py:8881
 #: options.py:825
 #: playlist.py:2856
 #: playlist.py:2947
 msgid "OK"
 msgstr ""
 
-#: main.py:8748
+#: main.py:8753
 msgid "Open"
 msgstr ""
 
@@ -1471,8 +1471,8 @@ msgstr ""
 
 #: internal_player.py:727
 #: main.py:3182
-#: main.py:9215
-#: main.py:9394
+#: main.py:9220
+#: main.py:9399
 msgid "Play"
 msgstr ""
 
@@ -1559,12 +1559,12 @@ msgstr ""
 msgid "Portal handshake failed: no token returned"
 msgstr ""
 
-#: main.py:8795
-#: main.py:8798
+#: main.py:8800
+#: main.py:8803
 msgid "Prefer an audio description track when the channel has one"
 msgstr ""
 
-#: main.py:8786
+#: main.py:8791
 msgid "Preferred Audio Track"
 msgstr ""
 
@@ -1577,7 +1577,7 @@ msgstr ""
 msgid "Preferred stream container format"
 msgstr ""
 
-#: main.py:8801
+#: main.py:8806
 msgid "Preferred track names or languages, most wanted first:"
 msgstr ""
 
@@ -1594,11 +1594,11 @@ msgstr ""
 msgid "Press Escape to hide this window; the download continues. View > Show Downloads (Ctrl+Shift+D) brings it back."
 msgstr ""
 
-#: main.py:9210
+#: main.py:9215
 msgid "Program - Channel"
 msgstr ""
 
-#: main.py:8546
+#: main.py:8551
 msgid "Progress: {percent}%"
 msgstr ""
 
@@ -1672,7 +1672,7 @@ msgstr ""
 #: main.py:3909
 #: main.py:3917
 #: main.py:3920
-#: main.py:9089
+#: main.py:9094
 msgid "Recording"
 msgstr ""
 
@@ -1728,8 +1728,8 @@ msgid "Recordings"
 msgstr ""
 
 #: main.py:8260
-#: main.py:9025
-#: main.py:9061
+#: main.py:9030
+#: main.py:9066
 msgid "Refresh"
 msgstr ""
 
@@ -1745,7 +1745,7 @@ msgstr ""
 msgid "Release history"
 msgstr ""
 
-#: main.py:9156
+#: main.py:9161
 msgid "Remove all scheduled recordings from the list?"
 msgstr ""
 
@@ -1753,7 +1753,7 @@ msgstr ""
 msgid "Remove from Favorites"
 msgstr ""
 
-#: main.py:9159
+#: main.py:9164
 msgid "Remove scheduled recording '{title}' from the list?"
 msgstr ""
 
@@ -1770,7 +1770,7 @@ msgstr ""
 msgid "Resume"
 msgstr ""
 
-#: main.py:8846
+#: main.py:8851
 msgid "Schedule Padding"
 msgstr ""
 
@@ -1786,10 +1786,10 @@ msgstr ""
 #: main.py:3461
 #: main.py:3476
 #: main.py:3483
-#: main.py:9216
-#: main.py:9396
-#: main.py:9678
-#: main.py:9720
+#: main.py:9221
+#: main.py:9401
+#: main.py:9683
+#: main.py:9725
 msgid "Schedule Recording"
 msgstr ""
 
@@ -1797,7 +1797,7 @@ msgstr ""
 msgid "Schedule Recording..."
 msgstr ""
 
-#: main.py:9088
+#: main.py:9093
 msgid "Scheduled"
 msgstr ""
 
@@ -1805,10 +1805,10 @@ msgstr ""
 msgid "Scheduled Recording"
 msgstr ""
 
-#: main.py:9005
-#: main.py:9140
-#: main.py:9149
-#: main.py:9160
+#: main.py:9010
+#: main.py:9145
+#: main.py:9154
+#: main.py:9165
 msgid "Scheduled Recordings"
 msgstr ""
 
@@ -1829,7 +1829,7 @@ msgid "Scheduled recording:\n{title}\n{time}"
 msgstr ""
 
 #: main.py:5440
-#: main.py:9017
+#: main.py:9022
 msgid "Scheduled recordings"
 msgstr ""
 
@@ -1863,16 +1863,16 @@ msgstr ""
 msgid "Select a channel to record first."
 msgstr ""
 
-#: main.py:9720
+#: main.py:9725
 msgid "Select a programme first."
 msgstr ""
 
-#: main.py:8636
+#: main.py:8641
 msgid "Select a programme, then press Enter to open it, or use the context menu to download it. Press Escape to close."
 msgstr ""
 
-#: main.py:9140
-#: main.py:9149
+#: main.py:9145
+#: main.py:9154
 msgid "Select a scheduled recording first."
 msgstr ""
 
@@ -1888,7 +1888,7 @@ msgstr ""
 msgid "Select the playlist format to download"
 msgstr ""
 
-#: main.py:8807
+#: main.py:8812
 msgid "Separate them with commas, for example: audio description, English. A track is used when its name contains one of these words. Leave this empty to keep whatever track the channel starts on."
 msgstr ""
 
@@ -1948,11 +1948,11 @@ msgstr ""
 #: main.py:3966
 #: main.py:4027
 #: main.py:4037
-#: main.py:8922
+#: main.py:8927
 msgid "Shut Down After Recordings"
 msgstr ""
 
-#: main.py:8936
+#: main.py:8941
 msgid "Shut Down Now"
 msgstr ""
 
@@ -1977,7 +1977,7 @@ msgstr ""
 msgid "Start Recording"
 msgstr ""
 
-#: main.py:8849
+#: main.py:8854
 msgid "Start scheduled recordings early or keep recording after the programme ends. Manual recordings are not changed."
 msgstr ""
 
@@ -1993,7 +1993,7 @@ msgstr ""
 #: account_info.py:469
 #: account_info.py:471
 #: account_info.py:515
-#: main.py:9021
+#: main.py:9026
 msgid "Status"
 msgstr ""
 
@@ -2028,7 +2028,7 @@ msgstr ""
 msgid "Stopped"
 msgstr ""
 
-#: main.py:9090
+#: main.py:9095
 msgid "Stopping"
 msgstr ""
 
@@ -2205,17 +2205,17 @@ msgstr ""
 msgid "This programme is not available as catch-up content yet."
 msgstr ""
 
-#: main.py:9018
-#: main.py:9596
+#: main.py:9023
+#: main.py:9601
 msgid "Time"
 msgstr ""
 
-#: main.py:8548
+#: main.py:8553
 msgid "Time remaining: {time}"
 msgstr ""
 
-#: main.py:9019
-#: main.py:9597
+#: main.py:9024
+#: main.py:9602
 msgid "Title"
 msgstr ""
 
@@ -2279,7 +2279,7 @@ msgstr ""
 msgid "Unexpected account response from the Xtream server"
 msgstr ""
 
-#: main.py:9577
+#: main.py:9582
 #: updater.py:689
 msgid "Unknown"
 msgstr ""
@@ -2464,11 +2464,11 @@ msgid "What's New"
 msgstr ""
 
 #: main.py:2914
-#: main.py:9183
+#: main.py:9188
 msgid "What's on Now"
 msgstr ""
 
-#: main.py:8789
+#: main.py:8794
 msgid "When a channel offers more than one audio track, the built-in player can switch to the track you want on its own."
 msgstr ""
 
@@ -2509,7 +2509,7 @@ msgstr ""
 msgid "channel stream URL"
 msgstr ""
 
-#: main.py:8510
+#: main.py:8515
 msgid "ffmpeg exit code: {code}"
 msgstr ""
 
@@ -2537,7 +2537,7 @@ msgstr ""
 msgid "x264 re-encode (MP4)"
 msgstr ""
 
-#: main.py:9772
+#: main.py:9777
 msgid "{app} is already running, but it did not respond. Wait a moment and try again, or close it from the notification area."
 msgstr ""
 
@@ -2549,8 +2549,8 @@ msgstr ""
 msgid "{app} was successfully updated to v{version}."
 msgstr ""
 
-#: main.py:9204
-#: main.py:9349
+#: main.py:9209
+#: main.py:9354
 msgid "{count} programs"
 msgstr ""
 
