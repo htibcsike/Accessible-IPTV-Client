@@ -34,7 +34,15 @@ WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayIcon={app}\{#MyAppExeName}
-CloseApplications=yes
+; Setup must not try to close applications itself (issue #31). The updater
+; has already closed the app and stopped anything still running out of the
+; install directory by the time Setup starts, and it drives Setup with
+; /VERYSILENT /SUPPRESSMSGBOXES. With CloseApplications=yes, Restart Manager
+; reported the update helper's own Windows PowerShell as "an application
+; using one of our files", could not shut it down - it is the process running
+; Setup - and the suppressed "some applications could not be shut down" box
+; defaulted to Abort, so every update rolled back with exit code 5.
+CloseApplications=no
 RestartApplications=no
 SetupLogging=yes
 ; Select the installer language from the current Windows UI language.
