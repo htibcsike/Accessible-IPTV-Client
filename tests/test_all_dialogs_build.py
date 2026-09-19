@@ -206,6 +206,31 @@ def test_scheduled_recordings_delete_shortcuts_act_when_populated(host, monkeypa
         parent.Destroy()
 
 
+def test_scheduled_recordings_menu_key_is_the_applications_key(host, monkeypatch):
+    """WXK_MENU is Alt, so handling it here opened the menu on Alt.
+
+    The Applications key must open the context menu; Alt must fall through to
+    normal handling like any other unhandled key.
+    """
+    scheduler = types.SimpleNamespace(list_jobs=lambda **kw: [])
+    dlg = ScheduledRecordingsDialog(host, scheduler)
+    opened = []
+    monkeypatch.setattr(dlg, "_show_context_menu", lambda keyboard: opened.append(keyboard))
+    skipped = []
+    try:
+        alt = types.SimpleNamespace(GetKeyCode=lambda: wx.WXK_MENU, Skip=lambda: skipped.append(True))
+        dlg._on_char_hook(alt)
+        assert opened == []
+        assert skipped == [True]
+
+        apps = types.SimpleNamespace(
+            GetKeyCode=lambda: wx.WXK_WINDOWS_MENU, Skip=lambda: skipped.append(True))
+        dlg._on_char_hook(apps)
+        assert opened == [True]
+    finally:
+        dlg.Destroy()
+
+
 def test_scheduled_recordings_ctrl_a_selects_every_row(host):
     jobs = [
         {"id": "one", "status": "scheduled", "title": "News", "channel_name": "TVP 1", "format": "provider_mkv"},

@@ -9022,7 +9022,9 @@ class ScheduledRecordingsDialog(wx.Dialog):
             # information box.
             if self.list_ctrl.GetItemCount():
                 self._on_delete_selected(event)
-        elif key == wx.WXK_MENU:
+        elif key == wx.WXK_WINDOWS_MENU:
+            # The Applications key, not WXK_MENU: that is Alt, so handling it
+            # here opened the menu every time the user reached for Alt.
             self._show_context_menu(keyboard=True)
         else:
             event.Skip()
