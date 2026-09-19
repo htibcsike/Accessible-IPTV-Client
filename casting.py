@@ -879,7 +879,7 @@ class CastingManager:
                         try:
                             await stream_task
                         except asyncio.CancelledError:
-                            pass
+                            LOG.debug("Casting: AirPlay stream task canceled", exc_info=True)
                         except Exception as exc:
                             error = exc
                         stream_task = None
@@ -902,7 +902,7 @@ class CastingManager:
                         if proc.poll() is None:
                             proc.kill()
             except asyncio.CancelledError:
-                pass
+                LOG.debug("Casting: AirPlay runner canceled", exc_info=True)
             except Exception as exc:
                 failure.append(exc)
                 LOG.info("Casting: AirPlay stream ended: %s", exc)
@@ -913,7 +913,7 @@ class CastingManager:
                     try:
                         await stream_task
                     except (asyncio.CancelledError, Exception):
-                        pass
+                        LOG.debug("Casting: AirPlay stream task ended while stopping", exc_info=True)
                 if atv is not None:
                     await engine._close_atv(atv)
 
@@ -928,7 +928,8 @@ class CastingManager:
             # here rather than reporting success and going quiet.
             future.result(timeout=1.5)
         except concurrent.futures.TimeoutError:
-            pass            # still streaming, as a live channel should be
+            # Still streaming, as a live channel should be.
+            LOG.debug("Casting: AirPlay stream running on %s", device.name)
         except Exception:
             LOG.debug("CastingManager._play_airplay: runner", exc_info=True)
         if failure:

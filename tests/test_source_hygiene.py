@@ -89,7 +89,16 @@ def test_no_deferred_lambda_over_dead_except_name(path):
     assert not offenders, f"{path.name}: {offenders}"
 
 
-APP_MODULES = [p for p in _python_sources() if p.parent == REPO_ROOT]
+def _is_vendored(path):
+    """Caster's modules, copied verbatim by tools/sync_caster.py.
+
+    They follow Caster's own conventions and must not be edited here, so
+    fixing them in this repo is not an option: fix Caster, then sync.
+    """
+    return "Do not edit: fix it in Caster" in _read(path)[:400]
+
+
+APP_MODULES = [p for p in _python_sources() if p.parent == REPO_ROOT and not _is_vendored(p)]
 
 
 @pytest.mark.parametrize("path", APP_MODULES, ids=lambda p: p.name)
