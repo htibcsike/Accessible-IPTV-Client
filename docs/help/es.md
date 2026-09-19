@@ -344,7 +344,7 @@ Para salir del programa por completo, use Archivo > Salir (Ctrl+Q).
 
 En Windows el programa puede actualizarse solo. Ayuda > Buscar actualizaciones… busca una versión nueva ahora, y Opciones > Buscar actualizaciones automáticamente comprueba en segundo plano de vez en cuando.
 
-Cuando hay una actualización, se le dice qué hay de nuevo y se le pregunta si instalarla. La descarga se comprueba antes de instalar nada. El programa se cierra durante la actualización y se reinicia solo al terminar; luego le dice si tuvo éxito. Sus ajustes, favoritos y grabaciones se conservan.
+Cuando hay una actualización disponible, se le indica qué novedades trae y se le pregunta si desea instalarla. La descarga se comprueba antes de instalar nada. A partir de ahí, una sola ventana de actualización permanece en pantalla durante todo el proceso: indica qué ocurre en cada paso, ofrece Cancelar mientras se descarga, sigue visible mientras el programa se cierra y se instala la actualización, y le avisa cuando la nueva versión se ha iniciado. Se conservan su configuración, sus favoritos y sus grabaciones.
 
 En Linux, instale el paquete nuevo sobre el antiguo.
 

@@ -344,7 +344,7 @@ Per uscire del tutto dal programma, usare File > Esci (Ctrl+Q).
 
 Su Windows il programma può aggiornarsi da solo. Aiuto > Controlla aggiornamenti… cerca ora una nuova versione, e Opzioni > Controlla automaticamente gli aggiornamenti controlla in background di tanto in tanto.
 
-Quando c'è un aggiornamento, si dice cosa c'è di nuovo e si chiede se installarlo. Il download è controllato prima di installare qualsiasi cosa. Il programma si chiude durante l'aggiornamento e riparte da solo alla fine, poi dice se è riuscito. Impostazioni, preferiti e registrazioni sono conservati.
+Quando è disponibile un aggiornamento, ti vengono indicate le novità e ti viene chiesto se installarlo. Il file scaricato viene verificato prima di installare qualsiasi cosa. Da quel momento una sola finestra di aggiornamento resta sullo schermo per tutta la durata: dice cosa succede a ogni passo, offre Annulla mentre il download è in corso, rimane visibile mentre il programma si chiude e l'aggiornamento viene installato, e ti avvisa quando la nuova versione è partita. Impostazioni, preferiti e registrazioni vengono mantenuti.
 
 Su Linux, installare il nuovo pacchetto sopra il vecchio.
 

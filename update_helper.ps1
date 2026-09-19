@@ -1,13 +1,16 @@
 param(
-    [Parameter(Mandatory = $true)]
-    [int]$ParentPid,
-    [Parameter(Mandatory = $true)]
-    [string]$InstallDir,
+    # Everything below can arrive later, in the session folder's command file:
+    # with -SessionDir this helper shows its window first and is told what to
+    # install once the download has finished (see "Attending the app").
+    [int]$ParentPid = 0,
+    [string]$InstallDir = "",
     [string]$StagingDir = "",
     [string]$BackupDir = "",
     [string]$InstallerPath = "",
-    [Parameter(Mandatory = $true)]
-    [string]$ExeName,
+    [string]$ExeName = "",
+    # The folder the app and this helper talk through: status.json (what to
+    # show), command.json (what to do), and "cancel" (the user pressed Cancel).
+    [string]$SessionDir = "",
     [string]$RestartArgs = "",
     [string]$ReadyFile = "",
     [string]$Language = "en",
@@ -60,98 +63,140 @@ $UpdateMessagesJson = @'
     "consent": "Windows will now ask for permission to install the update. Please allow it.",
     "install": "Installing the update. This can take a minute; please leave this window open.",
     "start": "Starting the updated application...",
-    "error": "The update did not finish. Please try again from the Help menu in the application."
+    "error": "The update did not finish. Please try again from the Help menu in the application.",
+    "complete": "Update complete. Version {version} is starting. This window will close by itself.",
+    "cancel": "Cancel",
+    "close": "Close"
   },
   "es": {
     "prepare": "Preparando la actualizaci\u00f3n. La aplicaci\u00f3n se est\u00e1 cerrando; la instalaci\u00f3n comenzar\u00e1 en cuanto se cierre.",
     "consent": "Windows pedir\u00e1 ahora permiso para instalar la actualizaci\u00f3n. Perm\u00edtalo, por favor.",
     "install": "Instalando la actualizaci\u00f3n. Esto puede tardar un minuto; deje esta ventana abierta.",
     "start": "Iniciando la versi\u00f3n actualizada de la aplicaci\u00f3n...",
-    "error": "La actualizaci\u00f3n no termin\u00f3. Int\u00e9ntelo de nuevo desde el men\u00fa Ayuda de la aplicaci\u00f3n."
+    "error": "La actualizaci\u00f3n no termin\u00f3. Int\u00e9ntelo de nuevo desde el men\u00fa Ayuda de la aplicaci\u00f3n.",
+    "complete": "Actualizaci\u00f3n completada. La versi\u00f3n {version} se est\u00e1 iniciando. Esta ventana se cerrar\u00e1 sola.",
+    "cancel": "Cancelar",
+    "close": "Cerrar"
   },
   "ar": {
     "prepare": "\u062c\u0627\u0631\u064d \u062a\u062d\u0636\u064a\u0631 \u0627\u0644\u062a\u062d\u062f\u064a\u062b. \u064a\u062a\u0645 \u0625\u063a\u0644\u0627\u0642 \u0627\u0644\u062a\u0637\u0628\u064a\u0642\u061b \u0633\u064a\u0628\u062f\u0623 \u0627\u0644\u062a\u062b\u0628\u064a\u062a \u0628\u0645\u062c\u0631\u062f \u0625\u063a\u0644\u0627\u0642\u0647.",
     "consent": "\u0633\u064a\u0637\u0644\u0628 Windows \u0627\u0644\u0622\u0646 \u0627\u0644\u0625\u0630\u0646 \u0628\u062a\u062b\u0628\u064a\u062a \u0627\u0644\u062a\u062d\u062f\u064a\u062b. \u064a\u064f\u0631\u062c\u0649 \u0627\u0644\u0633\u0645\u0627\u062d \u0628\u0630\u0644\u0643.",
     "install": "\u062c\u0627\u0631\u064d \u062a\u062b\u0628\u064a\u062a \u0627\u0644\u062a\u062d\u062f\u064a\u062b. \u0642\u062f \u064a\u0633\u062a\u063a\u0631\u0642 \u0630\u0644\u0643 \u062f\u0642\u064a\u0642\u0629\u061b \u064a\u064f\u0631\u062c\u0649 \u062a\u0631\u0643 \u0647\u0630\u0647 \u0627\u0644\u0646\u0627\u0641\u0630\u0629 \u0645\u0641\u062a\u0648\u062d\u0629.",
     "start": "\u062c\u0627\u0631\u064d \u062a\u0634\u063a\u064a\u0644 \u0627\u0644\u0625\u0635\u062f\u0627\u0631 \u0627\u0644\u0645\u062d\u062f\u0651\u062b \u0645\u0646 \u0627\u0644\u062a\u0637\u0628\u064a\u0642...",
-    "error": "\u0644\u0645 \u064a\u0643\u062a\u0645\u0644 \u0627\u0644\u062a\u062d\u062f\u064a\u062b. \u064a\u064f\u0631\u062c\u0649 \u0627\u0644\u0645\u062d\u0627\u0648\u0644\u0629 \u0645\u0631\u0629 \u0623\u062e\u0631\u0649 \u0645\u0646 \u0642\u0627\u0626\u0645\u0629 \u0627\u0644\u0645\u0633\u0627\u0639\u062f\u0629 \u0641\u064a \u0627\u0644\u062a\u0637\u0628\u064a\u0642."
+    "error": "\u0644\u0645 \u064a\u0643\u062a\u0645\u0644 \u0627\u0644\u062a\u062d\u062f\u064a\u062b. \u064a\u064f\u0631\u062c\u0649 \u0627\u0644\u0645\u062d\u0627\u0648\u0644\u0629 \u0645\u0631\u0629 \u0623\u062e\u0631\u0649 \u0645\u0646 \u0642\u0627\u0626\u0645\u0629 \u0627\u0644\u0645\u0633\u0627\u0639\u062f\u0629 \u0641\u064a \u0627\u0644\u062a\u0637\u0628\u064a\u0642.",
+    "complete": "\u0627\u0643\u062a\u0645\u0644 \u0627\u0644\u062a\u062d\u062f\u064a\u062b. \u064a\u062c\u0631\u064a \u062a\u0634\u063a\u064a\u0644 \u0627\u0644\u0625\u0635\u062f\u0627\u0631 {version}. \u0633\u062a\u063a\u0644\u0642 \u0647\u0630\u0647 \u0627\u0644\u0646\u0627\u0641\u0630\u0629 \u062a\u0644\u0642\u0627\u0626\u064a\u064b\u0627.",
+    "cancel": "\u0625\u0644\u063a\u0627\u0621",
+    "close": "\u0625\u063a\u0644\u0627\u0642"
   },
   "pt": {
     "prepare": "Preparando a atualiza\u00e7\u00e3o. O aplicativo est\u00e1 sendo fechado; a instala\u00e7\u00e3o come\u00e7ar\u00e1 assim que ele for fechado.",
     "consent": "O Windows vai pedir permiss\u00e3o para instalar a atualiza\u00e7\u00e3o. Por favor, permita.",
     "install": "Instalando a atualiza\u00e7\u00e3o. Isso pode levar um minuto; deixe esta janela aberta.",
     "start": "Iniciando o aplicativo atualizado...",
-    "error": "A atualiza\u00e7\u00e3o n\u00e3o foi conclu\u00edda. Tente novamente pelo menu Ajuda do aplicativo."
+    "error": "A atualiza\u00e7\u00e3o n\u00e3o foi conclu\u00edda. Tente novamente pelo menu Ajuda do aplicativo.",
+    "complete": "Atualiza\u00e7\u00e3o conclu\u00edda. A vers\u00e3o {version} est\u00e1 iniciando. Esta janela se fechar\u00e1 sozinha.",
+    "cancel": "Cancelar",
+    "close": "Fechar"
   },
   "fr": {
     "prepare": "Pr\u00e9paration de la mise \u00e0 jour. L\u2019application est en cours de fermeture ; l\u2019installation commencera d\u00e8s qu\u2019elle sera ferm\u00e9e.",
     "consent": "Windows va maintenant demander l\u2019autorisation d\u2019installer la mise \u00e0 jour. Veuillez l\u2019accepter.",
     "install": "Installation de la mise \u00e0 jour. Cela peut prendre une minute ; veuillez laisser cette fen\u00eatre ouverte.",
     "start": "D\u00e9marrage de la version mise \u00e0 jour de l\u2019application...",
-    "error": "La mise \u00e0 jour ne s\u2019est pas termin\u00e9e. R\u00e9essayez depuis le menu Aide de l\u2019application."
+    "error": "La mise \u00e0 jour ne s\u2019est pas termin\u00e9e. R\u00e9essayez depuis le menu Aide de l\u2019application.",
+    "complete": "Mise \u00e0 jour termin\u00e9e. La version {version} d\u00e9marre. Cette fen\u00eatre se fermera toute seule.",
+    "cancel": "Annuler",
+    "close": "Fermer"
   },
   "de": {
     "prepare": "Das Update wird vorbereitet. Die Anwendung wird beendet; die Installation beginnt, sobald das Programm geschlossen ist.",
     "consent": "Windows fragt jetzt nach der Berechtigung, das Update zu installieren. Bitte erlauben Sie es.",
     "install": "Das Update wird installiert. Dies kann eine Minute dauern; bitte lassen Sie dieses Fenster ge\u00f6ffnet.",
     "start": "Die aktualisierte Anwendung wird gestartet...",
-    "error": "Das Update wurde nicht abgeschlossen. Bitte versuchen Sie es \u00fcber das Hilfe-Men\u00fc der Anwendung erneut."
+    "error": "Das Update wurde nicht abgeschlossen. Bitte versuchen Sie es \u00fcber das Hilfe-Men\u00fc der Anwendung erneut.",
+    "complete": "Update abgeschlossen. Version {version} wird gestartet. Dieses Fenster schlie\u00dft sich von selbst.",
+    "cancel": "Abbrechen",
+    "close": "Schlie\u00dfen"
   },
   "ru": {
     "prepare": "\u041f\u043e\u0434\u0433\u043e\u0442\u043e\u0432\u043a\u0430 \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u044f. \u041f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435 \u0437\u0430\u043a\u0440\u044b\u0432\u0430\u0435\u0442\u0441\u044f; \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0430 \u043d\u0430\u0447\u043d\u0451\u0442\u0441\u044f \u0441\u0440\u0430\u0437\u0443 \u043f\u043e\u0441\u043b\u0435 \u0437\u0430\u043a\u0440\u044b\u0442\u0438\u044f.",
     "consent": "\u0421\u0435\u0439\u0447\u0430\u0441 Windows \u0437\u0430\u043f\u0440\u043e\u0441\u0438\u0442 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u0438\u0435 \u043d\u0430 \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0443 \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u044f. \u041f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430, \u0440\u0430\u0437\u0440\u0435\u0448\u0438\u0442\u0435 \u0435\u0451.",
     "install": "\u0423\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0430 \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u044f. \u042d\u0442\u043e \u043c\u043e\u0436\u0435\u0442 \u0437\u0430\u043d\u044f\u0442\u044c \u043c\u0438\u043d\u0443\u0442\u0443; \u043e\u0441\u0442\u0430\u0432\u044c\u0442\u0435 \u044d\u0442\u043e \u043e\u043a\u043d\u043e \u043e\u0442\u043a\u0440\u044b\u0442\u044b\u043c.",
     "start": "\u0417\u0430\u043f\u0443\u0441\u043a \u043e\u0431\u043d\u043e\u0432\u043b\u0451\u043d\u043d\u043e\u0439 \u0432\u0435\u0440\u0441\u0438\u0438 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u044f...",
-    "error": "\u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435 \u043d\u0435 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043d\u043e. \u041f\u043e\u0432\u0442\u043e\u0440\u0438\u0442\u0435 \u043f\u043e\u043f\u044b\u0442\u043a\u0443 \u0447\u0435\u0440\u0435\u0437 \u043c\u0435\u043d\u044e \u00ab\u0421\u043f\u0440\u0430\u0432\u043a\u0430\u00bb \u0432 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0438."
+    "error": "\u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435 \u043d\u0435 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043d\u043e. \u041f\u043e\u0432\u0442\u043e\u0440\u0438\u0442\u0435 \u043f\u043e\u043f\u044b\u0442\u043a\u0443 \u0447\u0435\u0440\u0435\u0437 \u043c\u0435\u043d\u044e \u00ab\u0421\u043f\u0440\u0430\u0432\u043a\u0430\u00bb \u0432 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0438.",
+    "complete": "\u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043d\u043e. \u0412\u0435\u0440\u0441\u0438\u044f {version} \u0437\u0430\u043f\u0443\u0441\u043a\u0430\u0435\u0442\u0441\u044f. \u042d\u0442\u043e \u043e\u043a\u043d\u043e \u0437\u0430\u043a\u0440\u043e\u0435\u0442\u0441\u044f \u0441\u0430\u043c\u043e.",
+    "cancel": "\u041e\u0442\u043c\u0435\u043d\u0430",
+    "close": "\u0417\u0430\u043a\u0440\u044b\u0442\u044c"
   },
   "tr": {
     "prepare": "G\u00fcncelleme haz\u0131rlan\u0131yor. Uygulama kapan\u0131yor; kapand\u0131\u011f\u0131nda kurulum ba\u015flayacak.",
     "consent": "Windows \u015fimdi g\u00fcncellemeyi y\u00fcklemek i\u00e7in izin isteyecek. L\u00fctfen izin verin.",
     "install": "G\u00fcncelleme y\u00fckleniyor. Bu i\u015flem bir dakika s\u00fcrebilir; l\u00fctfen bu pencereyi a\u00e7\u0131k b\u0131rak\u0131n.",
     "start": "G\u00fcncellenmi\u015f uygulama ba\u015flat\u0131l\u0131yor...",
-    "error": "G\u00fcncelleme tamamlanamad\u0131. L\u00fctfen uygulamadaki Yard\u0131m men\u00fcs\u00fcnden yeniden deneyin."
+    "error": "G\u00fcncelleme tamamlanamad\u0131. L\u00fctfen uygulamadaki Yard\u0131m men\u00fcs\u00fcnden yeniden deneyin.",
+    "complete": "G\u00fcncelleme tamamland\u0131. {version} s\u00fcr\u00fcm\u00fc ba\u015flat\u0131l\u0131yor. Bu pencere kendili\u011finden kapanacak.",
+    "cancel": "\u0130ptal",
+    "close": "Kapat"
   },
   "it": {
     "prepare": "Preparazione dell\u2019aggiornamento. L\u2019applicazione si sta chiudendo; l\u2019installazione inizier\u00e0 non appena sar\u00e0 chiusa.",
     "consent": "Ora Windows chieder\u00e0 l\u2019autorizzazione a installare l\u2019aggiornamento. Consentila.",
     "install": "Installazione dell\u2019aggiornamento. Potrebbe richiedere un minuto; lascia aperta questa finestra.",
     "start": "Avvio della versione aggiornata dell\u2019applicazione...",
-    "error": "L\u2019aggiornamento non \u00e8 stato completato. Riprova dal menu Aiuto dell\u2019applicazione."
+    "error": "L\u2019aggiornamento non \u00e8 stato completato. Riprova dal menu Aiuto dell\u2019applicazione.",
+    "complete": "Aggiornamento completato. La versione {version} si sta avviando. Questa finestra si chiuder\u00e0 da sola.",
+    "cancel": "Annulla",
+    "close": "Chiudi"
   },
   "pl": {
     "prepare": "Przygotowywanie aktualizacji. Program jest zamykany; instalacja rozpocznie si\u0119 zaraz po jego zamkni\u0119ciu.",
     "consent": "System Windows poprosi teraz o zgod\u0119 na zainstalowanie aktualizacji. Wyra\u017a j\u0105, prosz\u0119.",
     "install": "Instalowanie aktualizacji. Mo\u017ce to potrwa\u0107 minut\u0119; pozostaw to okno otwarte.",
     "start": "Uruchamianie zaktualizowanej wersji programu...",
-    "error": "Aktualizacja nie zosta\u0142a uko\u0144czona. Spr\u00f3buj ponownie z menu Pomoc w aplikacji."
+    "error": "Aktualizacja nie zosta\u0142a uko\u0144czona. Spr\u00f3buj ponownie z menu Pomoc w aplikacji.",
+    "complete": "Aktualizacja zako\u0144czona. Wersja {version} uruchamia si\u0119. To okno zamknie si\u0119 samo.",
+    "cancel": "Anuluj",
+    "close": "Zamknij"
   },
   "hi": {
     "prepare": "\u0905\u092a\u0921\u0947\u091f \u0915\u0940 \u0924\u0948\u092f\u093e\u0930\u0940 \u0939\u094b \u0930\u0939\u0940 \u0939\u0948\u0964 \u0910\u092a\u094d\u0932\u093f\u0915\u0947\u0936\u0928 \u092c\u0902\u0926 \u0939\u094b \u0930\u0939\u093e \u0939\u0948; \u0907\u0938\u0915\u0947 \u092c\u0902\u0926 \u0939\u094b\u0924\u0947 \u0939\u0940 \u0907\u0902\u0938\u094d\u091f\u0949\u0932\u0947\u0936\u0928 \u0936\u0941\u0930\u0942 \u0939\u094b \u091c\u093e\u090f\u0917\u093e\u0964",
     "consent": "Windows \u0905\u092c \u0905\u092a\u0921\u0947\u091f \u0907\u0902\u0938\u094d\u091f\u0949\u0932 \u0915\u0930\u0928\u0947 \u0915\u0940 \u0905\u0928\u0941\u092e\u0924\u093f \u092e\u093e\u0901\u0917\u0947\u0917\u093e\u0964 \u0915\u0943\u092a\u092f\u093e \u0905\u0928\u0941\u092e\u0924\u093f \u0926\u0947\u0902\u0964",
     "install": "\u0905\u092a\u0921\u0947\u091f \u0907\u0902\u0938\u094d\u091f\u0949\u0932 \u0939\u094b \u0930\u0939\u093e \u0939\u0948\u0964 \u0907\u0938\u092e\u0947\u0902 \u090f\u0915 \u092e\u093f\u0928\u091f \u0932\u0917 \u0938\u0915\u0924\u093e \u0939\u0948; \u0915\u0943\u092a\u092f\u093e \u0907\u0938 \u0935\u093f\u0902\u0921\u094b \u0915\u094b \u0916\u0941\u0932\u093e \u091b\u094b\u0921\u093c \u0926\u0947\u0902\u0964",
     "start": "\u0905\u092a\u0921\u0947\u091f \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0910\u092a\u094d\u0932\u093f\u0915\u0947\u0936\u0928 \u0936\u0941\u0930\u0942 \u0939\u094b \u0930\u0939\u093e \u0939\u0948...",
-    "error": "\u0905\u092a\u0921\u0947\u091f \u092a\u0942\u0930\u093e \u0928\u0939\u0940\u0902 \u0939\u0941\u0906\u0964 \u0915\u0943\u092a\u092f\u093e \u0910\u092a \u0915\u0947 \u0938\u0939\u093e\u092f\u0924\u093e \u092e\u0947\u0928\u0942 \u0938\u0947 \u092b\u093f\u0930 \u0938\u0947 \u092a\u094d\u0930\u092f\u093e\u0938 \u0915\u0930\u0947\u0902\u0964"
+    "error": "\u0905\u092a\u0921\u0947\u091f \u092a\u0942\u0930\u093e \u0928\u0939\u0940\u0902 \u0939\u0941\u0906\u0964 \u0915\u0943\u092a\u092f\u093e \u0910\u092a \u0915\u0947 \u0938\u0939\u093e\u092f\u0924\u093e \u092e\u0947\u0928\u0942 \u0938\u0947 \u092b\u093f\u0930 \u0938\u0947 \u092a\u094d\u0930\u092f\u093e\u0938 \u0915\u0930\u0947\u0902\u0964",
+    "complete": "\u0905\u0926\u094d\u092f\u0924\u0928 \u092a\u0942\u0930\u093e \u0939\u0941\u0906\u0964 \u0938\u0902\u0938\u094d\u0915\u0930\u0923 {version} \u0936\u0941\u0930\u0942 \u0939\u094b \u0930\u0939\u093e \u0939\u0948\u0964 \u092f\u0939 \u0935\u093f\u0902\u0921\u094b \u0905\u092a\u0928\u0947 \u0906\u092a \u092c\u0902\u0926 \u0939\u094b \u091c\u093e\u090f\u0917\u0940\u0964",
+    "cancel": "\u0930\u0926\u094d\u0926 \u0915\u0930\u0947\u0902",
+    "close": "\u092c\u0902\u0926 \u0915\u0930\u0947\u0902"
   },
   "zh": {
     "prepare": "\u6b63\u5728\u51c6\u5907\u66f4\u65b0\u3002\u5e94\u7528\u7a0b\u5e8f\u6b63\u5728\u5173\u95ed\uff1b\u5173\u95ed\u540e\u5c06\u7acb\u5373\u5f00\u59cb\u5b89\u88c5\u3002",
     "consent": "Windows \u73b0\u5728\u4f1a\u8bf7\u6c42\u5b89\u88c5\u66f4\u65b0\u7684\u6743\u9650\u3002\u8bf7\u5141\u8bb8\u3002",
     "install": "\u6b63\u5728\u5b89\u88c5\u66f4\u65b0\u3002\u8fd9\u53ef\u80fd\u9700\u8981\u4e00\u5206\u949f\uff1b\u8bf7\u4fdd\u6301\u6b64\u7a97\u53e3\u6253\u5f00\u3002",
     "start": "\u6b63\u5728\u542f\u52a8\u66f4\u65b0\u540e\u7684\u5e94\u7528\u7a0b\u5e8f...",
-    "error": "\u66f4\u65b0\u672a\u5b8c\u6210\u3002\u8bf7\u4ece\u5e94\u7528\u7a0b\u5e8f\u7684\u201c\u5e2e\u52a9\u201d\u83dc\u5355\u91cd\u8bd5\u3002"
+    "error": "\u66f4\u65b0\u672a\u5b8c\u6210\u3002\u8bf7\u4ece\u5e94\u7528\u7a0b\u5e8f\u7684\u201c\u5e2e\u52a9\u201d\u83dc\u5355\u91cd\u8bd5\u3002",
+    "complete": "\u66f4\u65b0\u5b8c\u6210\u3002\u7248\u672c {version} \u6b63\u5728\u542f\u52a8\u3002\u6b64\u7a97\u53e3\u5c06\u81ea\u52a8\u5173\u95ed\u3002",
+    "cancel": "\u53d6\u6d88",
+    "close": "\u5173\u95ed"
   },
   "ja": {
     "prepare": "\u66f4\u65b0\u3092\u6e96\u5099\u3057\u3066\u3044\u307e\u3059\u3002\u30a2\u30d7\u30ea\u30b1\u30fc\u30b7\u30e7\u30f3\u3092\u7d42\u4e86\u3057\u3066\u3044\u307e\u3059\u3002\u7d42\u4e86\u5f8c\u3059\u3050\u306b\u30a4\u30f3\u30b9\u30c8\u30fc\u30eb\u3092\u958b\u59cb\u3057\u307e\u3059\u3002",
     "consent": "Windows \u304c\u66f4\u65b0\u306e\u30a4\u30f3\u30b9\u30c8\u30fc\u30eb\u306e\u8a31\u53ef\u3092\u6c42\u3081\u307e\u3059\u3002\u8a31\u53ef\u3057\u3066\u304f\u3060\u3055\u3044\u3002",
     "install": "\u66f4\u65b0\u3092\u30a4\u30f3\u30b9\u30c8\u30fc\u30eb\u3057\u3066\u3044\u307e\u3059\u30021 \u5206\u307b\u3069\u304b\u304b\u308b\u5834\u5408\u304c\u3042\u308a\u307e\u3059\u3002\u3053\u306e\u30a6\u30a3\u30f3\u30c9\u30a6\u306f\u958b\u3044\u305f\u307e\u307e\u306b\u3057\u3066\u304f\u3060\u3055\u3044\u3002",
     "start": "\u66f4\u65b0\u3055\u308c\u305f\u30a2\u30d7\u30ea\u30b1\u30fc\u30b7\u30e7\u30f3\u3092\u8d77\u52d5\u3057\u3066\u3044\u307e\u3059...",
-    "error": "\u66f4\u65b0\u304c\u5b8c\u4e86\u3057\u307e\u305b\u3093\u3067\u3057\u305f\u3002\u30a2\u30d7\u30ea\u30b1\u30fc\u30b7\u30e7\u30f3\u306e\uff3b\u30d8\u30eb\u30d7\uff3d\u30e1\u30cb\u30e5\u30fc\u304b\u3089\u3082\u3046\u4e00\u5ea6\u304a\u8a66\u3057\u304f\u3060\u3055\u3044\u3002"
+    "error": "\u66f4\u65b0\u304c\u5b8c\u4e86\u3057\u307e\u305b\u3093\u3067\u3057\u305f\u3002\u30a2\u30d7\u30ea\u30b1\u30fc\u30b7\u30e7\u30f3\u306e\uff3b\u30d8\u30eb\u30d7\uff3d\u30e1\u30cb\u30e5\u30fc\u304b\u3089\u3082\u3046\u4e00\u5ea6\u304a\u8a66\u3057\u304f\u3060\u3055\u3044\u3002",
+    "complete": "\u66f4\u65b0\u304c\u5b8c\u4e86\u3057\u307e\u3057\u305f\u3002\u30d0\u30fc\u30b8\u30e7\u30f3 {version} \u3092\u8d77\u52d5\u3057\u3066\u3044\u307e\u3059\u3002\u3053\u306e\u30a6\u30a3\u30f3\u30c9\u30a6\u306f\u81ea\u52d5\u7684\u306b\u9589\u3058\u307e\u3059\u3002",
+    "cancel": "\u30ad\u30e3\u30f3\u30bb\u30eb",
+    "close": "\u9589\u3058\u308b"
   },
   "hu": {
     "prepare": "A friss\u00edt\u00e9s el\u0151k\u00e9sz\u00edt\u00e9se folyamatban van. Az alkalmaz\u00e1s bez\u00e1rul; a telep\u00edt\u00e9s a bez\u00e1r\u00e1s ut\u00e1n azonnal elindul.",
     "consent": "A Windows most enged\u00e9lyt k\u00e9r a friss\u00edt\u00e9s telep\u00edt\u00e9s\u00e9hez. K\u00e9rj\u00fck, enged\u00e9lyezze.",
     "install": "A friss\u00edt\u00e9s telep\u00edt\u00e9se folyamatban van. Ez k\u00f6r\u00fclbel\u00fcl egy percig tarthat; hagyja nyitva ezt az ablakot.",
     "start": "A friss\u00edtett alkalmaz\u00e1s ind\u00edt\u00e1sa...",
-    "error": "A friss\u00edt\u00e9s nem fejez\u0151d\u00f6tt be. Pr\u00f3b\u00e1lja \u00fajra az alkalmaz\u00e1s S\u00fag\u00f3 men\u00fcj\u00e9b\u0151l."
+    "error": "A friss\u00edt\u00e9s nem fejez\u0151d\u00f6tt be. Pr\u00f3b\u00e1lja \u00fajra az alkalmaz\u00e1s S\u00fag\u00f3 men\u00fcj\u00e9b\u0151l.",
+    "complete": "A friss\u00edt\u00e9s befejez\u0151d\u00f6tt. A(z) {version} verzi\u00f3 indul. Ez az ablak mag\u00e1t\u00f3l bez\u00e1rul.",
+    "cancel": "M\u00e9gse",
+    "close": "Bez\u00e1r\u00e1s"
   }
 }
 '@
@@ -172,6 +217,9 @@ function Get-UpdateMessages {
             start = "Starting the updated Accessible IPTV Client..."
             consent = "Windows will now ask for permission to install the update. Please allow it."
             error = "The update did not finish. Please try again from the Help menu in the application."
+            complete = "Update complete. Version {version} is starting. This window will close by itself."
+            cancel = "Cancel"
+            close = "Close"
         }
     }
 }
@@ -193,6 +241,22 @@ $updateMessages = Get-UpdateMessages -Code $Language
 # seconds: Windows ghosts it, paints it blank and stops it answering the screen
 # reader, which is exactly the "the window disappears" the update was supposed
 # to stop. Every wait below therefore goes through Wait-Pumped.
+# The one window of the whole update. Its controls are held here rather than
+# looked up by name: $form.Controls["StatusLabel"] came back null on a user's
+# machine (issue #31 logged "The property 'Text' cannot be found on this
+# object" after every failed install), and because the lookup threw on the
+# first line of Update-StatusMessage, the title was never updated again - the
+# window sat on "Preparing the update..." for the rest of the update, which is
+# exactly the "the update window disappears" users report.
+$script:StatusLabel = $null
+$script:StatusProgress = $null
+$script:StatusButton = $null
+$script:StatusMessage = ""
+$script:StatusButtonAction = ""
+$script:AllowStatusClose = $false
+$script:CancelRequested = $false
+$script:StatusDismissed = $false
+
 function Show-UpdateStatus {
     param([string]$Message)
     try {
@@ -217,8 +281,18 @@ function Show-UpdateStatus {
     $form.Size = New-Object System.Drawing.Size(440, 190)
     $form.MaximizeBox = $false
     $form.MinimizeBox = $false
+    # No close button, and Alt+F4 is refused below: this window is the only
+    # thing on screen for the length of the update, and once it is gone
+    # nothing else reports what is happening.
+    $form.ControlBox = $false
     $form.ShowInTaskbar = $true
     $form.TopMost = $true
+    $form.Add_FormClosing({
+        if (-not $script:AllowStatusClose) {
+            $_.Cancel = $true
+            Write-Log "Refused an attempt to close the status window."
+        }
+    })
 
     $statusLabel = New-Object System.Windows.Forms.Label
     $statusLabel.Name = "StatusLabel"
@@ -238,19 +312,121 @@ function Show-UpdateStatus {
     $progress.TabIndex = 1
     $form.Controls.Add($progress)
 
+    # The only control that can ever take focus, and only while it has
+    # something to do: Cancel during the download, Close on a failure. The
+    # window is otherwise unfocusable on purpose, so NVDA reads its title.
+    $button = New-Object System.Windows.Forms.Button
+    $button.Name = "StatusButton"
+    $button.SetBounds(308, 128, 100, 26)
+    $button.TabIndex = 2
+    $button.Visible = $false
+    $button.Add_Click({
+        if ($script:StatusButtonAction -eq "cancel") {
+            $script:CancelRequested = $true
+            Write-Log "The user pressed Cancel."
+            Set-StatusButton -Action ""
+        } elseif ($script:StatusButtonAction -eq "close") {
+            $script:StatusDismissed = $true
+        }
+    })
+    $form.Controls.Add($button)
+
+    $script:StatusLabel = $statusLabel
+    $script:StatusProgress = $progress
+    $script:StatusButton = $button
+    $script:StatusMessage = $Message
+    $script:StatusWindow = $form
     try {
         $form.Show()
         $form.Activate()
+        $script:StatusWindowHandle = $form.Handle
+        # The app starts this helper as a hidden background process, and
+        # Windows applies that to the first window the process shows: without
+        # this the status window existed, with the right title, but was never
+        # on screen until something forced it to the foreground. That is the
+        # update window that "disappears" while the app is still closing.
+        Show-StatusWindowForReal -Handle $form.Handle
         [System.Windows.Forms.Application]::DoEvents()
     } catch { }
     return $form
 }
 
+# SW_SHOWNORMAL, whatever STARTUPINFO asked for.
+function Show-StatusWindowForReal {
+    param([IntPtr]$Handle)
+    if ($Handle -eq [IntPtr]::Zero) { return }
+    if (-not ("UpdateHelperFocus" -as [type])) { return }
+    try {
+        if (-not [UpdateHelperFocus]::IsWindowVisible($Handle)) {
+            [void][UpdateHelperFocus]::ShowWindow($Handle, 1)
+            Write-Log "The status window was created hidden; shown explicitly."
+        }
+    } catch {
+        Write-Log "Could not show the status window: $($_.Exception.Message)"
+    }
+}
+
+# The window as it must always be: rebuilt if it somehow went away, because
+# the update has nowhere else to report from.
+function Get-StatusWindow {
+    $window = $script:StatusWindow
+    if ($window -and -not $window.IsDisposed) { return $window }
+    Write-Log "The status window was gone; showing it again."
+    $script:StatusFocusWatch = $false
+    return (Show-UpdateStatus -Message $script:StatusMessage)
+}
+
+# Cancel during the download, Close on a failure, nothing the rest of the time.
+function Set-StatusButton {
+    param([string]$Action = "", [string]$Text = "")
+    $script:StatusButtonAction = $Action
+    $button = $script:StatusButton
+    if (-not $button) { return }
+    try {
+        if ($Action) {
+            if ($Text) { $button.Text = $Text }
+            $button.Visible = $true
+            $button.Enabled = $true
+        } else {
+            $button.Visible = $false
+        }
+    } catch {
+        Write-Log "Could not update the status button: $($_.Exception.Message)"
+    }
+}
+
+# How far the current step has got. Percentages change several times a second,
+# so this never touches the title or the focus - only the bar.
+function Set-StatusProgress {
+    param($Percent)
+    $bar = $script:StatusProgress
+    if (-not $bar) { return }
+    try {
+        if ($null -eq $Percent) {
+            if ($bar.Style -ne [System.Windows.Forms.ProgressBarStyle]::Marquee) {
+                $bar.Style = [System.Windows.Forms.ProgressBarStyle]::Marquee
+                $bar.MarqueeAnimationSpeed = 30
+            }
+            return
+        }
+        $value = [int][Math]::Max(0, [Math]::Min(100, [double]$Percent))
+        if ($bar.Style -ne [System.Windows.Forms.ProgressBarStyle]::Continuous) {
+            $bar.Style = [System.Windows.Forms.ProgressBarStyle]::Continuous
+        }
+        $bar.Value = $value
+    } catch {
+        Write-Log "Could not update the progress bar: $($_.Exception.Message)"
+    }
+}
+
 function Update-StatusMessage {
     param($Window, [string]$Message)
+    if (-not $Message -or $Message -eq $script:StatusMessage) { return }
+    $script:StatusMessage = $Message
+    $Window = Get-StatusWindow
     if (-not $Window) { return }
     try {
-        $Window.Controls["StatusLabel"].Text = $Message
+        if ($script:StatusLabel) { $script:StatusLabel.Text = $Message }
         # The title carries the same text so NVDA+T reports where the update
         # has got to, and so the taskbar button is not just "Updating...".
         $Window.Text = "Accessible IPTV Client - $Message"
@@ -298,6 +474,8 @@ using System;
 using System.Runtime.InteropServices;
 public static class UpdateHelperFocus {
     [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr hWnd);
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
     [DllImport("user32.dll")] public static extern bool AllowSetForegroundWindow(uint processId);
     [DllImport("user32.dll")] static extern bool BringWindowToTop(IntPtr hWnd);
@@ -599,6 +777,22 @@ function Get-InstallerError {
     return $text
 }
 
+# Told to the restarted app so it does not repeat the confirmation this
+# window has already given.
+function Write-UpdateSuccess {
+    param([string]$Version = "")
+    try {
+        $result = [ordered]@{
+            status  = "completed"
+            version = $Version
+            time    = (Get-Date).ToString("o")
+        }
+        [System.IO.File]::WriteAllText($resultPath, ($result | ConvertTo-Json -Compress), (New-Object System.Text.UTF8Encoding($false)))
+    } catch {
+        Write-Log "Could not write the update result: $($_.Exception.Message)"
+    }
+}
+
 function Write-UpdateResult {
     param([string]$Kind, [string]$Reason, $ExitCode = $null, [string]$InstallerError = "")
     try {
@@ -614,6 +808,33 @@ function Write-UpdateResult {
     } catch {
         Write-Log "Could not write the update result: $($_.Exception.Message)"
     }
+}
+
+# The update worked. This window has been the only one on screen since the
+# user confirmed the update, so it is also what says so at the end - the
+# restarted app shows no box of its own (it checks for this result first).
+function Complete-SuccessfulUpdate {
+    param($Window, [bool]$Restarted, [string]$Version = "")
+    Write-UpdateSuccess -Version $Version
+    $text = $updateMessages.complete
+    if ($Version) {
+        $text = $text.Replace("{version}", "v" + $Version)
+    } else {
+        $text = $text.Replace(" {version}", "").Replace("{version}", "")
+    }
+    Set-StatusProgress -Percent 100
+    # The app we have just restarted took the foreground, and that latched as
+    # "the user switched away", so the last thing this window says - that the
+    # update worked - would have been left unfocused and unread. This one
+    # message is worth taking the focus back for; afterwards the latch closes
+    # again by itself and the window gives the app its focus back when it goes.
+    $script:UserLeftStatusWindow = $false
+    $script:StatusFocusWatch = $false
+    Update-StatusMessage -Window $Window -Message $text
+    # Long enough to be read at any speech rate, with a Close button for
+    # anyone who would rather move on at once.
+    Wait-ForDismissal -Window $Window -Milliseconds 9000 -ButtonText $updateMessages.close
+    Close-StatusWindow -Window $Window
 }
 
 function Complete-FailedUpdate {
@@ -650,6 +871,88 @@ function Complete-FailedUpdate {
     exit $Code
 }
 
+# The app writes these files; a half-written one is never read, because every
+# write is a rename into place. A file being renamed over can still fail a read
+# for an instant, so a failed read simply means "nothing new this time".
+function Read-JsonFile {
+    param([string]$Path)
+    if (-not $Path -or -not (Test-Path -LiteralPath $Path)) { return $null }
+    try {
+        $text = [System.IO.File]::ReadAllText($Path)
+        if (-not $text) { return $null }
+        return ($text | ConvertFrom-Json)
+    } catch {
+        return $null
+    }
+}
+
+function Get-JsonValue {
+    param($Object, [string]$Name)
+    if (-not $Object) { return $null }
+    $property = $Object.PSObject.Properties[$Name]
+    if (-not $property) { return $null }
+    return $property.Value
+}
+
+# --- Attending the app (the window is up before the download starts) -------
+# The update used to be two windows in a row: the app's own progress dialog
+# while it downloaded, then this one for the install. The app has to exit
+# half way, so the hand-over could never be seamless - and a screen-reader
+# user experienced it as the update window disappearing. So this window is
+# shown first and shows everything: the app reports its download progress into
+# status.json, and only says what to install (command.json) once it is ready.
+function Invoke-AttendApp {
+    param($Window, [string]$StatusPath, [string]$CommandPath, [string]$CancelPath,
+          [string]$CancelText = "Cancel")
+    $lastWrite = $null
+    while (-not (Test-Path -LiteralPath $CommandPath)) {
+        try {
+            $stamp = (Get-Item -LiteralPath $StatusPath -ErrorAction Stop).LastWriteTimeUtc
+        } catch {
+            $stamp = $null
+        }
+        if ($stamp -and $stamp -ne $lastWrite) {
+            $lastWrite = $stamp
+            $status = Read-JsonFile -Path $StatusPath
+            if ($status) {
+                $message = Get-JsonValue -Object $status -Name "message"
+                if ($message) { Update-StatusMessage -Window $Window -Message ([string]$message) }
+                Set-StatusProgress -Percent (Get-JsonValue -Object $status -Name "percent")
+                $cancellable = [bool](Get-JsonValue -Object $status -Name "cancellable")
+                if ($cancellable -and -not $script:CancelRequested) {
+                    if ($script:StatusButtonAction -ne "cancel") {
+                        Set-StatusButton -Action "cancel" -Text $CancelText
+                    }
+                } elseif ($script:StatusButtonAction -eq "cancel") {
+                    Set-StatusButton -Action ""
+                }
+            }
+        }
+        if ($script:CancelRequested -and $CancelPath -and -not (Test-Path -LiteralPath $CancelPath)) {
+            try {
+                New-Item -ItemType File -Path $CancelPath -Force | Out-Null
+                Write-Log "Told the app to cancel the update."
+            } catch {
+                Write-Log "Could not write the cancel file: $($_.Exception.Message)"
+            }
+        }
+        if ($ParentPid -gt 0 -and -not (Get-Process -Id $ParentPid -ErrorAction SilentlyContinue)) {
+            Write-Log "The app exited before it said what to install; nothing to do."
+            return $null
+        }
+        Wait-Pumped -Milliseconds 150 -Window $Window
+    }
+    # The app renames the file into place, so it is complete when it appears;
+    # a read can still lose a race with the rename itself.
+    for ($attempt = 0; $attempt -lt 20; $attempt++) {
+        $command = Read-JsonFile -Path $CommandPath
+        if ($command) { return $command }
+        Wait-Pumped -Milliseconds 100 -Window $Window
+    }
+    Write-Log "The command file could not be read: $CommandPath"
+    return $null
+}
+
 # Sleep while keeping the status window painting and answering.
 function Wait-Pumped {
     param([int]$Milliseconds, $Window)
@@ -676,8 +979,27 @@ function Wait-ForProcessExit {
 
 function Close-StatusWindow {
     param($Window)
+    $script:AllowStatusClose = $true
+    if (-not $Window) { $Window = $script:StatusWindow }
     if (-not $Window) { return }
     try { $Window.Close(); $Window.Dispose() } catch { }
+    $script:StatusWindow = $null
+    $script:StatusLabel = $null
+    $script:StatusProgress = $null
+    $script:StatusButton = $null
+}
+
+# Leave the last word on screen long enough to be read, with a Close button so
+# it can be dismissed sooner - or kept, if the user wants to read it twice.
+function Wait-ForDismissal {
+    param($Window, [int]$Milliseconds, [string]$ButtonText = "Close")
+    $script:StatusDismissed = $false
+    Set-StatusButton -Action "close" -Text $ButtonText
+    $deadline = (Get-Date).AddMilliseconds($Milliseconds)
+    while (-not $script:StatusDismissed -and (Get-Date) -lt $deadline) {
+        Wait-Pumped -Milliseconds 100 -Window $Window
+    }
+    Set-StatusButton -Action ""
 }
 
 function Start-AppAfterUpdate {
@@ -740,7 +1062,23 @@ function Start-AppAfterUpdate {
     return $false
 }
 
-$statusWindow = Show-UpdateStatus -Message $updateMessages.prepare
+$sessionStatusPath = ""
+$sessionCommandPath = ""
+$sessionCancelPath = ""
+$newVersion = ""
+$firstMessage = $updateMessages.prepare
+if ($SessionDir) {
+    $sessionStatusPath = Join-Path $SessionDir "status.json"
+    $sessionCommandPath = Join-Path $SessionDir "command.json"
+    $sessionCancelPath = Join-Path $SessionDir "cancel"
+    # The app writes its first status before starting this helper, so the
+    # window opens on the real first step rather than on a generic title.
+    $firstStatus = Read-JsonFile -Path $sessionStatusPath
+    $firstText = Get-JsonValue -Object $firstStatus -Name "message"
+    if ($firstText) { $firstMessage = [string]$firstText }
+}
+
+$statusWindow = Show-UpdateStatus -Message $firstMessage
 
 # The app holds its own progress dialog open until this file appears, so the
 # two windows overlap and the screen is never empty. Written only once the
@@ -753,6 +1091,51 @@ if ($ReadyFile) {
     } catch {
         Write-Log "Could not write the ready file: $($_.Exception.Message)"
     }
+}
+
+if ($SessionDir) {
+    $command = Invoke-AttendApp -Window $statusWindow -StatusPath $sessionStatusPath `
+        -CommandPath $sessionCommandPath -CancelPath $sessionCancelPath `
+        -CancelText $updateMessages.cancel
+    if (-not $command) {
+        # Either the app went away without asking for anything, or it asked in
+        # a way this helper could not read. Nothing has been installed and
+        # nothing is half-done, so simply take the window away again.
+        Close-StatusWindow -Window $statusWindow
+        exit 3
+    }
+    $action = [string](Get-JsonValue -Object $command -Name "action")
+    if ($action -ne "install") {
+        # The download was cancelled or failed. The app is still running and
+        # stays running; this window says why and waits to be dismissed, so
+        # the news does not need a second window of its own.
+        $reason = [string](Get-JsonValue -Object $command -Name "message")
+        if (-not $reason) { $reason = $updateMessages.error }
+        Write-Log "The app stopped the update: $reason"
+        Set-StatusProgress -Percent 0
+        Update-StatusMessage -Window $statusWindow -Message $reason
+        Wait-ForDismissal -Window $statusWindow -Milliseconds 120000 -ButtonText $updateMessages.close
+        Close-StatusWindow -Window $statusWindow
+        exit 4
+    }
+    Set-StatusButton -Action ""
+    Set-StatusProgress -Percent $null
+    foreach ($pair in @(@("install_dir", "InstallDir"), @("exe_name", "ExeName"),
+                        @("installer", "InstallerPath"), @("staging_dir", "StagingDir"),
+                        @("backup_dir", "BackupDir"), @("restart_args", "RestartArgs"))) {
+        $value = Get-JsonValue -Object $command -Name $pair[0]
+        if ($value) { Set-Variable -Name $pair[1] -Value ([string]$value) -Scope Script }
+    }
+    $commandPid = Get-JsonValue -Object $command -Name "parent_pid"
+    if ($commandPid) { $ParentPid = [int]$commandPid }
+    $versionValue = Get-JsonValue -Object $command -Name "version"
+    if ($versionValue) { $newVersion = [string]$versionValue }
+    Write-Log "The app asked for the install: InstallDir=$InstallDir InstallerPath=$InstallerPath StagingDir=$StagingDir version=$newVersion"
+    Update-StatusMessage -Window $statusWindow -Message $updateMessages.prepare
+}
+
+if (-not $InstallDir -or -not $ExeName) {
+    Complete-FailedUpdate -Window $statusWindow -Kind "launch" -Reason "The update helper was not told what to install."
 }
 
 Write-Log "Updater started. Waiting for PID $ParentPid."
@@ -881,7 +1264,7 @@ if ($InstallerPath) {
     Write-Log "Restarting app after installer update: $exePath"
     $restarted = Start-AppAfterUpdate -ExePath $exePath -WorkDir $InstallDir -Arguments $RestartArgs -Window $statusWindow
     Write-Log "Installer updater completed."
-    Close-StatusWindow -Window $statusWindow
+    Complete-SuccessfulUpdate -Window $statusWindow -Restarted $restarted -Version $newVersion
     if ($restarted) { exit 0 }
     exit 2
 }
@@ -986,6 +1369,6 @@ Write-Log "Restarting app: $exePath"
 $restarted = Start-AppAfterUpdate -ExePath $exePath -WorkDir $InstallDir -Arguments $RestartArgs -Window $statusWindow
 
 Write-Log "Updater completed."
-Close-StatusWindow -Window $statusWindow
+Complete-SuccessfulUpdate -Window $statusWindow -Restarted $restarted -Version $newVersion
 if ($restarted) { exit 0 }
 exit 2

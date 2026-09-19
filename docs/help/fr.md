@@ -344,7 +344,7 @@ Pour quitter complètement le programme, utilisez Fichier > Quitter (Ctrl+Q).
 
 Sous Windows, le programme peut se mettre à jour lui-même. Aide > Vérifier les mises à jour… cherche une nouvelle version maintenant, et Options > Vérifier automatiquement les mises à jour vérifie en arrière-plan de temps en temps.
 
-Quand une mise à jour est disponible, on vous dit ce qui est nouveau et on vous demande si vous voulez l'installer. Le téléchargement est vérifié avant que quoi que ce soit soit installé. Le programme se ferme pendant la mise à jour et redémarre tout seul à la fin, puis vous dit si elle a réussi. Vos réglages, favoris et enregistrements sont conservés.
+Lorsqu'une mise à jour est disponible, les nouveautés vous sont présentées et il vous est demandé si vous souhaitez l'installer. Le téléchargement est vérifié avant toute installation. Ensuite, une seule fenêtre de mise à jour reste à l'écran pendant toute l'opération : elle indique ce qui se passe à chaque étape, propose Annuler pendant le téléchargement, reste affichée pendant que le programme se ferme et que la mise à jour s'installe, et vous prévient quand la nouvelle version a démarré. Vos réglages, vos favoris et vos enregistrements sont conservés.
 
 Sous Linux, installez plutôt le nouveau paquet par-dessus l'ancien.
 

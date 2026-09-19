@@ -511,13 +511,17 @@ def _run_helper_fragment(tmp_path, body):
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     with open(os.path.join(root, "update_helper.ps1"), encoding="ascii") as handle:
         helper = handle.read()
-    update_status = helper[helper.index("function Update-StatusMessage"):helper.index("# --- Status window focus")]
+    update_status = helper[helper.index("# The one window of the whole update"):helper.index("# --- Status window focus")]
     focus_block = helper[helper.index("# --- Status window focus"):helper.index("# Every failure ends here")]
+    # The update's last word is said by this window too, so its function comes
+    # along: the restarted app taking focus must not silence it.
+    success_block = helper[helper.index("# The update worked."):helper.index("function Complete-FailedUpdate")]
     script = tmp_path / "t.ps1"
     script.write_text(
         "function Write-Log { param([string]$Message) $script:logs += $Message }\n"
         "$script:logs = @()\n"
-        + update_status + "\n" + focus_block + "\n" + body + "\n'FRAGMENT-OK'\n",
+        + update_status + "\n" + focus_block + "\n" + success_block + "\n"
+        + body + "\n'FRAGMENT-OK'\n",
         encoding="utf-8-sig")
     out = subprocess.run(
         [updater.windows_powershell_path(), "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script)],
@@ -538,9 +542,16 @@ _FAKE_FOCUS = (
     "    return $script:kinds[[int64]$Handle] }\n"
     "$script:activations = 0\n"
     "$label = New-Object PSObject -Property @{ Text = '' }\n"
-    "$win = New-Object PSObject -Property @{ Controls = @{ 'StatusLabel' = $label }; Text = ''; Handle = [IntPtr]7 }\n"
+    "$win = New-Object PSObject -Property @{ Text = ''; Handle = [IntPtr]7; IsDisposed = $false }\n"
     "$win | Add-Member ScriptMethod Refresh { }\n"
     "$win | Add-Member ScriptMethod Activate { $script:activations += 1 }\n"
+    # The window and its label are held directly, not looked up by name:
+    # $form.Controls["StatusLabel"] came back null on a user's machine and
+    # froze the window on one message for the rest of the update (issue #31).
+    "$script:StatusWindow = $win\n"
+    "$script:StatusLabel = $label\n"
+    "$script:StatusMessage = ''\n"
+    "function Show-StatusWindowForReal { param([IntPtr]$Handle) }\n"
     "$script:kinds[[int64]100] = 'update'\n"
     "$script:kinds[[int64]200] = 'neutral'\n"
     "$script:kinds[[int64]300] = 'other'\n"
@@ -568,6 +579,43 @@ def test_update_helper_status_window_focus_rules(tmp_path):
         "Update-StatusMessage -Window $win -Message 'Starting the updated application...'\n"
         "if (-not $label.Text.StartsWith('Starting')) { throw 'stage text not updated after user left' }\n"
         "if ($script:activations -ne 1) { throw 'focus was taken back after the user left' }\n"
+    ))
+
+
+@pytest.mark.skipif(os.name != "nt", reason="needs Windows PowerShell")
+def test_update_helper_repeats_neither_a_message_nor_its_focus_grab(tmp_path):
+    """One grab per step: a repeated message must not re-read the window."""
+    _run_helper_fragment(tmp_path, _FAKE_FOCUS + (
+        "Update-StatusMessage -Window $win -Message 'Installing the update.'\n"
+        "Update-StatusMessage -Window $win -Message 'Installing the update.'\n"
+        "if ($script:activations -ne 1) { throw \"expected one grab, got $script:activations\" }\n"
+    ))
+
+
+@pytest.mark.skipif(os.name != "nt", reason="needs Windows PowerShell")
+def test_update_helper_announces_that_the_update_worked(tmp_path):
+    """The restarted app taking focus must not silence the last message.
+
+    The confirmation lives in this window now - the new version shows no box
+    of its own - and the app that has just been started takes the foreground,
+    which otherwise latches as "the user switched away".
+    """
+    _run_helper_fragment(tmp_path, _FAKE_FOCUS + (
+        "Update-StatusMessage -Window $win -Message 'Starting the updated application...'\n"
+        "$script:fg = [IntPtr]300\n"
+        "Watch-StatusWindowFocus\n"
+        "if (-not $script:UserLeftStatusWindow) { throw 'the app taking focus went unnoticed' }\n"
+        "$before = $script:activations\n"
+        "$updateMessages = [PSCustomObject]@{ complete = 'Update complete. Version {version} is starting.'; close = 'Close' }\n"
+        "function Write-UpdateSuccess { param([string]$Version) $script:wrote = $Version }\n"
+        "function Wait-ForDismissal { param($Window, [int]$Milliseconds, [string]$ButtonText) }\n"
+        "function Close-StatusWindow { param($Window) $script:closed = $true }\n"
+        "function Set-StatusProgress { param($Percent) }\n"
+        "Complete-SuccessfulUpdate -Window $win -Restarted $true -Version '9.9.9'\n"
+        "if ($script:wrote -ne '9.9.9') { throw 'the result was not recorded for the app' }\n"
+        "if (-not $win.Text.Contains('v9.9.9')) { throw \"no version in: $($win.Text)\" }\n"
+        "if ($script:activations -le $before) { throw 'the confirmation was never focused' }\n"
+        "if (-not $script:closed) { throw 'the window was not closed afterwards' }\n"
     ))
 
 

@@ -344,7 +344,7 @@ Aby całkiem zakończyć program, użyj Plik > Zakończ (Ctrl+Q).
 
 Pod Windows program może aktualizować się sam. Pomoc > Sprawdź aktualizacje... szuka teraz nowej wersji, a Opcje > Automatycznie sprawdzaj aktualizacje sprawdza w tle od czasu do czasu.
 
-Gdy jest aktualizacja, dowiesz się, co nowego, i zostaniesz zapytany, czy ją zainstalować. Pobieranie jest sprawdzane, zanim cokolwiek zostanie zainstalowane. Program zamyka się podczas aktualizacji i sam restartuje po jej zakończeniu, po czym mówi, czy się udała. Twoje ustawienia, ulubione i nagrania są zachowywane.
+Gdy dostępna jest aktualizacja, program przedstawia nowości i pyta, czy ją zainstalować. Pobrany plik jest sprawdzany, zanim cokolwiek zostanie zainstalowane. Od tej chwili przez cały czas na ekranie pozostaje jedno okno aktualizacji: mówi, co dzieje się na każdym etapie, udostępnia przycisk Anuluj podczas pobierania, pozostaje widoczne, gdy program się zamyka i aktualizacja jest instalowana, oraz informuje, gdy nowa wersja została uruchomiona. Ustawienia, ulubione i nagrania są zachowywane.
 
 Pod Linuksem zainstaluj raczej nowy pakiet na starym.
 

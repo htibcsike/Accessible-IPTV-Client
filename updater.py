@@ -51,6 +51,22 @@ def _hidden_startupinfo():
     return startupinfo
 
 
+def _no_show_startupinfo():
+    """A STARTUPINFO that says nothing about windows, or None off Windows.
+
+    CREATE_NO_WINDOW already keeps a console off the screen, and SW_HIDE in
+    STARTUPINFO is not only about the console: Windows applies it to the first
+    top-level window the process shows. The update helper's status window is
+    that window, so with _hidden_startupinfo it was created invisible and only
+    appeared later, if something forced it to the foreground - which is why
+    the update seemed to have no window at all while the app was still
+    closing ("the update window disappears at Preparing the update").
+    """
+    if os.name != "nt":
+        return None
+    return subprocess.STARTUPINFO()
+
+
 def run_hidden(cmd, **kwargs):
     """subprocess.run that never flashes a console window on Windows."""
     if os.name == "nt":
@@ -229,6 +245,9 @@ def launch_update_helper(helper_ps1: str, helper_args: Iterable[str]) -> subproc
     try:
         return popen_hidden(
             cmd,
+            # Not _hidden_startupinfo: this process owns the one window the
+            # user sees for the whole update (see _no_show_startupinfo).
+            startupinfo=_no_show_startupinfo(),
             cwd=os.path.dirname(helper_ps1) or None,
             env=clean_powershell_env(),
             stdout=console if console is not None else subprocess.DEVNULL,
@@ -272,6 +291,71 @@ def allow_any_foreground_window() -> None:
 # exactly what gets replaced.
 
 UPDATE_PENDING_FILE = "update_pending.json"
+
+
+# --- the update session: one window, driven by the app ----------------------
+#
+# update_helper.ps1 owns the only window the user sees from the moment they
+# confirm an update until the new version is running. The app is alive for the
+# first half of that (it does the downloading) and gone for the second, so the
+# two talk through three files in the helper's own folder:
+#
+#   status.json   what the window should show right now (app -> helper)
+#   command.json  what to install, or why there is nothing to install
+#   cancel        the user pressed Cancel in the window (helper -> app)
+#
+# Every write is a rename into place, so the helper can never read half a file.
+UPDATE_STATUS_FILE = "status.json"
+UPDATE_COMMAND_FILE = "command.json"
+UPDATE_CANCEL_FILE = "cancel"
+
+
+def _write_json_atomically(path: str, payload: dict) -> bool:
+    temporary = path + ".tmp"
+    try:
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        with open(temporary, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle)
+        os.replace(temporary, path)
+        return True
+    except OSError:
+        LOG.debug("_write_json_atomically: could not write %s", path, exc_info=True)
+        try:
+            os.remove(temporary)
+        except OSError:
+            LOG.debug("_write_json_atomically: no leftover to remove", exc_info=True)
+        return False
+
+
+def write_update_status(session_dir: str, message: str, percent=None,
+                        cancellable: bool = False) -> bool:
+    """Tell the status window what to say, and whether Cancel applies."""
+    if not session_dir:
+        return False
+    payload = {
+        "message": str(message or ""),
+        "percent": None if percent is None else int(max(0, min(100, round(float(percent))))),
+        "cancellable": bool(cancellable),
+    }
+    return _write_json_atomically(
+        os.path.join(session_dir, UPDATE_STATUS_FILE), payload)
+
+
+def write_update_command(session_dir: str, action: str, **fields) -> bool:
+    """Hand the install over to the helper, or tell it there will be none."""
+    if not session_dir:
+        return False
+    payload = {"action": str(action)}
+    payload.update({key: value for key, value in fields.items() if value is not None})
+    return _write_json_atomically(
+        os.path.join(session_dir, UPDATE_COMMAND_FILE), payload)
+
+
+def update_cancel_requested(session_dir: str) -> bool:
+    """Whether the user pressed Cancel in the status window."""
+    if not session_dir:
+        return False
+    return os.path.exists(os.path.join(session_dir, UPDATE_CANCEL_FILE))
 
 
 def update_pending_path(directory: str) -> str:

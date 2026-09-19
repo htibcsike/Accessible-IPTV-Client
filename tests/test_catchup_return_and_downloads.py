@@ -43,8 +43,6 @@ _BOUND = (
     "_internal_player_has_media",
     "_sync_player_controls_menu",
     "_on_internal_player_closed",
-    "_fresh_update_message",
-    "_apply_update_progress",
     "_show_catchup_downloads",
 )
 
@@ -340,29 +338,6 @@ def test_catchup_list_opens_on_the_given_programme(wx_app):
         assert dlg.listbox.GetSelection() == 0
     finally:
         dlg.Destroy()
-
-
-# -------------------------------------------------------- Update messages
-
-def test_update_message_is_handed_over_once():
-    client = _client()
-    assert client._fresh_update_message("Installing") == "Installing"
-    assert client._fresh_update_message("Installing") == ""
-    assert client._fresh_update_message("Downloading") == "Downloading"
-    assert client._fresh_update_message("") == ""
-
-
-def test_update_progress_ticks_do_not_resend_the_phase():
-    calls = []
-    dlg = types.SimpleNamespace(
-        Pulse=lambda msg="": calls.append(("pulse", msg)) or (True, False),
-        Update=lambda pct, msg="": calls.append((pct, msg)) or (True, False),
-    )
-    client = _client(_update_progress_dlg=dlg)
-    client._apply_update_progress("Downloading update...", 0.1)
-    client._apply_update_progress("Downloading update...", 0.2)
-    client._apply_update_progress("Verifying...", None)
-    assert calls == [(10, "Downloading update..."), (20, ""), ("pulse", "Verifying...")]
 
 
 # -------------------------------------------------------- Download windows

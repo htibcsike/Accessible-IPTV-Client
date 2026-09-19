@@ -353,7 +353,7 @@ To quit the program completely, use File > Exit (Ctrl+Q).
 
 On Windows the program can update itself. Help > Check for Updates looks for a new version now, and Options > Auto-check for Updates checks in the background from time to time.
 
-When an update is available, you are told what is new and asked whether to install it. The download is checked before anything is installed. The program closes during the update and starts again by itself when it has finished, then tells you whether the update succeeded. Your settings, favorites and recordings are kept.
+When an update is available, you are told what is new and asked whether to install it. The download is checked before anything is installed. From then on one update window stays on screen for the whole update: it says what is happening at each step, offers Cancel while the download is running, stays up while the program closes and the update is installed, and tells you when the new version has started. Your settings, favorites and recordings are kept.
 
 On Linux, install the new package over the old one instead.
 

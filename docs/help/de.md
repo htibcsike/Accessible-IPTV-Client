@@ -344,7 +344,7 @@ Um das Programm ganz zu beenden, benutzen Sie Datei > Beenden (Ctrl+Q).
 
 Unter Windows kann sich das Programm selbst aktualisieren. Hilfe > Nach Updates suchen… sucht jetzt nach einer neuen Version, Optionen > Automatisch nach Updates suchen prüft von Zeit zu Zeit im Hintergrund.
 
-Gibt es ein Update, erfahren Sie, was neu ist, und werden gefragt, ob Sie es installieren wollen. Der Download wird geprüft, bevor etwas installiert wird. Das Programm schließt sich während des Updates und startet danach von selbst neu, dann meldet es, ob es gelang. Ihre Einstellungen, Favoriten und Aufnahmen bleiben erhalten.
+Wenn ein Update verfügbar ist, werden Ihnen die Neuerungen genannt und Sie werden gefragt, ob es installiert werden soll. Der Download wird geprüft, bevor etwas installiert wird. Danach bleibt ein einziges Update-Fenster für den gesamten Vorgang auf dem Bildschirm: Es nennt jeden Schritt, bietet während des Downloads Abbrechen an, bleibt sichtbar, während das Programm geschlossen und das Update installiert wird, und meldet, wenn die neue Version gestartet ist. Ihre Einstellungen, Favoriten und Aufnahmen bleiben erhalten.
 
 Unter Linux installieren Sie stattdessen das neue Paket über das alte.
 

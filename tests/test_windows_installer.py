@@ -126,7 +126,11 @@ def _update_helper_message_catalog():
 def test_update_helper_has_unicode_safe_messages_for_every_app_language():
     helper, catalog = _update_helper_message_catalog()
     expected_languages = {"en", *i18n.SHIPPED_CATALOGS}
-    message_keys = {"prepare", "consent", "install", "start", "error"}
+    # "complete" is the update's last word, said in the same window rather
+    # than in a box from the restarted app; "cancel"/"close" label the one
+    # button that window ever shows.
+    message_keys = {"prepare", "consent", "install", "start", "error",
+                    "complete", "cancel", "close"}
 
     assert set(catalog) == expected_languages
     for language, messages in catalog.items():
@@ -145,11 +149,14 @@ def test_update_helper_has_unicode_safe_messages_for_every_app_language():
     assert "正在安装更新" in catalog["zh"]["install"]
     assert "更新をインストール" in catalog["ja"]["install"]
     assert "frissítés" in catalog["hu"]["prepare"]
+    assert "Schließen" == catalog["de"]["close"]
+    assert "versión" in catalog["es"]["complete"]
 
-    assert "$statusWindow = Show-UpdateStatus -Message $updateMessages.prepare" in helper
+    assert "$statusWindow = Show-UpdateStatus -Message $firstMessage" in helper
     assert helper.count("-Message $updateMessages.install") == 2
     assert helper.count("-Message $updateMessages.start") == 2
     assert helper.count("-Message $updateMessages.error") == 1
+    assert "$updateMessages.complete" in helper
 
 
 def test_update_helper_messages_do_not_repeat_the_application_name():
@@ -177,19 +184,22 @@ def test_update_helper_messages_do_not_repeat_the_application_name():
 def test_app_passes_its_resolved_language_to_both_update_paths():
     main = (ROOT / "main.py").read_text(encoding="utf-8")
     language_arguments = re.findall(
-        r'"-Language",\s+helper_language,',
+        r'"-Language",\s+self\._update_helper_language\(\),',
         main,
     )
-    # Both update paths share one launcher, so the language is passed once.
+    # One window for the whole update, so one launch and one language.
     assert len(language_arguments) == 1
-    assert main.count("helper_language = i18n.resolved_language()") == 1
-    assert main.count('helper_language not in ("en", *i18n.SHIPPED_CATALOGS)') == 1
-    assert main.count("self._start_update_helper(helper_ps1, [") == 2
+    assert main.count("def _update_helper_language") == 1
+    assert main.count('language not in ("en", *i18n.SHIPPED_CATALOGS)') == 1
+    assert main.count("updater.launch_update_helper(") == 1
+    # Both update paths hand the same window an install instruction.
+    assert main.count("wx.CallAfter(self._install_update_now, {") == 2
 
 
 def test_update_helper_uses_selected_messages_for_every_status():
     helper, _catalog = _update_helper_message_catalog()
-    assert "Show-UpdateStatus -Message $updateMessages.prepare" in helper
+    assert "Show-UpdateStatus -Message $firstMessage" in helper
+    assert "-Message $updateMessages.prepare" in helper
     assert helper.count("-Message $updateMessages.install") == 2
     assert helper.count("-Message $updateMessages.start") == 2
     assert helper.count("-Message $updateMessages.error") == 1

@@ -344,7 +344,7 @@ Para sair do programa por completo, use Arquivo > Sair (Ctrl+Q).
 
 No Windows o programa pode se atualizar sozinho. Ajuda > Verificar atualizações… procura uma versão nova agora, e Opções > Verificar atualizações automaticamente verifica em segundo plano de tempos em tempos.
 
-Quando há uma atualização, você é avisado do que há de novo e perguntado se quer instalá-la. O download é verificado antes de qualquer coisa ser instalada. O programa se fecha durante a atualização e reinicia sozinho ao terminar, depois diz se deu certo. Suas configurações, favoritos e gravações são mantidos.
+Quando há uma atualização disponível, você vê as novidades e é perguntado se deseja instalá-la. O download é verificado antes de qualquer instalação. A partir daí, uma única janela de atualização permanece na tela durante todo o processo: informa o que acontece em cada etapa, oferece Cancelar enquanto o download ocorre, continua visível enquanto o programa fecha e a atualização é instalada, e avisa quando a nova versão foi iniciada. Suas configurações, favoritos e gravações são mantidos.
 
 No Linux, instale o pacote novo por cima do antigo.
 

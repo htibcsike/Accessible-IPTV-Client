@@ -4492,7 +4492,7 @@ class IPTVClient(wx.Frame):
         return bool(getattr(self, "_update_prompt_open", False)
                     or getattr(self, "_update_in_progress", False)
                     or getattr(self, "_update_install_pending", False)
-                    or getattr(self, "_update_progress_dlg", None) is not None)
+                    or getattr(self, "_update_session_dir", None) is not None)
 
     def _start_update_check(self, interactive: bool):
         if self._update_flow_busy():
@@ -4587,80 +4587,130 @@ class IPTVClient(wx.Frame):
             self._start_update_download(release)
 
     def _start_update_download(self, release: Dict):
-        self._update_progress_message = None
+        """Run the update behind the one window update_helper.ps1 owns.
+
+        The app deliberately shows nothing of its own from here until it
+        exits. It used to put a progress dialog on screen for the download and
+        then hand over to the helper's window for the install, but the app has
+        to exit half way through an update, so that hand-over could never be
+        seamless: to a screen-reader user the update window disappeared partway
+        (after issue #30, still reported at the "Preparing the update" step).
+        The helper's window is up before the download starts and stays until
+        the new version is running, and this side just reports into it.
+        """
         self._update_in_progress = True
         self._update_cancel = threading.Event()
-        self._update_progress_dlg = wx.ProgressDialog(
-            _("Updating {app}").format(app=app_meta.APP_DISPLAY_NAME),
-            _("Starting update..."),
-            maximum=100,
-            parent=self,
-            style=wx.PD_APP_MODAL | wx.PD_CAN_ABORT | wx.PD_SMOOTH | wx.PD_ELAPSED_TIME,
-        )
+        self._update_session_dir = None
+        self._update_helper = None
+        self._update_helper_ready = ""
+        self._update_status_message = None
+        self._update_status_written = 0.0
         threading.Thread(target=self._download_update_worker, args=(release,), daemon=True).start()
 
-    def _report_update_progress(self, phase: str, fraction) -> bool:
+    # How often the status file may be rewritten. Download progress arrives
+    # once per chunk; the window only has to look alive.
+    _UPDATE_STATUS_INTERVAL_SECONDS = 0.2
+
+    def _report_update_progress(self, phase: str, fraction=None, *,
+                                cancellable: bool = True) -> bool:
         """Progress callback for the download worker thread.
 
-        Marshals the update to the GUI thread and returns False if the user has
-        pressed Cancel so the worker can abort.
+        Writes what the status window should show, and returns False once the
+        user has pressed Cancel in it, which is what stops the download.
         """
-        wx.CallAfter(self._apply_update_progress, phase, fraction)
         cancel = getattr(self, "_update_cancel", None)
+        session = getattr(self, "_update_session_dir", None)
+        if session:
+            now = time.monotonic()
+            fresh = phase != getattr(self, "_update_status_message", None)
+            if fresh or now - getattr(self, "_update_status_written", 0.0) >= self._UPDATE_STATUS_INTERVAL_SECONDS:
+                self._update_status_message = phase
+                self._update_status_written = now
+                percent = None if fraction is None else 100.0 * float(fraction)
+                updater.write_update_status(session, phase, percent, cancellable)
+                if cancel is not None and updater.update_cancel_requested(session):
+                    cancel.set()
         return not (cancel is not None and cancel.is_set())
 
-    def _fresh_update_message(self, text: str) -> str:
-        """``text`` the first time the progress dialog is given it, "" after.
+    def _open_update_window(self, temp_root: str) -> None:
+        """Put the status window on screen before the download starts.
 
-        wx re-sets the dialog's text every time a message is passed, even an
-        unchanged one, and every re-set cuts NVDA off and starts it reading
-        from the top again. The download phase went out on each progress tick
-        and the install notice four times a second, so neither was ever heard
-        to the end. An empty message tells wx to keep the current one.
+        Worker thread. A helper that will not start is not the end of the
+        update: the download carries on and the app falls back to its own
+        message boxes, which is all it ever had before the window existed.
         """
-        if text and text != getattr(self, "_update_progress_message", None):
-            self._update_progress_message = text
-            return text
-        return ""
-
-    def _apply_update_progress(self, phase: str, fraction):
-        dlg = getattr(self, "_update_progress_dlg", None)
-        if not dlg:
-            return
+        helper_ps1 = self._stage_update_helper(temp_root)
+        session_dir = os.path.dirname(helper_ps1)
+        ready_path = self._update_handoff_ready_path(helper_ps1)
+        updater.write_update_status(
+            session_dir, _("Starting the update..."), None, True)
+        # The helper runs hidden and in the background, so Windows refuses to
+        # let it take focus: its status window would never be read, and the
+        # UAC prompt for the installer would be demoted to a flashing taskbar
+        # button that a screen reader user never hears about. We are the
+        # foreground process right now, so hand that right on.
+        updater.allow_any_foreground_window()
         try:
-            message = self._fresh_update_message(phase)
-            if fraction is None:
-                keep_going, _skip = dlg.Pulse(message)
-            else:
-                pct = int(max(0.0, min(1.0, float(fraction))) * 100)
-                keep_going, _skip = dlg.Update(pct, message)
-            if not keep_going:
-                cancel = getattr(self, "_update_cancel", None)
-                if cancel is not None:
-                    cancel.set()
-        except Exception:
-            LOG.debug("IPTVClient._apply_update_progress: ignored exception", exc_info=True)
+            process = updater.launch_update_helper(helper_ps1, [
+                "-ParentPid", str(os.getpid()),
+                "-SessionDir", session_dir,
+                "-ReadyFile", ready_path,
+                "-Language", self._update_helper_language(),
+            ])
+        except OSError:
+            LOG.exception("The update status window could not be started")
+            return
+        self._update_helper = process
+        self._update_helper_ready = ready_path
+        self._update_session_dir = session_dir
 
-    def _destroy_update_progress(self, *, end_flow: bool = True):
-        dlg = getattr(self, "_update_progress_dlg", None)
-        if dlg is not None:
-            try:
-                dlg.Destroy()
-            except Exception:
-                LOG.debug("IPTVClient._destroy_update_progress: ignored exception", exc_info=True)
-        self._update_progress_dlg = None
-        self._update_progress_message = None
-        # Failure and cancel come through here, so this is where the gate
-        # reopens. The success path passes end_flow=False: the update carries
-        # on in the helper after this window goes away, and reopening the gate
-        # would let a queued update prompt start a second one on top of it.
-        if end_flow:
-            self._update_in_progress = False
+    @staticmethod
+    def _update_helper_language() -> str:
+        language = i18n.resolved_language()
+        if language not in ("en", *i18n.SHIPPED_CATALOGS):
+            language = "en"
+        return language
+
+    def _update_window_is_up(self) -> bool:
+        """Whether the helper really has a window on screen for us to leave in."""
+        process = getattr(self, "_update_helper", None)
+        ready = getattr(self, "_update_helper_ready", "")
+        if not getattr(self, "_update_session_dir", None) or process is None:
+            return False
+        if process.poll() is not None:
+            return False
+        return bool(ready) and os.path.exists(ready)
+
+    def _end_update_flow(self) -> None:
+        """The update is over for this process; let another one be started."""
+        self._update_session_dir = None
+        self._update_helper = None
+        self._update_helper_ready = ""
+        self._update_status_message = None
+        self._update_in_progress = False
+
+    def _abort_update_window(self, message: str) -> None:
+        """Worker thread: nothing will be installed, and the window says why.
+
+        The status window is the only window this update has, so the reason
+        goes there rather than into a message box of its own; a box is the
+        fallback for an update that never got a window at all.
+        """
+        session = getattr(self, "_update_session_dir", None)
+        if session:
+            updater.write_update_command(session, "abort", message=message)
+        else:
+            wx.CallAfter(message_box, message, _("Update Error"), wx.OK | wx.ICON_ERROR)
+        wx.CallAfter(self._end_update_flow)
 
     def _download_update_worker(self, release: Dict):
         temp_root = None
         progress = self._report_update_progress
         try:
+            # The window comes first: everything below reports into it, and
+            # the helper it belongs to is what installs the update later.
+            temp_root = tempfile.mkdtemp(prefix=updater.UPDATE_TEMP_PREFIX)
+            self._open_update_window(temp_root)
             progress(_("Checking for update details..."), None)
             manifest = updater.fetch_update_manifest(
                 release,
@@ -4670,7 +4720,6 @@ class IPTVClient(wx.Frame):
             if not updater.is_newer_version(app_meta.APP_VERSION, manifest.version):
                 raise updater.UpdateError(_("Update manifest version is not newer than the current app."))
 
-            temp_root = tempfile.mkdtemp(prefix=updater.UPDATE_TEMP_PREFIX)
             if is_windows_installed_build():
                 if not manifest.installer_asset_filename or not manifest.installer_download_url or not manifest.installer_sha256:
                     raise updater.UpdateError(_("Update manifest is missing required fields."))
@@ -4692,17 +4741,14 @@ class IPTVClient(wx.Frame):
                 progress(_("Verifying signature..."), None)
                 updater.verify_authenticode(installer_path, manifest.signing_thumbprints)
 
-                helper_ps1 = self._stage_update_helper(temp_root)
-
-                progress(_("Preparing to restart..."), None)
+                progress(_("Preparing to restart..."), None, cancellable=False)
                 updater.write_update_pending(get_user_config_dir(), manifest.version)
-                wx.CallAfter(
-                    self._launch_installer_update_helper,
-                    helper_ps1,
-                    os.path.dirname(sys.executable),
-                    installer_path,
-                    os.path.basename(sys.executable),
-                )
+                wx.CallAfter(self._install_update_now, {
+                    "install_dir": os.path.dirname(sys.executable),
+                    "installer": installer_path,
+                    "exe_name": os.path.basename(sys.executable),
+                    "version": manifest.version,
+                })
                 return
 
             zip_filename = os.path.basename(manifest.asset_filename)
@@ -4735,51 +4781,44 @@ class IPTVClient(wx.Frame):
             install_dir = os.path.dirname(sys.executable)
             backup_dir = f"{install_dir}.bak.{datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S')}"
 
-            helper_ps1 = self._stage_update_helper(temp_root)
-
-            progress(_("Preparing to restart..."), None)
+            progress(_("Preparing to restart..."), None, cancellable=False)
             updater.write_update_pending(get_user_config_dir(), manifest.version)
-            wx.CallAfter(
-                self._launch_update_helper,
-                helper_ps1,
-                install_dir,
-                staging_dir,
-                backup_dir,
-                exe_name,
-            )
+            wx.CallAfter(self._install_update_now, {
+                "install_dir": install_dir,
+                "staging_dir": staging_dir,
+                "backup_dir": backup_dir,
+                "exe_name": exe_name,
+                "version": manifest.version,
+            })
         except updater.UpdateCancelled:
-            wx.CallAfter(self._destroy_update_progress)
-            if temp_root:
-                shutil.rmtree(temp_root, ignore_errors=True)
+            self._abort_update_window(_("Update cancelled."))
+            self._discard_update_download(temp_root)
         except updater.UpdateError as exc:
-            wx.CallAfter(self._destroy_update_progress)
-            wx.CallAfter(
-                message_box,
-                _("Update failed: {error}").format(error=exc),
-                _("Update Error"),
-                wx.OK | wx.ICON_ERROR,
-            )
-            if temp_root:
-                try:
-                    shutil.rmtree(temp_root, ignore_errors=True)
-                except Exception:
-                    LOG.debug("IPTVClient._download_update_worker: ignored exception", exc_info=True)
+            self._abort_update_window(_("Update failed: {error}").format(error=exc))
+            self._discard_update_download(temp_root)
         except Exception as exc:
-            # Never leave the modal progress dialog stuck on an unexpected
-            # error (socket timeouts, subprocess failures, etc.).
+            # A socket timeout or a failed subprocess must still end in a
+            # window that says so, not in one that waits for ever.
             LOG.exception("Update worker failed unexpectedly: %s", exc)
-            wx.CallAfter(self._destroy_update_progress)
-            wx.CallAfter(
-                message_box,
-                _("Update failed: {error}").format(error=exc),
-                _("Update Error"),
-                wx.OK | wx.ICON_ERROR,
-            )
-            if temp_root:
-                try:
-                    shutil.rmtree(temp_root, ignore_errors=True)
-                except Exception:
-                    LOG.debug("IPTVClient._download_update_worker: ignored exception", exc_info=True)
+            self._abort_update_window(_("Update failed: {error}").format(error=exc))
+            self._discard_update_download(temp_root)
+
+    def _discard_update_download(self, temp_root: Optional[str]) -> None:
+        """Throw away a download that came to nothing.
+
+        The status window's own script lives in this directory and is still
+        running, so a helper that is up keeps its folder; updater cleans stale
+        ones up at the next start instead.
+        """
+        if not temp_root:
+            return
+        process = getattr(self, "_update_helper", None)
+        if process is not None and process.poll() is None:
+            return
+        try:
+            shutil.rmtree(temp_root, ignore_errors=True)
+        except Exception:
+            LOG.debug("IPTVClient._discard_update_download: ignored exception", exc_info=True)
 
     @staticmethod
     def _stage_update_helper(temp_root: str) -> str:
@@ -4796,69 +4835,32 @@ class IPTVClient(wx.Frame):
         shutil.copy2(source, helper_ps1)
         return helper_ps1
 
-    def _launch_installer_update_helper(
-        self,
-        helper_ps1: str,
-        install_dir: str,
-        installer_path: str,
-        exe_name: str,
-    ):
-        self._start_update_helper(helper_ps1, [
-            "-InstallDir", install_dir,
-            "-InstallerPath", installer_path,
-            "-ExeName", exe_name,
-        ])
+    def _install_update_now(self, command: Dict[str, object]) -> None:
+        """UI thread: tell the window that is already up what to install, and go.
 
-    def _launch_update_helper(
-        self,
-        helper_ps1: str,
-        install_dir: str,
-        staging_dir: str,
-        backup_dir: str,
-        exe_name: str,
-    ):
-        self._start_update_helper(helper_ps1, [
-            "-InstallDir", install_dir,
-            "-StagingDir", staging_dir,
-            "-BackupDir", backup_dir,
-            "-ExeName", exe_name,
-        ])
-
-    def _start_update_helper(self, helper_ps1: str, helper_args: List[str]) -> None:
-        ready_path = self._update_handoff_ready_path(helper_ps1)
-        helper_language = i18n.resolved_language()
-        if helper_language not in ("en", *i18n.SHIPPED_CATALOGS):
-            helper_language = "en"
-        helper_args = [
-            "-ParentPid", str(os.getpid()),
-            *helper_args,
-            "-ReadyFile", ready_path,
-            "-Language", helper_language,
-        ]
-        # Say what is about to happen in the progress dialog that is already on
-        # screen rather than in a box the user has to dismiss. The helper only
-        # waits 30 seconds for this process to exit before killing it, and a
-        # modal warning left unread used to eat that entire window.
-        self._show_update_installing_progress()
-        # The helper runs hidden and in the background, so Windows refuses to
-        # let it take focus: its status window was never read, and the UAC
-        # prompt for the installer was demoted to a flashing taskbar button
-        # that a screen reader user never hears about. We are the foreground
-        # process right now, so hand that right on before we go.
+        Nothing is handed over unless that window really exists: leaving
+        without one is what left a screen-reader user with a closed app, a
+        silent installer and no way to tell whether anything was happening.
+        """
+        if not self._update_window_is_up():
+            self._fail_update_handoff("the update window is not running")
+            return
+        session = getattr(self, "_update_session_dir", None)
+        # We are the foreground process for a moment longer; pass that right
+        # on, or Windows will not let the helper put the UAC prompt on screen.
         updater.allow_any_foreground_window()
-        try:
-            process = updater.launch_update_helper(helper_ps1, helper_args)
-        except OSError as exc:
-            self._fail_update_handoff(str(exc))
+        if not updater.write_update_command(
+                session, "install", parent_pid=os.getpid(), **command):
+            self._fail_update_handoff("the install instruction could not be written")
             return
         self._update_install_pending = True
-        self._close_for_update_install(ready_path, process)
+        self._close_for_update_install()
 
     def _fail_update_handoff(self, detail: str) -> None:
         """The helper never got going: stay open and say so, with a log to send."""
         LOG.error("Update helper did not start: %s", detail)
         self._update_install_pending = False
-        self._destroy_update_progress()
+        self._end_update_flow()
         updater.clear_update_pending(get_user_config_dir())
         message_box(
             _("The update could not be started, so {app} will stay open. "
@@ -4869,94 +4871,24 @@ class IPTVClient(wx.Frame):
             wx.OK | wx.ICON_ERROR,
         )
 
-    def _show_update_installing_progress(self) -> None:
-        """Carry the download dialog straight into the install, no click.
-
-        The installer deletes and rewrites the app directory, so while it runs
-        the executable on disk cannot start at all - it fails with "Failed to
-        load Python DLL ... python314.dll". Saying so still matters; making the
-        user dismiss a box to say it does not, and that dismissal used to have
-        to happen inside the 30 seconds update_helper.ps1 waits for us to quit.
-
-        The notice goes out in a fresh progress dialog, not as new text in the
-        download one: NVDA reads a progress dialog's text when the dialog
-        appears and says nothing when the text of one already on screen
-        changes, so the notice set on the download dialog was never spoken.
-        After that the dialog is only pulsed - re-sending the text would
-        restart NVDA mid-sentence.
-        """
-        dlg = getattr(self, "_update_progress_dlg", None)
-        if dlg is None:
-            return
-        message = _("Installing the update. {app} will close and start again by "
-                    "itself - please do not open it yourself in the "
-                    "meantime.").format(app=app_meta.APP_DISPLAY_NAME)
-        try:
-            if self._fresh_update_message(message):
-                # Built before the old one goes, so focus moves straight from
-                # one to the other. No Cancel: the helper is already on its way.
-                replacement = wx.ProgressDialog(
-                    _("Updating {app}").format(app=app_meta.APP_DISPLAY_NAME),
-                    message,
-                    maximum=100,
-                    parent=self,
-                    style=wx.PD_APP_MODAL | wx.PD_SMOOTH | wx.PD_ELAPSED_TIME,
-                )
-                self._update_progress_dlg = replacement
-                dlg.Destroy()
-                dlg = replacement
-            dlg.Pulse()
-        except Exception:
-            LOG.debug("IPTVClient._show_update_installing_progress: ignored exception",
-                      exc_info=True)
-
     @staticmethod
     def _update_handoff_ready_path(helper_bat: str) -> str:
         """Where the helper reports that its own status window is on screen."""
         return os.path.join(os.path.dirname(helper_bat), "update_window_ready")
 
-    def _close_for_update_install(self, ready_path: Optional[str] = None,
-                                  process=None) -> None:
-        """Quit for the installer - but not before the helper's window is up.
+    def _close_for_update_install(self) -> None:
+        """Quit so the installer can run.
 
-        The app has to exit for the install to run, so its own progress dialog
-        cannot survive the update; the helper owns a status window that can.
-        Closing on a fixed timer raced that window into existence: PowerShell
-        needs a second or two to start and load WinForms, and for the whole of
-        that gap there was nothing on screen and nothing for a screen reader to
-        read. So wait for the helper to say its window is showing, then linger
-        the usual moment on top of it, so the two windows overlap instead of
-        leaving a hole between them. The wait is capped: a helper that never
-        reports in must not strand the user in a dialog that will not close.
-
-        A helper that has already exited without reporting in never started
-        the update. Closing anyway is what left the app simply gone, with
-        nothing installed and nothing said (issue #26), so stay open instead.
+        Nothing has to be waited for any more: the helper's window has been on
+        screen since before the download, so there is no gap to cover and no
+        second window to hand focus to. The short linger is only so the helper
+        has read the install instruction before its parent disappears.
         """
-        deadline = time.monotonic() + _UPDATE_HANDOFF_MAX_WAIT_SECONDS
-
-        def wait_for_helper_window():
-            ready = bool(ready_path) and os.path.exists(ready_path)
-            if not ready and process is not None and process.poll() is not None:
-                self._fail_update_handoff(
-                    "update helper exited with code {code} before it started".format(
-                        code=process.returncode))
-                return
-            if (ready_path and not ready
-                    and time.monotonic() < deadline):
-                # Keep pulsing: an un-updated progress dialog is the thing that
-                # goes grey and stops answering while we sit here.
-                self._show_update_installing_progress()
-                wx.CallLater(_UPDATE_HANDOFF_POLL_MS, wait_for_helper_window)
-                return
-            wx.CallLater(_UPDATE_HANDOFF_LINGER_MS, self._finish_update_handoff)
-
-        wait_for_helper_window()
+        wx.CallLater(_UPDATE_HANDOFF_LINGER_MS, self._finish_update_handoff)
 
     def _finish_update_handoff(self) -> None:
-        # end_flow=False: the update is not over, it carries on in the helper,
-        # so the gate stays shut until this process actually exits.
-        self._destroy_update_progress(end_flow=False)
+        # The gate stays shut: the update is not over, it carries on in the
+        # helper, and this process is about to exit anyway.
         self.Close()
 
     def _report_finished_update(self) -> None:
@@ -5006,10 +4938,13 @@ class IPTVClient(wx.Frame):
                            wx.YES_NO | wx.ICON_WARNING) == wx.YES:
                 self._copy_update_logs(logs)
             return
-        # Success: say so once, then let the pending marker go. A screen
-        # reader user otherwise has to infer completion from the fact that
-        # the app came back at all, or go and check the version by hand.
+        # Success. The update's own window says so before it closes, so
+        # there is normally nothing to add here - one window for the whole
+        # update, and no box to dismiss afterwards. Only an update whose
+        # window never got that far is confirmed from this side.
         LOG.info("Update to v%s completed", current)
+        if str((result or {}).get("status") or "") == "completed":
+            return
         message_box(
             _("{app} was successfully updated to v{version}.").format(
                 app=app_meta.APP_DISPLAY_NAME, version=current),

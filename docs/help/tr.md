@@ -343,7 +343,7 @@ Programdan tümüyle çıkmak için Dosya > Çıkış (Ctrl+Q) kullanın.
 
 Windows'ta program kendini güncelleyebilir. Yardım > Güncellemeleri denetle... şimdi yeni bir sürüm arar; Seçenekler > Güncellemeleri otomatik denetle zaman zaman arka planda denetler.
 
-Güncelleme olduğunda, yenilikler söylenir ve kurulup kurulmayacağı sorulur. İndirme, bir şey kurulmadan önce denetlenir. Program güncelleme sırasında kapanır ve sonunda kendiliğinden yeniden başlar; sonra başarılı olup olmadığını söyler. Ayarlarınız, sık kullanılanlarınız ve kayıtlarınız korunur.
+Bir güncelleme olduğunda size nelerin yeni olduğu söylenir ve kurmak isteyip istemediğiniz sorulur. İndirilen dosya, hiçbir şey kurulmadan önce denetlenir. Bundan sonra tek bir güncelleme penceresi işlem boyunca ekranda kalır: her adımda ne olduğunu söyler, indirme sırasında İptal düğmesi sunar, uygulama kapanıp güncelleme kurulurken ekranda kalmayı sürdürür ve yeni sürüm başladığında size bildirir. Ayarlarınız, sık kullanılanlarınız ve kayıtlarınız korunur.
 
 Linux'ta, yeni paketi eskinin üzerine kurun.
 
