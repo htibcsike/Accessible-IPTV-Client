@@ -42,6 +42,7 @@ from options import (
 from channel_names import canonicalize_name, strip_noise_words
 import app_meta
 import release_notes
+import single_instance
 import updater
 from playlist import (
     EPGDatabase, EPGManagerDialog, PlaylistManagerDialog,
@@ -4971,6 +4972,17 @@ class IPTVClient(wx.Frame):
         current = app_meta.APP_VERSION
         result = updater.read_update_result()
         updater.clear_update_result()
+        # The updater started us from the background, and the silent installer
+        # may have left the foreground on a window nobody can see. Unless we
+        # take it, the box below opens unfocused and a screen reader never
+        # says whether the update landed. This runs in the new version, so it
+        # helps from the very next update, whatever helper script installed it.
+        try:
+            if self.IsShown():
+                self._force_foreground()
+        except Exception:
+            LOG.debug("IPTVClient._report_finished_update: could not take the foreground",
+                      exc_info=True)
         if updater.is_newer_version(current, target):
             # We came back on the old version: the install did not land. Say
             # why, and hand over the logs in one step: a bare log path was all
@@ -5048,6 +5060,30 @@ class IPTVClient(wx.Frame):
             )
         self.Hide()
         self._tray_ready_timer = wx.CallLater(250, self._enable_tray_restore)
+
+    def watch_for_show_requests(self, config_dir: str) -> None:
+        """Answer a second launch by coming to the front (see single_instance)."""
+        self._show_request_dir = config_dir
+        self._show_request_timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self._on_show_request_timer, self._show_request_timer)
+        self._show_request_timer.Start(1000)
+
+    def _on_show_request_timer(self, _event) -> None:
+        if not single_instance.take_show_request(self._show_request_dir):
+            return
+        LOG.info("A second launch asked for the window; bringing it to the front.")
+        self.bring_to_front()
+
+    def bring_to_front(self) -> None:
+        """Show the main window, from the tray if need be, and give it focus."""
+        if self.tray_icon is not None or not self.IsShown():
+            self.restore_from_tray()
+            return
+        if self.IsIconized():
+            self.Iconize(False)
+        self.Raise()
+        self._force_foreground()
+        wx.CallAfter(self._restore_focus_after_tray)
 
     def restore_from_tray(self):
         self._tray_allow_restore = False
@@ -9719,7 +9755,29 @@ if __name__ == "__main__":
     except Exception:
         LOG.debug("<module>: ignored exception", exc_info=True)
     _install_exception_logging()
+    # One copy per user (see single_instance): a second launch brings the
+    # running copy - often hidden in the tray by Alt+F4 - to the front instead
+    # of starting a second scheduler that fights it for the provider's stream.
+    _instance_dir = get_user_config_dir()
+    _instance_guard = single_instance.acquire(_instance_dir)
+    if _instance_guard is None:
+        _handed = single_instance.hand_over(_instance_dir)
+        if _handed == "shown":
+            LOG.info("Another copy is already running; brought it to the front.")
+            sys.exit(single_instance.HANDED_OVER_EXIT_CODE)
+        if _handed == "unresponsive":
+            LOG.warning("Another copy is running but did not answer the request to show itself.")
+            _box_app = wx.App()
+            message_box(
+                _("{app} is already running, but it did not respond. Wait a moment "
+                  "and try again, or close it from the notification area.").format(
+                      app=app_meta.APP_DISPLAY_NAME),
+                app_meta.APP_DISPLAY_NAME, wx.OK | wx.ICON_WARNING)
+            sys.exit(single_instance.HANDED_OVER_EXIT_CODE)
+        _instance_guard = _handed  # the other copy was closing; run after all
+    single_instance.clear_show_request(_instance_dir)
     app = wx.App()
     app.SetAppName(app_meta.APP_NAME)
-    IPTVClient()
+    frame = IPTVClient()
+    frame.watch_for_show_requests(_instance_dir)
     app.MainLoop()

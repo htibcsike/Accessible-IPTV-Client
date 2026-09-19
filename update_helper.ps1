@@ -717,6 +717,13 @@ function Start-AppAfterUpdate {
                 Write-Log "App restarted (PID $($app.Id))."
                 return $true
             }
+            # 12 = single_instance.HANDED_OVER_EXIT_CODE: a copy of the app was
+            # already running (the user reopened it), and this launch brought
+            # that copy to the front instead of starting a second one.
+            if ($app.ExitCode -eq 12) {
+                Write-Log "The app was already running; the restart brought it to the front."
+                return $true
+            }
             Write-Log "Restart attempt $attempt exited immediately with code $($app.ExitCode)."
         }
         Wait-Pumped -Milliseconds 2000 -Window $Window
