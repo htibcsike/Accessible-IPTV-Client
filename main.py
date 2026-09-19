@@ -8498,8 +8498,13 @@ class CatchupDownloadDialog(wx.Dialog):
             return ""
         for line in data.splitlines():
             line = line.strip()
-            if line and self._ERROR_LINE_RE.search(line):
-                return line
+            # ``#`` lines are ours: the command-line header (whose
+            # ``-rw_timeout`` matched "time out", so the command itself was
+            # quoted as the error) and the closing summary.
+            if not line or line.startswith("#"):
+                continue
+            if self._ERROR_LINE_RE.search(line):
+                return recorder.strip_log_timestamp(line)
         return ""
 
     def show_failure(self, exit_code: int) -> None:

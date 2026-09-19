@@ -59,6 +59,24 @@ class TestInlineErrors:
         finally:
             dlg.Destroy()
 
+    def test_header_and_summary_are_not_quoted_as_the_error(self, wx_app, tmp_path):
+        rec = _rec_with_log(tmp_path, (
+            "# 2026-09-19 20:20:07\n"
+            "# ffmpeg -hide_banner -loglevel level+datetime+info -rw_timeout 15000000 -i x\n"
+            "\n"
+            "2026-09-19 20:20:08.100 [http @ 0000] [error] HTTP error 403 Forbidden\n"
+            "# ===== Recording summary =====\n"
+            "# How it ended: ffmpeg failed (exit code 1).\n"
+        ))
+        dlg = CatchupDownloadDialog(None, rec, duration=60.0, on_cancel=lambda: None)
+        try:
+            dlg.show_failure(exit_code=1)
+            text = dlg.details_field.GetValue()
+            assert "[http @ 0000] [error] HTTP error 403 Forbidden" in text
+            assert "rw_timeout" not in text and "2026-09-19" not in text
+        finally:
+            dlg.Destroy()
+
     def test_no_error_lines_falls_back_to_code_only(self, wx_app, tmp_path):
         rec = _rec_with_log(tmp_path, "")
         dlg = CatchupDownloadDialog(None, rec, duration=60.0, on_cancel=lambda: None)
