@@ -430,10 +430,82 @@ def test_tray_exit_uses_the_normal_close_confirmation():
     calls = []
     frame = types.SimpleNamespace(Close=lambda: calls.append(True))
 
-    main.IPTVClient.exit_from_tray(frame)
+    main.IPTVClient.request_exit(frame)
 
-    assert frame._exit_from_tray_requested is True
+    assert frame._exit_requested is True
     assert calls == [True]
+
+
+def test_exit_quits_even_when_minimize_to_tray_is_on(monkeypatch):
+    """File > Exit / Ctrl+Q must quit, not hide the window in the tray.
+
+    The help promises "To quit the program completely, use File > Exit
+    (Ctrl+Q)".  Every exit path goes through request_exit, so the close is not
+    vetoed into a tray hide when "Minimize to System Tray" is enabled.
+    """
+    hidden = []
+    monkeypatch.setattr(main.wx, "CallAfter", lambda fn, *a, **k: fn(*a, **k))
+
+    frame = types.SimpleNamespace(
+        minimize_to_tray=True,
+        _update_install_pending=False,
+        _exit_forced=False,
+        _exit_requested=True,
+        _catchup_downloads={},
+        _upcoming_dvr_jobs=lambda: [],
+        _search_token=0,
+        _populate_token=0,
+        caster=None,
+        tray_icon=None,
+        _internal_player_frame=None,
+        recorder=types.SimpleNamespace(has_active=lambda: False),
+        show_tray_icon=lambda: hidden.append(True),
+    )
+    for name in ("_stop_epg_poll_timer", "_cancel_epg_autostart_timer",
+                 "_stop_dvr_scheduler", "_release_recordings_on_exit"):
+        setattr(frame, name, lambda *a, **k: None)
+    frame._epg_executor = types.SimpleNamespace(shutdown=lambda wait: None)
+    destroyed = []
+    frame.Destroy = lambda: destroyed.append(True)
+
+    class Event:
+        def CanVeto(self):
+            return True
+
+        def Veto(self):
+            raise AssertionError("an explicit Exit must not be vetoed into the tray")
+
+    main.IPTVClient.on_close(frame, Event())
+
+    assert hidden == []
+    assert destroyed == [True]
+
+
+def test_close_button_still_minimizes_to_tray(monkeypatch):
+    """The close button keeps hiding to the tray when that option is on."""
+    hidden = []
+    monkeypatch.setattr(main.wx, "CallAfter", lambda fn, *a, **k: fn(*a, **k))
+
+    frame = types.SimpleNamespace(
+        minimize_to_tray=True,
+        _update_install_pending=False,
+        _exit_forced=False,
+        _exit_requested=False,
+        show_tray_icon=lambda: hidden.append(True),
+    )
+    vetoed = []
+
+    class Event:
+        def CanVeto(self):
+            return True
+
+        def Veto(self):
+            vetoed.append(True)
+
+    main.IPTVClient.on_close(frame, Event())
+
+    assert vetoed == [True]
+    assert hidden == [True]
 
 
 def test_channel_context_scheduling_offers_the_upcoming_week(monkeypatch):

@@ -1551,11 +1551,11 @@ class IPTVClient(wx.Frame):
         self._suppress_recording_notifications = False
         self._dvr_dialog = None
         self.dvr_scheduler = None
-        # A tray-menu Exit is a real application exit, unlike clicking the
-        # window close button when "minimize to tray" is enabled.  Keep this
-        # separate from _exit_forced: the latter deliberately bypasses the
-        # recording-loss confirmation for a system shutdown/update.
-        self._exit_from_tray_requested = False
+        # A menu Exit, Ctrl+Q or a tray-menu Exit is a real application exit,
+        # unlike clicking the window close button when "minimize to tray" is
+        # enabled.  Keep this separate from _exit_forced: the latter deliberately
+        # bypasses the recording-loss confirmation for a system shutdown/update.
+        self._exit_requested = False
 
         # Shut down the computer once recording is finished (Recordings menu).
         # ``_recorded_since_shutdown_armed`` is what stops the option powering the
@@ -2897,7 +2897,7 @@ class IPTVClient(wx.Frame):
                 self.Bind(wx.EVT_MENU, self.show_epg_manager, id=1002)
                 self.Bind(wx.EVT_MENU, self.import_epg, id=1003)
                 self.Bind(wx.EVT_MENU, self.show_account_info, id=1007)
-                self.Bind(wx.EVT_MENU, lambda evt: self.Close(), id=1004)
+                self.Bind(wx.EVT_MENU, self.request_exit, id=1004)
                 self.menu_button.PopupMenu(menu)
             self.menu_button.Bind(wx.EVT_BUTTON, on_menu_btn)
             sizer_with_menu = wx.BoxSizer(wx.VERTICAL)
@@ -3026,7 +3026,7 @@ class IPTVClient(wx.Frame):
             self.Bind(wx.EVT_MENU, self.show_whats_on_now, m_now)
             self.Bind(wx.EVT_MENU, self.show_account_info, m_acct)
             self.Bind(wx.EVT_MENU, self.show_cast_dialog, m_cast)
-            self.Bind(wx.EVT_MENU, lambda _: self.Close(), m_exit)
+            self.Bind(wx.EVT_MENU, self.request_exit, m_exit)
             self.Bind(wx.EVT_MENU, self._menu_toggle_player, pm_toggle)
             self.Bind(wx.EVT_MENU, self._menu_stop_player, pm_stop)
             self.Bind(wx.EVT_MENU, self._menu_cast_from_player, pm_cast)
@@ -3067,7 +3067,7 @@ class IPTVClient(wx.Frame):
         self.Bind(wx.EVT_MENU, self.show_manager, id=4001)
         self.Bind(wx.EVT_MENU, self.show_epg_manager, id=4002)
         self.Bind(wx.EVT_MENU, self.import_epg, id=4003)
-        self.Bind(wx.EVT_MENU, lambda evt: self.Close(), id=4004)
+        self.Bind(wx.EVT_MENU, self.request_exit, id=4004)
         self.Bind(wx.EVT_MENU, self._menu_toggle_player, id=4010)
         self.Bind(wx.EVT_MENU, self._menu_stop_player, id=4011)
         self.Bind(wx.EVT_MENU, self._menu_cast_from_player, id=4012)
@@ -5010,7 +5010,7 @@ class IPTVClient(wx.Frame):
             self.tray_icon = TrayIcon(
                 self,
                 on_restore=self.restore_from_tray,
-                on_exit=self.exit_from_tray,
+                on_exit=self.request_exit,
                 on_player_show=self._tray_show_player,
                 on_player_toggle=self._tray_toggle_play_pause,
                 on_player_stop=self._tray_stop_player,
@@ -5333,10 +5333,16 @@ class IPTVClient(wx.Frame):
         if frame:
             wx.CallAfter(frame._adjust_volume, delta)
 
-    def exit_from_tray(self):
-        # Use the normal close path.  The old direct cleanup skipped its warning
-        # gate, so a tray Exit could silently abandon a waiting scheduled recording.
-        self._exit_from_tray_requested = True
+    def request_exit(self, _event=None):
+        """Exit on purpose, from the menu, Ctrl+Q or the tray icon.
+
+        Closing when "Minimize to System Tray" is on hides the window instead of
+        quitting, which is right for the close button but wrong for Exit: with
+        the flag unset, File > Exit looked like it had quit while the app kept
+        running and its scheduled recordings kept waiting.  The flag also keeps
+        the normal close path, so the scheduled-recording warning still applies.
+        """
+        self._exit_requested = True
         self.Close()
 
     def _enable_tray_restore(self):
@@ -5361,7 +5367,7 @@ class IPTVClient(wx.Frame):
     def on_close(self, event):
         if (self.minimize_to_tray and not self._update_install_pending
                 and not self._exit_forced
-                and not getattr(self, "_exit_from_tray_requested", False)):
+                and not self._exit_requested):
             wx.CallAfter(self.show_tray_icon)
             event.Veto()
         else:
@@ -5399,7 +5405,7 @@ class IPTVClient(wx.Frame):
                             warning,
                             _("Scheduled recordings"),
                             wx.YES_NO | wx.ICON_WARNING) != wx.YES:
-                        self._exit_from_tray_requested = False
+                        self._exit_requested = False
                         event.Veto()
                         return
                 elif self._catchup_downloads:
@@ -5409,7 +5415,7 @@ class IPTVClient(wx.Frame):
                           "so far is kept.\n\nExit anyway?"),
                         _("Download in progress"), wx.YES_NO | wx.ICON_QUESTION)
                     if answer != wx.YES:
-                        self._exit_from_tray_requested = False
+                        self._exit_requested = False
                         event.Veto()
                         return
             self._search_token += 1
