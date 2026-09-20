@@ -187,13 +187,11 @@ def test_app_passes_its_resolved_language_to_both_update_paths():
         r'"-Language",\s+self\._update_helper_language\(\),',
         main,
     )
-    # One window for the whole update, so one launch and one language.
-    assert len(language_arguments) == 1
+    # Installed and portable updates each launch the helper after downloading.
+    assert len(language_arguments) == 2
     assert main.count("def _update_helper_language") == 1
-    assert main.count('language not in ("en", *i18n.SHIPPED_CATALOGS)') == 1
-    assert main.count("updater.launch_update_helper(") == 1
-    # Both update paths hand the same window an install instruction.
-    assert main.count("wx.CallAfter(self._install_update_now, {") == 2
+    assert main.count('language in ("en", *i18n.SHIPPED_CATALOGS)') == 1
+    assert main.count("updater.launch_update_helper(") == 2
 
 
 def test_update_helper_uses_selected_messages_for_every_status():

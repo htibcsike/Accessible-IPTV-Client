@@ -844,6 +844,8 @@ def test_finished_recording_log_ends_with_a_summary(tmp_path):
 
     with open(rec.log_path, encoding="utf-8", errors="replace") as handle:
         log = handle.read()
+    assert "-stats_period" in rec.command
+    assert "time=00:00:" in log
     tail = log[log.index("# ===== Recording summary ====="):]
     assert "# How it ended: finished normally." in tail
     assert "# Planned length: 0:00:03" in tail
@@ -852,3 +854,80 @@ def test_finished_recording_log_ends_with_a_summary(tmp_path):
     assert tail.rstrip().endswith("# ===== End of summary =====")
     if recorder.ffmpeg_supports_log_datetime(ffmpeg):
         assert "level+datetime+info" in log.splitlines()[1]
+
+
+# --------------------------------------------------------------------------- #
+# Where in a recording its problems happened
+# --------------------------------------------------------------------------- #
+def _datetime_log(tmp_path, lines):
+    log = tmp_path / "rec.log"
+    log.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return str(log)
+
+
+def test_problem_times_places_each_kind_in_the_recording(tmp_path):
+    log = _datetime_log(tmp_path, [
+        "2026-09-19 20:00:00.000 [info] Input #0 from somewhere",
+        "2026-09-19 20:00:00.000 [info] Output #0 to file out.mkv",
+        "2026-09-19 20:00:10.000 [h264 @ 0001] [error] Cannot use 4:2:2",
+        "2026-09-19 20:00:10.100 [info] Last message repeated 3 times",
+        "2026-09-19 20:00:40.000 [info] time=00:00:35.00 speed=1.1x",
+        "2026-09-19 20:01:10.000 [mpegts @ 0002] [warning] Will reconnect at 100",
+    ])
+    problems = recorder.recording_problem_times(log)
+    assert [p["message"] for p in problems] == [
+        "Cannot use 4:2:2", "Will reconnect at 100"]
+    first = problems[0]
+    assert first["count"] == 4
+    assert first["clock_times"] == ["0:00:10", "0:00:10", "0:00:10", "0:00:10"]
+    assert first["jump_times"] == ["0:00:10"]
+    # The newest time= line before the problem is 0:00:35, but it is logged
+    # after this problem happened, so nothing in the file can be named yet.
+    assert first["media_times"] == []
+
+
+def test_problem_times_names_media_positions_for_downloads(tmp_path):
+    log = _datetime_log(tmp_path, [
+        "2026-09-19 20:00:00.000 [info] Output #0 to file out.mp4",
+        "2026-09-19 20:00:30.000 [info] time=00:00:25.00",
+        "2026-09-19 20:00:50.000 [h264 @ 0001] [error] non-existing PPS",
+        "2026-09-19 20:01:10.000 [info] time=00:00:45.00",
+        "2026-09-19 20:01:20.000 [h264 @ 0001] [error] non-existing PPS",
+    ])
+    problems = recorder.recording_problem_times(log)
+    assert len(problems) == 1
+    assert problems[0]["clock_times"] == ["0:00:50", "0:01:20"]
+    assert problems[0]["media_times"] == ["0:00:25", "0:00:45"]
+    assert problems[0]["jump_times"] == ["0:00:25", "0:00:45"]
+
+
+def test_problem_times_skips_opening_phase_and_unstamped_logs(tmp_path):
+    opened = _datetime_log(tmp_path, [
+        "2026-09-19 19:59:00.000 [mpegts @ 0002] [error] probe failed",
+        "2026-09-19 20:00:00.000 [info] Output #0 to file out.mkv",
+    ])
+    assert recorder.recording_problem_times(opened) == []
+
+    plain = tmp_path / "plain.log"
+    plain.write_text("[h264 @ 0001] [error] no timestamps at all\n", encoding="utf-8")
+    assert recorder.recording_problem_times(str(plain)) == []
+
+    assert recorder.recording_problem_times("") == []
+    assert recorder.recording_problem_times(str(tmp_path / "missing.log")) == []
+
+
+def test_media_at_offset_reads_the_newest_stats_line_before_it(tmp_path):
+    log = _datetime_log(tmp_path, [
+        "2026-09-19 20:00:00.000 [info] Output #0 to file out.mp4",
+        "2026-09-19 20:00:30.000 [info] time=00:00:25.00",
+        "2026-09-19 20:01:00.000 [info] time=00:00:55.00",
+    ])
+    assert recorder.media_at_offset(log, 40.0) == "0:00:25"
+    assert recorder.media_at_offset(log, 0.0) == ""
+    assert recorder.media_at_offset(log, 3600.0) == "0:00:55"
+    assert recorder.media_at_offset("", 10.0) == ""
+    assert recorder.media_at_offset(str(tmp_path / "gone.log"), 10.0) == ""
+
+    plain = tmp_path / "plain.log"
+    plain.write_text("time=00:00:10.00\n", encoding="utf-8")
+    assert recorder.media_at_offset(str(plain), 10.0) == ""

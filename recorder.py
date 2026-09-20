@@ -106,6 +106,9 @@ _SUMMARY_MAX_KINDS = 20
 # and last are named.
 _SUMMARY_MAX_TIMES = 5
 _SUMMARY_MARKER = "# ===== Recording summary ====="
+# How many times one kind of problem is placed in time by
+# recording_problem_times(); beyond it only the first ones are listed.
+_PROBLEM_TIMES_LIMIT = 12
 
 # Stats lines written when a recording runs with ``show_stats``: the dialog
 # tails the log for the newest ``time=HH:MM:SS.xx`` to report real progress.
@@ -495,6 +498,114 @@ def format_recording_summary(
     return lines
 
 
+def _read_log_and_opened_at(log_path: str):
+    """A log's text and the wall clock at its ``Output #`` line."""
+    try:
+        with open(log_path, "rb") as handle:
+            data = handle.read().decode("utf-8", errors="replace")
+    except OSError:
+        return "", None
+    for line in data.splitlines():
+        parsed = parse_log_line(line)
+        if parsed and parsed["level"] == "info" and _OUTPUT_OPENED_RE.match(
+                str(parsed["message"])):
+            if parsed["when"] is not None:
+                return data, parsed["when"]
+            break
+    return data, None
+
+
+def media_at_offset(log_path: str, when_seconds: float,
+                    *, window_seconds: float = 30.0) -> Optional[str]:
+    """A media timestamp for ``when_seconds`` into the recording, or "".
+
+    The newest ``time=`` stats line logged before ``when_seconds``, as
+    h:mm:ss - the position a player counts the file from. Lines come with
+    wall-clock stamps only when the recording runs with ``show_stats``. Older
+    logs without them get an empty string, so callers fall back to wall time.
+    """
+    if not log_path or when_seconds < 0:
+        return ""
+    data, opened_at = _read_log_and_opened_at(log_path)
+    return media_at_offset_from(data, opened_at, when_seconds,
+                                window_seconds=window_seconds)
+
+
+def media_at_offset_from(data: str, opened_at: Optional[datetime.datetime],
+                         when_seconds: float, *,
+                         window_seconds: float = 30.0) -> Optional[str]:
+    """``media_at_offset`` over an already-read log (or None for no stamps)."""
+    if opened_at is None:
+        return ""
+    best = ""
+    for line in data.splitlines():
+        parsed = parse_log_line(line)
+        if parsed is None or parsed["when"] is None:
+            continue
+        offset = max(0.0, (parsed["when"] - opened_at).total_seconds())
+        if offset > when_seconds + window_seconds:
+            break
+        match = _FFMPEG_TIME_RE.search(str(parsed["message"]))
+        if match and offset <= when_seconds:
+            hours, minutes, seconds = match.groups()
+            best = _clock(int(hours) * 3600 + int(minutes) * 60 + float(seconds))
+    return best
+
+
+def recording_problem_times(
+    log_path: str, *, max_times: int = _PROBLEM_TIMES_LIMIT
+) -> List[Dict[str, object]]:
+    """When problems were logged, in seconds into the recording.
+
+    For a listener's verification: a problem kind is one ffmpeg message with
+    its numbers folded out (the summary's grouping), so a decoder complaining
+    through a minute of bad signal reads as one entry whose times cover it.
+    Each kind carries ``clock_times`` (h:mm:ss offsets from the moment ffmpeg
+    opened the output file, which is where a player's own clock starts from)
+    and ``media_times`` (the newest ``time=`` before each occurrence, which is
+    where a player counts the file from). Only warnings, errors and fatals are
+    listed, and only up to ``max_times`` of each kind. Returns [] when the log
+    holds nothing a listener would care about, and [] when ffmpeg could not
+    time-stamp its lines: without the timestamps nothing can be placed.
+    """
+    if not log_path:
+        return []
+    try:
+        summary = summarize_log(log_path)
+    except Exception:
+        LOG.debug("recording_problem_times: could not read %s", log_path,
+                  exc_info=True)
+        return []
+    if not summary.get("timestamps"):
+        return []
+    data, opened_at = _read_log_and_opened_at(log_path)
+    if opened_at is None:
+        return []
+    results: List[Dict[str, object]] = []
+    for kind in summary["phases"].get("recording") or []:
+        clocks = kind.get("offsets") or []
+        if not clocks:
+            continue
+        placed = clocks[:max_times]
+        stamps = [_clock(value) for value in placed]
+        media = [media_at_offset_from(data, opened_at, value)
+                 for value in placed]
+        jump_times = list(dict.fromkeys(
+            media_time or clock_time
+            for media_time, clock_time in zip(media, stamps)
+        ))
+        results.append({
+            "message": str(kind["message"]),
+            "level": str(kind["level"]),
+            "count": int(kind["count"]),
+            "clock_times": stamps,
+            "media_times": [stamp for stamp in media if stamp],
+            "jump_times": jump_times,
+        })
+    results.sort(key=lambda kind: (not kind["clock_times"], kind["clock_times"]))
+    return results
+
+
 def get_ffmpeg_path():
     """Resolve ffmpeg lazily so importing recorder stays cheap at startup."""
     from stream_proxy import get_ffmpeg_path as _get_ffmpeg_path
@@ -862,7 +973,7 @@ class RecordingManager:
         metadata: Optional[Dict[str, object]] = None,
         on_finish: Optional[Callable[[Recording, int], None]] = None,
         duration: Optional[float] = None,
-        show_stats: bool = False,
+        show_stats: bool = True,
         keep_partial: bool = True,
         file_time: Optional[datetime.datetime] = None,
         audio_track: Optional[int] = None,

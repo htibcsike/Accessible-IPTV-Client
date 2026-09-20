@@ -446,162 +446,62 @@ def test_player_record_state_is_a_no_op_without_a_player():
 def _update_client(**overrides):
     """An IPTVClient stand-in carrying only the update-flow state."""
     client = types.SimpleNamespace(
+        _update_progress_dlg=None,
         _update_in_progress=True,
         _update_install_pending=False,
-        _update_session_dir=None,
-        _update_helper=None,
-        _update_helper_ready="",
-        _update_status_message=None,
-        _update_status_written=0.0,
-        _update_cancel=None,
         closed=[],
         boxes=[],
         Close=lambda: client.closed.append(True),
     )
-    # Plain helpers the methods under test call on self.
-    client._end_update_flow = lambda: appmod.IPTVClient._end_update_flow(client)
-    client._update_window_is_up = lambda: appmod.IPTVClient._update_window_is_up(client)
-    client._close_for_update_install = lambda: appmod.IPTVClient._close_for_update_install(client)
-    client._stop_update_helper = lambda: appmod.IPTVClient._stop_update_helper(client)
-    client._UPDATE_STATUS_INTERVAL_SECONDS = appmod.IPTVClient._UPDATE_STATUS_INTERVAL_SECONDS
     for key, value in overrides.items():
         setattr(client, key, value)
     return client
 
 
-def _live_helper():
-    return types.SimpleNamespace(poll=lambda: None, returncode=None)
+def test_install_handoff_reuses_the_progress_dialog_instead_of_a_new_box(monkeypatch):
+    """No click stands between the download finishing and the install starting.
 
-
-def test_the_app_puts_no_window_of_its_own_in_front_of_the_update():
-    """One window for the whole update, and the app does not own it.
-
-    The app used to show a progress dialog for the download and then hand over
-    to update_helper.ps1's window for the install. The app has to exit half
-    way through, so that hand-over could never be seamless: users heard the
-    update window disappear at the "Preparing the update" step. The helper's
-    window is now up before the download starts, and this side only reports
-    into it.
+    The old flow put a modal "the update is installing" box here, which had to
+    be read and dismissed inside the 30 seconds update_helper.ps1 waits before
+    it kills this process. The notice now arrives in a fresh progress dialog -
+    no button to press - because NVDA reads a progress dialog's text when it
+    appears, and says nothing when the text of an open one changes.
     """
-    for gone in ("_show_update_installing_progress", "_destroy_update_progress",
-                 "_apply_update_progress", "_fresh_update_message",
-                 "_start_update_helper", "_launch_update_helper",
-                 "_launch_installer_update_helper", "_warn_update_is_installing"):
-        assert not hasattr(appmod.IPTVClient, gone), gone
-    source = (ROOT / "main.py").read_text(encoding="utf-8")
-    download = source[source.index("def _start_update_download"):
-                      source.index("def _report_update_progress")]
-    assert "ProgressDialog" not in download
+    events = []
+
+    class _Progress:
+        def __init__(self, title, message, **kwargs):
+            events.append(("open", message, kwargs.get("style", 0)))
+
+        def Pulse(self, msg=""):
+            events.append(("pulse", msg))
+
+    old = types.SimpleNamespace(Pulse=lambda msg="": events.append(("old-pulse", msg)),
+                                Destroy=lambda: events.append(("destroy-old",)))
+    monkeypatch.setattr(appmod.wx, "ProgressDialog", _Progress)
+    client = _update_client(_update_progress_dlg=old)
+    client._fresh_update_message = appmod.IPTVClient._fresh_update_message.__get__(client)
+    appmod.IPTVClient._show_update_installing_progress(client)
+    opened = [event for event in events if event[0] == "open"]
+    assert len(opened) == 1
+    # It still says the app will come back by itself, and that opening it by
+    # hand mid-install fails - just without demanding a keypress to say so.
+    assert "close and start again by itself" in opened[0][1]
+    assert "do not open it yourself" in opened[0][1]
+    assert not opened[0][2] & appmod.wx.PD_CAN_ABORT
+    assert ("destroy-old",) in events
+    assert isinstance(client._update_progress_dlg, _Progress)
+    assert not hasattr(appmod.IPTVClient, "_warn_update_is_installing")
+    # Every later poll only keeps the dialog alive: no second dialog, and no
+    # re-sent text to cut NVDA off and start it from the top.
+    events.clear()
+    appmod.IPTVClient._show_update_installing_progress(client)
+    assert events == [("pulse", "")]
 
 
-def test_progress_is_reported_into_the_update_window(monkeypatch, tmp_path):
-    written = []
-    monkeypatch.setattr(appmod.updater, "write_update_status",
-                        lambda *a: written.append(a) or True)
-    monkeypatch.setattr(appmod.updater, "update_cancel_requested", lambda _d: False)
-    clock = [100.0]
-    monkeypatch.setattr(appmod.time, "monotonic", lambda: clock[0])
-    client = _update_client(_update_session_dir=str(tmp_path),
-                            _update_cancel=threading.Event())
-
-    assert appmod.IPTVClient._report_update_progress(client, "Downloading update...", 0.5)
-    assert written == [(str(tmp_path), "Downloading update...", 50.0, True)]
-
-    # Ticks of the same step are throttled: the window only has to look alive.
-    written.clear()
-    clock[0] += 0.05
-    appmod.IPTVClient._report_update_progress(client, "Downloading update...", 0.51)
-    assert written == []
-    clock[0] += 1.0
-    appmod.IPTVClient._report_update_progress(client, "Downloading update...", 0.6)
-    assert written and written[-1][2] == 60.0
-
-    # A new step is always reported at once, however soon it arrives.
-    written.clear()
-    appmod.IPTVClient._report_update_progress(client, "Verifying download...", None,
-                                              cancellable=False)
-    assert written == [(str(tmp_path), "Verifying download...", None, False)]
-
-
-def test_cancel_in_the_update_window_stops_the_download(monkeypatch, tmp_path):
-    """The window's Cancel button is the only Cancel there is now."""
-    monkeypatch.setattr(appmod.updater, "write_update_status", lambda *a: True)
-    monkeypatch.setattr(appmod.updater, "update_cancel_requested", lambda _d: True)
-    cancel = threading.Event()
-    client = _update_client(_update_session_dir=str(tmp_path), _update_cancel=cancel)
-
-    assert appmod.IPTVClient._report_update_progress(client, "Downloading...", 0.1) is False
-    assert cancel.is_set()
-
-
-def test_install_is_handed_to_the_window_that_is_already_up(monkeypatch, tmp_path):
-    commands = []
-    monkeypatch.setattr(appmod.updater, "write_update_command",
-                        lambda session, action, **fields: commands.append((session, action, fields)) or True)
-    monkeypatch.setattr(appmod.updater, "allow_any_foreground_window", lambda: None)
-    monkeypatch.setattr(appmod.wx, "CallLater", lambda ms, fn: fn())
-    ready = tmp_path / "ready"
-    ready.write_text("", encoding="utf-8")
-    client = _update_client(_update_session_dir=str(tmp_path),
-                            _update_helper=_live_helper(),
-                            _update_helper_ready=str(ready),
-                            _finish_update_handoff=lambda: client.closed.append(True))
-
-    appmod.IPTVClient._install_update_now(client, {"install_dir": "C:/app", "version": "9.9.9"})
-
-    assert client._update_install_pending is True
-    session, action, fields = commands[0]
-    assert (session, action) == (str(tmp_path), "install")
-    assert fields["install_dir"] == "C:/app" and fields["version"] == "9.9.9"
-    assert fields["parent_pid"] == os.getpid()
-    assert client.closed == [True]
-
-
-def test_the_app_stays_open_when_the_update_window_is_gone(monkeypatch, tmp_path):
-    """Leaving without a window is what left users with a silent install."""
-    failures = []
-    monkeypatch.setattr(appmod.updater, "write_update_command",
-                        lambda *a, **kw: pytest.fail("nothing may be handed over"))
-    client = _update_client(
-        _update_session_dir=str(tmp_path),
-        _update_helper=types.SimpleNamespace(poll=lambda: 3, returncode=3),
-        _update_helper_ready=str(tmp_path / "ready"),
-        _fail_update_handoff=lambda detail: failures.append(detail))
-
-    appmod.IPTVClient._install_update_now(client, {"install_dir": "C:/app"})
-
-    assert len(failures) == 1 and "window" in failures[0]
-    assert client.closed == []
-    assert client._update_install_pending is False
-
-
-def test_a_failed_download_reports_in_the_same_window(monkeypatch, tmp_path):
-    commands = []
-    boxes = []
-    monkeypatch.setattr(appmod.updater, "write_update_command",
-                        lambda session, action, **fields: commands.append((action, fields)) or True)
-    monkeypatch.setattr(appmod.wx, "CallAfter", lambda fn, *a, **kw: fn(*a, **kw))
-    monkeypatch.setattr(appmod, "message_box", lambda *a, **kw: boxes.append(a))
-    client = _update_client(_update_session_dir=str(tmp_path))
-
-    appmod.IPTVClient._abort_update_window(client, "Update failed: no network")
-
-    assert commands == [("abort", {"message": "Update failed: no network"})]
-    assert boxes == [], "the window says it; a second window would not be one window"
-    assert client._update_in_progress is False
-    assert client._update_session_dir is None
-
-
-def test_a_failure_without_a_window_still_reaches_the_user(monkeypatch):
-    """The fallback for an update that never got a window at all."""
-    boxes = []
-    monkeypatch.setattr(appmod.wx, "CallAfter", lambda fn, *a, **kw: fn(*a, **kw))
-    monkeypatch.setattr(appmod, "message_box", lambda *a, **kw: boxes.append(a))
-    client = _update_client(_update_session_dir=None)
-
-    appmod.IPTVClient._abort_update_window(client, "Update failed: no network")
-
-    assert boxes and "no network" in boxes[0][0]
+def test_install_handoff_survives_a_missing_progress_dialog():
+    client = _update_client(_update_progress_dlg=None)
+    appmod.IPTVClient._show_update_installing_progress(client)  # must not raise
 
 
 def test_close_for_update_install_lingers_before_quitting(monkeypatch):
@@ -626,11 +526,13 @@ def test_close_for_update_install_lingers_before_quitting(monkeypatch):
 
 
 def test_finish_update_handoff_keeps_the_gate_shut_then_closes():
-    client = _update_client()
+    destroyed = []
+    client = _update_client(
+        _destroy_update_progress=lambda **kw: destroyed.append(kw))
     appmod.IPTVClient._finish_update_handoff(client)
-    # The update carries on in the helper after we are gone, so the gate stays
-    # shut: a queued prompt must not be able to start a second one.
-    assert client._update_in_progress is True
+    # end_flow=False: the update carries on in the helper after we are gone, so
+    # a queued prompt must not be able to start a second one.
+    assert destroyed == [{"end_flow": False}]
     assert client.closed == [True]
 
 
@@ -643,56 +545,16 @@ def test_finished_update_is_silent_on_success_and_loud_on_failure(monkeypatch, t
     pending = {"version": appmod.app_meta.APP_VERSION}
     monkeypatch.setattr(appmod.updater, "read_update_pending", lambda _d: dict(pending))
     monkeypatch.setattr(appmod.updater, "clear_update_pending", lambda _d: None)
-    monkeypatch.setattr(appmod.updater, "read_update_result", lambda: None)
-    monkeypatch.setattr(appmod.updater, "clear_update_result", lambda: None)
-    monkeypatch.setattr(appmod.updater, "collect_update_logs", lambda: "")
 
-    # Came back on the version we were aiming for, and the update's window
-    # never said so: this side confirms it instead.
+    # Came back on the version we were aiming for: one confirmation, then the
+    # pending marker is consumed either way.
     appmod.IPTVClient._report_finished_update(types.SimpleNamespace())
     assert boxes == ["Update Complete"]
-
-    # The usual case: the update's own window said so before it closed, so
-    # there is no box to dismiss here - one window for the whole update.
-    monkeypatch.setattr(appmod.updater, "read_update_result",
-                        lambda: {"status": "completed", "version": appmod.app_meta.APP_VERSION})
-    appmod.IPTVClient._report_finished_update(types.SimpleNamespace())
-    assert boxes == ["Update Complete"]
-    monkeypatch.setattr(appmod.updater, "read_update_result", lambda: None)
 
     # Came back on the old version: the install did not land, so say so.
     pending["version"] = "9999.0.0"
     appmod.IPTVClient._report_finished_update(types.SimpleNamespace())
     assert boxes == ["Update Complete", "Update Not Completed"]
-
-
-def test_failed_update_says_why_and_offers_the_logs(monkeypatch, tmp_path):
-    """Issue #26: six failures in a row reached the tracker with no cause."""
-    bodies = []
-    copied = []
-    cleared = []
-    monkeypatch.setattr(appmod, "message_box",
-                        lambda *a, **kw: bodies.append(a) or appmod.wx.YES)
-    monkeypatch.setattr(appmod, "get_user_config_dir", lambda create=False: str(tmp_path))
-    monkeypatch.setattr(appmod.updater, "read_update_pending",
-                        lambda _d: {"version": "9999.0.0"})
-    monkeypatch.setattr(appmod.updater, "clear_update_pending", lambda _d: None)
-    monkeypatch.setattr(appmod.updater, "read_update_result", lambda: {
-        "kind": "installer", "exit_code": 5,
-        "installer_error": "DeleteFile failed; code 5. Access is denied."})
-    monkeypatch.setattr(appmod.updater, "clear_update_result", lambda: cleared.append(True))
-    monkeypatch.setattr(appmod.updater, "collect_update_logs", lambda: "=== logs ===")
-    client = types.SimpleNamespace(_copy_update_logs=copied.append)
-
-    appmod.IPTVClient._report_finished_update(client)
-
-    message, title, style = bodies[0]
-    assert title == "Update Not Completed"
-    assert "exit code 5" in message
-    assert "DeleteFile failed; code 5. Access is denied." in message
-    assert style == appmod.wx.YES_NO | appmod.wx.ICON_WARNING
-    assert copied == ["=== logs ==="]
-    assert cleared == [True]
 
 
 def test_update_success_confirmation_names_the_new_version(monkeypatch, tmp_path):
@@ -703,11 +565,6 @@ def test_update_success_confirmation_names_the_new_version(monkeypatch, tmp_path
     monkeypatch.setattr(appmod.updater, "read_update_pending",
                         lambda _d: {"version": appmod.app_meta.APP_VERSION})
     monkeypatch.setattr(appmod.updater, "clear_update_pending", lambda _d: None)
-    # Without this the test reads the real result file in %TEMP%: a genuine
-    # update - or a run of tools/smoke_update_window.py - on the machine
-    # running the tests then decides whether this confirmation appears.
-    monkeypatch.setattr(appmod.updater, "read_update_result", lambda: None)
-    monkeypatch.setattr(appmod.updater, "clear_update_result", lambda: None)
 
     appmod.IPTVClient._report_finished_update(types.SimpleNamespace())
 
@@ -793,115 +650,47 @@ def test_catchup_dialog_escape_still_closes_it(host, monkeypatch):
 
 
 # --------------------------------------------------------------------------- #
-# The update hand-off happens behind a window that is already on screen
+# The update hand-off waits for the helper's own window
 # --------------------------------------------------------------------------- #
-def test_the_update_window_is_opened_before_the_download(monkeypatch, tmp_path):
-    """It is the first thing the update does, and it says so from the start."""
-    launched = []
-    written = []
-    monkeypatch.setattr(appmod.updater, "write_update_status",
-                        lambda *a: written.append(a) or True)
-    monkeypatch.setattr(appmod.updater, "allow_any_foreground_window", lambda: None)
-    monkeypatch.setattr(appmod.updater, "launch_update_helper",
-                        lambda helper, args: launched.append((helper, args)) or _live_helper())
-    helper = tmp_path / "helper" / "update_helper.ps1"
-    helper.parent.mkdir()
-    helper.write_text("", encoding="utf-8")
-    client = _update_client(
-        _stage_update_helper=lambda root: str(helper),
-        _update_handoff_ready_path=staticmethod(
-            appmod.IPTVClient._update_handoff_ready_path).__func__,
-        _update_helper_language=lambda: "hu",
+def test_update_handoff_waits_for_the_helper_window(monkeypatch, tmp_path):
+    """Closing on a timer left the screen empty while PowerShell started up."""
+    ready = tmp_path / "update_window_ready"
+    later = []
+    monkeypatch.setattr(appmod.wx, "CallLater",
+                        lambda ms, fn, *a: later.append((ms, fn)))
+    pulses = []
+    client = types.SimpleNamespace(
+        _show_update_installing_progress=lambda: pulses.append(True),
+        _finish_update_handoff=lambda: None,
     )
 
-    appmod.IPTVClient._open_update_window(client, str(tmp_path))
+    IPTVClient._close_for_update_install(client, str(ready))
+    # Nothing scheduled to close yet: the helper has not reported in.
+    assert later and later[-1][0] == appmod._UPDATE_HANDOFF_POLL_MS
+    assert pulses == [True]
 
-    assert client._update_session_dir == str(helper.parent)
-    assert written and written[0][1] and written[0][3] is True
-    _path, args = launched[0]
-    assert "-SessionDir" in args and str(helper.parent) in args
-    assert args[args.index("-Language") + 1] == "hu"
-    assert args[args.index("-ParentPid") + 1] == str(os.getpid())
+    ready.write_text("", encoding="utf-8")
+    later[-1][1]()
+    assert later[-1][0] == appmod._UPDATE_HANDOFF_LINGER_MS
+    assert later[-1][1] == client._finish_update_handoff
 
 
-def test_a_helper_that_will_not_start_does_not_stop_the_update(monkeypatch, tmp_path):
-    """Without a window the update falls back to the app's own message boxes."""
-    monkeypatch.setattr(appmod.updater, "write_update_status", lambda *a: True)
-    monkeypatch.setattr(appmod.updater, "allow_any_foreground_window", lambda: None)
-
-    def boom(_helper, _args):
-        raise OSError("powershell is missing")
-
-    monkeypatch.setattr(appmod.updater, "launch_update_helper", boom)
-    helper = tmp_path / "helper" / "update_helper.ps1"
-    helper.parent.mkdir()
-    helper.write_text("", encoding="utf-8")
-    client = _update_client(
-        _stage_update_helper=lambda root: str(helper),
-        _update_handoff_ready_path=staticmethod(
-            appmod.IPTVClient._update_handoff_ready_path).__func__,
-        _update_helper_language=lambda: "en",
+def test_update_handoff_gives_up_on_a_helper_that_never_reports(monkeypatch, tmp_path):
+    later = []
+    monkeypatch.setattr(appmod.wx, "CallLater",
+                        lambda ms, fn, *a: later.append((ms, fn)))
+    clock = [0.0]
+    monkeypatch.setattr(appmod.time, "monotonic", lambda: clock[0])
+    client = types.SimpleNamespace(
+        _show_update_installing_progress=lambda: None,
+        _finish_update_handoff=lambda: None,
     )
 
-    appmod.IPTVClient._open_update_window(client, str(tmp_path))
-
-    assert client._update_session_dir is None
-    assert appmod.IPTVClient._update_window_is_up(client) is False
-
-
-def test_failed_handoff_keeps_the_app_and_names_the_log(monkeypatch, tmp_path):
-    boxes = []
-    cleared = []
-    monkeypatch.setattr(appmod, "message_box", lambda *a, **kw: boxes.append(a))
-    monkeypatch.setattr(appmod, "get_user_config_dir", lambda create=True: str(tmp_path))
-    monkeypatch.setattr(appmod.updater, "clear_update_pending", lambda d: cleared.append(d))
-    client = _update_client(
-        _update_install_pending=True,
-        _update_session_dir="session",
-    )
-    appmod.IPTVClient._fail_update_handoff(client, "boom")
-
-    assert client._update_install_pending is False
-    # The gate reopens: the user can try again from the Help menu.
-    assert client._update_in_progress is False
-    assert cleared == [str(tmp_path)]
-    assert not client.closed
-    message, title, _style = boxes[0]
-    assert title == "Update Error"
-    assert "will stay open" in message
-    assert appmod.updater.update_log_path() in message
-
-
-def test_a_helper_we_give_up_on_is_not_left_on_screen(monkeypatch, tmp_path):
-    """Its window has no close button, so an abandoned helper is unclosable."""
-    monkeypatch.setattr(appmod, "message_box", lambda *a, **kw: None)
-    monkeypatch.setattr(appmod, "get_user_config_dir", lambda create=True: str(tmp_path))
-    monkeypatch.setattr(appmod.updater, "clear_update_pending", lambda _d: None)
-    stopped = []
-    helper = types.SimpleNamespace(poll=lambda: None, returncode=None,
-                                   terminate=lambda: stopped.append(True))
-    client = _update_client(_update_session_dir=str(tmp_path), _update_helper=helper)
-
-    appmod.IPTVClient._fail_update_handoff(client, "boom")
-
-    assert stopped == [True]
-
-
-def test_a_live_helper_keeps_the_folder_it_is_running_from(tmp_path):
-    """_abort_update_window ends the flow on the GUI thread, which clears our
-    own reference, so the caller's view of the helper is what counts."""
-    temp_root = tmp_path / "update"
-    temp_root.mkdir()
-    (temp_root / "update_helper.ps1").write_text("", encoding="utf-8")
-    client = _update_client(_update_helper=None)  # already cleared by the GUI thread
-    live = types.SimpleNamespace(poll=lambda: None)
-
-    appmod.IPTVClient._discard_update_download(client, str(temp_root), live)
-    assert temp_root.exists(), "the running helper's own script was deleted"
-
-    appmod.IPTVClient._discard_update_download(client, str(temp_root),
-                                               types.SimpleNamespace(poll=lambda: 0))
-    assert not temp_root.exists()
+    IPTVClient._close_for_update_install(client, str(tmp_path / "never"))
+    assert later[-1][0] == appmod._UPDATE_HANDOFF_POLL_MS
+    clock[0] = appmod._UPDATE_HANDOFF_MAX_WAIT_SECONDS + 1
+    later[-1][1]()
+    assert later[-1][0] == appmod._UPDATE_HANDOFF_LINGER_MS
 
 
 def test_the_app_never_presses_alt_to_take_the_foreground():
@@ -921,3 +710,38 @@ def test_the_app_never_presses_alt_to_take_the_foreground():
     assert "AttachThreadInput" in foreground
     assert "SetForegroundWindow" in foreground
     assert "keybd_event" not in source, "no other path may press keys either"
+
+
+# --------------------------------------------------------------------------- #
+# The recording problem-times dialog
+# --------------------------------------------------------------------------- #
+def test_recording_problem_times_dialog_lists_jumps(host):
+    problems = [
+        {"message": "Cannot use 4:2:2", "level": "error", "count": 2,
+         "clock_times": ["0:00:10", "0:00:40"], "media_times": []},
+        {"message": "Will reconnect at 100", "level": "warning", "count": 1,
+         "clock_times": ["0:01:30"], "media_times": ["0:01:25"]},
+    ]
+    dlg = appmod.RecordingProblemTimesDialog(
+        host, title="Komisarz Alex", problems=problems)
+    try:
+        rows = dlg.list_box.GetStrings()
+        assert len(rows) == 2
+        assert "0:00:10" in rows[0] and "0:00:40" in rows[0]
+        assert "Cannot use 4:2:2" in rows[0]
+        assert "0:01:30" in rows[1]
+        assert dlg.list_box.HasFocus() or dlg.list_box.FindFocus() is dlg.list_box
+        assert dlg.copy_btn is not None
+    finally:
+        dlg.Destroy()
+
+
+def test_recording_problem_times_dialog_without_any_times(host):
+    dlg = appmod.RecordingProblemTimesDialog(
+        host, title="Show", problems=[])
+    try:
+        rows = dlg.list_box.GetStrings()
+        assert rows == [appmod._(
+            "No timed problems were found in the newest recording log.")]
+    finally:
+        dlg.Destroy()

@@ -192,7 +192,7 @@ def _update_client(**state):
     client._update_install_pending = False
     client._update_prompt_open = False
     client._update_in_progress = False
-    client._update_session_dir = None
+    client._update_progress_dlg = None
     for key, value in state.items():
         setattr(client, key, value)
     return client
@@ -210,8 +210,8 @@ class TestOnlyOneUpdateFlowAtATime:
         assert appmod.IPTVClient._update_flow_busy(client) is True
 
     def test_a_live_update_window_counts_as_busy(self):
-        """The helper's window is up: its update owns the screen."""
-        client = _update_client(_update_session_dir="C:/temp/session")
+        """The app's progress window is up: its update owns the screen."""
+        client = _update_client(_update_progress_dlg=object())
         assert appmod.IPTVClient._update_flow_busy(client) is True
 
     def test_the_second_prompt_is_dropped_instead_of_stacked(self, monkeypatch):
@@ -242,9 +242,12 @@ class TestOnlyOneUpdateFlowAtATime:
         assert boxes and "already in progress" in boxes[0]
 
     def test_the_gate_reopens_when_the_download_ends(self):
-        client = _update_client(_update_in_progress=True,
-                                _update_session_dir="C:/temp/session")
-        appmod.IPTVClient._end_update_flow(client)
+        client = _update_client(
+            _update_in_progress=True,
+            _update_progress_dlg=types.SimpleNamespace(Destroy=lambda: None),
+            _update_progress_message="Downloading",
+        )
+        appmod.IPTVClient._destroy_update_progress(client)
         assert appmod.IPTVClient._update_flow_busy(client) is False
 
     def test_the_gate_stays_shut_while_the_install_is_handed_over(self):
