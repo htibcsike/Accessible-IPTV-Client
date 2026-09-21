@@ -20,7 +20,7 @@ Megjegyzések a fordítóknak:
 
 # Az Accessible IPTV Client felhasználói útmutatója {#user-guide}
 
-Az Accessible IPTV Client az IPTV-szolgáltatók által kínált élő televízió- és rádióadások, valamint igény szerinti videótartalmak lejátszására szolgál. Kifejezetten billentyűzettel és képernyőolvasóval történő használatra tervezték; együttműködik többek között az NVDA, a JAWS, a Narrátor és az Orca képernyőolvasókkal, emellett a különösen nagy lejátszási listákat és műsorújságokat is hatékonyan kezeli.
+Az Accessible IPTV Client az IPTV-szolgáltatók által kínált élő televízió- és rádióadások, valamint igény szerinti videótartalmak lejátszására szolgál. Kifejezetten billentyűzettel és képernyőolvasóval történő használatra tervezték. Együttműködik többek között az NVDA, a JAWS, a Narrátor és az Orca képernyőolvasókkal; emellett a különösen nagy lejátszási listákat és műsorújságokat is hatékonyan kezeli.
 
 Ez az útmutató a program minden részét ismerteti. Ha bárhol megnyomja az F1 billentyűt, a súgó közvetlenül az éppen használt kezelőelemhez, párbeszédablakhoz vagy funkcióhoz tartozó szakaszt nyitja meg, amennyiben ahhoz külön témakör készült.
 
@@ -51,7 +51,7 @@ A súgó a program része, ezért internetkapcsolat nélkül is használható. H
 3. A Fájl > Műsorújság importálása az adatbázisba (Ctrl+I) paranccsal importálja a műsorújságot. A folyamat a háttérben fut, befejezéséről a program értesítést jelenít meg.
 4. Válasszon kategóriát, jelölje ki a kívánt csatornát, majd a lejátszás megkezdéséhez nyomja meg az Enter billentyűt.
 
-A program a lejátszási listákat, a műsorújság-forrásokat és a beállításokat a későbbi munkamenetekhez is megőrzi, ezért ezeket rendszerint csak egyszer kell beállítania.
+A program a munkamenetek között is megőrzi a lejátszási listákat, a műsorújság-forrásokat és a beállításokat, ezért ezeket rendszerint csak egyszer kell megadnia.
 
 ## A főablak {#main-window}
 
@@ -70,11 +70,11 @@ Linuxon az útmutatóban említett menük az ablak tetején található Menü go
 
 ### Lejátszási lista nézete {#playlist-view}
 
-Ha több lejátszási listát is beállított, a Lejátszási lista nézete mezővel szabályozhatja, mely listákból származzanak a megjelenő kategóriák és csatornák. Választhatja az Összes lejátszási lista lehetőséget, vagy kijelölhet egyetlen listát. A program megjegyzi a választását.
+Ha több listát is beállított, a Lejátszási lista nézete mezővel szabályozhatja, melyekből származzanak a megjelenő kategóriák és csatornák. Választhatja az Összes lejátszási lista lehetőséget, vagy kijelölhet egyetlen listát. A program megjegyzi a választását.
 
 ### Kategóriák {#categories}
 
-A Kategóriák lista a lejátszási listákban található csatornacsoportokat tartalmazza. Első eleme az Összes csatorna, ezt pedig – amennyiben már vannak kedvencek – a Kedvencek követi. Minden sor a benne található csatornák számát is jelzi.
+A Kategóriák lista a lejátszási listák csatornacsoportjait sorolja fel. Első eleme az Összes csatorna, ezt pedig – ha már megjelölt legalább egy kedvenc csatornát – a Kedvencek követi. Minden sor a hozzá tartozó csatornák számát is jelzi.
 
 - A Fel és Le nyílbillentyűvel a csatornalista módosítása nélkül lépkedhet a kategóriák között, így előbb végighallgathatja azok nevét.
 - Az Enter megnyitja a kijelölt kategóriát, majd a fókuszt a csatornalistára helyezi.
@@ -98,38 +98,38 @@ A kedvencként megjelölt csatornák neve mellett a „(kedvenc)” jelölés sz
 
 ### Epizódleírás és adás-URL {#episode-description}
 
-A csatornalistából a Tab az Epizódleírás mezőre lép. Itt olvasható a kijelölt csatornán éppen adásban lévő műsor kezdési és befejezési ideje, leírása, valamint a következő műsor címe és időpontja. A Shift+Tab közvetlenül visszalép a csatornalistára. A mező tartalma a kijelölt csatorna változásakor automatikusan frissül.
+A csatornalistából a Tab az Epizódleírás mezőre lép. Itt olvasható a kijelölt csatornán éppen futó adás kezdési és befejezési ideje, leírása, valamint az utána következő műsor címe és időpontja. A Shift+Tab közvetlenül visszalép a csatornalistára. A mező tartalma a kijelölt csatorna változásakor automatikusan frissül.
 
-Ha a Beállítások > Adás-URL megjelenítése engedélyezve van, az Adás-URL mező az Epizódleírás után, egy további Tab megnyomásával érhető el. A mező a csatorna internetes címét mutatja; ez például hibajelentés készítésekor lehet hasznos. A legtöbb felhasználónak nincs szüksége ennek állandó megjelenítésére.
+Ha engedélyezte a Beállítások > Adás-URL megjelenítése lehetőséget, az Epizódleírás után egy további Tab megnyomásával érhető el a mező. Ez a csatorna internetes címét mutatja, amely például hibajelentés készítésekor lehet hasznos. A legtöbb felhasználónak nincs szüksége ennek állandó megjelenítésére.
 
 ## Kedvencek {#favorites}
 
 A Kedvencek segítségével a leggyakrabban használt csatornákat egy helyen érheti el. Egy csatorna hozzáadásához nyomja meg a Ctrl+D billentyűkombinációt, használja a helyi menü megfelelő parancsát, vagy válassza a Nézet > Hozzáadás a kedvencekhez lehetőséget. A kedvencnek jelölt csatornák a kategórialista elején található Kedvencek csoportba kerülnek; a Nézet > Ugrás a kedvencekhez paranccsal közvetlenül oda léphet.
 
-Egy kedvenc eltávolításához nyomja meg rajta ismét a Ctrl+D billentyűkombinációt, vagy a Kedvencek kategóriában használja a Delete billentyűt.
+Egy kedvenc eltávolításához jelölje ki a csatornát, majd nyomja meg ismét a Ctrl+D billentyűkombinációt, vagy a Kedvencek kategóriában használja a Delete billentyűt.
 
 A program a kedvenceket a szolgáltató és a csatorna alapján azonosítja, nem pedig az adás internetes címe szerint. Ennek köszönhetően egy lejátszási lista frissítése után is megmaradnak. A program a kedvencekhez nem ment fiókadatokat.
 
 ## Igény szerinti videó {#video-on-demand}
 
-A Nézet > Igény szerinti videó (filmek és sorozatok) paranccsal az élő csatornák helyett a szolgáltató film- és sorozatkínálata jelenik meg. A kategóriák neve a Filmek vagy Sorozatok megjelöléssel kezdődik; ezt a szolgáltató által megadott kategórianév követi. Sorozat kiválasztásakor az epizódok évad- és epizódsorrendben jelennek meg. Film vagy epizód lejátszásához nyomja meg az Enter billentyűt.
+A Nézet > Igény szerinti videó (filmek és sorozatok) paranccsal az élő csatornák helyett a szolgáltató film- és sorozatkínálata jelenik meg. A kategóriák neve a Filmek vagy Sorozatok megjelöléssel kezdődik; ezt az általa megadott kategórianév követi. Sorozat kiválasztásakor az epizódok évad- és epizódsorrendben jelennek meg. Film vagy epizód lejátszásához nyomja meg az Enter billentyűt.
 
 A Nézet > Élő TV és műsorarchívum paranccsal visszatérhet az élő csatornákhoz. A nézetváltáskor a keresőmező tartalma törlődik.
 
-Az igény szerinti videótartalmak Xtream Codes-fiókokkal kezelhetők a legmegbízhatóbban. Ez a fióktípus megfelelően adja át a szolgáltató kínálatának adatait. Egyszerű M3U-lejátszási listák esetén a program a csoportnevek és az epizódszámozás alapján ismeri fel a filmeket és a sorozatokat.
+Az igény szerinti videók Xtream Codes-fiókkal érhetők el a legmegbízhatóbban, mivel ez a fióktípus pontos adatokat szolgáltat a szolgáltató kínálatáról. Egyszerű M3U-lejátszási listák esetén a program a csoportnevek és az epizódszámozás alapján ismeri fel a filmeket és a sorozatokat.
 
 ## Lejátszási lista kezelése {#playlist-manager}
 
-A Fájl > Lejátszási lista kezelése (Ctrl+M) ablakban a beállított lejátszási lista-források jelennek meg. Megnyitásakor a fókusz a források listájára kerül.
+A Fájl > Lejátszási lista kezelése (Ctrl+M) ablakban a beállított források jelennek meg. Megnyitásakor a fókusz ezek listájára kerül.
 
 - Fájl hozzáadása: a számítógépen tárolt M3U- vagy M3U8-formátumú lejátszási lista felvétele.
 - URL hozzáadása: egy internetes M3U-lejátszási lista címének megadása.
 - Xtream Codes hozzáadása: fiók beállítása.
 - Stalker Portal hozzáadása: MAG-portálfiók felvétele.
 
-A listában kijelölt forrásnál az Alkalmazásgomb vagy a Shift+F10 megnyitja a helyi menüt, amelyből az URL másolása, az Átnevezés (F2) és a Törlés (Delete) érhető el. A forráshoz megadott név kizárólag azonosításra szolgáló címke; magát a forrást nem módosítja.
+A listában kijelölt forrás helyi menüjét az Alkalmazásgombbal vagy a Shift+F10 billentyűkombinációval nyithatja meg; innen érhető el az URL másolása, az Átnevezés (F2) és a Törlés (Delete). A forráshoz megadott név kizárólag azonosításra szolgáló címke; magát a forrást nem módosítja.
 
-A módosítások mentéséhez nyomja meg az OK, elvetésükhöz pedig a Mégse gombot. Mentés után a csatornák újratöltődnek.
+A módosítások mentéséhez nyomja meg az OK gombot, elvetésükhöz pedig a Mégse gombot. Mentés után a csatornák újratöltődnek.
 
 ### Xtream Codes-fiókok {#xtream-codes}
 
@@ -139,7 +139,7 @@ Az Xtream Codes-fiókok ezenfelül hozzáférést biztosíthatnak igény szerint
 
 ### Stalker Portal-fiókok {#stalker-portal}
 
-Stalker Portal-fiók beállításához meg kell adni a portál címét, valamint a szolgáltatónál regisztrált MAC-címet. Egyes portálok felhasználónevet és jelszót is kérnek. A Véletlenszerű MAC-cím generálása lehetőség új címet hoz létre; ezt csak akkor használja, ha a szolgáltató kifejezetten arra kéri, hogy Ön válasszon MAC-címet. Ha bejelöli az „A szolgáltató XMLTV-forrásának automatikus beállítása” lehetőséget, a program felveszi a portál műsorújság-forrását, amennyiben ilyen elérhető.
+Stalker Portal-fiók beállításához meg kell adni a portál címét, valamint a szolgáltatónál regisztrált MAC-címet. Egyes portálok felhasználónevet és jelszót is kérnek. A Véletlenszerű MAC-cím generálása lehetőség új címet hoz létre; ezt csak akkor használja, ha a szolgáltató kifejezetten arra kéri, hogy Ön válasszon MAC-címet. Ha bejelöli az „A szolgáltató XMLTV-forrásának automatikus beállítása” lehetőséget, a program felveszi a portál műsorújság-forrását, ha az rendelkezésre áll.
 
 ## Műsorújság (EPG) {#epg}
 
@@ -152,19 +152,19 @@ A Fájl > Műsorújság kezelése (Ctrl+E) ablakban a beállított műsorújság
 - Fájl hozzáadása: a számítógépen tárolt XMLTV-fájl (.xml vagy .xml.gz) felvétele.
 - URL hozzáadása: internetes XMLTV-műsorújság címének megadása.
 
-A kijelölt forrásnál az Alkalmazásgomb vagy a Shift+F10 megnyitja a helyi menüt, amelyből az URL másolása, az Átnevezés (F2) és a Törlés (Delete) érhető el. A módosítások megőrzéséhez nyomja meg az OK gombot.
+A kijelölt forrás helyi menüjét az Alkalmazásgombbal vagy a Shift+F10 billentyűkombinációval nyithatja meg; innen érhető el az URL másolása, az Átnevezés (F2) és a Törlés (Delete). A módosítások megőrzéséhez nyomja meg az OK gombot.
 
 ### A műsorújság importálása {#import-epg}
 
-A Fájl > Műsorújság importálása az adatbázisba (Ctrl+I) letölti valamennyi beállított forrás adatait, majd betölti azokat a helyi adatbázisba. A művelet a háttérben fut, így közben tovább nézhet műsort vagy böngészhet a programban. A folyamat befejezéséről a program értesíti. Nagy méretű műsorújságok feldolgozása több percig is tarthat.
+A Fájl > Műsorújság importálása az adatbázisba (Ctrl+I) letölti valamennyi beállított forrás adatait, majd betölti őket a helyi műsorújság-adatbázisba. A művelet a háttérben fut, így közben tovább nézhet műsort vagy böngészhet a programban. A folyamat befejezéséről a program értesíti. Nagy méretű műsorújságok feldolgozása több percig is tarthat.
 
-A program időnként automatikusan, külön értesítés nélkül is frissíti a műsorújságot. A csatornákat a műsorújság-azonosító és a csatornanév alapján társítja az adatokhoz; a névegyeztetés a gyakori ország- és minőségjelölési eltéréseket is figyelembe veszi.
+A program időnként automatikusan, külön értesítés nélkül is frissíti a műsorújságot. A csatornákat a műsorújság-azonosító és a csatornanév alapján társítja az adatokhoz; a névegyeztetés az ország- és minőségjelölések szokásos eltéréseit is figyelembe veszi.
 
 Ha egy importált műsorújság adatai nem jelennek meg valamely csatornánál, ellenőrizze, hogy a beállított forrás valóban tartalmazza-e az adott csatornát, majd futtassa újra az importálást. A folyamat részletes naplót készít; ezzel kapcsolatban lásd a Hibaelhárítás című részt.
 
 ### Most adásban {#whats-on-now}
 
-A Fájl > Most adásban (Ctrl+W) ablak valamennyi csatorna éppen adásban lévő műsorát felsorolja „műsor – csatorna” formában.
+A Fájl > Most adásban (Ctrl+W) ablak az összes csatorna aktuális műsorát felsorolja „műsorcím – csatornanév” formában.
 
 - Betűk begépelésével az első olyan műsorra ugorhat, amelynek címe a beírt karakterekkel kezdődik.
 - A Tab a Szűrő mezőre lép; itt a listát műsorcím vagy csatornanév alapján szűkítheti.
@@ -174,15 +174,15 @@ A Fájl > Most adásban (Ctrl+W) ablak valamennyi csatorna éppen adásban lév�
 
 ### Csatorna műsorújsága (Műsorújság megtekintése) {#channel-epg}
 
-A csatorna helyi menüjében található Műsorújság megtekintése… parancs az éppen adásban lévő műsortól kezdve felsorolja az adott csatorna rendelkezésre álló műsorait. A lista első eleme a jelenleg futó műsor.
+A Műsorújság megtekintése… parancs a csatorna helyi menüjében érhető el. Megnyitásakor a program a jelenleg futó műsortól kezdve a műsorújságban szereplő legkésőbbi adásig sorolja fel az adott csatorna programját. A lista első eleme az éppen adásban lévő műsor.
 
 - A Tab a lista és a kijelölt műsor leírása között vált.
-- Egy műsoron az Alkalmazásgomb vagy a Shift+F10 megnyomásával elérhető a Felvétel ütemezése parancs.
+- A műsor kijelölése után az Alkalmazásgomb vagy a Shift+F10 megnyomásával érhető el a Felvétel ütemezése parancs.
 - Az Escape bezárja az ablakot.
 
 ## Műsorarchívum {#catch-up}
 
-Az archívumot biztosító csatornákon a korábban sugárzott műsorok utólag is megtekinthetők. Ezeknél a csatornáknál a helyi menüben megjelenik a Műsorarchívum parancs. A Műsorarchívum megnyitásakor a program a korábbi műsorokat dátummal és időponttal együtt sorolja fel.
+Az archívumot biztosító csatornákon a korábban sugárzott műsorok utólag is megtekinthetők. Az ilyen csatornák helyi menüjéből megnyitható Műsorarchívum ablak dátummal és időponttal együtt sorolja fel a korábbi műsorokat.
 
 - A Fel és Le nyílbillentyűvel mozoghat a műsorok között.
 - Az Enter lejátssza a kijelölt műsort.
@@ -192,7 +192,7 @@ Az archívumot biztosító csatornákon a korábban sugárzott műsorok utólag 
 
 Ha egy archív műsor megtekintése után bezárja a beépített lejátszót, a program visszatér a műsorarchívum listájához, és a kijelölés az imént megtekintett műsoron marad.
 
-Az, hogy az archívum milyen messzre nyúlik vissza, szolgáltatónként eltérő; rendszerint az elmúlt néhány nap műsorai érhetők el.
+Az archívum időbeli terjedelme szolgáltatónként eltér; rendszerint az elmúlt néhány nap műsorai érhetők el.
 
 ### Archív műsorok letöltése {#catch-up-downloads}
 
@@ -206,7 +206,7 @@ Ha a letöltés nem sikerül, az ablak jelzi a hiba okát. Átmeneti probléma e
 
 ## Beépített lejátszó {#built-in-player}
 
-A beépített lejátszó a programon belül játssza le a csatornákat. Egy csatorna elindításakor megnyílik a lejátszó ablaka, kivéve, ha a Beállítások > Lejátszó megjelenítése az Enter lenyomására lehetőség ki van kapcsolva. Utóbbi esetben a lejátszás elindul, de az ablak nem jelenik meg.
+A beépített lejátszó a programon belül játssza le a csatornákat. A lejátszó ablaka egy csatorna elindításakor nyílik meg, kivéve, ha a Beállítások > Lejátszó megjelenítése az Enter lenyomására lehetőség ki van kapcsolva. Utóbbi esetben a lejátszás elindul, de az ablak nem jelenik meg.
 
 A lejátszó kezelőelemei Tab-sorrendben: Szünet vagy Lejátszás, Leállítás, Rögzítés, Átküldés, Teljes képernyő, Hangerőszabályzó és Hangsáv kiválasztása.
 
@@ -221,7 +221,7 @@ A lejátszó fontosabb billentyűparancsai:
 - D: a hangkimeneti eszköz kiválasztása.
 - Ctrl+C: az adás átküldése másik eszközre.
 - F11: a teljes képernyős nézet be- vagy kikapcsolása. A teljes képernyős nézetből az Escape billentyűvel léphet ki.
-- Ctrl+W: elrejti a lejátszó ablakát; a lejátszás folytatódik.
+- Ctrl+W: elrejti a lejátszóablakot; a lejátszás folytatódik.
 - Ctrl+Q: bezárja a lejátszóablakot, és leállítja az adást.
 
 Ugyanezek a parancsok a lejátszó Lejátszás menüjéből is elérhetők. Ha egy élő adás megszakad, a lejátszó automatikusan megkísérli az újracsatlakozást, és megtartja a korábban kiválasztott hangsávot.
@@ -234,11 +234,11 @@ A program megjegyzi az adott csatornához kézzel kiválasztott hangsávot, és 
 
 ### Hangkimeneti eszköz {#audio-output-device}
 
-A Lejátszás > Hangkimeneti eszköz (D) paranccsal kiválaszthatja, melyik hangszórón vagy fejhallgatón szóljon a beépített lejátszó hangja. Így például a műsor hangját a képernyőolvasótól eltérő hangkimenetre irányíthatja. Az „A rendszer alapértelmezett eszköze” beállítás a Windows aktuális rendszerbeállítását követi. A program megjegyzi a választását.
+A Lejátszás > Hangkimeneti eszköz (D) paranccsal kiválaszthatja, melyik hangszórón vagy fejhallgatón szóljon a beépített lejátszó hangja. Így például a műsor és a képernyőolvasó hangját eltérő kimenetre irányíthatja. Az „A rendszer alapértelmezett eszköze” beállítás a Windowsban kijelölt kimenetet követi. A program megjegyzi a választását.
 
 ### A lejátszó vezérlése a főablakból {#player-from-main-window}
 
-A főablak Lejátszó menüjéből anélkül vezérelheti a beépített lejátszót, hogy át kellene váltania annak ablakára:
+A főablak Lejátszó menüjéből anélkül vezérelheti a beépített lejátszót, hogy annak ablakára kellene váltania:
 
 - Beépített lejátszó megjelenítése: Ctrl+Shift+J.
 - Lejátszás/szünet: Ctrl+Shift+P.
@@ -248,7 +248,7 @@ A főablak Lejátszó menüjéből anélkül vezérelheti a beépített lejátsz
 
 ## Médialejátszó {#media-player}
 
-A Beállítások > Használandó médialejátszó menüpont határozza meg, melyik program játssza le a csatornákat. Választhatja a Beépített lejátszót vagy egy külső programot, például VLC-t, MPC-t, MPC-BE-t, MPV-t, PotPlayert, Kodit vagy SMPlayert. Az Egyéni lejátszó… lehetőséggel más program futtatható fájlját is megadhatja.
+A Beállítások > Használandó médialejátszó menüpont határozza meg, melyik program játssza le a csatornákat. Választhatja a Beépített lejátszót vagy egy külső programot, például VLC-t, MPC-t, MPC-BE-t, MPV-t, PotPlayert, Kodit vagy SMPlayert. Az Egyéni lejátszó… lehetőséggel más program végrehajtható fájlját is megadhatja.
 
 A rögzítés, az archív műsorok letöltése és az átküldés a kiválasztott médialejátszótól függetlenül ugyanúgy használható. Az ebben az útmutatóban ismertetett hangsávkezelési funkciók és lejátszóbillentyűk azonban kifejezetten a beépített lejátszóra vonatkoznak.
 
@@ -256,10 +256,10 @@ A rögzítés, az archív műsorok letöltése és az átküldés a kiválasztot
 
 A Beállítások > Előnyben részesített hangsáv menüpontban szabályozhatja, hogy a beépített lejátszó automatikusan melyik hangsávot használja.
 
-- Az „Audionarrációs hangsáv előnyben részesítése, ha elérhető” beállítás minden olyan csatornán audionarrációt választ, ahol a program ilyen hangsávot ismer fel. Több nyelven használatos megnevezést is azonosít – például audio description, AD, Audiodeskription és Hörfilm –, és a műsorszolgáltató által az audionarrációs sávhoz rendelt jelölést is figyelembe veszi.
+- Az „Audionarrációs hangsáv előnyben részesítése, ha elérhető” beállítás minden olyan csatornán ezt a sávot választja, ahol a program felismeri. Több nyelven használatos megnevezést is azonosít – például audio description, AD, Audiodeskription és Hörfilm –, és a műsorszolgáltató által az audionarrációhoz rendelt jelölést is figyelembe veszi.
 - A szövegmezőben vesszővel elválasztva adhat meg hangsávneveket vagy nyelveket, a kívánt sorrendben, a legfontosabbal kezdve; például: audionarráció, magyar. Ha a mezőt üresen hagyja, a program megtartja azt a hangsávot, amellyel a csatorna alapértelmezés szerint elindul.
 
-Ha a lejátszóban kézzel választ hangsávot, a program ezt megjegyzi az adott csatornához, és a következő lejátszáskor az automatikus szabályokkal szemben ezt részesíti előnyben. Azoknál a csatornáknál, amelyekhez még nem tartozik egyedi választás, a legutóbb kézzel kiválasztott hangsávot veszi alapul.
+Ha a lejátszóban kézzel választ hangsávot, a program ezt megjegyzi az adott csatornához, és a következő lejátszáskor az automatikus szabályok helyett ezt használja. Azoknál a csatornáknál, amelyekhez még nem tartozik egyedi választás, a legutóbb kézzel kiválasztott hangsávot veszi alapul.
 
 A felvételek ugyanezeket a szabályokat követik. Hangfelvételnél csak az a sáv kerül a fájlba, amelyet lejátszáskor is hallana; videofelvételnél valamennyi hangsáv megmarad, a kiválasztott pedig alapértelmezettként lesz megjelölve.
 
@@ -268,11 +268,11 @@ A felvételek ugyanezeket a szabályokat követik. Hangfelvételnél csak az a s
 A program bármely csatorna adását képes fájlba rögzíteni akkor is, ha közben másik csatornát néz, vagy éppen semmilyen lejátszás nincs folyamatban.
 
 - A Felvételek > Rögzítés indítása (Ctrl+Shift+R) a főablakban kijelölt csatorna rögzítését kezdi meg. A parancs ismételt használata leállítja a folyamatot.
-- A csatorna helyi menüjének Rögzítés parancsa ugyanezt teszi. A beépített lejátszó Rögzítés parancsa (Ctrl+R) az éppen nézett adást rögzíti.
+- A csatorna helyi menüjében található Rögzítés parancs ugyanezt teszi. A beépített lejátszó Rögzítés parancsa (Ctrl+R) az éppen nézett adást rögzíti.
 - A Felvételek > Rögzítés leállítása paranccsal befejezheti a kijelölt csatornán folyó felvételt. Az Összes rögzítés leállítása valamennyi aktív felvételt befejezi.
 - A Felvételek > Felvételek mappájának megnyitása paranccsal megnyithatja a mentett fájlokat tartalmazó mappát.
 - A Felvételek > Letöltési mappa beállítása… paranccsal választhatja ki ezt a mappát. Az archív műsorok letöltött fájljai is ide kerülnek.
-- Minden rögzítéshez külön naplófájl készül a felvételek mappáján belüli logs almappában. Ha egy rögzítés figyelmeztetéssel vagy hibával fejeződik be, a megjelenő üzenet összesíti a naplóban talált figyelmeztetéseket, hibákat és végzetes hibákat. A részletekért nyissa meg a naplófájlt. A napló végén összefoglaló található: milyen hosszúra tervezték a felvételt, milyen hosszú lett valójában, valamint az összes figyelmeztetés és hiba típus szerint csoportosítva, az előfordulásuk időpontjaival.
+- Minden rögzítéshez külön naplófájl készül a felvételek mappáján belül található logs könyvtárban. Ha a rögzítés figyelmeztetéssel vagy hibával fejeződik be, az értesítés összesíti a naplóban talált figyelmeztetéseket, hibákat és végzetes hibákat. A részletek a naplófájlban olvashatók. A fájl végén összefoglaló található a tervezett és a tényleges időtartamról, valamint az összes figyelmeztetésről és hibáról, típus és előfordulási időpont szerint csoportosítva.
 
 Ha a beépített lejátszóban éppen nézett csatornát kezdi rögzíteni, a lejátszás és a rögzítés ugyanazt a szolgáltatói kapcsolatot használja. Emiatt a funkció olyan fiókokkal is működik, amelyek egyszerre csak egy adatfolyamot engedélyeznek.
 
@@ -282,41 +282,41 @@ A rögzítés leállítása néhány pillanatig tarthat, amíg a program szabál
 
 A Felvételek > Rögzítési formátum menüponttal választhatja ki, milyen formátumban mentse a program a felvételeket:
 
-- Eredeti minőség (újrakódolás nélkül, MKV): a szolgáltató által küldött kép- és hangadatokat változtatás nélkül menti, valamennyi hangsávval és feliratsávval együtt.
+- Eredeti minőség (újrakódolás nélkül, MKV): a szolgáltató által küldött kép- és hangadatokat érintetlenül menti, valamennyi hangsávval és feliratsávval együtt.
 - Eredeti minőség (újrakódolás nélkül, MP4): ugyanazt a kép- és hangtartalmat MP4-fájlba menti, amelyet több eszköz képes lejátszani; a feliratok és a teletext nem kerülnek bele.
 - Újrakódolás x264 használatával (MKV vagy MP4): kisebb méretű, újrakódolt fájlt készít, de a művelet lényegesen nagyobb processzorterheléssel jár.
 - Csak hang (MP3 V0, FLAC, WAV, AAC M4A vagy Opus): kizárólag a hangot menti; különösen rádióadások rögzítésére alkalmas.
 
 ### Ütemezett felvételek {#scheduled-recordings}
 
-Egy későbbi műsor rögzítéséhez válassza a Felvétel ütemezése parancsot a Műsorújság megtekintése vagy a Most adásban ablakban, illetve a keresési találatok között szereplő műsoron. Ha ugyanezt közvetlenül egy csatorna helyi menüjéből választja, először annak műsorújsága nyílik meg, hogy kijelölhesse a kívánt műsort.
+Egy későbbi műsor rögzítéséhez válassza a Felvétel ütemezése parancsot a Műsorújság megtekintése vagy a Most adásban ablakban, illetve a megfelelő keresési találat helyi menüjében. Ha ugyanezt közvetlenül egy csatorna helyi menüjéből választja, először annak műsorújsága nyílik meg, hogy kijelölhesse a kívánt műsort.
 
-A Felvételek > Ütemezett felvételek… ablak minden ütemezett, folyamatban lévő és már befejezett felvételt felsorol, megjelenítve az időpontot, a címet, a csatornát, az állapotot és a formátumot.
+A Felvételek > Ütemezett felvételek… ablak valamennyi ütemezett, folyamatban lévő és befejezett felvételt felsorolja az időponttal, a címmel, a csatornával, az állapottal és a formátummal együtt.
 
 - A kijelölt felvételnél az Alkalmazásgomb vagy a Shift+F10 megnyitja a helyi menüt, amelyből a Frissítés, a Mégse és a Törlés érhető el.
 - A listában egyszerre több felvétel is kijelölhető; a Ctrl+A az összes sort kiválasztja.
 - A Delete vagy a numerikus billentyűzet Delete billentyűje megerősítés után eltávolítja a kijelölt felvételeket. Ha a kijelöltek között folyamatban lévő rögzítés is van, a program előbb leállítja az érintett felvételeket.
 - Az Escape bezárja az ablakot.
 
-Az ütemezett felvételek automatikusan elindulnak, amennyiben a program fut; ez akkor is igaz, ha a főablak a rendszertálcára van minimalizálva. Az ablak tartalma megnyitáskor, valamint minden rögzítés elindulásakor, befejezésekor vagy megszakításakor automatikusan frissül, ezért a Frissítés parancsra csak ritkán van szükség.
+Az ütemezett felvételek külön beavatkozás nélkül elindulnak, amennyiben a program fut; ez akkor is igaz, ha a főablak a rendszertálcára van minimalizálva. Az ablak tartalma megnyitáskor, valamint minden rögzítés elindulásakor, befejezésekor vagy megszakításakor automatikusan frissül, ezért a Frissítés parancsra csak ritkán van szükség.
 
 A program kilépés előtt megerősítést kér, ha van még indításra váró ütemezett felvétel, mert ezek csak az alkalmazás futása közben indulhatnak el. Ha ennek ellenére kilép, a várakozó felvételek nem indulnak el.
 
 ### Ütemezési ráhagyás {#schedule-padding}
 
-A műsorok a gyakorlatban nem mindig pontosan a meghirdetett időben kezdődnek vagy fejeződnek be. A Felvételek > Ütemezési ráhagyás… beállítással megadhatja, hány perccel a műsor kezdete előtt induljon el az ütemezett felvétel, illetve a tervezett befejezés után mennyi ideig folytatódjon. A kézzel indított rögzítéseket ez a beállítás nem érinti. Az archív műsorok letöltésekor ugyanez a ráhagyás érvényesül: ha a szolgáltató ezt lehetővé teszi, a program a megadott percekkel kibővíti a lekért időszakot, és ismét megkísérli a letöltést, ha az elkészült fájl rövidebb a várt időtartamnál.
+A műsorok a gyakorlatban nem mindig pontosan a meghirdetett időben kezdődnek vagy fejeződnek be. A Felvételek > Ütemezési ráhagyás… beállítással megadhatja, hány perccel a műsor kezdete előtt induljon el az ütemezett felvétel, illetve a tervezett befejezés után mennyi ideig folytatódjon. A kézzel indított rögzítéseket ez a beállítás nem érinti. Az archív műsorok letöltésekor ugyanez a ráhagyás érvényesül: ha a szolgáltató ezt lehetővé teszi, a program a megadott percekkel kibővíti a lekért időszakot, és ismét megkísérli a letöltést, ha az elkészült fájl rövidebb a műsor várható időtartamánál.
 
 ### A számítógép leállítása a felvételek után {#shutdown-after-recordings}
 
-A Felvételek menü A számítógép leállítása a felvételek befejezése után lehetőségével automatikus kikapcsolást állíthat be. Erre akkor kerül sor, amikor valamennyi folyamatban lévő és ütemezett rögzítés befejeződött. A funkció például késő éjszakára ütemezett felvétel esetén lehet hasznos.
+A Felvételek > A számítógép leállítása a felvételek befejezése után lehetőséggel beállíthatja, hogy a számítógép valamennyi folyamatban lévő és ütemezett rögzítés befejeződése után automatikusan kikapcsoljon. A funkció például késő éjszakára ütemezett felvétel esetén lehet hasznos.
 
-A számítógép nem áll le addig, amíg bármely felvétel folyamatban van vagy még indításra vár. Amikor minden feladat befejeződött, egy ablak 60 másodperces visszaszámlálást jelenít meg. A fókusz a Leállítás megszakítása gombra kerül, így az Enter vagy az Escape megnyomásával megszakíthatja a visszaszámlálást. A Leállítás most parancs azonnal kikapcsolja a számítógépet. A beállítás a leállítás végrehajtása vagy a visszaszámlálás megszakítása után automatikusan kikapcsol.
+A számítógép nem áll le addig, amíg bármely felvétel folyamatban van vagy még indításra vár. Amikor minden feladat befejeződött, egy ablak 60 másodperces visszaszámlálást jelenít meg. A fókusz a Leállítás megszakítása gombra kerül, így az Enter vagy az Escape megnyomásával megszakíthatja a visszaszámlálást. A Leállítás most parancs azonnal kikapcsolja a számítógépet. A beállítás a leállítás végrehajtása vagy a visszaszámlálás megszakítása után automatikusan inaktívvá válik.
 
 ## Átküldés {#casting}
 
-Az átküldés segítségével egy csatorna lejátszását a helyi hálózaton található televízióra vagy hangszóróra irányíthatja. A támogatott eszközök közé tartoznak többek között a Chromecast-eszközök, a DLNA- és UPnP-megjelenítők, valamint az AirPlay-kompatibilis készülékek, például az Apple TV és a HomePod.
+Az átküldéssel a helyi hálózaton található televízión, hangszórón vagy más lejátszóeszközön folytathatja egy csatorna lejátszását. A támogatott eszközök közé tartoznak a Chromecast- és más Google Cast-eszközök, az AirPlay-hangszórók, a DLNA- és UPnP-megjelenítők, a Sonos-hangszórók, a Roku-lejátszók, valamint a Kodi.
 
-A Fájl > Átküldés ide… parancs megkeresi a hálózaton elérhető eszközöket, majd listában jeleníti meg őket. Válassza ki a kívánt készüléket, és használja a Kapcsolódás parancsot. Egyes AirPlay-eszközöknél előbb a Párosítás… parancsot kell használnia; ekkor adja meg a televízión megjelenő kódot. Sikeres kapcsolódás után a csatornák lejátszása a kiválasztott eszközön indul. A kapcsolat megszakításához válassza ismét a Fájl > Átküldés ide… parancsot.
+A Fájl > Átküldés ide… parancs megkeresi a hálózaton elérhető eszközöket, majd típusukkal együtt felsorolja őket. Jelölje ki a kívánt eszközt, és válassza a Kapcsolódás parancsot. Sikeres kapcsolódás után a csatorna lejátszása a kiválasztott készüléken folytatódik. A hangszórók – például az AirPlay- és Sonos-eszközök – csak a csatorna hangját játsszák le. A kapcsolat megszakításához válassza ismét a Fájl > Átküldés ide… parancsot.
 
 A beépített lejátszó Átküldés gombja és Ctrl+C billentyűparancsa, valamint a Lejátszó > Átküldés / kapcsolódás… (Ctrl+Shift+C) parancs egyaránt ezt a műveletet indítja.
 
@@ -324,7 +324,7 @@ Az átküldéshez a számítógépnek és a fogadó eszköznek ugyanahhoz a hely
 
 ## Fiókadatok {#account-info}
 
-A Fájl > Fiókadatok (Ctrl+Shift+A) megjeleníti az Xtream Codes- és Stalker Portal-fiókok állapotát. A részletekből megtudhatja, hogy a fiók aktív-e, mikor jár le, hány nap van még hátra a lejáratig, illetve próbafiókról van-e szó. Emellett az engedélyezett és az éppen használt párhuzamos kapcsolatok száma is megjelenik. A program a lejátszási listák internetes címeiből felismert fiókokat is felsorolja.
+A Fájl > Fiókadatok (Ctrl+Shift+A) megjeleníti az Xtream Codes- és Stalker Portal-fiókok állapotát. A részletekből megtudhatja, hogy a fiók aktív-e, mikor jár le, hány nap van még hátra az érvényességéből, illetve próbafiókról van-e szó. Emellett az engedélyezett és az éppen használt párhuzamos kapcsolatok száma is megjelenik. A program a lejátszási listák internetes címeiből felismert fiókokat is felsorolja.
 
 Válasszon fiókot a listából; a részletes adatok az alatta található, csak olvasható mezőben jelennek meg. A Frissítés ismét lekéri az adatokat a szolgáltatótól, az Adatok másolása pedig a vágólapra helyezi őket. A program soha nem jeleníti meg a jelszavakat.
 
@@ -342,15 +342,13 @@ A Beállítások menü a program működését szabályozó lehetőségeket tart
 
 ### Nyelv {#language}
 
-A Beállítások > Nyelv menüpontban választhatja ki a program felületi nyelvét. Az Automatikus beállítás a Windows vagy az asztali környezet nyelvét követi; ha ahhoz nem érhető el fordítás, a program angolul jelenik meg. A nyelvváltás teljes körű érvényesítéséhez újra kell indítani a programot.
+A Beállítások > Nyelv menüpontban választhatja ki a program felületi nyelvét. Az Automatikus beállítás a Windows vagy az asztali környezet nyelvét követi; ha ahhoz nem érhető el fordítás, a program angolul jelenik meg. Az új nyelv teljes körű alkalmazásához újra kell indítani a programot.
 
 A program angol, spanyol, arab, brazíliai portugál, francia, német, orosz, török, olasz, lengyel, hindi, egyszerűsített kínai, japán és magyar nyelven érhető el. A fordítások javítását és új nyelvek hozzáadását a fejlesztő örömmel fogadja; további részletekért lásd a Segítségkérés című részt.
 
 ### Rendszertálca {#system-tray}
 
-Ha a Beállítások > Minimalizálás a rendszertálcára lehetőség engedélyezve van, a főablak bezárásakor vagy minimalizálásakor az alkalmazás tovább fut, az ablak pedig az értesítési területre kerül. Így az ütemezett felvételek a háttérben is elindulhatnak és folytatódhatnak. A rendszertálca ikonjának aktiválásával ismét megjelenítheti az ablakot. Az ikon helyi menüjéből elérhető többek között az Ablak visszaállítása, a Lejátszó vezérlőelemei, folyamatban lévő rögzítés esetén a Rögzítések leállítása, valamint a Kilépés.
-
-A rendszertálca ikonjának menüjében található Kilépés parancs ugyanazt a megerősítő kérdést jeleníti meg, mint az ablak bezárása: név szerint felsorolja valamennyi indításra váró felvételt, és mindegyiknél feltünteti az ütemezett kezdés helyi időpontját. Így szükség esetén megszakíthatja a kilépést, és elkerülheti, hogy valamelyik rögzítés elmaradjon.
+Ha a Beállítások > Minimalizálás a rendszertálcára lehetőség engedélyezve van, a főablak bezárásakor vagy minimalizálásakor az alkalmazás nem lép ki, hanem az értesítési területen fut tovább. Így az ütemezett felvételek a háttérben is elindulhatnak és folytatódhatnak. A rendszertálca ikonjának aktiválásával újból megjelenítheti a főablakot. Az ikon helyi menüjében többek között az Ablak visszaállítása, a Lejátszó vezérlőelemei, folyamatban lévő rögzítés esetén a Rögzítések leállítása, valamint a Kilépés található. Ez utóbbi ugyanazt a megerősítő kérdést jeleníti meg, mint a főablak bezárása: név szerint felsorolja az indításra váró felvételeket, és mindegyiknél feltünteti az ütemezett kezdés helyi időpontját. Így szükség esetén megszakíthatja a kilépést, és elkerülheti valamelyik rögzítés elmaradását.
 
 A program teljes bezárásához használja a Fájl > Kilépés (Ctrl+Q) parancsot.
 
@@ -358,7 +356,7 @@ A program teljes bezárásához használja a Fájl > Kilépés (Ctrl+Q) parancso
 
 Windows alatt a program képes önmagát frissíteni. A Súgó > Frissítések keresése… paranccsal azonnal ellenőrizheti, hogy elérhető-e új verzió. A Beállítások > Frissítések automatikus keresése beállítás engedélyezésekor a program ugyanezt időnként a háttérben is elvégzi.
 
-Ha elérhető frissítés, a program elmondja, mi az újdonság, és megkérdezi, telepítse-e. A letöltést ellenőrzi, mielőtt bármit telepítene. Ettől kezdve egyetlen frissítési ablak marad a képernyőn a teljes folyamat alatt: minden lépésnél elmondja, mi történik, a letöltés alatt Mégse gombot kínál, a program bezárása és a frissítés telepítése alatt is látható marad, és szól, amikor az új verzió elindult. A beállítások, a kedvencek és a felvételek megmaradnak.
+Ha új verzió érhető el, a program ismerteti a változásokat, majd megkérdezi, kívánja-e telepíteni. A letöltött csomagot a telepítés megkezdése előtt ellenőrzi. A frissítés teljes folyamata alatt egyetlen ablak látható, amely minden lépésnél közli, mi történik. Letöltés közben a Mégse gombbal szakíthatja meg a műveletet. Az ablak a program bezárása és a telepítés során sem tűnik el, végül pedig értesít az új verzió elindulásáról. A beállítások, a kedvencek és a felvételek megmaradnak.
 
 Linux alatt az új csomagot a korábbi verzió fölé kell telepíteni.
 
@@ -366,7 +364,7 @@ A Súgó > Újdonságok parancs verziónként, a legfrissebbel kezdve sorolja fe
 
 ## Hibaelhárítás {#troubleshooting}
 
-- A Súgó > Naplómappa megnyitása paranccsal elérheti a naplókat tartalmazó mappát. Itt található többek között a műsorújság-importálás naplója, valamint az egyes rögzítések külön naplófájlja.
+- A Súgó > Naplómappa megnyitása paranccsal elérheti a naplókat tartalmazó mappát. Itt található többek között a műsorújság importálásának naplója, valamint minden egyes rögzítés külön naplófájlja.
 - A Súgó > Napló- és hibakeresési adatok másolása olyan jelentést helyez a vágólapra, amely tartalmazza a program verzióját, a rendszer alapadatait és a legutóbbi naplósorokat. Ez közvetlenül beilleszthető egy hibajelentésbe. A jelentés az adások internetes címeit is tartalmazza; ezekben a szolgáltatói bejelentkezési adatok is szerepelhetnek, ezért nyilvános megosztás előtt mindig ellenőrizze a tartalmát.
 
 Gyakori problémák:
@@ -374,7 +372,7 @@ Gyakori problémák:
 - A csatorna nem játszható le: sok szolgáltató fiókonként egyszerre csak egy adatfolyamot engedélyez. Állítsa le az ugyanahhoz a fiókhoz tartozó egyéb lejátszást, rögzítést vagy letöltést, majd próbálja újra.
 - Egy csatornához nem jelenik meg műsorújság: ellenőrizze, hogy valamelyik beállított műsorújság-forrás tartalmazza-e az adott csatornát, majd importálja újra az adatokat.
 - A lejátszás akadozik: a beépített lejátszó automatikusan szabályozza a pufferelést. Ha nagyobb puffert szeretne, az iptvclient.conf fájlban növelheti az internal_player_buffer_seconds és az internal_player_max_buffer_seconds értékét.
-- A Műsorarchívum azt jelzi, hogy egy műsor nem érhető el: valószínűleg kívül esik azon az időszakon, amelyre a szolgáltató archívuma visszamenőleg kiterjed.
+- A Műsorarchívum azt jelzi, hogy egy műsor nem érhető el: a műsor valószínűleg már kívül esik a szolgáltató által megőrzött időszakon.
 
 ## Billentyűparancsok {#keyboard-shortcuts}
 
@@ -390,7 +388,7 @@ A főablakban:
 - Ctrl+W: Most adásban.
 - Ctrl+Shift+A: Fiókadatok.
 - Ctrl+D: a kijelölt csatorna hozzáadása a kedvencekhez, illetve eltávolítása onnan.
-- Delete: a kijelölt csatorna eltávolítása a kedvencekből, ha a Kedvencek kategóriában áll.
+- Delete: eltávolítja a kijelölt csatornát a Kedvencek kategóriából.
 - Ctrl+Shift+R: a kijelölt csatorna rögzítésének elindítása vagy leállítása.
 - Ctrl+Shift+D: a folyamatban lévő archív műsorletöltések ablakainak megjelenítése.
 - Ctrl+Shift+J: a beépített lejátszó megjelenítése.
