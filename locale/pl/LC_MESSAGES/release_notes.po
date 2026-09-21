@@ -12,19 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:8
+#: CHANGELOG.md:14
 msgid "Add recording problem jump times and fix update handoff"
 msgstr "Dodaje czasy przeskoku dla problemów z nagraniem i naprawia przekazanie aktualizacji"
 
 #: CHANGELOG.md:21
-msgid "Close the window when the update is done, and stop pressing Alt"
-msgstr "Okno zamyka się po zakończeniu aktualizacji, a aplikacja nie otwiera już paska menu przy przechodzeniu na pierwszy plan"
-
-#: CHANGELOG.md:15
 msgid "File > Exit quits even when Minimize to System Tray is on"
 msgstr "Plik > Zakończ zamyka aplikację nawet przy włączonej opcji Minimalizuj do zasobnika systemowego"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "The Applications key opens the scheduled-recording menu, not Alt"
 msgstr "Klawisz Menu otwiera menu zaplanowanych nagrań, a nie Alt"
 

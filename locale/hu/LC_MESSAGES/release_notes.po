@@ -12,18 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:8
+#: CHANGELOG.md:14
 msgid "Add recording problem jump times and fix update handoff"
 msgstr "A felvétel során jelentkező problémák időpontjai mostantól megtekinthetők, így a lejátszóban közvetlenül az érintett részekhez lehet ugrani; emellett megbízhatóbbá vált a frissítés átadása a segédprogramnak."
 
 #: CHANGELOG.md:21
-msgid "Close the window when the update is done, and stop pressing Alt"
-msgstr "A frissítés befejezésekor bezárul a folyamatjelző ablak, a program pedig többé nem szimulál Alt billentyűleütést."
-
-#: CHANGELOG.md:15
 msgid "File > Exit quits even when Minimize to System Tray is on"
 msgstr "A Fájl > Kilépés parancs akkor is teljesen bezárja a programot, ha a Minimalizálás a rendszertálcára beállítás engedélyezve van."
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "The Applications key opens the scheduled-recording menu, not Alt"
 msgstr "Az ütemezett felvételek helyi menüjét már az Alkalmazásgomb nyitja meg, nem pedig az Alt billentyű."
+
