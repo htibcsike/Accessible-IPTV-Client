@@ -21,7 +21,7 @@ msgid "(No EPG debug log has been written yet.)"
 msgstr "(لم يُكتب أي سجل تصحيح لدليل البرامج بعد.)"
 
 #: main.py:8758
-#: main.py:9698
+#: main.py:9704
 msgid "(No title)"
 msgstr "(بلا عنوان)"
 
@@ -94,34 +94,34 @@ msgstr "نشط"
 msgid "Active recordings: {count}"
 msgstr "التسجيلات النشطة: {count}"
 
-#: playlist.py:3134
-#: playlist.py:3253
+#: playlist.py:3136
+#: playlist.py:3255
 msgid "Add"
 msgstr "إضافة"
 
 #: playlist.py:2844
-#: playlist.py:2933
+#: playlist.py:2934
 msgid "Add File"
 msgstr "إضافة ملف"
 
-#: playlist.py:2936
+#: playlist.py:2937
 msgid "Add Stalker Portal"
 msgstr "إضافة Stalker Portal"
 
-#: playlist.py:3187
+#: playlist.py:3189
 msgid "Add Stalker Portal Account"
 msgstr "إضافة حساب Stalker Portal"
 
 #: playlist.py:2845
-#: playlist.py:2934
+#: playlist.py:2935
 msgid "Add URL"
 msgstr "إضافة عنوان URL"
 
-#: playlist.py:2935
+#: playlist.py:2936
 msgid "Add Xtream Codes"
 msgstr "إضافة Xtream Codes"
 
-#: playlist.py:3072
+#: playlist.py:3074
 msgid "Add Xtream Codes Account"
 msgstr "إضافة حساب Xtream Codes"
 
@@ -137,8 +137,8 @@ msgstr "إضافة إلى المفضلة"
 msgid "All Channels"
 msgstr "جميع القنوات"
 
-#: playlist.py:2877
-#: playlist.py:2967
+#: playlist.py:2878
+#: playlist.py:2969
 msgid "All files"
 msgstr "جميع الملفات"
 
@@ -158,9 +158,9 @@ msgstr "التنسيقات المسموح بها"
 msgid "An update is already in progress."
 msgstr "يوجد تحديث قيد التنفيذ بالفعل."
 
-#: playlist.py:3227
-#: playlist.py:3228
+#: playlist.py:3229
 #: playlist.py:3230
+#: playlist.py:3232
 msgid "Attempt to add provider XMLTV"
 msgstr "محاولة إضافة XMLTV الخاص بالمزوّد"
 
@@ -245,9 +245,9 @@ msgstr "التحقق من التحديثات تلقائيًا"
 msgid "Automatic"
 msgstr "تلقائي"
 
-#: playlist.py:3114
-#: playlist.py:3115
+#: playlist.py:3116
 #: playlist.py:3117
+#: playlist.py:3119
 msgid "Automatically add XMLTV URL"
 msgstr "إضافة عنوان URL الخاص بـ XMLTV تلقائيًا"
 
@@ -255,11 +255,11 @@ msgstr "إضافة عنوان URL الخاص بـ XMLTV تلقائيًا"
 msgid "Banned"
 msgstr "محظور"
 
-#: playlist.py:3240
+#: playlist.py:3242
 msgid "Base URL of the Stalker/Ministra portal"
 msgstr "عنوان URL الأساسي لبوابة Stalker/Ministra"
 
-#: playlist.py:3122
+#: playlist.py:3124
 msgid "Base URL of the Xtream Codes server"
 msgstr "عنوان URL الأساسي لخادم Xtream Codes"
 
@@ -306,10 +306,10 @@ msgstr "المشغّل المدمج غير متوفر:\n{detail}"
 #: main.py:8997
 #: main.py:9187
 #: options.py:825
-#: playlist.py:2857
-#: playlist.py:2948
-#: playlist.py:3135
-#: playlist.py:3254
+#: playlist.py:2858
+#: playlist.py:2950
+#: playlist.py:3137
+#: playlist.py:3256
 msgid "Cancel"
 msgstr "إلغاء"
 
@@ -436,8 +436,8 @@ msgid "Channel missing command reference"
 msgstr "القناة تفتقد مرجع الأمر"
 
 #: main.py:2781
-#: main.py:9564
-#: main.py:9566
+#: main.py:9570
+#: main.py:9572
 msgid "Channels"
 msgstr "القنوات"
 
@@ -473,11 +473,11 @@ msgstr "يتم التحقق من {account}..."
 msgid "Choose Audio Track"
 msgstr "اختيار المسار الصوتي"
 
-#: playlist.py:2879
+#: playlist.py:2880
 msgid "Choose EPG XML file"
 msgstr "اختر ملف XML الخاص بـ EPG"
 
-#: playlist.py:2969
+#: playlist.py:2971
 msgid "Choose M3U file"
 msgstr "اختر ملف M3U"
 
@@ -497,6 +497,14 @@ msgstr "المجتمع والدعم"
 #: main.py:9213
 msgid "Completed"
 msgstr "اكتمل"
+
+#: playlist.py:2850
+msgid "Configured EPG sources"
+msgstr "مصادر EPG المُعدّة"
+
+#: playlist.py:2942
+msgid "Configured playlists and providers"
+msgstr "قوائم التشغيل والمزوّدون المُعدّون"
 
 #: main.py:4293
 msgid "Configured playlists: {count}"
@@ -674,16 +682,16 @@ msgstr "الأيام المنقضية بعد انتهاء الصلاحية"
 msgid "Delete"
 msgstr "حذف"
 
-#: playlist.py:3036
+#: playlist.py:3038
 msgid "Delete Playlist"
 msgstr "حذف قائمة التشغيل"
 
-#: playlist.py:3033
+#: playlist.py:3035
 msgid "Delete the playlist “{name}”?\n\nThis removes it from the list of playlists. It cannot be undone."
 msgstr "هل تريد حذف قائمة التشغيل «{name}»؟\n\nسيتم إزالتها من قائمة قوائم التشغيل، ولا يمكن التراجع عن ذلك."
 
 #: main.py:8709
-#: main.py:9728
+#: main.py:9737
 msgid "Description"
 msgstr "الوصف"
 
@@ -708,8 +716,8 @@ msgstr "معطّل"
 msgid "Disconnected from the cast device. Open the cast menu to pick another device."
 msgstr "تم قطع الاتصال بجهاز البث. افتح قائمة البث لاختيار جهاز آخر."
 
-#: playlist.py:3121
-#: playlist.py:3239
+#: playlist.py:3123
+#: playlist.py:3241
 msgid "Display name"
 msgstr "الاسم المعروض"
 
@@ -835,7 +843,7 @@ msgstr "سيبدأ استيراد EPG في الخلفية. يمكنك متابع
 msgid "EPG is not enabled."
 msgstr "EPG غير مُمكّن."
 
-#: main.py:9709
+#: main.py:9715
 msgid "EPG: {channel}"
 msgstr "EPG: {channel}"
 
@@ -848,11 +856,11 @@ msgstr "المنقضي: {time}"
 msgid "Ended"
 msgstr "انتهى"
 
-#: playlist.py:2887
+#: playlist.py:2888
 msgid "Enter EPG XML URL"
 msgstr "أدخل عنوان URL الخاص بـ XML EPG"
 
-#: playlist.py:2977
+#: playlist.py:2979
 msgid "Enter M3U URL"
 msgstr "أدخل عنوان URL الخاص بـ M3U"
 
@@ -863,7 +871,7 @@ msgstr "أدخل الملف التنفيذي للمشغّل أو مساره:"
 #: main.py:2800
 #: main.py:2802
 #: main.py:8712
-#: main.py:9731
+#: main.py:9740
 msgid "Episode description"
 msgstr "وصف الحلقة"
 
@@ -1029,7 +1037,7 @@ msgstr "ملء الشاشة"
 msgid "Full ffmpeg log:\n{path}"
 msgstr "سجل ffmpeg الكامل:\n{path}"
 
-#: playlist.py:2876
+#: playlist.py:2877
 msgid "GZip XML"
 msgstr "GZip XML"
 
@@ -1108,7 +1116,7 @@ msgstr "جارٍ استيراد بيانات EPG…"
 msgid "In Progress"
 msgstr "قيد التقدم"
 
-#: playlist.py:3118
+#: playlist.py:3120
 msgid "Include the provider's XMLTV guide automatically"
 msgstr "تضمين دليل XMLTV الخاص بالمزوّد تلقائيًا"
 
@@ -1174,20 +1182,20 @@ msgstr "جارٍ تحميل قوائم التشغيل..."
 msgid "Logs"
 msgstr "السجلات"
 
-#: playlist.py:2966
+#: playlist.py:2968
 msgid "M3U files"
 msgstr "ملفات M3U"
 
 #: account_info.py:388
-#: playlist.py:3243
+#: playlist.py:3245
 msgid "MAC address"
 msgstr "عنوان MAC"
 
-#: playlist.py:3292
+#: playlist.py:3294
 msgid "MAC address must contain six octets (e.g., 00:1A:79:12:34:56)."
 msgstr "يجب أن يحتوي عنوان MAC على ستة مقاطع (مثل 00:1A:79:12:34:56)."
 
-#: playlist.py:3243
+#: playlist.py:3245
 msgid "MAC address presented to the portal"
 msgstr "عنوان MAC المقدَّم إلى البوابة"
 
@@ -1295,7 +1303,7 @@ msgstr "لم يتم العثور على قنوات."
 
 #: main.py:3187
 #: main.py:8778
-#: main.py:9833
+#: main.py:9846
 msgid "No description available for this programme."
 msgstr "لا يوجد وصف لهذا البرنامج."
 
@@ -1379,8 +1387,8 @@ msgstr "الآن: {title} ({start} – {end})"
 #: main.py:8874
 #: main.py:8996
 #: options.py:825
-#: playlist.py:2856
-#: playlist.py:2947
+#: playlist.py:2857
+#: playlist.py:2949
 msgid "OK"
 msgstr "موافق"
 
@@ -1413,19 +1421,19 @@ msgstr "افتح الملف المسجّل في VLC، واضغط Ctrl+T، ثم �
 msgid "Opening"
 msgstr "جارٍ الفتح"
 
-#: playlist.py:3121
+#: playlist.py:3123
 msgid "Optional nickname for this Xtream Codes account"
 msgstr "اسم مستعار اختياري لحساب Xtream Codes هذا"
 
-#: playlist.py:3239
+#: playlist.py:3241
 msgid "Optional nickname for this portal account"
 msgstr "اسم مستعار اختياري لحساب البوابة هذا"
 
-#: playlist.py:3242
+#: playlist.py:3244
 msgid "Optional portal account password"
 msgstr "كلمة مرور حساب البوابة (اختيارية)"
 
-#: playlist.py:3241
+#: playlist.py:3243
 msgid "Optional portal account username"
 msgstr "اسم مستخدم حساب البوابة (اختياري)"
 
@@ -1450,7 +1458,7 @@ msgstr "قوائم تشغيل أخرى"
 msgid "Package"
 msgstr "الحزمة"
 
-#: playlist.py:3124
+#: playlist.py:3126
 msgid "Password"
 msgstr "كلمة المرور"
 
@@ -1482,7 +1490,7 @@ msgstr "النظام: {platform}"
 #: internal_player.py:727
 #: main.py:3221
 #: main.py:9337
-#: main.py:9516
+#: main.py:9522
 msgid "Play"
 msgstr "تشغيل"
 
@@ -1525,11 +1533,11 @@ msgstr "قائمة التشغيل"
 
 #: main.py:2833
 #: main.py:2950
-#: playlist.py:2920
+#: playlist.py:2921
 msgid "Playlist Manager"
 msgstr "مدير قوائم التشغيل"
 
-#: playlist.py:3125
+#: playlist.py:3127
 msgid "Playlist type"
 msgstr "نوع قائمة التشغيل"
 
@@ -1544,12 +1552,12 @@ msgstr "عرض قائمة التشغيل"
 msgid "Please try another channel or try again later."
 msgstr "يرجى تجربة قناة أخرى أو المحاولة مرة أخرى لاحقًا."
 
-#: playlist.py:3288
+#: playlist.py:3290
 msgid "Portal URL is required."
 msgstr "عنوان URL للبوابة مطلوب."
 
-#: playlist.py:3122
-#: playlist.py:3240
+#: playlist.py:3124
+#: playlist.py:3242
 msgid "Portal base URL"
 msgstr "عنوان URL الأساسي للبوابة"
 
@@ -1583,7 +1591,7 @@ msgstr "المسار الصوتي المفضل"
 msgid "Preferred Audio Track..."
 msgstr "المسار الصوتي المفضل..."
 
-#: playlist.py:3126
+#: playlist.py:3128
 msgid "Preferred stream container format"
 msgstr "تنسيق حاوية البث المفضّل"
 
@@ -1614,7 +1622,7 @@ msgstr "التقدم: {percent}%"
 
 #: account_info.py:111
 #: main.py:1841
-#: playlist.py:3047
+#: playlist.py:3049
 msgid "Provider"
 msgstr "المزوّد"
 
@@ -1634,7 +1642,7 @@ msgid "Provider quality (copy, MP4)"
 msgstr "جودة المزوّد (نسخ، MP4)"
 
 #: main.py:1846
-#: playlist.py:3052
+#: playlist.py:3054
 msgid "Provider – {name}"
 msgstr "المزوّد – {name}"
 
@@ -1642,7 +1650,7 @@ msgstr "المزوّد – {name}"
 msgid "Python: {version}"
 msgstr "Python: {version}"
 
-#: playlist.py:3236
+#: playlist.py:3238
 msgid "Randomise MAC"
 msgstr "توليد MAC عشوائي"
 
@@ -1801,9 +1809,9 @@ msgstr "هامش الجدولة..."
 #: main.py:3515
 #: main.py:3522
 #: main.py:9338
-#: main.py:9518
-#: main.py:9800
-#: main.py:9842
+#: main.py:9524
+#: main.py:9813
+#: main.py:9855
 msgid "Schedule Recording"
 msgstr "جدولة التسجيل"
 
@@ -1877,7 +1885,7 @@ msgstr "حدد قناة أولاً."
 msgid "Select a channel to record first."
 msgstr "حدد قناة للتسجيل أولاً."
 
-#: main.py:9842
+#: main.py:9855
 msgid "Select a programme first."
 msgstr "حدد برنامجًا أولاً."
 
@@ -1898,7 +1906,7 @@ msgstr "اختر حسابًا للتحقق من حالته:"
 msgid "Select the audio output device for the built-in player."
 msgstr "حدد جهاز إخراج الصوت للمشغّل المدمج."
 
-#: playlist.py:3125
+#: playlist.py:3127
 msgid "Select the playlist format to download"
 msgstr "حدد تنسيق قائمة التشغيل للتنزيل"
 
@@ -1988,7 +1996,7 @@ msgid "Stalker Portal"
 msgstr "Stalker Portal"
 
 #: main.py:1845
-#: playlist.py:3051
+#: playlist.py:3053
 msgid "Stalker Portal – {name}"
 msgstr "Stalker Portal – {name}"
 
@@ -2088,7 +2096,7 @@ msgstr "انقطع البث. قد يكون غير متصل أو يواجه مش�
 msgid "Stream lost"
 msgstr "فُقد البث"
 
-#: playlist.py:3126
+#: playlist.py:3128
 msgid "Stream output"
 msgstr "خرج البث"
 
@@ -2216,7 +2224,7 @@ msgid "This programme is not available as catch-up content yet."
 msgstr "هذا البرنامج غير متاح للمشاهدة اللاحقة بعد."
 
 #: main.py:9138
-#: main.py:9718
+#: main.py:9724
 msgid "Time"
 msgstr "الوقت"
 
@@ -2225,7 +2233,7 @@ msgid "Time remaining: {time}"
 msgstr "الوقت المتبقي: {time}"
 
 #: main.py:9139
-#: main.py:9719
+#: main.py:9725
 msgid "Title"
 msgstr "العنوان"
 
@@ -2248,7 +2256,7 @@ msgstr "المسار {id}"
 msgid "Trial account"
 msgstr "حساب تجريبي"
 
-#: playlist.py:3231
+#: playlist.py:3233
 msgid "Try to add the portal's XMLTV guide automatically"
 msgstr "محاولة إضافة دليل XMLTV الخاص بالبوابة تلقائيًا"
 
@@ -2289,7 +2297,7 @@ msgstr "غير مصنّف"
 msgid "Unexpected account response from the Xtream server"
 msgstr "استجابة حساب غير متوقعة من خادم Xtream"
 
-#: main.py:9699
+#: main.py:9705
 #: updater.py:773
 msgid "Unknown"
 msgstr "غير معروف"
@@ -2410,17 +2418,17 @@ msgid "User Guide"
 msgstr "دليل المستخدم"
 
 #: account_info.py:386
-#: playlist.py:3123
+#: playlist.py:3125
 msgid "Username"
 msgstr "اسم المستخدم"
 
-#: playlist.py:3154
+#: playlist.py:3156
 msgid "Username, password, and URL are required."
 msgstr "اسم المستخدم وكلمة المرور وعنوان URL مطلوبة."
 
-#: playlist.py:3154
-#: playlist.py:3288
-#: playlist.py:3292
+#: playlist.py:3156
+#: playlist.py:3290
+#: playlist.py:3294
 msgid "Validation"
 msgstr "التحقق"
 
@@ -2485,7 +2493,7 @@ msgstr "عندما توفر القناة أكثر من مسار صوتي، يم�
 msgid "Windows did not get permission to install the update."
 msgstr "لم يحصل Windows على إذن لتثبيت التحديث."
 
-#: playlist.py:2875
+#: playlist.py:2876
 msgid "XML files"
 msgstr "ملفات XML"
 
@@ -2493,16 +2501,16 @@ msgstr "ملفات XML"
 msgid "Xtream Codes"
 msgstr "Xtream Codes"
 
-#: playlist.py:3124
+#: playlist.py:3126
 msgid "Xtream Codes password"
 msgstr "كلمة مرور Xtream Codes"
 
-#: playlist.py:3123
+#: playlist.py:3125
 msgid "Xtream Codes username"
 msgstr "اسم مستخدم Xtream Codes"
 
 #: main.py:1843
-#: playlist.py:3049
+#: playlist.py:3051
 msgid "Xtream Codes – {name}"
 msgstr "Xtream Codes – {name}"
 
@@ -2546,7 +2554,7 @@ msgstr "إعادة ترميز x264 (MKV)"
 msgid "x264 re-encode (MP4)"
 msgstr "إعادة ترميز x264 (MP4)"
 
-#: main.py:9894
+#: main.py:9907
 msgid "{app} is already running, but it did not respond. Wait a moment and try again, or close it from the notification area."
 msgstr "{app} قيد التشغيل بالفعل، لكنه لم يستجب. انتظر لحظة ثم حاول مرة أخرى، أو أغلقه من منطقة الإعلامات."
 
@@ -2559,7 +2567,7 @@ msgid "{app} was successfully updated to v{version}."
 msgstr "تم تحديث {app} بنجاح إلى الإصدار v{version}."
 
 #: main.py:9326
-#: main.py:9471
+#: main.py:9477
 msgid "{count} programs"
 msgstr "{count} برنامج"
 
@@ -2575,15 +2583,15 @@ msgstr "{kind} – {who}"
 msgid "{kind} – {who} (detected)"
 msgstr "{kind} – {who} (تم كشفه)"
 
-#: playlist.py:3091
-#: playlist.py:3206
+#: playlist.py:3093
+#: playlist.py:3208
 msgid "{label} field"
 msgstr "الحقل {label}"
 
-#: playlist.py:3085
 #: playlist.py:3087
-#: playlist.py:3200
+#: playlist.py:3089
 #: playlist.py:3202
+#: playlist.py:3204
 msgid "{label} label"
 msgstr "التسمية {label}"
 

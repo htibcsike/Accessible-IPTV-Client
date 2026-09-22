@@ -2847,6 +2847,7 @@ if WX_AVAILABLE:
                 btn_sizer.Add(btn, 0, wx.ALL, 2)
             main_sizer.Add(btn_sizer, 0, wx.EXPAND)
             self.lb = wx.ListBox(panel, style=wx.LB_SINGLE)
+            self.lb.SetName(_("Configured EPG sources"))
             for src in self.epg_sources:
                 self.lb.Append(self._format_source_label(src))
             if self.epg_sources:
@@ -2938,6 +2939,7 @@ if WX_AVAILABLE:
                 btn_sizer.Add(btn, 0, wx.ALL, 2)
             main_sizer.Add(btn_sizer, 0, wx.EXPAND)
             self.lb = wx.ListBox(panel, style=wx.LB_SINGLE)
+            self.lb.SetName(_("Configured playlists and providers"))
             for src in self.playlist_sources:
                 self.lb.Append(self._format_source_label(src))
             if self.playlist_sources:

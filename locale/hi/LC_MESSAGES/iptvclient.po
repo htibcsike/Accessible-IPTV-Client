@@ -21,7 +21,7 @@ msgid "(No EPG debug log has been written yet.)"
 msgstr "(अभी तक कोई EPG डिबग लॉग नहीं लिखा गया है।)"
 
 #: main.py:8758
-#: main.py:9698
+#: main.py:9704
 msgid "(No title)"
 msgstr "(कोई शीर्षक नहीं)"
 
@@ -94,34 +94,34 @@ msgstr "सक्रिय"
 msgid "Active recordings: {count}"
 msgstr "सक्रिय रिकॉर्डिंग: {count}"
 
-#: playlist.py:3134
-#: playlist.py:3253
+#: playlist.py:3136
+#: playlist.py:3255
 msgid "Add"
 msgstr "जोड़ें"
 
 #: playlist.py:2844
-#: playlist.py:2933
+#: playlist.py:2934
 msgid "Add File"
 msgstr "फ़ाइल जोड़ें"
 
-#: playlist.py:2936
+#: playlist.py:2937
 msgid "Add Stalker Portal"
 msgstr "Stalker Portal जोड़ें"
 
-#: playlist.py:3187
+#: playlist.py:3189
 msgid "Add Stalker Portal Account"
 msgstr "Stalker Portal खाता जोड़ें"
 
 #: playlist.py:2845
-#: playlist.py:2934
+#: playlist.py:2935
 msgid "Add URL"
 msgstr "URL जोड़ें"
 
-#: playlist.py:2935
+#: playlist.py:2936
 msgid "Add Xtream Codes"
 msgstr "Xtream Codes जोड़ें"
 
-#: playlist.py:3072
+#: playlist.py:3074
 msgid "Add Xtream Codes Account"
 msgstr "Xtream Codes खाता जोड़ें"
 
@@ -137,8 +137,8 @@ msgstr "पसंदीदा में जोड़ें"
 msgid "All Channels"
 msgstr "सभी चैनल"
 
-#: playlist.py:2877
-#: playlist.py:2967
+#: playlist.py:2878
+#: playlist.py:2969
 msgid "All files"
 msgstr "सभी फ़ाइलें"
 
@@ -158,9 +158,9 @@ msgstr "अनुमत प्रारूप"
 msgid "An update is already in progress."
 msgstr "एक अपडेट पहले से ही चल रहा है।"
 
-#: playlist.py:3227
-#: playlist.py:3228
+#: playlist.py:3229
 #: playlist.py:3230
+#: playlist.py:3232
 msgid "Attempt to add provider XMLTV"
 msgstr "प्रदाता का XMLTV जोड़ने का प्रयास करें"
 
@@ -245,9 +245,9 @@ msgstr "अपडेट के लिए स्वतः जाँच करे�
 msgid "Automatic"
 msgstr "स्वचालित"
 
-#: playlist.py:3114
-#: playlist.py:3115
+#: playlist.py:3116
 #: playlist.py:3117
+#: playlist.py:3119
 msgid "Automatically add XMLTV URL"
 msgstr "XMLTV URL स्वतः जोड़ें"
 
@@ -255,11 +255,11 @@ msgstr "XMLTV URL स्वतः जोड़ें"
 msgid "Banned"
 msgstr "प्रतिबंधित"
 
-#: playlist.py:3240
+#: playlist.py:3242
 msgid "Base URL of the Stalker/Ministra portal"
 msgstr "Stalker/Ministra पोर्टल का बेस URL"
 
-#: playlist.py:3122
+#: playlist.py:3124
 msgid "Base URL of the Xtream Codes server"
 msgstr "Xtream Codes सर्वर का बेस URL"
 
@@ -306,10 +306,10 @@ msgstr "अंतर्निहित प्लेयर उपलब्ध न
 #: main.py:8997
 #: main.py:9187
 #: options.py:825
-#: playlist.py:2857
-#: playlist.py:2948
-#: playlist.py:3135
-#: playlist.py:3254
+#: playlist.py:2858
+#: playlist.py:2950
+#: playlist.py:3137
+#: playlist.py:3256
 msgid "Cancel"
 msgstr "रद्द करें"
 
@@ -436,8 +436,8 @@ msgid "Channel missing command reference"
 msgstr "चैनल में कमांड संदर्भ गायब है"
 
 #: main.py:2781
-#: main.py:9564
-#: main.py:9566
+#: main.py:9570
+#: main.py:9572
 msgid "Channels"
 msgstr "चैनल"
 
@@ -473,11 +473,11 @@ msgstr "{account} की जाँच हो रही है..."
 msgid "Choose Audio Track"
 msgstr "ऑडियो ट्रैक चुनें"
 
-#: playlist.py:2879
+#: playlist.py:2880
 msgid "Choose EPG XML file"
 msgstr "EPG XML फ़ाइल चुनें"
 
-#: playlist.py:2969
+#: playlist.py:2971
 msgid "Choose M3U file"
 msgstr "M3U फ़ाइल चुनें"
 
@@ -497,6 +497,14 @@ msgstr "समुदाय और सहायता"
 #: main.py:9213
 msgid "Completed"
 msgstr "पूर्ण"
+
+#: playlist.py:2850
+msgid "Configured EPG sources"
+msgstr "कॉन्फ़िगर किए गए EPG स्रोत"
+
+#: playlist.py:2942
+msgid "Configured playlists and providers"
+msgstr "कॉन्फ़िगर की गई प्लेलिस्ट और प्रदाता"
 
 #: main.py:4293
 msgid "Configured playlists: {count}"
@@ -674,16 +682,16 @@ msgstr "समाप्ति के बाद के दिन"
 msgid "Delete"
 msgstr "हटाएँ"
 
-#: playlist.py:3036
+#: playlist.py:3038
 msgid "Delete Playlist"
 msgstr "प्लेलिस्ट हटाएँ"
 
-#: playlist.py:3033
+#: playlist.py:3035
 msgid "Delete the playlist “{name}”?\n\nThis removes it from the list of playlists. It cannot be undone."
 msgstr "प्लेलिस्ट “{name}” हटाएँ?\n\nयह प्लेलिस्ट की सूची से हटा दी जाएगी। इसे पूर्ववत नहीं किया जा सकता।"
 
 #: main.py:8709
-#: main.py:9728
+#: main.py:9737
 msgid "Description"
 msgstr "विवरण"
 
@@ -708,8 +716,8 @@ msgstr "निष्क्रिय"
 msgid "Disconnected from the cast device. Open the cast menu to pick another device."
 msgstr "कास्ट डिवाइस से डिस्कनेक्ट किया गया। दूसरा डिवाइस चुनने के लिए कास्ट मेनू खोलें।"
 
-#: playlist.py:3121
-#: playlist.py:3239
+#: playlist.py:3123
+#: playlist.py:3241
 msgid "Display name"
 msgstr "प्रदर्शन नाम"
 
@@ -835,7 +843,7 @@ msgstr "EPG आयात पृष्ठभूमि में प्रार�
 msgid "EPG is not enabled."
 msgstr "EPG सक्षम नहीं है।"
 
-#: main.py:9709
+#: main.py:9715
 msgid "EPG: {channel}"
 msgstr "EPG: {channel}"
 
@@ -848,11 +856,11 @@ msgstr "बीता समय: {time}"
 msgid "Ended"
 msgstr "समाप्त"
 
-#: playlist.py:2887
+#: playlist.py:2888
 msgid "Enter EPG XML URL"
 msgstr "EPG XML URL दर्ज करें"
 
-#: playlist.py:2977
+#: playlist.py:2979
 msgid "Enter M3U URL"
 msgstr "M3U URL दर्ज करें"
 
@@ -863,7 +871,7 @@ msgstr "प्लेयर निष्पादन योग्य फ़ाइ
 #: main.py:2800
 #: main.py:2802
 #: main.py:8712
-#: main.py:9731
+#: main.py:9740
 msgid "Episode description"
 msgstr "एपिसोड विवरण"
 
@@ -1029,7 +1037,7 @@ msgstr "पूर्ण स्क्रीन"
 msgid "Full ffmpeg log:\n{path}"
 msgstr "पूर्ण ffmpeg लॉग:\n{path}"
 
-#: playlist.py:2876
+#: playlist.py:2877
 msgid "GZip XML"
 msgstr "GZip XML"
 
@@ -1108,7 +1116,7 @@ msgstr "EPG डेटा आयात हो रहा है…"
 msgid "In Progress"
 msgstr "प्रगति पर"
 
-#: playlist.py:3118
+#: playlist.py:3120
 msgid "Include the provider's XMLTV guide automatically"
 msgstr "प्रदाता का XMLTV गाइड स्वतः शामिल करें"
 
@@ -1174,20 +1182,20 @@ msgstr "प्लेलिस्ट लोड हो रही हैं..."
 msgid "Logs"
 msgstr "लॉग"
 
-#: playlist.py:2966
+#: playlist.py:2968
 msgid "M3U files"
 msgstr "M3U फ़ाइलें"
 
 #: account_info.py:388
-#: playlist.py:3243
+#: playlist.py:3245
 msgid "MAC address"
 msgstr "MAC पता"
 
-#: playlist.py:3292
+#: playlist.py:3294
 msgid "MAC address must contain six octets (e.g., 00:1A:79:12:34:56)."
 msgstr "MAC पते में छह ऑक्टेट होने चाहिए (जैसे, 00:1A:79:12:34:56)।"
 
-#: playlist.py:3243
+#: playlist.py:3245
 msgid "MAC address presented to the portal"
 msgstr "पोर्टल को प्रस्तुत किया गया MAC पता"
 
@@ -1295,7 +1303,7 @@ msgstr "कोई चैनल नहीं मिला।"
 
 #: main.py:3187
 #: main.py:8778
-#: main.py:9833
+#: main.py:9846
 msgid "No description available for this programme."
 msgstr "इस कार्यक्रम के लिए कोई विवरण उपलब्ध नहीं है।"
 
@@ -1379,8 +1387,8 @@ msgstr "अभी: {title} ({start} – {end})"
 #: main.py:8874
 #: main.py:8996
 #: options.py:825
-#: playlist.py:2856
-#: playlist.py:2947
+#: playlist.py:2857
+#: playlist.py:2949
 msgid "OK"
 msgstr "ठीक है"
 
@@ -1413,19 +1421,19 @@ msgstr "रिकॉर्ड की गई फ़ाइल को VLC में
 msgid "Opening"
 msgstr "खुल रहा है"
 
-#: playlist.py:3121
+#: playlist.py:3123
 msgid "Optional nickname for this Xtream Codes account"
 msgstr "इस Xtream Codes खाते के लिए वैकल्पिक उपनाम"
 
-#: playlist.py:3239
+#: playlist.py:3241
 msgid "Optional nickname for this portal account"
 msgstr "इस पोर्टल खाते के लिए वैकल्पिक उपनाम"
 
-#: playlist.py:3242
+#: playlist.py:3244
 msgid "Optional portal account password"
 msgstr "वैकल्पिक पोर्टल खाता पासवर्ड"
 
-#: playlist.py:3241
+#: playlist.py:3243
 msgid "Optional portal account username"
 msgstr "वैकल्पिक पोर्टल खाता उपयोगकर्ता नाम"
 
@@ -1450,7 +1458,7 @@ msgstr "अन्य प्लेलिस्ट"
 msgid "Package"
 msgstr "पैकेज"
 
-#: playlist.py:3124
+#: playlist.py:3126
 msgid "Password"
 msgstr "पासवर्ड"
 
@@ -1482,7 +1490,7 @@ msgstr "प्लेटफ़ॉर्म: {platform}"
 #: internal_player.py:727
 #: main.py:3221
 #: main.py:9337
-#: main.py:9516
+#: main.py:9522
 msgid "Play"
 msgstr "चलाएँ"
 
@@ -1525,11 +1533,11 @@ msgstr "प्लेलिस्ट"
 
 #: main.py:2833
 #: main.py:2950
-#: playlist.py:2920
+#: playlist.py:2921
 msgid "Playlist Manager"
 msgstr "प्लेलिस्ट प्रबंधक"
 
-#: playlist.py:3125
+#: playlist.py:3127
 msgid "Playlist type"
 msgstr "प्लेलिस्ट प्रकार"
 
@@ -1544,12 +1552,12 @@ msgstr "प्लेलिस्ट दृश्य"
 msgid "Please try another channel or try again later."
 msgstr "कृपया दूसरा चैनल आज़माएँ या बाद में पुनः प्रयास करें।"
 
-#: playlist.py:3288
+#: playlist.py:3290
 msgid "Portal URL is required."
 msgstr "पोर्टल URL आवश्यक है।"
 
-#: playlist.py:3122
-#: playlist.py:3240
+#: playlist.py:3124
+#: playlist.py:3242
 msgid "Portal base URL"
 msgstr "पोर्टल बेस URL"
 
@@ -1583,7 +1591,7 @@ msgstr "पसंदीदा ऑडियो ट्रैक"
 msgid "Preferred Audio Track..."
 msgstr "पसंदीदा ऑडियो ट्रैक..."
 
-#: playlist.py:3126
+#: playlist.py:3128
 msgid "Preferred stream container format"
 msgstr "पसंदीदा स्ट्रीम कंटेनर प्रारूप"
 
@@ -1614,7 +1622,7 @@ msgstr "प्रगति: {percent}%"
 
 #: account_info.py:111
 #: main.py:1841
-#: playlist.py:3047
+#: playlist.py:3049
 msgid "Provider"
 msgstr "प्रदाता"
 
@@ -1634,7 +1642,7 @@ msgid "Provider quality (copy, MP4)"
 msgstr "प्रदाता गुणवत्ता (कॉपी, MP4)"
 
 #: main.py:1846
-#: playlist.py:3052
+#: playlist.py:3054
 msgid "Provider – {name}"
 msgstr "प्रदाता – {name}"
 
@@ -1642,7 +1650,7 @@ msgstr "प्रदाता – {name}"
 msgid "Python: {version}"
 msgstr "Python: {version}"
 
-#: playlist.py:3236
+#: playlist.py:3238
 msgid "Randomise MAC"
 msgstr "MAC यादृच्छिक करें"
 
@@ -1801,9 +1809,9 @@ msgstr "शेड्यूल पैडिंग..."
 #: main.py:3515
 #: main.py:3522
 #: main.py:9338
-#: main.py:9518
-#: main.py:9800
-#: main.py:9842
+#: main.py:9524
+#: main.py:9813
+#: main.py:9855
 msgid "Schedule Recording"
 msgstr "रिकॉर्डिंग शेड्यूल करें"
 
@@ -1877,7 +1885,7 @@ msgstr "पहले एक चैनल चुनें।"
 msgid "Select a channel to record first."
 msgstr "पहले रिकॉर्ड करने के लिए एक चैनल चुनें।"
 
-#: main.py:9842
+#: main.py:9855
 msgid "Select a programme first."
 msgstr "पहले एक कार्यक्रम चुनें।"
 
@@ -1898,7 +1906,7 @@ msgstr "स्थिति जाँचने के लिए एक खात�
 msgid "Select the audio output device for the built-in player."
 msgstr "इनबिल्ट प्लेयर के लिए ऑडियो आउटपुट डिवाइस चुनें।"
 
-#: playlist.py:3125
+#: playlist.py:3127
 msgid "Select the playlist format to download"
 msgstr "डाउनलोड करने के लिए प्लेलिस्ट प्रारूप चुनें"
 
@@ -1988,7 +1996,7 @@ msgid "Stalker Portal"
 msgstr "Stalker Portal"
 
 #: main.py:1845
-#: playlist.py:3051
+#: playlist.py:3053
 msgid "Stalker Portal – {name}"
 msgstr "Stalker Portal – {name}"
 
@@ -2088,7 +2096,7 @@ msgstr "स्ट्रीम कट गई। यह ऑफ़लाइन ह�
 msgid "Stream lost"
 msgstr "स्ट्रीम खो गई"
 
-#: playlist.py:3126
+#: playlist.py:3128
 msgid "Stream output"
 msgstr "स्ट्रीम आउटपुट"
 
@@ -2216,7 +2224,7 @@ msgid "This programme is not available as catch-up content yet."
 msgstr "यह कार्यक्रम अभी कैच-अप सामग्री के रूप में उपलब्ध नहीं है।"
 
 #: main.py:9138
-#: main.py:9718
+#: main.py:9724
 msgid "Time"
 msgstr "समय"
 
@@ -2225,7 +2233,7 @@ msgid "Time remaining: {time}"
 msgstr "शेष समय: {time}"
 
 #: main.py:9139
-#: main.py:9719
+#: main.py:9725
 msgid "Title"
 msgstr "शीर्षक"
 
@@ -2248,7 +2256,7 @@ msgstr "ट्रैक {id}"
 msgid "Trial account"
 msgstr "परीक्षण खाता"
 
-#: playlist.py:3231
+#: playlist.py:3233
 msgid "Try to add the portal's XMLTV guide automatically"
 msgstr "पोर्टल का XMLTV गाइड स्वतः जोड़ने का प्रयास करें"
 
@@ -2289,7 +2297,7 @@ msgstr "अवर्गीकृत"
 msgid "Unexpected account response from the Xtream server"
 msgstr "Xtream सर्वर से अप्रत्याशित खाता प्रतिक्रिया"
 
-#: main.py:9699
+#: main.py:9705
 #: updater.py:773
 msgid "Unknown"
 msgstr "अज्ञात"
@@ -2410,17 +2418,17 @@ msgid "User Guide"
 msgstr "उपयोगकर्ता गाइड"
 
 #: account_info.py:386
-#: playlist.py:3123
+#: playlist.py:3125
 msgid "Username"
 msgstr "उपयोगकर्ता नाम"
 
-#: playlist.py:3154
+#: playlist.py:3156
 msgid "Username, password, and URL are required."
 msgstr "उपयोगकर्ता नाम, पासवर्ड और URL आवश्यक हैं।"
 
-#: playlist.py:3154
-#: playlist.py:3288
-#: playlist.py:3292
+#: playlist.py:3156
+#: playlist.py:3290
+#: playlist.py:3294
 msgid "Validation"
 msgstr "सत्यापन"
 
@@ -2485,7 +2493,7 @@ msgstr "जब किसी चैनल में एक से अधिक �
 msgid "Windows did not get permission to install the update."
 msgstr "Windows को अपडेट इंस्टॉल करने की अनुमति नहीं मिली।"
 
-#: playlist.py:2875
+#: playlist.py:2876
 msgid "XML files"
 msgstr "XML फ़ाइलें"
 
@@ -2493,16 +2501,16 @@ msgstr "XML फ़ाइलें"
 msgid "Xtream Codes"
 msgstr "Xtream Codes"
 
-#: playlist.py:3124
+#: playlist.py:3126
 msgid "Xtream Codes password"
 msgstr "Xtream Codes पासवर्ड"
 
-#: playlist.py:3123
+#: playlist.py:3125
 msgid "Xtream Codes username"
 msgstr "Xtream Codes उपयोगकर्ता नाम"
 
 #: main.py:1843
-#: playlist.py:3049
+#: playlist.py:3051
 msgid "Xtream Codes – {name}"
 msgstr "Xtream Codes – {name}"
 
@@ -2546,7 +2554,7 @@ msgstr "x264 पुनः एन्कोड (MKV)"
 msgid "x264 re-encode (MP4)"
 msgstr "x264 पुनः एन्कोड (MP4)"
 
-#: main.py:9894
+#: main.py:9907
 msgid "{app} is already running, but it did not respond. Wait a moment and try again, or close it from the notification area."
 msgstr "{app} पहले से चल रहा है, लेकिन उसने जवाब नहीं दिया। कुछ देर प्रतीक्षा करके फिर से प्रयास करें, या इसे सूचना क्षेत्र से बंद करें।"
 
@@ -2559,7 +2567,7 @@ msgid "{app} was successfully updated to v{version}."
 msgstr "{app} सफलतापूर्वक v{version} पर अपडेट हो गया।"
 
 #: main.py:9326
-#: main.py:9471
+#: main.py:9477
 msgid "{count} programs"
 msgstr "{count} कार्यक्रम"
 
@@ -2575,15 +2583,15 @@ msgstr "{kind} – {who}"
 msgid "{kind} – {who} (detected)"
 msgstr "{kind} – {who} (पता चला)"
 
-#: playlist.py:3091
-#: playlist.py:3206
+#: playlist.py:3093
+#: playlist.py:3208
 msgid "{label} field"
 msgstr "{label} फ़ील्ड"
 
-#: playlist.py:3085
 #: playlist.py:3087
-#: playlist.py:3200
+#: playlist.py:3089
 #: playlist.py:3202
+#: playlist.py:3204
 msgid "{label} label"
 msgstr "{label} लेबल"
 

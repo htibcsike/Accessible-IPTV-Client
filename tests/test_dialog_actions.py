@@ -771,3 +771,114 @@ def test_changelog_dialog_hides_older_releases_behind_a_toggle(host):
         assert dlg.toggle_btn.GetLabel() == "Show older releases (English)"
     finally:
         dlg.Destroy()
+
+
+# --------------------------------------------------------------------------- #
+# Issue #3: What's on Now keyboard behaviour
+# --------------------------------------------------------------------------- #
+_ACCENTED_PROGRAMMES = [
+    {"title": "Événement spécial", "start": "20260907190000", "end": "20260907200000",
+     "description": "", "channel_name": "Sky Mix"},
+    {"title": "Evening News", "start": "20260907200000", "end": "20260907210000",
+     "description": "", "channel_name": "Sky Mix"},
+]
+
+
+def _whats_on_key(key_code, shift=False, uni_key=0):
+    calls = []
+    return types.SimpleNamespace(
+        GetKeyCode=lambda: key_code,
+        GetUnicodeKey=lambda: uni_key,
+        ShiftDown=lambda: shift,
+        Skip=lambda *args: calls.append("skip"),
+        skipped=calls,
+    )
+
+
+def test_whats_on_now_plain_tab_moves_to_the_filter_box(host):
+    dlg = WhatsOnNowDialog(host, _EPG_PROGRAMMES)
+    try:
+        dlg.listbox.SetFocus()
+        dlg._on_key_down(_whats_on_key(wx.WXK_TAB))
+        assert dlg.FindFocus() is dlg.search_box
+    finally:
+        dlg.Destroy()
+
+
+def test_whats_on_now_shift_tab_keeps_normal_traversal(host):
+    dlg = WhatsOnNowDialog(host, _EPG_PROGRAMMES)
+    try:
+        dlg.listbox.SetFocus()
+        event = _whats_on_key(wx.WXK_TAB, shift=True)
+        dlg._on_key_down(event)
+        # Shift+Tab is left for wx's own traversal instead of jumping to the
+        # filter box, and focus never leaves the list.
+        assert event.skipped == ["skip"]
+        assert dlg.FindFocus() is dlg.listbox
+    finally:
+        dlg.Destroy()
+
+
+def test_whats_on_now_type_ahead_matches_accented_letters(host):
+    dlg = WhatsOnNowDialog(host, _ACCENTED_PROGRAMMES)
+    try:
+        dlg._on_key_down(_whats_on_key(0, uni_key=ord("é")))
+        assert dlg._type_ahead_buffer == "é"
+        assert dlg.listbox.GetFirstSelected() == 0
+    finally:
+        dlg.Destroy()
+
+
+def test_whats_on_now_type_ahead_still_matches_plain_ascii(host):
+    dlg = WhatsOnNowDialog(host, _ACCENTED_PROGRAMMES)
+    try:
+        dlg._on_key_down(_whats_on_key(ord("e"), uni_key=ord("e")))
+        assert dlg._type_ahead_buffer == "e"
+        # "Evening News", not the accented "Événement spécial".
+        assert dlg.listbox.GetFirstSelected() == 1
+    finally:
+        dlg.Destroy()
+
+
+# --------------------------------------------------------------------------- #
+# Issue #3: the source managers' lists need accessible names
+# --------------------------------------------------------------------------- #
+def test_source_manager_lists_carry_accessible_names(host):
+    dlg = PlaylistManagerDialog(host, ["http://example.invalid/a.m3u"])
+    try:
+        assert dlg.lb.GetName() == "Configured playlists and providers"
+    finally:
+        dlg.Destroy()
+    dlg = EPGManagerDialog(host, ["http://example.invalid/epg.xml"])
+    try:
+        assert dlg.lb.GetName() == "Configured EPG sources"
+    finally:
+        dlg.Destroy()
+
+
+# --------------------------------------------------------------------------- #
+# Issue #3: the channel EPG dialog starts on the programme airing now
+# --------------------------------------------------------------------------- #
+def test_channel_epg_dialog_selects_the_programme_airing_now(host):
+    import datetime
+
+    now = datetime.datetime.now(datetime.timezone.utc)
+
+    def stamp(moment):
+        return moment.strftime("%Y%m%d%H%M%S")
+
+    programmes = [
+        {"title": "Earlier", "start": stamp(now - datetime.timedelta(hours=3)),
+         "end": stamp(now - datetime.timedelta(hours=2)), "description": ""},
+        {"title": "On Now", "start": stamp(now - datetime.timedelta(minutes=30)),
+         "end": stamp(now + datetime.timedelta(minutes=30)), "description": ""},
+        {"title": "Later", "start": stamp(now + datetime.timedelta(hours=2)),
+         "end": stamp(now + datetime.timedelta(hours=3)), "description": ""},
+    ]
+    dlg = ChannelEPGDialog(host, "Sky Mix", programmes)
+    try:
+        assert dlg.list_ctrl.GetItemCount() == 3
+        assert dlg.list_ctrl.IsSelected(1)
+        assert dlg.list_ctrl.GetFocusedItem() == 1
+    finally:
+        dlg.Destroy()

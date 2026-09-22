@@ -9369,8 +9369,9 @@ class WhatsOnNowDialog(wx.Dialog):
         """Handle key input for type-ahead search - intercept before ListCtrl."""
         key = event.GetKeyCode()
         
-        # Handle Tab to go to search box
-        if key == wx.WXK_TAB:
+        # Handle Tab to go to search box (plain Tab only: Shift+Tab keeps the
+        # normal dialog traversal, issue #3)
+        if key == wx.WXK_TAB and not event.ShiftDown():
             self.search_box.SetFocus()
             return
         
@@ -9394,9 +9395,14 @@ class WhatsOnNowDialog(wx.Dialog):
             self._type_ahead_timer = wx.CallLater(1000, self._reset_type_ahead)
             return
         
-        # For printable characters (excluding space which is handled above), do type-ahead search
-        if 33 <= key <= 126:  # Start at 33 (!) to exclude space (32)
-            char = chr(key).lower()
+        # Unicode-aware type-ahead (issue #3): GetUnicodeKey() reports the
+        # character the key press actually produces, so accented letters
+        # (á, é, ü, ...) match programme titles instead of being ignored as
+        # non-ASCII key codes. Space (32) stays handled above; anything that
+        # is not a printable character keeps the default behaviour.
+        uni_key = event.GetUnicodeKey()
+        if uni_key and uni_key > 32 and chr(uni_key).isprintable():
+            char = chr(uni_key).lower()
             
             # Reset buffer if too much time passed
             if self._type_ahead_timer:
@@ -9718,10 +9724,13 @@ class ChannelEPGDialog(wx.Dialog):
         self.list_ctrl.InsertColumn(0, _("Time"), width=190)
         self.list_ctrl.InsertColumn(1, _("Title"), width=360)
 
-        self._populate_list(programmes)
+        now_idx = self._populate_list(programmes)
         if programmes:
-            self.list_ctrl.Select(0)
-            self.list_ctrl.Focus(0)
+            # Screen readers announce the selected row, so start on the
+            # programme that is airing now instead of always row 0 (issue #3).
+            first = now_idx if now_idx != -1 else 0
+            self.list_ctrl.Select(first)
+            self.list_ctrl.Focus(first)
 
         # Tab from the list lands here: the description of the highlighted
         # programme, read-only, updated as the selection moves.
@@ -9749,9 +9758,11 @@ class ChannelEPGDialog(wx.Dialog):
         self.Layout()
         self.CenterOnParent()
 
-    def _populate_list(self, programmes):
+    def _populate_list(self, programmes) -> int:
+        """Fill the list; returns the index airing now, or -1 (issue #3)."""
         now = datetime.datetime.now(datetime.timezone.utc)
         today = utc_to_local(now).date()
+        now_idx = -1
         for prog in programmes:
             try:
                 start = datetime.datetime.strptime(prog.get("start", ""), "%Y%m%d%H%M%S").replace(tzinfo=datetime.timezone.utc)
@@ -9774,8 +9785,10 @@ class ChannelEPGDialog(wx.Dialog):
                     font.SetWeight(wx.FONTWEIGHT_BOLD)
                     self.list_ctrl.SetItemFont(idx, font)
                     self.list_ctrl.EnsureVisible(idx)
+                    now_idx = idx
             except Exception:
                 LOG.debug("ChannelEPGDialog._populate_list: ignored exception", exc_info=True)
+        return now_idx
 
     def _selected_programme(self) -> Optional[Dict[str, str]]:
         idx = self.list_ctrl.GetFirstSelected()

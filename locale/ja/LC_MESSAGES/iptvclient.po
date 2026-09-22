@@ -21,7 +21,7 @@ msgid "(No EPG debug log has been written yet.)"
 msgstr "(EPG のデバッグログはまだ作成されていません。)"
 
 #: main.py:8758
-#: main.py:9698
+#: main.py:9704
 msgid "(No title)"
 msgstr "（タイトルなし）"
 
@@ -94,34 +94,34 @@ msgstr "有効"
 msgid "Active recordings: {count}"
 msgstr "実行中の録画: {count}"
 
-#: playlist.py:3134
-#: playlist.py:3253
+#: playlist.py:3136
+#: playlist.py:3255
 msgid "Add"
 msgstr "追加"
 
 #: playlist.py:2844
-#: playlist.py:2933
+#: playlist.py:2934
 msgid "Add File"
 msgstr "ファイルを追加"
 
-#: playlist.py:2936
+#: playlist.py:2937
 msgid "Add Stalker Portal"
 msgstr "Stalker Portal を追加"
 
-#: playlist.py:3187
+#: playlist.py:3189
 msgid "Add Stalker Portal Account"
 msgstr "Stalker Portal アカウントを追加"
 
 #: playlist.py:2845
-#: playlist.py:2934
+#: playlist.py:2935
 msgid "Add URL"
 msgstr "URL を追加"
 
-#: playlist.py:2935
+#: playlist.py:2936
 msgid "Add Xtream Codes"
 msgstr "Xtream Codes を追加"
 
-#: playlist.py:3072
+#: playlist.py:3074
 msgid "Add Xtream Codes Account"
 msgstr "Xtream Codes アカウントを追加"
 
@@ -137,8 +137,8 @@ msgstr "お気に入りに追加"
 msgid "All Channels"
 msgstr "すべてのチャンネル"
 
-#: playlist.py:2877
-#: playlist.py:2967
+#: playlist.py:2878
+#: playlist.py:2969
 msgid "All files"
 msgstr "すべてのファイル"
 
@@ -158,9 +158,9 @@ msgstr "許可されている形式"
 msgid "An update is already in progress."
 msgstr "更新はすでに実行中です。"
 
-#: playlist.py:3227
-#: playlist.py:3228
+#: playlist.py:3229
 #: playlist.py:3230
+#: playlist.py:3232
 msgid "Attempt to add provider XMLTV"
 msgstr "プロバイダーの XMLTV を追加してみる"
 
@@ -245,9 +245,9 @@ msgstr "更新を自動的に確認する"
 msgid "Automatic"
 msgstr "自動"
 
-#: playlist.py:3114
-#: playlist.py:3115
+#: playlist.py:3116
 #: playlist.py:3117
+#: playlist.py:3119
 msgid "Automatically add XMLTV URL"
 msgstr "XMLTV URL を自動的に追加する"
 
@@ -255,11 +255,11 @@ msgstr "XMLTV URL を自動的に追加する"
 msgid "Banned"
 msgstr "禁止"
 
-#: playlist.py:3240
+#: playlist.py:3242
 msgid "Base URL of the Stalker/Ministra portal"
 msgstr "Stalker/Ministra ポータルのベース URL"
 
-#: playlist.py:3122
+#: playlist.py:3124
 msgid "Base URL of the Xtream Codes server"
 msgstr "Xtream Codes サーバーのベース URL"
 
@@ -306,10 +306,10 @@ msgstr "内蔵プレーヤーは利用できません：\n{detail}"
 #: main.py:8997
 #: main.py:9187
 #: options.py:825
-#: playlist.py:2857
-#: playlist.py:2948
-#: playlist.py:3135
-#: playlist.py:3254
+#: playlist.py:2858
+#: playlist.py:2950
+#: playlist.py:3137
+#: playlist.py:3256
 msgid "Cancel"
 msgstr "キャンセル"
 
@@ -436,8 +436,8 @@ msgid "Channel missing command reference"
 msgstr "チャンネルにコマンド参照がありません"
 
 #: main.py:2781
-#: main.py:9564
-#: main.py:9566
+#: main.py:9570
+#: main.py:9572
 msgid "Channels"
 msgstr "チャンネル"
 
@@ -473,11 +473,11 @@ msgstr "{account} を確認しています..."
 msgid "Choose Audio Track"
 msgstr "音声トラックの選択"
 
-#: playlist.py:2879
+#: playlist.py:2880
 msgid "Choose EPG XML file"
 msgstr "EPG XML ファイルを選択"
 
-#: playlist.py:2969
+#: playlist.py:2971
 msgid "Choose M3U file"
 msgstr "M3U ファイルを選択"
 
@@ -497,6 +497,14 @@ msgstr "コミュニティとサポート"
 #: main.py:9213
 msgid "Completed"
 msgstr "完了"
+
+#: playlist.py:2850
+msgid "Configured EPG sources"
+msgstr "設定済みの EPG ソース"
+
+#: playlist.py:2942
+msgid "Configured playlists and providers"
+msgstr "設定済みのプレイリストとプロバイダー"
 
 #: main.py:4293
 msgid "Configured playlists: {count}"
@@ -674,16 +682,16 @@ msgstr "期限切れからの日数"
 msgid "Delete"
 msgstr "削除"
 
-#: playlist.py:3036
+#: playlist.py:3038
 msgid "Delete Playlist"
 msgstr "プレイリストの削除"
 
-#: playlist.py:3033
+#: playlist.py:3035
 msgid "Delete the playlist “{name}”?\n\nThis removes it from the list of playlists. It cannot be undone."
 msgstr "プレイリスト「{name}」を削除しますか?\n\nプレイリストの一覧から削除されます。元に戻すことはできません。"
 
 #: main.py:8709
-#: main.py:9728
+#: main.py:9737
 msgid "Description"
 msgstr "番組説明"
 
@@ -708,8 +716,8 @@ msgstr "無効"
 msgid "Disconnected from the cast device. Open the cast menu to pick another device."
 msgstr "キャストデバイスから切断されました。キャストメニューを開いて別のデバイスを選択してください。"
 
-#: playlist.py:3121
-#: playlist.py:3239
+#: playlist.py:3123
+#: playlist.py:3241
 msgid "Display name"
 msgstr "表示名"
 
@@ -835,7 +843,7 @@ msgstr "EPG のインポートをバックグラウンドで開始します。�
 msgid "EPG is not enabled."
 msgstr "EPG が有効になっていません。"
 
-#: main.py:9709
+#: main.py:9715
 msgid "EPG: {channel}"
 msgstr "EPG：{channel}"
 
@@ -848,11 +856,11 @@ msgstr "経過時間: {time}"
 msgid "Ended"
 msgstr "終了"
 
-#: playlist.py:2887
+#: playlist.py:2888
 msgid "Enter EPG XML URL"
 msgstr "EPG XML URL を入力"
 
-#: playlist.py:2977
+#: playlist.py:2979
 msgid "Enter M3U URL"
 msgstr "M3U URL を入力"
 
@@ -863,7 +871,7 @@ msgstr "プレーヤーの実行ファイルまたはパスを入力："
 #: main.py:2800
 #: main.py:2802
 #: main.py:8712
-#: main.py:9731
+#: main.py:9740
 msgid "Episode description"
 msgstr "エピソードの説明"
 
@@ -1029,7 +1037,7 @@ msgstr "全画面表示"
 msgid "Full ffmpeg log:\n{path}"
 msgstr "ffmpeg の完全なログ:\n{path}"
 
-#: playlist.py:2876
+#: playlist.py:2877
 msgid "GZip XML"
 msgstr "GZip XML"
 
@@ -1108,7 +1116,7 @@ msgstr "EPG データをインポート中…"
 msgid "In Progress"
 msgstr "進行中"
 
-#: playlist.py:3118
+#: playlist.py:3120
 msgid "Include the provider's XMLTV guide automatically"
 msgstr "プロバイダーの XMLTV ガイドを自動的に含める"
 
@@ -1174,20 +1182,20 @@ msgstr "プレイリストを読み込み中..."
 msgid "Logs"
 msgstr "ログ"
 
-#: playlist.py:2966
+#: playlist.py:2968
 msgid "M3U files"
 msgstr "M3U ファイル"
 
 #: account_info.py:388
-#: playlist.py:3243
+#: playlist.py:3245
 msgid "MAC address"
 msgstr "MAC アドレス"
 
-#: playlist.py:3292
+#: playlist.py:3294
 msgid "MAC address must contain six octets (e.g., 00:1A:79:12:34:56)."
 msgstr "MAC アドレスは 6 つのオクテットを含む必要があります（例：00:1A:79:12:34:56）。"
 
-#: playlist.py:3243
+#: playlist.py:3245
 msgid "MAC address presented to the portal"
 msgstr "ポータルに提示される MAC アドレス"
 
@@ -1295,7 +1303,7 @@ msgstr "チャンネルが見つかりませんでした。"
 
 #: main.py:3187
 #: main.py:8778
-#: main.py:9833
+#: main.py:9846
 msgid "No description available for this programme."
 msgstr "この番組の説明はありません。"
 
@@ -1379,8 +1387,8 @@ msgstr "現在: {title} ({start} – {end})"
 #: main.py:8874
 #: main.py:8996
 #: options.py:825
-#: playlist.py:2856
-#: playlist.py:2947
+#: playlist.py:2857
+#: playlist.py:2949
 msgid "OK"
 msgstr "OK"
 
@@ -1413,19 +1421,19 @@ msgstr "録画ファイルを VLC で開き、Ctrl+T を押して、一覧の時
 msgid "Opening"
 msgstr "開いています"
 
-#: playlist.py:3121
+#: playlist.py:3123
 msgid "Optional nickname for this Xtream Codes account"
 msgstr "この Xtream Codes アカウントの任意のニックネーム"
 
-#: playlist.py:3239
+#: playlist.py:3241
 msgid "Optional nickname for this portal account"
 msgstr "このポータルアカウントの任意のニックネーム"
 
-#: playlist.py:3242
+#: playlist.py:3244
 msgid "Optional portal account password"
 msgstr "ポータルアカウントのパスワード（任意）"
 
-#: playlist.py:3241
+#: playlist.py:3243
 msgid "Optional portal account username"
 msgstr "ポータルアカウントのユーザー名（任意）"
 
@@ -1450,7 +1458,7 @@ msgstr "その他のプレイリスト"
 msgid "Package"
 msgstr "プラン"
 
-#: playlist.py:3124
+#: playlist.py:3126
 msgid "Password"
 msgstr "パスワード"
 
@@ -1482,7 +1490,7 @@ msgstr "プラットフォーム: {platform}"
 #: internal_player.py:727
 #: main.py:3221
 #: main.py:9337
-#: main.py:9516
+#: main.py:9522
 msgid "Play"
 msgstr "再生"
 
@@ -1525,11 +1533,11 @@ msgstr "プレイリスト"
 
 #: main.py:2833
 #: main.py:2950
-#: playlist.py:2920
+#: playlist.py:2921
 msgid "Playlist Manager"
 msgstr "プレイリストマネージャー"
 
-#: playlist.py:3125
+#: playlist.py:3127
 msgid "Playlist type"
 msgstr "プレイリストの種類"
 
@@ -1544,12 +1552,12 @@ msgstr "プレイリスト表示"
 msgid "Please try another channel or try again later."
 msgstr "別のチャンネルを試すか、後でもう一度お試しください。"
 
-#: playlist.py:3288
+#: playlist.py:3290
 msgid "Portal URL is required."
 msgstr "ポータルURLは必須です。"
 
-#: playlist.py:3122
-#: playlist.py:3240
+#: playlist.py:3124
+#: playlist.py:3242
 msgid "Portal base URL"
 msgstr "ポータルのベース URL"
 
@@ -1583,7 +1591,7 @@ msgstr "優先する音声トラック"
 msgid "Preferred Audio Track..."
 msgstr "優先する音声トラック..."
 
-#: playlist.py:3126
+#: playlist.py:3128
 msgid "Preferred stream container format"
 msgstr "優先ストリームコンテナ形式"
 
@@ -1614,7 +1622,7 @@ msgstr "進行状況: {percent}%"
 
 #: account_info.py:111
 #: main.py:1841
-#: playlist.py:3047
+#: playlist.py:3049
 msgid "Provider"
 msgstr "プロバイダー"
 
@@ -1634,7 +1642,7 @@ msgid "Provider quality (copy, MP4)"
 msgstr "プロバイダー品質（コピー、MP4）"
 
 #: main.py:1846
-#: playlist.py:3052
+#: playlist.py:3054
 msgid "Provider – {name}"
 msgstr "プロバイダー – {name}"
 
@@ -1642,7 +1650,7 @@ msgstr "プロバイダー – {name}"
 msgid "Python: {version}"
 msgstr "Python: {version}"
 
-#: playlist.py:3236
+#: playlist.py:3238
 msgid "Randomise MAC"
 msgstr "MAC をランダム化"
 
@@ -1801,9 +1809,9 @@ msgstr "録画の前後マージン..."
 #: main.py:3515
 #: main.py:3522
 #: main.py:9338
-#: main.py:9518
-#: main.py:9800
-#: main.py:9842
+#: main.py:9524
+#: main.py:9813
+#: main.py:9855
 msgid "Schedule Recording"
 msgstr "録画をスケジュール"
 
@@ -1877,7 +1885,7 @@ msgstr "先にチャンネルを選択してください。"
 msgid "Select a channel to record first."
 msgstr "先に録画するチャンネルを選択してください。"
 
-#: main.py:9842
+#: main.py:9855
 msgid "Select a programme first."
 msgstr "先に番組を選択してください。"
 
@@ -1898,7 +1906,7 @@ msgstr "状態を確認するアカウントを選択してください:"
 msgid "Select the audio output device for the built-in player."
 msgstr "内蔵プレーヤーのオーディオ出力デバイスを選択してください。"
 
-#: playlist.py:3125
+#: playlist.py:3127
 msgid "Select the playlist format to download"
 msgstr "ダウンロードするプレイリスト形式を選択"
 
@@ -1988,7 +1996,7 @@ msgid "Stalker Portal"
 msgstr "Stalker Portal"
 
 #: main.py:1845
-#: playlist.py:3051
+#: playlist.py:3053
 msgid "Stalker Portal – {name}"
 msgstr "Stalker Portal – {name}"
 
@@ -2088,7 +2096,7 @@ msgstr "ストリームが切断されました。オフラインか問題が発
 msgid "Stream lost"
 msgstr "ストリームが失われました"
 
-#: playlist.py:3126
+#: playlist.py:3128
 msgid "Stream output"
 msgstr "ストリーム出力"
 
@@ -2216,7 +2224,7 @@ msgid "This programme is not available as catch-up content yet."
 msgstr "この番組はまだ見逃し配信で利用できません。"
 
 #: main.py:9138
-#: main.py:9718
+#: main.py:9724
 msgid "Time"
 msgstr "時刻"
 
@@ -2225,7 +2233,7 @@ msgid "Time remaining: {time}"
 msgstr "残り時間: {time}"
 
 #: main.py:9139
-#: main.py:9719
+#: main.py:9725
 msgid "Title"
 msgstr "タイトル"
 
@@ -2248,7 +2256,7 @@ msgstr "トラック {id}"
 msgid "Trial account"
 msgstr "試用アカウント"
 
-#: playlist.py:3231
+#: playlist.py:3233
 msgid "Try to add the portal's XMLTV guide automatically"
 msgstr "ポータルの XMLTV ガイドを自動的に追加してみる"
 
@@ -2289,7 +2297,7 @@ msgstr "未分類"
 msgid "Unexpected account response from the Xtream server"
 msgstr "Xtream サーバーからの予期しないアカウント応答"
 
-#: main.py:9699
+#: main.py:9705
 #: updater.py:773
 msgid "Unknown"
 msgstr "不明"
@@ -2410,17 +2418,17 @@ msgid "User Guide"
 msgstr "ユーザーガイド"
 
 #: account_info.py:386
-#: playlist.py:3123
+#: playlist.py:3125
 msgid "Username"
 msgstr "ユーザー名"
 
-#: playlist.py:3154
+#: playlist.py:3156
 msgid "Username, password, and URL are required."
 msgstr "ユーザー名、パスワード、URL が必要です。"
 
-#: playlist.py:3154
-#: playlist.py:3288
-#: playlist.py:3292
+#: playlist.py:3156
+#: playlist.py:3290
+#: playlist.py:3294
 msgid "Validation"
 msgstr "検証"
 
@@ -2485,7 +2493,7 @@ msgstr "チャンネルに複数の音声トラックがある場合、内蔵プ
 msgid "Windows did not get permission to install the update."
 msgstr "Windows が更新をインストールする許可を得られませんでした。"
 
-#: playlist.py:2875
+#: playlist.py:2876
 msgid "XML files"
 msgstr "XML ファイル"
 
@@ -2493,16 +2501,16 @@ msgstr "XML ファイル"
 msgid "Xtream Codes"
 msgstr "Xtream Codes"
 
-#: playlist.py:3124
+#: playlist.py:3126
 msgid "Xtream Codes password"
 msgstr "Xtream Codes のパスワード"
 
-#: playlist.py:3123
+#: playlist.py:3125
 msgid "Xtream Codes username"
 msgstr "Xtream Codes のユーザー名"
 
 #: main.py:1843
-#: playlist.py:3049
+#: playlist.py:3051
 msgid "Xtream Codes – {name}"
 msgstr "Xtream Codes – {name}"
 
@@ -2546,7 +2554,7 @@ msgstr "x264 再エンコード（MKV）"
 msgid "x264 re-encode (MP4)"
 msgstr "x264 再エンコード（MP4）"
 
-#: main.py:9894
+#: main.py:9907
 msgid "{app} is already running, but it did not respond. Wait a moment and try again, or close it from the notification area."
 msgstr "{app} はすでに実行中ですが、応答がありません。しばらく待ってからもう一度お試しいただくか、通知領域から終了してください。"
 
@@ -2559,7 +2567,7 @@ msgid "{app} was successfully updated to v{version}."
 msgstr "{app} は v{version} に正常に更新されました。"
 
 #: main.py:9326
-#: main.py:9471
+#: main.py:9477
 msgid "{count} programs"
 msgstr "{count} 件の番組"
 
@@ -2575,15 +2583,15 @@ msgstr "{kind} – {who}"
 msgid "{kind} – {who} (detected)"
 msgstr "{kind} – {who} (検出)"
 
-#: playlist.py:3091
-#: playlist.py:3206
+#: playlist.py:3093
+#: playlist.py:3208
 msgid "{label} field"
 msgstr "{label} フィールド"
 
-#: playlist.py:3085
 #: playlist.py:3087
-#: playlist.py:3200
+#: playlist.py:3089
 #: playlist.py:3202
+#: playlist.py:3204
 msgid "{label} label"
 msgstr "{label} ラベル"
 
