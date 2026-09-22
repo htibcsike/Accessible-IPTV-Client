@@ -931,3 +931,132 @@ def test_media_at_offset_reads_the_newest_stats_line_before_it(tmp_path):
     plain = tmp_path / "plain.log"
     plain.write_text("time=00:00:10.00\n", encoding="utf-8")
     assert recorder.media_at_offset(str(plain), 10.0) == ""
+
+
+def test_provider_mka_copies_audio_only():
+    label, ext, kind = RECORDING_FORMATS["provider_mka"]
+    assert kind == "audio"
+    assert ext == "mka"
+    assert label  # human-readable
+    cmd = _cmd("provider_mka")
+    # Only audio is mapped in; video, subtitle and data tracks are excluded.
+    assert "-map" in cmd and cmd[cmd.index("-map") + 1] == "0:a?"
+    assert "-vn" in cmd and "-sn" in cmd and "-dn" in cmd
+    # Stream copy: the source audio is preserved verbatim, never transcoded.
+    assert "-c:a" in cmd and cmd[cmd.index("-c:a") + 1] == "copy"
+    assert "-c:v" not in cmd
+    for encoder in ("libx264", "libmp3lame", "libopus", "flac", "pcm_s16le", "aac"):
+        assert encoder not in cmd
+    assert cmd[-1].endswith(".mka")
+    assert recorder.format_extension("provider_mka") == "mka"
+
+
+def test_probe_media_type_classifies_reports(monkeypatch):
+    audio_report = (
+        "Input #0, mp3, from 'http://example.com/r':\n"
+        "  Stream #0:0: Audio: mp3, 44100 Hz, stereo, fltp, 128 kb/s\n"
+    )
+    video_report = (
+        "Input #0, mpegts, from 'http://example.com/tv':\n"
+        "  Stream #0:0: Video: h264, yuv420p, 1280x720, 25 fps\n"
+        "  Stream #0:1: Audio: aac, 48000 Hz, stereo\n"
+    )
+    radio_with_art = audio_report + (
+        "  Stream #0:1: Video: mjpeg, 300x300 (attached pic)\n"
+    )
+    seen = {}
+
+    def fake_report(url, headers=None, timeout=20.0, **kwargs):
+        seen["url"] = url
+        seen["kwargs"] = kwargs
+        return {"audio": audio_report, "video": video_report,
+                "art": radio_with_art}[url]
+
+    monkeypatch.setattr(recorder, "probe_stream_report", fake_report)
+    assert recorder.probe_media_type("audio") == "audio"
+    assert recorder.probe_media_type("video") == "video"
+    # Attached cover art does not make a radio stream look like video.
+    assert recorder.probe_media_type("art") == "audio"
+    assert seen["url"] == "art"
+
+
+def test_probe_media_type_unknown_when_stream_silent(monkeypatch):
+    monkeypatch.setattr(recorder, "probe_stream_report", lambda *a, **k: "")
+    assert recorder.probe_media_type("http://example.com/dead") == "unknown"
+
+
+def test_probe_audio_streams_shares_the_stream_report(monkeypatch):
+    report = (
+        "Input #0, mpegts, from 'http://example.com/tv':\n"
+        "  Stream #0:0: Video: h264, 1280x720\n"
+        "  Stream #0:1: Audio: mp3, 44100 Hz, stereo\n"
+        "  Stream #0:2: Audio: aac, 48000 Hz, stereo\n"
+    )
+    calls = []
+    monkeypatch.setattr(
+        recorder, "probe_stream_report",
+        lambda url, headers=None, timeout=20.0: calls.append(url) or report)
+    tracks = recorder.probe_audio_streams("http://example.com/tv")
+    assert calls == ["http://example.com/tv"]
+    # Both audio tracks are listed (in 0:a:N order); the video track is not.
+    assert len(tracks) == 2
+    assert all(set(t) >= {"language", "title", "dispositions"} for t in tracks)
+
+
+def test_probe_stream_report_on_popen_hook_allows_preemption(monkeypatch):
+    """The on_popen hook receives the live probe so a session can kill it."""
+    import subprocess as stdlib_subprocess
+
+    received = []
+
+    class FakeProc:
+        def __init__(self, *args, **kwargs):
+            self.killed = False
+            self.args = args
+
+        def communicate(self, timeout=None):
+            return b"", b"Stream #0:0: Audio: mp3\n"
+
+        def kill(self):
+            self.killed = True
+
+        def wait(self, timeout=None):
+            return 0
+
+        def poll(self):
+            return None
+
+    monkeypatch.setattr(recorder.subprocess, "Popen", FakeProc)
+    monkeypatch.setattr(recorder, "get_ffmpeg_path", lambda: "ffmpeg")
+    report = recorder.probe_stream_report(
+        "http://example.com/r", on_popen=received.append)
+    assert len(received) == 1
+    assert isinstance(received[0], FakeProc)
+    assert "Audio: mp3" in report
+    # Preempting the probe: kill it, and the report path still behaves.
+    received[0].kill()
+    assert received[0].killed
+
+
+def test_probe_stream_report_timeout_kills_probe(monkeypatch):
+    import subprocess as stdlib_subprocess
+
+    class SlowProc:
+        def __init__(self, *args, **kwargs):
+            self.killed = False
+            self.calls = 0
+
+        def communicate(self, timeout=None):
+            self.calls += 1
+            if self.calls == 1:
+                raise stdlib_subprocess.TimeoutExpired("ffmpeg", timeout)
+            return b"", b""
+
+        def kill(self):
+            self.killed = True
+
+    proc = SlowProc()
+    monkeypatch.setattr(recorder.subprocess, "Popen", lambda *a, **k: proc)
+    monkeypatch.setattr(recorder, "get_ffmpeg_path", lambda: "ffmpeg")
+    assert recorder.probe_stream_report("http://example.com/hung") == ""
+    assert proc.killed

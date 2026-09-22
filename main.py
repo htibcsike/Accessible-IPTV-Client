@@ -68,6 +68,7 @@ from external_player import ExternalPlayerLauncher
 import recorder
 from recorder import RECORDING_FORMATS
 from recorder import format_duration, format_size, parse_ffmpeg_progress, written_size
+import media_type
 from recorder import audio_stream_label, probe_audio_streams
 import catchup_direct
 import dvr
@@ -1588,6 +1589,13 @@ class IPTVClient(wx.Frame):
         # Recording Manager
         self.recorder = recorder.RecordingManager()
         self._suppress_recording_notifications = False
+        # Media-type detection (issue #33): per-session probe cache plus the
+        # set of channel identities with a classification probe in flight
+        # (and their ffmpeg handles, so a real session can preempt a probe).
+        self._media_type_cache = media_type.MediaTypeCache()
+        self._media_probe_inflight = set()
+        self._media_probe_procs = {}
+        self._media_probe_token = 0
         self._dvr_dialog = None
         self.dvr_scheduler = None
         # A menu Exit, Ctrl+Q or a tray-menu Exit is a real application exit,
@@ -3450,6 +3458,7 @@ class IPTVClient(wx.Frame):
             "provider_mp4": _("Provider quality (copy, MP4)"),
             "x264_mkv": _("x264 re-encode (MKV)"),
             "x264_mp4": _("x264 re-encode (MP4)"),
+            "provider_mka": _("Provider quality (stream copy, MKA)"),
             "audio_mp3_v0": _("Audio only (MP3 V0)"),
             "audio_flac": _("Audio only (FLAC)"),
             "audio_wav": _("Audio only (WAV)"),
@@ -3476,7 +3485,9 @@ class IPTVClient(wx.Frame):
             message_box(_("Could not identify the channel."), _("Schedule Recording"), wx.OK | wx.ICON_ERROR)
             return
         try:
-            fmt = normalize_recording_format(self.config.get("recording_format"))
+            # Issue #33: the scheduled job stores the format resolved for the
+            # channel's media type, so a radio programme records audio-only.
+            fmt, _media, _source = self._recording_format_for_channel(channel)
             job = dvr.build_job(
                 channel,
                 program,
@@ -3606,9 +3617,27 @@ class IPTVClient(wx.Frame):
         url = self._resolve_live_url(channel)
         if not url:
             raise RuntimeError(_("Could not find a stream URL for this channel."))
+        # Issue #33: preempt any advisory classification probe before the
+        # busy check, so its connection cannot refuse this recording on a
+        # one-stream provider.
+        self._terminate_media_probe(channel)
         if IPTVClient._single_stream_provider_busy(self, url):
             raise RuntimeError(IPTVClient._single_stream_provider_refusal(self))
-        fmt = normalize_recording_format(job.get("format"))
+        # Issue #33: revalidate the stream type at execution time. A job saved
+        # while the type was unknown (or under the old single preference) may
+        # carry a video preset for what is now known to be an audio-only
+        # stream: remap it to the audio preference instead of writing an
+        # audio-only MKV/MP4. Other stored choices are left alone, preserving
+        # the job's pre-existing behaviour.
+        media, _source = self._classify_channel_media(channel)
+        fmt, remapped = media_type.remap_format_for_media(
+            normalize_recording_format(job.get("format")), media,
+            self.config.get("recording_format_audio"),
+            self.config.get("recording_format_video"))
+        if remapped:
+            LOG.warning("Scheduled recording %s: audio-only stream detected; "
+                        "remapped video format %s to %s",
+                        job.get("id"), job.get("format"), fmt)
         out_dir = get_recordings_dir(self.config)
         headers = channel_http_headers(channel)
         # This runs on the scheduler's own thread, so the stream can be asked
@@ -3716,7 +3745,10 @@ class IPTVClient(wx.Frame):
 
         headers = channel_http_headers(channel)
         name = self._channel_display_name(channel)
-        fmt = normalize_recording_format(self.config.get("recording_format"))
+        # Issue #33: the format follows the stream's media type, using the
+        # separate audio/video preferences. Unknown streams keep today's
+        # behaviour (the video preference).
+        fmt, media, _source = self._recording_format_for_channel(channel)
         out_dir = get_recordings_dir(self.config)
         intent = self._recording_audio_intent(channel)
         # Recording the channel the built-in player is showing takes one
@@ -3724,6 +3756,10 @@ class IPTVClient(wx.Frame):
         # stream, the recording opens it, and the player then watches the
         # recording's own copy of it through a local relay.
         share = self._player_is_showing(channel)
+        # Issue #33: a background classification probe is advisory; the real
+        # recording preempts it so its open connection cannot refuse this one
+        # on a one-stream provider.
+        self._terminate_media_probe(channel)
         if IPTVClient._single_stream_provider_busy(self, url, include_player=not share):
             message_box(IPTVClient._single_stream_provider_refusal(self),
                         _("Recording Error"), wx.OK | wx.ICON_WARNING)
@@ -3737,7 +3773,8 @@ class IPTVClient(wx.Frame):
                 player_shown = False
             frame.stop(manual=True)
         if intent is None and not share:
-            self._start_live_recording(key, url, name, fmt, headers, out_dir, None)
+            self._start_live_recording(key, url, name, fmt, headers, out_dir, None,
+                                       media=media)
             return
         # Waiting for the provider, and keeping the right audio track (asking
         # the stream which tracks it carries), are network work: off the UI
@@ -3762,18 +3799,20 @@ class IPTVClient(wx.Frame):
             pending.discard(key)
             self._start_live_recording(key, url, name, fmt, headers, out_dir, choice,
                                        share_with=channel if share else None,
-                                       player_shown=player_shown)
+                                       player_shown=player_shown, media=media)
             self._sync_internal_player_record_state()
 
         threading.Thread(target=probe, daemon=True).start()
 
     def _start_live_recording(self, key, url, name, fmt, headers, out_dir, audio_choice,
-                              share_with=None, player_shown=False):
+                              share_with=None, player_shown=False,
+                              media=media_type.MEDIA_UNKNOWN):
         """UI thread: start one live recording and say where it is going.
 
         ``share_with`` is the channel the built-in player was showing: the
         player then watches this recording's copy of the stream instead of
-        keeping a second connection to the provider open.
+        keeping a second connection to the provider open. ``media`` is the
+        detected stream type, announced when it is audio-only.
         """
         audio_track, audio_count = audio_choice if audio_choice else (None, 0)
         try:
@@ -3799,8 +3838,15 @@ class IPTVClient(wx.Frame):
             self._launch_stream(relay.url, name, stream_kind="live", channel=share_with,
                                 show_internal_player=player_shown, focus_player=False)
         self._note_recording_started()
+        if media == media_type.MEDIA_AUDIO:
+            # The format was resolved from the audio preference: say what the
+            # stream is and what is being written, so the automatic choice is
+            # announced to screen readers rather than silent.
+            started_text = _("Audio-only stream detected. Recording started ({fmt}):\n{path}")
+        else:
+            started_text = _("Recording started ({fmt}):\n{path}")
         message_box(
-            _("Recording started ({fmt}):\n{path}").format(
+            started_text.format(
                 fmt=self._recording_format_label(fmt), path=rec.out_path),
             _("Recording"), wx.OK | wx.ICON_INFORMATION)
 
@@ -4178,9 +4224,19 @@ class IPTVClient(wx.Frame):
             _("Recording Warning"), wx.OK | wx.ICON_WARNING)
 
     def _report_recording_error(self, rec, rc: int) -> None:
+        detail = self._recording_failure_detail(rec)
+        if getattr(rec, "fmt", "") == "provider_mka" and not rec.stopped_by_user:
+            # The MKA preset copies the audio verbatim and never transcodes:
+            # when the source cannot be copied into the container, say so
+            # plainly and point at another audio format instead of silently
+            # substituting one.
+            detail = _("The audio could not be copied into an MKA container, "
+                       "so nothing was recorded and nothing was transcoded. "
+                       "Choose another audio format from Recordings > Recording "
+                       "Format and try again.\n\n{detail}").format(detail=detail)
         self._show_or_queue_message_box(
             _("Recording of {name} ended unexpectedly (code {code}).\n\n{detail}").format(
-                name=rec.title, code=rc, detail=self._recording_failure_detail(rec)),
+                name=rec.title, code=rc, detail=detail),
             _("Recording Error"), wx.OK | wx.ICON_ERROR)
 
     def _on_recording_finished(self, rec, rc):
@@ -4238,8 +4294,50 @@ class IPTVClient(wx.Frame):
         return "\n".join(lines)
 
     def _set_recording_format(self, key: str):
-        self.config["recording_format"] = normalize_recording_format(key)
+        # The choice lands on the preference matching the chosen preset's own
+        # kind: picking an audio preset on a TV channel sets the audio
+        # preference (used for radio), not the video one, and vice versa.
+        key = normalize_recording_format(key)
+        kind = RECORDING_FORMATS[key][2]
+        if kind == "audio":
+            self.config["recording_format_audio"] = key
+        else:
+            self.config["recording_format_video"] = key
         save_config(self.config)
+
+    # -- media-type detection (issue #33) ------------------------------------
+
+    def _classify_channel_media(self, channel: Dict[str, str]):
+        """``(media, source)`` for a channel: metadata, then the probe cache.
+
+        Never probes here: this runs on the UI thread and in tests. Probing
+        is scheduled separately (see ``_schedule_media_probe``).
+        """
+        media = media_type.channel_media_from_metadata(channel)
+        if media:
+            return media, media_type.SOURCE_METADATA
+        identity = self._channel_record_key(channel)
+        cached = self._media_type_cache.lookup(identity, channel.get("url", ""))
+        if cached:
+            return cached
+        return media_type.MEDIA_UNKNOWN, media_type.MEDIA_UNKNOWN
+
+    def _recording_format_for_channel(self, channel: Dict[str, str]):
+        """``(format key, media, source)`` honoring per-media-type preferences.
+
+        Every recording entry point resolves through here so manual, player,
+        scheduled and catch-up recordings classify the stream the same way.
+        """
+        media, source = self._classify_channel_media(channel)
+        fmt = media_type.resolve_recording_format(
+            media,
+            self.config.get("recording_format_audio"),
+            self.config.get("recording_format_video"),
+        )
+        if media != media_type.MEDIA_UNKNOWN:
+            LOG.info("Resolved recording format %s for %s (media %s via %s)",
+                     fmt, self._channel_display_name(channel), media, source)
+        return fmt, media, source
 
     def _open_recordings_folder(self, *_args):
         path = get_recordings_dir(self.config)
@@ -4324,16 +4422,175 @@ class IPTVClient(wx.Frame):
         finally:
             dlg.Destroy()
 
-    def _build_recording_format_menu(self) -> wx.Menu:
-        """A submenu of radio items for each recording preset (checked = active)."""
-        current = normalize_recording_format(self.config.get("recording_format"))
+    def _build_recording_format_menu(self, channel=None) -> wx.Menu:
+        """A submenu of radio items for each recording preset (checked = active).
+
+        The list follows the selected channel's media type (issue #33): an
+        audio-only stream offers the audio presets only, so a radio recording
+        can never silently land in an MKV/MP4 video container. Rebuilt every
+        time the parent Recordings menu opens (see ``_populate_recordings_menu``),
+        before keyboard focus can enter the submenu.
+        """
         fmt_menu = wx.Menu()
-        for key in RECORDING_FORMATS:
+        self._fill_recording_format_menu(fmt_menu, channel)
+        return fmt_menu
+
+    def _fill_recording_format_menu(self, fmt_menu: wx.Menu, channel=None) -> None:
+        """(Re)build the Recording Format submenu for the selected channel."""
+        fmt_menu.Unbind(wx.EVT_MENU)
+        while fmt_menu.GetMenuItemCount():
+            fmt_menu.DestroyItem(fmt_menu.FindItemByPosition(0))
+        if channel is None:
+            try:
+                channel = self._selected_channel()
+            except Exception:
+                channel = None
+        if channel:
+            media, _source = self._classify_channel_media(channel)
+            current, _m, _s = self._recording_format_for_channel(channel)
+        else:
+            media = media_type.MEDIA_UNKNOWN
+            current = normalize_recording_format(self.config.get("recording_format_video"))
+        for key in media_type.formats_for_media(media):
             item = fmt_menu.AppendRadioItem(wx.ID_ANY, self._recording_format_label(key))
             if key == current:
                 item.Check(True)
             fmt_menu.Bind(wx.EVT_MENU, lambda evt, k=key: self._set_recording_format(k), item)
-        return fmt_menu
+        if (media == media_type.MEDIA_UNKNOWN and channel is not None
+                and self._media_probe_active(channel)):
+            # The probe is still classifying this channel: say so with a
+            # disabled entry rather than guessing, and keep the UI responsive.
+            # Screen readers announce the dimmed item when it is arrowed over.
+            status_item = fmt_menu.Append(wx.ID_ANY, _("Checking stream type…"))
+            status_item.Enable(False)
+
+    def _media_probe_active(self, channel) -> bool:
+        """Whether a classification probe is in flight for this channel."""
+        try:
+            return self._channel_record_key(channel) in self._media_probe_inflight
+        except Exception:
+            return False
+
+    def _schedule_media_probe(self, channel) -> None:
+        """Kick off a debounced media-type probe for the highlighted channel.
+
+        Arrowing through the channel list must not open a stream per row: the
+        probe only starts once the selection has settled for a moment, and it
+        always runs off the GUI thread.
+        """
+        if not channel:
+            return
+        self._media_probe_token += 1
+        token = self._media_probe_token
+        wx.CallLater(1500, self._on_media_probe_timer, token, dict(channel))
+
+    def _on_media_probe_timer(self, token: int, channel) -> None:
+        if token != self._media_probe_token:
+            return  # the selection moved on; this probe is stale
+        self._probe_channel_media_now(channel)
+
+    def _probe_channel_media_now(self, channel) -> None:
+        """Start a worker-thread probe unless the type is known or in flight."""
+        if not channel:
+            return
+        media, _source = self._classify_channel_media(channel)
+        if media != media_type.MEDIA_UNKNOWN:
+            return
+        try:
+            identity = self._channel_record_key(channel)
+        except Exception:
+            return
+        if identity in self._media_probe_inflight:
+            return
+        url = channel.get("url") or ""
+        try:
+            fetch_url, url_headers = split_stream_modifiers(url)
+        except Exception:
+            return
+        if not fetch_url.lower().startswith(("http://", "https://")):
+            return
+        if self._player_is_showing(channel):
+            # The player owns this stream right now: reuse its connection
+            # instead of opening a second one for the probe.
+            return
+        if IPTVClient._single_stream_provider_busy(self, fetch_url):
+            # The provider's one media connection is in use; probing would
+            # steal it. The channel stays unclassified (existing behaviour).
+            return
+        self._media_probe_inflight.add(identity)
+        LOG.info("Probing media type for %s", self._channel_display_name(channel))
+        threading.Thread(
+            target=self._probe_channel_media_worker,
+            args=(dict(channel), identity, fetch_url, url_headers),
+            daemon=True,
+        ).start()
+
+    def _probe_channel_media_worker(self, channel, identity, url, url_headers) -> None:
+        """Worker thread: classify one stream, then cache the result."""
+        from recorder import probe_media_type
+        headers = channel_http_headers(channel)
+        media = media_type.MEDIA_UNKNOWN
+
+        def _register(proc):
+            # If a session preempted this probe between the check above and
+            # the Popen, kill it immediately: never hold the slot unowned.
+            if identity in self._media_probe_inflight:
+                self._media_probe_procs[identity] = proc
+            else:
+                try:
+                    proc.kill()
+                except Exception:
+                    LOG.debug("_register: preempted probe kill failed", exc_info=True)
+
+        try:
+            # Re-check the slot immediately before opening the stream, and
+            # bail if a user-initiated session preempted this probe while it
+            # queued: the probe must never steal a one-stream provider's slot.
+            if (identity in self._media_probe_inflight
+                    and not IPTVClient._single_stream_provider_busy(self, url)):
+                media = probe_media_type(url, merge_headers(headers, url_headers),
+                                         on_popen=_register)
+        except Exception:
+            LOG.debug("IPTVClient._probe_channel_media_worker: ignored exception",
+                      exc_info=True)
+        finally:
+            self._media_probe_inflight.discard(identity)
+            self._media_probe_procs.pop(identity, None)
+        name = self._channel_display_name(channel)
+        if media != media_type.MEDIA_UNKNOWN:
+            self._media_type_cache.store(identity, channel.get("url", ""),
+                                         media, media_type.SOURCE_PROBE)
+            LOG.info("Media-type probe: %s is an %s stream", name,
+                     "audio-only" if media == media_type.MEDIA_AUDIO else "video")
+        else:
+            # Not cached: moving off and back retries the probe, and the
+            # channel keeps today's behaviour (the video preference) rather
+            # than being silently misclassified.
+            LOG.info("Media-type probe could not classify %s", name)
+
+    def _terminate_media_probe(self, channel) -> None:
+        """Kill an in-flight classification probe for this channel, if any.
+
+        A user-initiated media session (playback, recording, download)
+        preempts the background probe: the probe is only advisory, and on a
+        one-stream provider its open connection would otherwise refuse the
+        real session's connection.
+        """
+        try:
+            identity = self._channel_record_key(channel)
+        except Exception:
+            return
+        proc = self._media_probe_procs.pop(identity, None)
+        self._media_probe_inflight.discard(identity)
+        if proc is None or proc.poll() is not None:
+            return
+        LOG.info("Preempting media-type probe for %s",
+                 self._channel_display_name(channel))
+        try:
+            proc.kill()
+            proc.wait(timeout=5)
+        except Exception:
+            LOG.debug("_terminate_media_probe: ignored exception", exc_info=True)
 
     def _show_recording_padding_dialog(self, _event=None):
         """Let the user set the lead-in/lead-out used for scheduled programmes."""
@@ -4393,6 +4650,11 @@ class IPTVClient(wx.Frame):
         menu.AppendSeparator()
         format_menu = self._build_recording_format_menu()
         menu.AppendSubMenu(format_menu, _("Recording Format"))
+        # Rebuild the format choices every time the Recordings menu opens, so
+        # the submenu always reflects the selected channel's media type before
+        # keyboard focus can enter it.
+        menu.Bind(wx.EVT_MENU_OPEN,
+                  lambda _evt: self._fill_recording_format_menu(format_menu))
         padding_item = menu.Append(wx.ID_ANY, _("Schedule Padding..."))
         menu.Bind(wx.EVT_MENU, self._show_recording_padding_dialog, padding_item)
         menu.AppendSeparator()
@@ -6526,6 +6788,7 @@ class IPTVClient(wx.Frame):
         tvg_name = ""
         tvg_logo = ""
         tvg_rec = ""
+        media_hint = ""
         timeshift = ""
         catchup = ""
         catchup_type = ""
@@ -6554,6 +6817,7 @@ class IPTVClient(wx.Frame):
                     tvg_name = ""
                     tvg_logo = ""
                     tvg_rec = ""
+                    media_hint = ""
                     timeshift = ""
                     catchup = ""
                     catchup_type = ""
@@ -6588,6 +6852,10 @@ class IPTVClient(wx.Frame):
                             tvg_name = attrs.get("tvg-name", "")
                             tvg_logo = attrs.get("tvg-logo") or attrs.get("logo") or ""
                             tvg_rec = attrs.get("tvg-rec", "")
+                            # Authoritative media-type metadata (issue #33):
+                            # radio="true" and recognized equivalents. Parsed
+                            # once here so recording, menus and probes share it.
+                            media_hint = media_type.media_hint_from_attributes(attrs)
                             timeshift = attrs.get("timeshift", "")
                             catchup = attrs.get("catchup", "")
                             catchup_type = attrs.get("catchup-type", "")
@@ -6682,6 +6950,8 @@ class IPTVClient(wx.Frame):
                 channel["tvg-logo"] = tvg_logo
             if tvg_rec:
                 channel["tvg-rec"] = tvg_rec
+            if media_hint:
+                channel["media_hint"] = media_hint
             if timeshift:
                 channel["timeshift"] = timeshift
             if catchup:
@@ -6931,6 +7201,10 @@ class IPTVClient(wx.Frame):
             self._set_episode_description(getattr(
                 self, "_now_playing_descriptions", {}).get(
                 canonicalize_name(ch.get("name", "")), ""))
+            # Warm the media-type cache (issue #33) once the selection
+            # settles, so the Recording Format menu and recording paths know
+            # audio-only streams before they are used.
+            self._schedule_media_probe(ch)
         elif item["type"] == "epg":
             self.url_display.SetValue("")
             r = item["data"]
@@ -7169,6 +7443,11 @@ class IPTVClient(wx.Frame):
         except Exception as err:
             message_box(_("Could not resolve stream URL:\n{error}").format(error=err), _("Playback Error"), wx.OK | wx.ICON_ERROR)
             return
+        # Issue #33: playback preempts any advisory classification probe for
+        # this channel, so the probe's connection cannot refuse playback on a
+        # one-stream provider.
+        if channel:
+            self._terminate_media_probe(channel)
 
         display_name = None
         if channel:
@@ -7752,10 +8031,14 @@ class IPTVClient(wx.Frame):
                           _("Catch-up Download"), wx.OK | wx.ICON_INFORMATION)
             self._return_to_catchup_after_download(channel, show.get("start", ""))
             return
-        fmt = normalize_recording_format(self.config.get("recording_format"))
+        # Issue #33: catch-up/archive downloads classify the channel the same
+        # way live recordings do, so a radio archive records audio-only.
+        fmt, _media, _source = self._recording_format_for_channel(channel)
         # Do this before the redirect/direct-file and audio probes.  Those are
         # media requests too, and would otherwise consume Teleelevidenie's
-        # sole connection before ffmpeg gets a chance to start.
+        # sole connection before ffmpeg gets a chance to start. A background
+        # classification probe is preempted for the same reason.
+        self._terminate_media_probe(channel)
         if IPTVClient._single_stream_provider_busy(self, url):
             message_box(IPTVClient._single_stream_provider_refusal(self),
                         _("Catch-up Download"), wx.OK | wx.ICON_WARNING)

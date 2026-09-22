@@ -468,6 +468,11 @@ def load_config() -> Dict:
         "language": "auto",
         "recordings_dir": "",
         "recording_format": DEFAULT_RECORDING_FORMAT,
+        # Per-media-type recording preferences (issue #33). Migrated from the
+        # legacy single ``recording_format`` on load; see
+        # ``migrate_recording_format_prefs``.
+        "recording_format_audio": "audio_mp3_v0",
+        "recording_format_video": DEFAULT_RECORDING_FORMAT,
         "recording_pre_padding_minutes": DEFAULT_RECORDING_PRE_PADDING_MINUTES,
         "recording_post_padding_minutes": DEFAULT_RECORDING_POST_PADDING_MINUTES,
         "shutdown_after_recordings": False,
@@ -485,12 +490,18 @@ def load_config() -> Dict:
                 with open(p, "r", encoding="utf-8") as f:
                     data = json.load(f)
                 if isinstance(data, dict):
-                    # Ensure all default keys are present
+                    # Ensure all default keys are present. The per-media-type
+                    # recording preferences are seeded from the legacy single
+                    # ``recording_format`` by the migration below instead, so
+                    # an old config's choice is not lost to the new defaults.
                     for k, v in default.items():
+                        if k in ("recording_format_audio", "recording_format_video"):
+                            continue
                         data.setdefault(k, v)
                     if data.get("internal_player_buffer_seconds") == 12.0:
                         data["internal_player_buffer_seconds"] = DEFAULT_INTERNAL_PLAYER_BUFFER_SECONDS
                     data["recording_format"] = normalize_recording_format(data.get("recording_format"))
+                    migrate_recording_format_prefs(data)
                     normalize_recording_padding(data)
                     normalize_channel_and_audio_settings(data)
                     resolve_internal_player_settings(data)
@@ -511,6 +522,7 @@ def load_config() -> Dict:
 def save_config(cfg: Dict):
     global _CONFIG_PATH
     cfg["recording_format"] = normalize_recording_format(cfg.get("recording_format"))
+    migrate_recording_format_prefs(cfg)
     normalize_recording_padding(cfg)
     normalize_channel_and_audio_settings(cfg)
     resolve_internal_player_settings(cfg)
@@ -565,6 +577,22 @@ def normalize_recording_format(value) -> str:
     if isinstance(value, str) and value in RECORDING_FORMATS:
         return value
     return DEFAULT_RECORDING_FORMAT
+
+def migrate_recording_format_prefs(cfg: Dict) -> None:
+    """Split the legacy single ``recording_format`` into per-media-type prefs.
+
+    Delegates to :mod:`media_type` so the rule lives in one place; valid
+    stored preferences are never overwritten.
+    """
+    try:
+        from media_type import migrate_recording_format_prefs as _migrate
+    except Exception:
+        return
+    try:
+        _migrate(cfg)
+    except Exception:
+        LOG.debug("migrate_recording_format_prefs: ignored exception", exc_info=True)
+
 
 def _coerce_padding_minutes(value, default: int) -> int:
     try:

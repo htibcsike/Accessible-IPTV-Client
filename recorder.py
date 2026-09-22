@@ -3,7 +3,7 @@
 GUI-free. Drives ffmpeg subprocesses that capture a resolved stream URL to disk.
 Three families of output are supported (see ``RECORDING_FORMATS``):
 
-* provider quality (stream copy) in MKV or MP4,
+* provider quality (stream copy) in MKV, MP4 or MKA (MKA is audio-only),
 * x264 re-encode (H.264 + AAC) in MKV or MP4,
 * audio only (WAV / FLAC / MP3 V0 / AAC / Opus).
 
@@ -29,6 +29,7 @@ RECORDING_FORMATS: "Dict[str, tuple]" = {
     "provider_mp4": ("Provider quality (copy, MP4)", "mp4", "video"),
     "x264_mkv": ("x264 re-encode (MKV)", "mkv", "video"),
     "x264_mp4": ("x264 re-encode (MP4)", "mp4", "video"),
+    "provider_mka": ("Provider quality (stream copy, MKA)", "mka", "audio"),
     "audio_mp3_v0": ("Audio only (MP3 V0)", "mp3", "audio"),
     "audio_flac": ("Audio only (FLAC)", "flac", "audio"),
     "audio_wav": ("Audio only (WAV)", "wav", "audio"),
@@ -43,6 +44,7 @@ DEFAULT_RECORDING_FORMAT = "provider_mkv"
 # forced explicitly (mapping: recording extension -> ffmpeg muxer name).
 FORMAT_MUXERS = {
     "mkv": "matroska",
+    "mka": "matroska",
     "mp4": "mp4",
     "m4a": "ipod",
     "mp3": "mp3",
@@ -742,6 +744,13 @@ def build_ffmpeg_command(
                 "-c:v", "copy", "-c:a", "aac", "-b:a", "192k"]
     elif fmt == "provider_mkv":
         cmd += ["-map", "0", "-c", "copy"]
+    elif fmt == "provider_mka":
+        # Original-quality radio: copy every audio stream verbatim into a
+        # Matroska Audio container. Video, subtitle and data tracks are left
+        # behind (``-vn -sn -dn`` as well as the audio-only map), and nothing
+        # is re-encoded: a source that cannot be copied fails here instead of
+        # silently becoming a transcode.
+        cmd += ["-map", "0:a?", "-vn", "-sn", "-dn", "-c:a", "copy"]
     elif fmt in ("x264_mp4", "x264_mkv"):
         cmd += [
             "-map", "0:v?", "-map", "0:a?",
@@ -837,12 +846,18 @@ def audio_stream_label(position: int, stream: Dict[str, object]) -> str:
     return " - ".join(parts)
 
 
-def probe_audio_streams(url: str, headers: Optional[Dict[str, object]] = None,
-                        *, timeout: float = 20.0) -> List[Dict[str, object]]:
-    """Ask a stream which audio tracks it carries; [] when it cannot say in time.
+def probe_stream_report(url: str, headers: Optional[Dict[str, object]] = None,
+                        *, timeout: float = 20.0,
+                        on_popen: Optional[Callable[[Any], None]] = None) -> str:
+    """Ask a stream to describe itself; "" when it cannot answer in time.
 
     A plain ``ffmpeg -i`` with no output: it opens the input, reports what it
-    found and exits. A network round trip, so never on the UI thread.
+    found on stderr and exits. A network round trip, so never on the UI
+    thread. The raw report is returned so callers can parse audio tracks,
+    media types, or anything else from the same single probe. The optional
+    ``on_popen`` hook receives the live Popen so a caller can terminate a
+    probe early -- a recording starting on a one-stream provider preempts the
+    background media-type probe instead of racing it for the slot.
     """
     cmd = [get_ffmpeg_path(), "-hide_banner", "-nostdin",
            "-rw_timeout", "10000000", "-analyzeduration", "3000000"]
@@ -853,13 +868,54 @@ def probe_audio_streams(url: str, headers: Optional[Dict[str, object]] = None,
     cmd += ["-i", url]
     creation_flags = subprocess.CREATE_NO_WINDOW if hasattr(subprocess, "CREATE_NO_WINDOW") else 0
     try:
-        result = subprocess.run(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                                stderr=subprocess.PIPE, timeout=timeout,
+        proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL,
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.PIPE,
                                 creationflags=creation_flags)
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        LOG.info("Audio track probe failed for %s: %s", url, exc)
-        return []
-    return parse_audio_streams(result.stderr.decode("utf-8", errors="replace"))
+    except OSError as exc:
+        LOG.info("Stream probe failed for %s: %s", url, exc)
+        return ""
+    if on_popen is not None:
+        try:
+            on_popen(proc)
+        except Exception:
+            LOG.debug("probe_stream_report: on_popen hook failed", exc_info=True)
+    try:
+        _, stderr = proc.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        _, stderr = proc.communicate()
+        LOG.info("Stream probe timed out for %s", url)
+        return ""
+    except OSError as exc:
+        LOG.info("Stream probe failed for %s: %s", url, exc)
+        return ""
+    return (stderr or b"").decode("utf-8", errors="replace")
+
+
+def probe_audio_streams(url: str, headers: Optional[Dict[str, object]] = None,
+                        *, timeout: float = 20.0) -> List[Dict[str, object]]:
+    """Ask a stream which audio tracks it carries; [] when it cannot say in time.
+
+    A plain ``ffmpeg -i`` with no output: it opens the input, reports what it
+    found and exits. A network round trip, so never on the UI thread.
+    """
+    return parse_audio_streams(probe_stream_report(url, headers, timeout=timeout))
+
+
+def probe_media_type(url: str, headers: Optional[Dict[str, object]] = None,
+                     *, timeout: float = 20.0,
+                     on_popen: Optional[Callable[[Any], None]] = None) -> str:
+    """``"audio"``/``"video"``/``"unknown"`` for what the stream carries.
+
+    Shares one ``ffmpeg -i`` probe with the audio-track listing; an attached
+    picture or cover-art track never counts as video. Never on the UI thread.
+    ``on_popen`` is passed through to :func:`probe_stream_report` so the
+    probe can be preempted.
+    """
+    from media_type import classify_probe_report
+    return classify_probe_report(
+        probe_stream_report(url, headers, timeout=timeout, on_popen=on_popen))
 
 
 class Recording:
@@ -1029,6 +1085,10 @@ class RecordingManager:
                                    copy_to_stdout=share_with_player,
                                    log_datetime=ffmpeg_supports_log_datetime(ffmpeg_path))
         LOG.info("Starting recording: %s -> %s (%s)", display_name, out_path, fmt)
+        if fmt == "provider_mka":
+            # Say it plainly in the log: the MKA preset preserves the source
+            # audio via stream copy and never transcodes.
+            LOG.info("MKA recording: audio stream(s) copied verbatim, no re-encode")
         if audio_track is not None:
             LOG.info("Recording audio track %d of %d", audio_track + 1, audio_track_count)
 
