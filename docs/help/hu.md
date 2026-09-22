@@ -360,7 +360,7 @@ Ha új verzió érhető el, a program ismerteti a változásokat, majd megkérde
 
 Linux alatt az új csomagot a korábbi verzió fölé kell telepíteni.
 
-A Súgó > Újdonságok parancs verziónként, a legfrissebbel kezdve sorolja fel a változásokat. A szakaszcímek mindig a felület nyelvén olvashatók. A három legutóbbi verzió jegyzetei fordítás után magyarul jelennek meg. A fordítás esetenként csak röviddel az adott kiadás közzététele után készül el; addig, valamint a régebbi verzióknál a jegyzetek angolul olvashatók.
+A Súgó > Újdonságok parancs verziónként, a legfrissebbel kezdve sorolja fel a változásokat. A szakaszcímek mindig a felület nyelvén olvashatók. A három legutóbbi verzió jegyzetei fordítás után magyarul jelennek meg. A fordítás esetenként csak röviddel az adott kiadás közzététele után készül el; addig, valamint a régebbi verzióknál a jegyzetek angolul olvashatók. A háromnál régebbi kiadások jegyzetei alapértelmezés szerint rejtve vannak; a „Régebbi kiadások megjelenítése (angolul)” gombbal lehet őket megjeleníteni, majd ismét elrejteni.
 
 ## Hibaelhárítás {#troubleshooting}
 

@@ -550,12 +550,28 @@ class ChangelogDialog(wx.Dialog):
 
         panel = wx.Panel(self)
         layout = wx.BoxSizer(wx.VERTICAL)
-        self.text = wx.TextCtrl(panel, value=history,
+        recent_history, older_history = release_notes.split_changelog_window(history)
+        self._recent_history = recent_history
+        self._older_history = older_history
+        self._older_shown = False
+        self.text = wx.TextCtrl(panel, value=recent_history,
                                 style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_RICH2)
         self.text.SetName(_("Release history"))
+        # The full history stays one screen-reader document: the toggle only
+        # appends the older English entries below a labelled separator, so
+        # nothing is ever unloaded from the text control (issue #28).
+        self.toggle_btn = None
+        if older_history.strip():
+            self.toggle_btn = wx.Button(panel, label=_("Show older releases (English)"))
+            self.toggle_btn.Bind(wx.EVT_BUTTON, self._on_toggle_older)
         close_btn = wx.Button(panel, id=wx.ID_CANCEL, label=_("Close"))
         layout.Add(self.text, 1, wx.EXPAND | wx.ALL, 10)
-        layout.Add(close_btn, 0, wx.ALIGN_RIGHT | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        btn_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        if self.toggle_btn is not None:
+            btn_sizer.Add(self.toggle_btn, 0, wx.LEFT | wx.BOTTOM, 10)
+        btn_sizer.AddStretchSpacer(1)
+        btn_sizer.Add(close_btn, 0, wx.RIGHT | wx.BOTTOM, 10)
+        layout.Add(btn_sizer, 0, wx.EXPAND)
         panel.SetSizer(layout)
         self.SetMinSize((520, 380))
         self.CentreOnParent()
@@ -563,6 +579,27 @@ class ChangelogDialog(wx.Dialog):
         self.Bind(wx.EVT_CLOSE, lambda _event: self._finish())
         self.SetEscapeId(wx.ID_CANCEL)
         wx.CallAfter(self.text.SetFocus)
+
+    def _on_toggle_older(self, _event) -> None:
+        """Show or hide the older English release entries in place."""
+        if self.toggle_btn is None:
+            return
+        if self._older_shown:
+            self.text.SetValue(self._recent_history)
+            self.text.SetInsertionPoint(0)
+            self.toggle_btn.SetLabel(_("Show older releases (English)"))
+            self._older_shown = False
+        else:
+            separator = _("Older releases (English)")
+            self.text.SetValue(
+                self._recent_history.rstrip() + "\n\n" + separator + "\n\n"
+                + self._older_history.lstrip())
+            # Land the caret at the separator so screen readers announce the
+            # newly revealed section; the toggle keeps focus for a quick hide.
+            self.text.SetInsertionPoint(len(self._recent_history.rstrip()) + 2)
+            self.toggle_btn.SetLabel(_("Hide older releases"))
+            self._older_shown = True
+        self.toggle_btn.SetFocus()
 
     def _finish(self) -> None:
         if self.IsModal():

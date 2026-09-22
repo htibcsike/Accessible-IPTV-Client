@@ -152,3 +152,22 @@ def localize_changelog(text: str, app_name: str) -> str:
         "",
     ]
     return "\n".join(intro) + localize_notes("\n".join(lines[first:])) + "\n"
+
+
+def split_changelog_window(text: str, window: int = RELEASE_WINDOW) -> Tuple[str, str]:
+    """Split a localized changelog into ``(recent, older)`` at the window.
+
+    ``recent`` keeps the translated introduction plus the newest ``window``
+    release sections; ``older`` holds every later section, still in English
+    (issue #28). When the changelog holds ``window`` or fewer releases the
+    older part is empty.
+    """
+    lines = (text or "").splitlines()
+    headings = [i for i, line in enumerate(lines)
+                if _VERSION_HEADING.match(line.strip())]
+    if len(headings) <= max(int(window), 0):
+        return text, ""
+    cut = headings[max(int(window), 0)]
+    recent = "\n".join(lines[:cut]).rstrip() + "\n"
+    older = "\n".join(lines[cut:]).strip() + "\n"
+    return recent, older

@@ -745,3 +745,29 @@ def test_recording_problem_times_dialog_without_any_times(host):
             "No timed problems were found in the newest recording log.")]
     finally:
         dlg.Destroy()
+
+
+# --------------------------------------------------------------------------- #
+# Issue #28: the What's New dialog hides older English releases behind a toggle
+# --------------------------------------------------------------------------- #
+def test_changelog_dialog_hides_older_releases_behind_a_toggle(host):
+    dlg = appmod.ChangelogDialog(host)
+    try:
+        # The bundled history is far longer than the three-release window.
+        assert dlg.toggle_btn is not None
+        initial = dlg.text.GetValue()
+        assert "## v1.139.1" in initial
+        assert "## v1.138.3" not in initial
+        assert dlg.toggle_btn.GetLabel() == "Show older releases (English)"
+
+        dlg._on_toggle_older(None)
+        expanded = dlg.text.GetValue()
+        assert "Older releases (English)" in expanded
+        assert "## v1.138.3" in expanded
+        assert dlg.toggle_btn.GetLabel() == "Hide older releases"
+
+        dlg._on_toggle_older(None)
+        assert dlg.text.GetValue() == initial
+        assert dlg.toggle_btn.GetLabel() == "Show older releases (English)"
+    finally:
+        dlg.Destroy()

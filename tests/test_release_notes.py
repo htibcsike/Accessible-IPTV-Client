@@ -176,3 +176,40 @@ def test_parse_sections_dedupes_and_maps_legacy_headings():
     assert release_notes.parse_sections(
         "## Fixes\n- fix: a\n- fix: A\n## Weird\n- b\n## Other\n"
     ) == [("Bug fixes", ["A"]), (None, ["B"])]
+
+
+def test_split_changelog_window_keeps_newest_three_releases():
+    shown = release_notes.localize_changelog(CHANGELOG, "Accessible IPTV Client")
+    recent, older = release_notes.split_changelog_window(shown)
+    # The localized intro plus the newest three releases stay visible.
+    assert "What's New" in recent
+    for version in ("v1.0.4", "v1.0.3", "v1.0.2"):
+        assert f"## {version}" in recent
+    assert "## v1.0.1" not in recent
+    # Everything older moves behind the toggle, still English.
+    assert "## v1.0.1" in older
+    assert "Retired note" in older
+    assert "Newest fix" not in older
+    # No release is lost or duplicated across the split.
+    assert (recent + older).count("## v1.0.") == 4
+
+
+def test_split_changelog_window_with_few_releases_has_no_older_part():
+    short = "## v1.0.1 - 2026-01-01\n\n- Only note\n"
+    recent, older = release_notes.split_changelog_window(short)
+    assert recent == short
+    assert older == ""
+
+
+def test_split_changelog_window_handles_empty_text():
+    assert release_notes.split_changelog_window("") == ("", "")
+
+
+def test_split_changelog_window_matches_bundled_changelog():
+    path = os.path.join(REPO, "CHANGELOG.md")
+    with open(path, encoding="utf-8") as handle:
+        shown = release_notes.localize_changelog(handle.read(), "Accessible IPTV Client")
+    recent, older = release_notes.split_changelog_window(shown)
+    assert sum(1 for line in recent.splitlines() if line.startswith("## v")) == 3
+    assert older.lstrip().startswith("## v")
+    assert "older entries stay in English" in recent
