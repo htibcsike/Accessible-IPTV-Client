@@ -6,6 +6,8 @@ name: Cloud Release
 # tag, Latest release), signed from the WINDOWS_CODESIGN_PFX/PASSWORD secrets
 # (the certificate the updater pins). A release published with GITHUB_TOKEN
 # starts no workflow, so this then dispatches debian-package.yml for the .deb.
+# macOS (Apple Silicon and Intel) builds the same commit with
+# tools/build_macos.sh and attaches AccessibleIPTVClient-vX.Y.Z-macos-<arch>.zip.
 #
 # The translation gate needs this release's What's New bullets translated.
 # On the host they stay uncommitted; a runner has a clean checkout, so run
@@ -50,6 +52,7 @@ jobs:
     timeout-minutes: 90
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
+      ref: ${{ steps.tag.outputs.ref }}
     steps:
       - name: Require main
         if: ${{ github.ref != 'refs/heads/main' }}
@@ -132,9 +135,15 @@ jobs:
 
       - name: Record tag
         id: tag
-        if: ${{ !inputs.dry_run }}
         shell: bash
-        run: echo "tag=$(git describe --tags --exact-match HEAD)" >> "$GITHUB_OUTPUT"
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "ref=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          else
+            tag="$(git describe --tags --exact-match HEAD)"
+            echo "tag=$tag" >> "$GITHUB_OUTPUT"
+            echo "ref=$tag" >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: actions/upload-artifact@v6
         with:
@@ -162,3 +171,36 @@ jobs:
           grep -q '\.deb$' <<<"$have" || { echo "::error::No .deb on $TAG"; exit 1; }
           latest="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)"
           [ "$latest" = "$TAG" ] || { echo "::error::/releases/latest is $latest"; exit 1; }
+
+  macos:
+    needs: windows
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.windows.outputs.ref }}
+          lfs: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Build
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: bash tools/build_macos.sh
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: AccessibleIPTVClient-${{ matrix.os }}
+          path: dist/AccessibleIPTVClient-v*-macos-*.zip
+          if-no-files-found: error
+
+      - name: Attach to release
+        if: ${{ !inputs.dry_run }}
+        run: gh release upload "${{ needs.windows.outputs.tag }}" dist/AccessibleIPTVClient-v*-macos-*.zip --clobber --repo "$GITHUB_REPOSITORY"
