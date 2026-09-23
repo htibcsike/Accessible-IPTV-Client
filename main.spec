@@ -95,16 +95,36 @@ hidden_imports += [
     'pyatv.convert',
 ]
 
+# Windows ships the LFS ffmpeg.exe and the PowerShell update helper. macOS
+# (tools/build_macos.sh) bundles Homebrew's ffmpeg and VLC.app's libVLC and
+# plugins; main.py points PATH and python-vlc at them when frozen.
+platform_binaries = []
+platform_datas = []
+if sys.platform == 'win32':
+    platform_datas += [('ffmpeg.exe', '.'), ('update_helper.ps1', '.')]
+elif sys.platform == 'darwin':
+    import shutil
+    _ffmpeg = os.environ.get('IPTV_FFMPEG') or shutil.which('ffmpeg')
+    _vlc = os.path.join(os.environ.get('IPTV_VLC_APP', '/Applications/VLC.app'), 'Contents', 'MacOS')
+    _missing = [p for p in (_ffmpeg or 'ffmpeg', os.path.join(_vlc, 'lib', 'libvlc.dylib'),
+                            os.path.join(_vlc, 'plugins')) if not os.path.exists(p)]
+    if _missing:
+        raise SystemExit('main.spec: macOS build needs ffmpeg and VLC.app; missing: ' + ', '.join(_missing))
+    platform_binaries += [
+        (_ffmpeg, '.'),
+        (os.path.join(_vlc, 'lib', 'libvlc.dylib'), os.path.join('vlc', 'lib')),
+        (os.path.join(_vlc, 'lib', 'libvlccore.dylib'), os.path.join('vlc', 'lib')),
+    ]
+    platform_datas += [(os.path.join(_vlc, 'plugins'), os.path.join('vlc', 'plugins'))]
+
 a = Analysis(
     ['main.py'],
     pathex=[chardet_pipeline_path],
-    binaries=[],
+    binaries=platform_binaries,
     datas=[
         ('CHANGELOG.md', '.'),
         ('init.mp4', '.'),
-        ('ffmpeg.exe', '.'),
-        ('update_helper.ps1', '.'),
-    ] + locale_datas + help_datas,
+    ] + platform_datas + locale_datas + help_datas,
     hiddenimports=hidden_imports,
     hookspath=[],
     hooksconfig={},
@@ -150,3 +170,16 @@ coll = COLLECT(
     upx_exclude=[],
     name='iptvclient',
 )
+
+# macOS: app bundle (tools/build_macos.sh zips it).
+if sys.platform == 'darwin':
+    app = BUNDLE(
+        coll,
+        name='AccessibleIPTVClient.app',
+        bundle_identifier='com.serrebidev.accessibleiptvclient',
+        info_plist={
+            'NSHighResolutionCapable': True,
+            'NSLocalNetworkUsageDescription': 'Accessible IPTV Client finds and casts to devices on your network.',
+            'NSBonjourServices': ['_googlecast._tcp', '_airplay._tcp', '_raop._tcp'],
+        },
+    )

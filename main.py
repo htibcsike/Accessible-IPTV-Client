@@ -18,6 +18,16 @@ import subprocess
 import hashlib
 import concurrent.futures
 
+# The macOS app bundles ffmpeg and libVLC (tools/build_macos.sh). An app opened
+# from Finder has no Homebrew on PATH, so point ffmpeg lookups and python-vlc
+# at the bundled copies before anything imports them.
+if sys.platform == "darwin" and getattr(sys, "frozen", False):
+    _bundle = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+    os.environ["PATH"] = _bundle + os.pathsep + os.environ.get("PATH", "")
+    if os.path.isfile(os.path.join(_bundle, "vlc", "lib", "libvlc.dylib")):
+        os.environ.setdefault("PYTHON_VLC_LIB_PATH", os.path.join(_bundle, "vlc", "lib", "libvlc.dylib"))
+        os.environ.setdefault("PYTHON_VLC_MODULE_PATH", os.path.join(_bundle, "vlc", "plugins"))
+
 # Child of the rotating-file "EPG" logger configured in playlist.py, so UI/search
 # diagnostics land in the same log file and honor the same EPG_DEBUG switch.
 LOG = logging.getLogger("EPG.ui")
