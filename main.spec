@@ -71,12 +71,10 @@ hidden_imports = [
     'caster_devices',
     'caster_config',
     'miniaudio',
-    'netifaces',
     'pydantic',
     'srptools',
     'tinytag',
     'tabulate',
-    'defusedxml',
     'chacha20poly1305_reuseable',
     'requests',
     'vlc',
@@ -115,7 +113,11 @@ elif sys.platform == 'darwin':
         (os.path.join(_vlc, 'lib', 'libvlc.dylib'), os.path.join('vlc', 'lib')),
         (os.path.join(_vlc, 'lib', 'libvlccore.dylib'), os.path.join('vlc', 'lib')),
     ]
-    platform_datas += [(os.path.join(_vlc, 'plugins'), os.path.join('vlc', 'plugins'))]
+    # Not VLC's Mac GUI (needs Sparkle) or notifications (needs Growl), and not
+    # plugins.dat: re-signing the plugins makes that cache stale.
+    _skip = {'libmacosx_plugin.dylib', 'libosx_notifications_plugin.dylib', 'plugins.dat'}
+    platform_datas += [(os.path.join(_vlc, 'plugins', _fn), os.path.join('vlc', 'plugins'))
+                       for _fn in sorted(os.listdir(os.path.join(_vlc, 'plugins'))) if _fn not in _skip]
 
 a = Analysis(
     ['main.py'],
