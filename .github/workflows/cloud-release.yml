@@ -186,6 +186,10 @@ jobs:
         with:
           python-version: "3.14"
 
+      - name: Require Apple Silicon
+        run: |
+          [ "$(uname -m)" = arm64 ] || { echo "::error::Expected an Apple Silicon runner, got $(uname -m)"; exit 1; }
+
       - name: Build
         env:
           HOMEBREW_NO_AUTO_UPDATE: "1"
