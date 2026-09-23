@@ -815,6 +815,55 @@ def gh_release_create(version, assets):
     delete_draft_releases()
 
 
+LINUX_BUILD_HOST = os.environ.get("LINUX_BUILD_HOST", "root@serrebiradio.com")
+
+
+def release_other_platforms(version):
+    """The host's Linux and macOS half: .deb over SSH, macOS on a GitHub runner.
+
+    cloud-release.yml has its own jobs for both, so this is skipped there.
+    """
+    if os.environ.get("GITHUB_ACTIONS"):
+        return
+    tag = f"v{version}"
+    started = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    run(["gh", "workflow", "run", "macos-release.yml", "-f", f"release_tag={tag}"])
+
+    print(f"Building the .deb for {tag} on {LINUX_BUILD_HOST}...")
+    with open(os.path.join(REPO_ROOT, "tools", "build_deb_remote.sh"), "rb") as script:
+        result = subprocess.run(
+            ["ssh", "-o", "BatchMode=yes", LINUX_BUILD_HOST, "bash", "-s", "--", tag],
+            stdin=script, stdout=subprocess.PIPE, check=True,
+        )
+    remote_deb = result.stdout.decode().strip().splitlines()[-1]
+    local_deb = os.path.join(REPO_ROOT, "dist", "release", os.path.basename(remote_deb))
+    run(["scp", "-o", "BatchMode=yes", f"{LINUX_BUILD_HOST}:{remote_deb}", local_deb])
+    run(["ssh", "-o", "BatchMode=yes", LINUX_BUILD_HOST, "rm -rf -- " + remote_deb.split("/src/")[0]])
+    run(["gh", "release", "upload", tag, local_deb, "--clobber"])
+
+    run_id = ""
+    for _ in range(12):
+        runs = json.loads(run(
+            ["gh", "run", "list", "--workflow", "macos-release.yml", "--event", "workflow_dispatch",
+             "--limit", "5", "--json", "databaseId,createdAt"],
+            capture_output=True,
+        ).stdout or "[]")
+        run_id = next((str(r["databaseId"]) for r in runs if r["createdAt"] >= started), "")
+        if run_id:
+            break
+        time.sleep(10)
+    if not run_id:
+        raise RuntimeError(f"macos-release.yml run for {tag} never appeared; dispatch it again by hand.")
+    print(f"Waiting for the macOS build (run {run_id})...")
+    run(["gh", "run", "watch", run_id, "--exit-status", "--interval", "30"])
+
+    names = run(["gh", "release", "view", tag, "--json", "assets", "--jq", ".assets[].name"],
+                capture_output=True).stdout
+    for suffix in ("_all.deb", "-macos-arm64.zip"):
+        if not any(n.endswith(suffix) for n in names.split()):
+            raise RuntimeError(f"{tag} has no *{suffix} asset.")
+
+
 def ensure_release_published_latest(version):
     tag = f"v{version}"
     run(["gh", "release", "edit", tag, "--draft=false", "--latest"])
@@ -898,6 +947,7 @@ def main():
         git_commit_and_tag(next_version)
         git_push(next_version)
         gh_release_create(next_version, assets)
+        release_other_platforms(next_version)
         return
 
     if args.mode == "build":

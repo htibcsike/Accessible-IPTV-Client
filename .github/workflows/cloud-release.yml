@@ -1,6 +1,6 @@
 name: Cloud Release
 
-# Cloud agents ONLY. On the Windows release host run `build.bat release`.
+# Muse agent and cloud agents ONLY. On the Windows release host run `build.bat release`.
 # Windows runs the same build.bat release on a GitHub runner (version, notes,
 # translation audit, CHANGELOG, signed exe and installer, manifest, commit,
 # tag, Latest release), signed from the WINDOWS_CODESIGN_PFX/PASSWORD secrets

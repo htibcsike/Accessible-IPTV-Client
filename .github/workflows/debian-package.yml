@@ -1,15 +1,13 @@
 name: Debian Package
 
-# Windows releases are built and signed locally with build.bat, which has no way
-# to produce a .deb. This workflow covers the Debian side: every push to main
-# builds a package as a downloadable artifact, and a published release (or a
-# manual run against a tag) also attaches the .deb to that release.
+# Every push to main builds a package as a downloadable artifact, and a manual
+# run against a tag (cloud-release.yml does this) attaches the .deb to that
+# release. A host release builds its .deb over SSH instead
+# (tools/build_deb_remote.sh), so a published release does not trigger this.
 on:
   push:
     branches:
       - main
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       release_tag:

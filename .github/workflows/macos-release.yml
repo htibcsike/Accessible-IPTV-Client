@@ -1,0 +1,43 @@
+name: macOS Release
+
+# The Windows release host builds Windows locally and Linux over SSH; this is
+# its macOS half. tools/release.py dispatches it once the release is published.
+# (cloud-release.yml has its own macOS job.)
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Release tag to build the macOS app for and attach it to
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.release_tag }}
+          lfs: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Require Apple Silicon
+        run: |
+          [ "$(uname -m)" = arm64 ] || { echo "::error::Expected an Apple Silicon runner, got $(uname -m)"; exit 1; }
+
+      - name: Build
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: bash tools/build_macos.sh
+
+      - name: Attach to release
+        run: gh release upload "${{ inputs.release_tag }}" dist/AccessibleIPTVClient-v*-macos-*.zip --clobber --repo "$GITHUB_REPOSITORY"
