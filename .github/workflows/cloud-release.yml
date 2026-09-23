@@ -1,0 +1,164 @@
+name: Cloud Release
+
+# Cloud agents ONLY. On the Windows release host run `build.bat release`.
+# Windows runs the same build.bat release on a GitHub runner (version, notes,
+# translation audit, CHANGELOG, signed exe and installer, manifest, commit,
+# tag, Latest release), signed from the WINDOWS_CODESIGN_PFX/PASSWORD secrets
+# (the certificate the updater pins). A release published with GITHUB_TOKEN
+# starts no workflow, so this then dispatches debian-package.yml for the .deb.
+#
+# The translation gate needs this release's What's New bullets translated.
+# On the host they stay uncommitted; a runner has a clean checkout, so run
+# `python tools/translation_audit.py prepare-notes`, translate, and push ONLY
+# those locale/ changes to a scratch branch (never main: committed extra
+# msgids fail test_committed_notes_catalogues_cover_the_current_window). The
+# workflow lays that branch's locale/ over main as uncommitted changes, exactly
+# as the host has them, and the release commit stages them.
+#
+#   gh workflow run cloud-release.yml -f dry_run=true
+#   gh workflow run cloud-release.yml -f dry_run=false -f translations_branch=release-notes/next
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build as workflow artifacts and print the translation audit; push, tag and publish nothing
+        required: false
+        default: true
+        type: boolean
+      translations_branch:
+        description: Branch holding this release's uncommitted locale/ (What's New) translations
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: Require main
+        if: ${{ github.ref != 'refs/heads/main' }}
+        run: |
+          echo "::error::Cloud releases run from main only (got ${{ github.ref }})."
+          exit 1
+
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+          lfs: true
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies and Inno Setup
+        run: |
+          python -m pip install pyinstaller -r requirements.txt
+          if ($LASTEXITCODE -ne 0) { throw "pip install failed" }
+          choco install innosetup --no-progress -y
+          $iscc = Get-ChildItem "${env:ProgramFiles(x86)}\Inno Setup *\ISCC.exe", "$env:ProgramFiles\Inno Setup *\ISCC.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $iscc) { throw "ISCC.exe not found" }
+          "INNO_SETUP_COMPILER=$($iscc.FullName)" >> $env:GITHUB_ENV
+
+      - name: Import code-signing certificate and locate signtool
+        env:
+          PFX_BASE64: ${{ secrets.WINDOWS_CODESIGN_PFX }}
+          PFX_PASSWORD: ${{ secrets.WINDOWS_CODESIGN_PASSWORD }}
+        run: |
+          if (-not $env:PFX_BASE64) { throw "WINDOWS_CODESIGN_PFX secret is missing" }
+          $pfx = Join-Path $env:RUNNER_TEMP "codesign.pfx"
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:PFX_BASE64))
+          $cert = Import-PfxCertificate -FilePath $pfx -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString $env:PFX_PASSWORD -AsPlainText -Force)
+          Remove-Item $pfx -Force
+          "SIGN_CERT_THUMBPRINT=$($cert.Thumbprint)" >> $env:GITHUB_ENV
+          $tool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Recurse -Filter signtool.exe |
+            Where-Object { $_.FullName -match '\\x64\\signtool\.exe$' } | Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $tool) { throw "signtool.exe not found" }
+          "SIGNTOOL_PATH=$($tool.FullName)" >> $env:GITHUB_ENV
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Lay the prepared translations over main, uncommitted
+        if: ${{ inputs.translations_branch != '' }}
+        env:
+          BRANCH: ${{ inputs.translations_branch }}
+        run: |
+          git fetch origin "refs/heads/$env:BRANCH"
+          if ($LASTEXITCODE -ne 0) { throw "branch $env:BRANCH not found" }
+          $outside = git diff --name-only HEAD FETCH_HEAD | Where-Object { $_ -notlike "locale/*" }
+          if ($outside) { throw "$env:BRANCH changes files outside locale/: $($outside -join ', ')" }
+          git checkout FETCH_HEAD -- locale
+          git reset -q
+          git status --short
+
+      - name: Dry run
+        if: ${{ inputs.dry_run }}
+        shell: cmd
+        run: |
+          call build.bat dry-run || exit /b 1
+          call build.bat build
+
+      - name: Release
+        if: ${{ !inputs.dry_run }}
+        shell: cmd
+        run: call build.bat release
+
+      # The updater pins this certificate; never ship anything else.
+      - name: Verify Authenticode signatures
+        run: |
+          $files = @(Get-ChildItem dist\iptvclient\*.exe) + @(Get-ChildItem dist\release\*Setup*.exe -ErrorAction SilentlyContinue)
+          foreach ($f in $files) {
+            $sig = Get-AuthenticodeSignature $f.FullName
+            if ($sig.SignerCertificate.Thumbprint -ne $env:SIGN_CERT_THUMBPRINT) { throw "$($f.Name) is not signed by the release certificate ($($sig.Status))" }
+            if ("$($sig.Status)" -notin @("Valid", "UnknownError", "NotTrusted")) { throw "$($f.Name) signature is $($sig.Status)" }
+            "$($f.Name): $($sig.Status)"
+          }
+
+      - name: Record tag
+        id: tag
+        if: ${{ !inputs.dry_run }}
+        shell: bash
+        run: echo "tag=$(git describe --tags --exact-match HEAD)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: AccessibleIPTVClient-windows
+          path: dist/release/*
+          if-no-files-found: error
+
+  linux:
+    if: ${{ !inputs.dry_run }}
+    needs: windows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build the .deb (debian-package.yml) and verify the release
+        env:
+          TAG: ${{ needs.windows.outputs.tag }}
+        run: |
+          set -euo pipefail
+          gh workflow run debian-package.yml --repo "$GITHUB_REPOSITORY" --ref main -f release_tag="$TAG"
+          sleep 15
+          id="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow debian-package.yml --event workflow_dispatch --limit 1 --json databaseId --jq '.[0].databaseId')"
+          echo "debian-package.yml for $TAG -> https://github.com/$GITHUB_REPOSITORY/actions/runs/$id"
+          gh run watch "$id" --repo "$GITHUB_REPOSITORY" --exit-status --interval 30
+          have="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
+          echo "$have"
+          grep -q '\.deb$' <<<"$have" || { echo "::error::No .deb on $TAG"; exit 1; }
+          latest="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)"
+          [ "$latest" = "$TAG" ] || { echo "::error::/releases/latest is $latest"; exit 1; }
