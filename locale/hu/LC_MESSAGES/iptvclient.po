@@ -211,7 +211,7 @@ msgstr "A hangsáv nem érhető el"
 
 #: main.py:3855
 msgid "Audio-only stream detected. Recording started ({fmt}):\n{path}"
-msgstr "Csak hangot tartalmazó stream észlelve. A rögzítés megkezdődött ({fmt}):\n{path}"
+msgstr "A program kizárólag hangot tartalmazó adást észlelt. A rögzítés megkezdődött ({fmt}):\n{path}"
 
 #: internal_player.py:1732
 #: internal_player.py:2100
@@ -471,7 +471,7 @@ msgstr "Frissítési adatok ellenőrzése…"
 
 #: main.py:4474
 msgid "Checking stream type…"
-msgstr "Streamtípus ellenőrzése…"
+msgstr "Az adás típusának ellenőrzése…"
 
 #: main.py:8658
 msgid "Checking {account}..."
@@ -1493,7 +1493,7 @@ msgstr "Telefon"
 
 #: main.py:4397
 msgid "Platform: {platform}"
-msgstr "Platform: {platform}"
+msgstr "Operációs rendszer: {platform}"
 
 #: internal_player.py:727
 #: main.py:3239
@@ -2140,7 +2140,7 @@ msgstr "A műsorújság importálása befejeződött. Az adatok naprakészek."
 
 #: main.py:4243
 msgid "The audio could not be copied into an MKA container, so nothing was recorded and nothing was transcoded. Choose another audio format from Recordings > Recording Format and try again.\n\n{detail}"
-msgstr "A hangot nem sikerült MKA-tárolóba másolni, ezért nem történt rögzítés és átkódolás sem. Válassz másik hangformátumot a Felvételek > Rögzítési formátum menüben, majd próbáld újra.\n\n{detail}"
+msgstr "A hangsáv MKA-konténerbe másolása sikertelen volt, ezért a program nem készített felvételt, és átkódolást sem végzett. Válasszon másik hangformátumot a Felvételek > Rögzítési formátum menüben, majd próbálja meg újra.\n\n{detail}"
 
 #: main.py:4413
 msgid "The clipboard is unavailable."
@@ -2651,4 +2651,3 @@ msgstr "Körülbelül {value} Mbps"
 #: main.py:6427
 msgid "◄ Back"
 msgstr "◄ Vissza"
-
