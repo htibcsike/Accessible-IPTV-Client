@@ -6,8 +6,8 @@ name: Cloud Release
 # tag, Latest release), signed from the WINDOWS_CODESIGN_PFX/PASSWORD secrets
 # (the certificate the updater pins). A release published with GITHUB_TOKEN
 # starts no workflow, so this then dispatches debian-package.yml for the .deb.
-# macOS (Apple Silicon and Intel) builds the same commit with
-# tools/build_macos.sh and attaches AccessibleIPTVClient-vX.Y.Z-macos-<arch>.zip.
+# macOS (Apple Silicon) builds the same commit with tools/build_macos.sh and
+# attaches AccessibleIPTVClient-vX.Y.Z-macos-arm64.zip.
 #
 # The translation gate needs this release's What's New bullets translated.
 # On the host they stay uncommitted; a runner has a clean checkout, so run
@@ -174,11 +174,7 @@ jobs:
 
   macos:
     needs: windows
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-15, macos-15-intel]
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-15
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v5
@@ -197,7 +193,7 @@ jobs:
 
       - uses: actions/upload-artifact@v6
         with:
-          name: AccessibleIPTVClient-${{ matrix.os }}
+          name: AccessibleIPTVClient-macos
           path: dist/AccessibleIPTVClient-v*-macos-*.zip
           if-no-files-found: error
 
