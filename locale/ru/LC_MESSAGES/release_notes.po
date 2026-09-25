@@ -12,11 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:20
-msgid "Add missing #22 Hungarian tray-exit paragraph to hu.md"
-msgstr "Добавлен недостающий венгерский абзац о выходе через область уведомлений в hu.md (#22)"
-
-#: CHANGELOG.md:14
+#: CHANGELOG.md:24
 msgid "Build a macOS app with ffmpeg and VLC bundled"
 msgstr "Новое приложение для macOS со встроенными ffmpeg и VLC"
+
+#: CHANGELOG.md:8
+msgid "Complete accessible playback and recording controls (#4)"
+msgstr "Полный доступный контроль воспроизведения и записи (#4)"
+
+#: CHANGELOG.md:12
+msgid "Drop a machine-specific path from agents notes"
+msgstr "Удалите путь, специфичный для машины, из заметок агентов."
 
