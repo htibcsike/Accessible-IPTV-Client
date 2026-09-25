@@ -8,7 +8,7 @@ Hello,
 
 Thank you for the additions in v1.142.1 and for clarifying the current limitation on speaking subtitle text.
 
-This package contains the reviewed Hungarian translations for the new interface strings, help additions and release notes, together with a technical audit of subtitle accessibility. The translation work preserves the previously existing Hungarian text.
+This pull request contains the reviewed Hungarian translations for the new interface strings, help additions and release notes, together with a technical audit of subtitle accessibility. The translation work preserves the previously existing Hungarian text.
 
 The application catalogue now covers 61 new strings: the 56 entries introduced in the release catalogue and five additional messages from shortcuts.py that were missing from extraction. Both new release-note entries are translated, and the Hungarian help additions have been checked against the implementation.
 
@@ -20,9 +20,8 @@ The translation changes and the subtitle speech proposal can be reviewed separat
 
 Thank you for considering the review.
 
-## Package contents
+## Pull request contents
 
-- translation.patch: binary-capable Git diff against v1.142.1 for the six translation-related files.
 - docs/help/hu.md: complete Hungarian guide with the reviewed additions.
 - docs/help-sync.json: the Hungarian synchronization stamp is updated.
 - locale/hu/LC_MESSAGES/iptvclient.po and iptvclient.mo: source and compiled application catalogue.
@@ -31,20 +30,10 @@ Thank you for considering the review.
 - translation_package/subtitle_audit_probes.py: standard-library characterization probes; run in a checkout of the reviewed release.
 - translation_package/hu-v1.142.1-review.md: Hungarian review record.
 - translation_package/README.en.md: this cover note and integration instructions.
-- SHA256SUMS.txt: checksums of the other packaged files.
 
 ## Applying the translations
 
-Reviewed base: v1.142.1, commit d45e5cd50a299eb810761f136f3505c3ddeeba97.
-
-In a clean checkout of that base, check the patch before applying it:
-
-```text
-git apply --check /path/to/translation.patch
-git apply /path/to/translation.patch
-```
-
-For a later release, review the changes against its current catalogues and help. Do not overwrite newer translations or replace other languages' synchronization stamps. The full files are included for inspection; the patch is the preferred way to preserve the intended scope.
+Reviewed translation base: v1.142.1, commit d45e5cd50a299eb810761f136f3505c3ddeeba97. The pull request also includes the upstream main branch's subsequent test-only commit. For a later release, review the changes against its current catalogues and help. Do not overwrite newer translations or replace other languages' synchronization stamps.
 
 The two MO files have been rebuilt from their corresponding PO files. Catalogue coverage, placeholders, duplicate IDs, preserved existing translations and guide structure were checked. The five subtitle probes are supplementary audit evidence; they are not a native application acceptance suite.
 
