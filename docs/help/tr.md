@@ -80,6 +80,8 @@ Kanal listesi, seçili kategorinin ya da aramanın kanallarını gösterir.
 - Uygulamalar tuşu, Shift+F10 ya da sağ tıklama kanalın menüsünü açar: Oynat, Sık kullanılanlara ekle ya da Sık kullanılanlardan kaldır, Kaydet ya da Kaydı durdur, Kayıt zamanla, EPG'yi görüntüle..., ve arşivi olan kanallar için Geri izleme.
 - Ctrl+D kanalı sık kullanılanlara ekler ya da kaldırır. Sık kullanılanlar kategorisinde Delete kaldırır.
 - Ctrl+Shift+R kanalın kaydını başlatır; yeniden basıldığında durdurur.
+- Ctrl+G bir kanal numarası ister ve eşleşen kanalı oynatır. Ctrl+0 önceki kanala döner ve Ctrl+H Son İzlenenleri açar.
+- Ctrl+Shift+I, odağı hareket ettirmeden mevcut kanalı, program zamanlarını, sonraki programı ve kayıt durumunu duyurur.
 
 Sık kullanılan kanallar "(Sık kullanılan)" olarak işaretlenir ve her satır, rehberde varsa şu an yayında olan programı da adlandırır. Bir arama program da bulduysa, satırları programı ve onun yayınlandığı kanalı adlandırır.
 
@@ -96,6 +98,8 @@ Sık kullanılanlar, en çok izlediğiniz kanalları tek yerde tutar. Bir kanald
 Bir sık kullanılanı kaldırmak için üzerinde yeniden Ctrl+D'ye basın ya da Sık kullanılanlar kategorisinde Delete'e basın.
 
 Sık kullanılanlar sağlayıcı ve kanala göre saklanır, yayın adresine göre değil; bu yüzden oynatma listesi güncellemesini aşar. Hesabınızla ilgili hiçbir şey onlarla birlikte saklanmaz.
+
+Görünüm > Son İzlenenler, oynattığınız kanalları listeler. Görünüm > Önceki Kanal (Ctrl+0) bundan önce izlediğiniz kanala geri döner.
 
 ## İstek üzerine video {#video-on-demand}
 
@@ -205,6 +209,8 @@ Oynatıcıdaki tuşlar:
 - Ctrl+R: izlediğinizi kaydetme, ve o kaydı durdurma.
 - Yukarı ve Aşağı oklar: ses düzeyi %2 adımlarla. Ctrl+Yukarı ve Ctrl+Aşağı: %5 adımlarla.
 - A: sonraki ses parçası.
+- S: Kapalı dahil sonraki altyazı parçası. Oynatma > Altyazılar bir parça seçmenizi veya harici bir altyazı dosyası yüklemenizi sağlar.
+- I: mevcut kanalı, program zamanlarını, sonraki programı ve kayıt durumunu duyurur.
 - D: ses çıkış cihazını seçme.
 - Ctrl+C: bir cihaza yayınlama.
 - F11: tam ekranı açma ya da kapatma. Escape tam ekrandan çıkar.
@@ -218,6 +224,8 @@ Aynı komutlar oynatıcının Oynatma menüsündedir. Oynatıcı, canlı akış 
 Kanallar birkaç ses parçası taşıyabilir: başka diller ya da sesli betimleme gibi. Sonraki parçaya geçmek için A'ya basın, Oynatma > Ses parçası'nı kullanın ya da Tab ile Ses parçası seç'e gidin; o, oynayan parçayı her zaman adlandırır.
 
 Seçtiğiniz bir parça o kanal için hatırlanır ve gelecek sefer geri gelir. Otomatik seçim için bkz. Tercih edilen ses parçası.
+
+Akış bunu sağladığında videoda altyazı metni görünür. Oynatma > Altyazı Dosyasını Yükle harici bir altyazı dosyasını kabul eder; Altyazı metni için ekran okuyucu konuşması mevcut değil.
 
 ### Ses çıkış cihazı {#audio-output-device}
 
@@ -281,11 +289,14 @@ Gelecek bir programı kaydetmek için EPG'yi görüntüle..., Şimdi yayında ya
 Kayıtlar > Zamanlanmış kayıtlar... her zamanlanmış, süren ve bitmiş kaydı zamanı, başlığı, kanalı, durumu ve biçimiyle listeler.
 
 - Bir kayıtta Uygulamalar tuşu ya da Shift+F10 menüsünü açar: Yenile, İptal ve Sil.
+- Kayıt menüsü aynı zamanda Günlük Kayıt, Haftalık Kayıt ve Seri Kayıt seçeneklerini de sunar. Dizi kaydı, uygulama çalışırken o kanalda aynı başlığa sahip gelecekteki rehber programları bulur.
 - Birden fazla kayıt seçilebilir; Ctrl+A tüm satırları seçer.
 - Delete ya da sayısal tuş takımındaki Delete onay ister, ardından seçili kayıtları kaldırır. Seçili kayıtlardan süren varsa program önce onları durdurur.
 - Escape pencereyi kapatır.
 
 Zamanlanmış kayıtlar, program çalışırken kendi kendine başlar; sistem tepsisine küçültülmüşken bile. Pencere, açtığınızda ve bir kayıt her başladığında, bittiğinde ya da iptal edildiğinde kendiliğinden yenilenir; bu yüzden Yenile komutuna nadiren gerek olur.
+
+Yeni bir kayıt, planlanmış başka bir kayıtla çakıştığında program, onu eklemeden önce sizi uyarır. Sağlayıcınız aynı anda kaç akışın çalıştırılabileceğini sınırlayabilir.
 
 Başlamayı bekleyen zamanlanmış kayıtlar varken program kapanmadan önce sorar, çünkü bu kayıtlar yalnızca program çalışırken başlayabilir. Yine de kapatırsanız bekleyen kayıtlar başlamaz.
 
@@ -326,6 +337,9 @@ Seçenekler menüsü programın ayarlarını tutar. Her biri değiştirdiğiniz 
 - Enter'a basıldığında oynatıcıyı göster: açıkken, kanal oynatmak yerleşik oynatıcı penceresini gösterir. Kapalıyken, oynatma başlar ve odak kanal listesinde kalır.
 - Yayın URL'sini göster: ana pencerede bölüm açıklamasından sonra Yayın URL'si alanını ekler.
 - Güncellemeleri otomatik denetle: bkz. Güncellemeler.
+- Otomatik Duyurular: Otomatik oynatıcı ve kanal geri bildirimi için Hiçbiri, Yalnızca hatalar, Önemli olaylar veya Ayrıntılı durum seçeneğini seçin.
+- Klavye Kısayolları: komutun tuş kombinasyonunu değiştirin. Çakışan kısayollar reddedilir; kaydettikten sonra programı yeniden başlatın.
+- Ayarları Dışa Aktarma ve Ayarları İçe Aktarma: çalma listelerinin, rehber kaynaklarının, favorilerin ve tercihlerin şifrelenmiş bir yedeğini kaydedin veya geri yükleyin. Yedekleme şifresini saklayın; sağlayıcı kimlik bilgilerini geri yüklemek için buna ihtiyacınız var.
 
 ### Dil {#language}
 
@@ -379,6 +393,8 @@ Ana pencere:
 - Ctrl+Shift+R: seçili kanalın kaydını başlatma ya da durdurma.
 - Ctrl+Shift+D: geri izleme indirme pencerelerini gösterme.
 - Ctrl+Shift+J: yerleşik oynatıcıyı gösterme.
+- Ctrl+0: önceki kanala dönme. Ctrl+H: yakın zamanda izlenen bir kanalı seçin. Ctrl+G: bir kanal numarası girin.
+- Ctrl+Shift+I: Kayıt durumu da dahil olmak üzere şimdi ve sonraki oynatılanları duyurun.
 - Ctrl+Shift+P: yerleşik oynatıcıyı oynatma ya da duraklatma.
 - Ctrl+Shift+S: yerleşik oynatıcıyı durdurma.
 - Ctrl+Shift+C: yayınlama ya da bağlanma.
@@ -393,6 +409,7 @@ Yerleşik oynatıcı:
 - Ctrl+P: oynatma ya da duraklatma.
 - Ctrl+S: durdurma.
 - Ctrl+R: kaydetme.
+- S: Altyazı parçaları arasında geçiş yapın. I: Neyin oynandığını duyurun.
 - Yukarı ve Aşağı: ses düzeyi %2 adımlarla; Ctrl ile %5 adımlarla.
 - A: sonraki ses parçası.
 - D: ses çıkış cihazı.

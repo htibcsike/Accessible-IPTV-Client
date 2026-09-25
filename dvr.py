@@ -8,6 +8,7 @@ stored channel snapshot into a playable URL and how to notify the user.
 from __future__ import annotations
 
 import datetime
+import copy
 import json
 import logging
 import os
@@ -91,6 +92,7 @@ def build_job(
     post_padding_minutes: int = DEFAULT_POST_PADDING_MINUTES,
     created_at: Optional[float] = None,
     job_id: Optional[str] = None,
+    repeat: str = "",
 ) -> Dict[str, object]:
     start_dt = parse_epg_utc(program.get("start", ""))
     end_dt = parse_epg_utc(program.get("end", ""))
@@ -124,6 +126,7 @@ def build_job(
         "recording_id": None,
         "output_path": "",
         "message": "",
+        "repeat": repeat if repeat in {"daily", "weekly", "series"} else "",
     }
 
 
@@ -137,6 +140,7 @@ class DVRScheduler:
         on_start: Callable[[Dict[str, object]], object],
         on_stop: Callable[[Dict[str, object]], None],
         on_update: Optional[Callable[[], None]] = None,
+        on_series: Optional[Callable[[], None]] = None,
         clock: Callable[[], float] = utc_now_ts,
         poll_seconds: float = 15.0,
     ):
@@ -144,6 +148,7 @@ class DVRScheduler:
         self.on_start = on_start
         self.on_stop = on_stop
         self.on_update = on_update
+        self.on_series = on_series
         self.clock = clock
         self.poll_seconds = max(0.2, float(poll_seconds))
         self._lock = threading.RLock()
@@ -156,6 +161,7 @@ class DVRScheduler:
         self._wake_event = threading.Event()
         self._stopping_since: Dict[str, float] = {}
         self._thread: Optional[threading.Thread] = None
+        self._last_series_scan = 0.0
         self.load()
 
     def load(self) -> None:
@@ -225,6 +231,10 @@ class DVRScheduler:
     def wake(self) -> None:
         self._wake_event.set()
 
+    def request_series_scan(self) -> None:
+        self._last_series_scan = 0.0
+        self.wake()
+
     def list_jobs(self, *, include_done: bool = True) -> List[Dict[str, object]]:
         with self._lock:
             jobs = list(self._jobs.values())
@@ -242,10 +252,27 @@ class DVRScheduler:
             job["id"] = uuid.uuid4().hex
         with self._lock:
             self._jobs[str(job["id"])] = dict(job)
+            if job.get("repeat") == "series":
+                self._last_series_scan = 0.0
         self.save()
         self._notify_update()
         self.wake()
         return dict(job)
+
+    def set_repeat(self, job_id: str, repeat: str) -> bool:
+        if repeat not in {"daily", "weekly", "series"}:
+            return False
+        with self._lock:
+            job = self._jobs.get(str(job_id))
+            if not job:
+                return False
+            job["repeat"] = repeat
+            if repeat == "series":
+                self._last_series_scan = 0.0
+        self.save()
+        self._notify_update()
+        self.wake()
+        return True
 
     def cancel_job(self, job_id: str) -> bool:
         with self._lock:
@@ -254,6 +281,11 @@ class DVRScheduler:
                 return False
             job["status"] = STATUS_CANCELED
             job["message"] = "Canceled by user."
+            if job.get("repeat") == "series":
+                for child in self._jobs.values():
+                    if child.get("series_source") == str(job_id) and child.get("status") == STATUS_SCHEDULED:
+                        child["status"] = STATUS_CANCELED
+                        child["message"] = "Series recording canceled."
         self.save()
         self._notify_update()
         self.wake()
@@ -261,7 +293,12 @@ class DVRScheduler:
 
     def delete_job(self, job_id: str) -> bool:
         with self._lock:
-            existed = self._jobs.pop(str(job_id), None) is not None
+            removed = self._jobs.pop(str(job_id), None)
+            existed = removed is not None
+            if removed and removed.get("repeat") == "series":
+                for child_id, child in list(self._jobs.items()):
+                    if child.get("series_source") == str(job_id) and child.get("status") == STATUS_SCHEDULED:
+                        del self._jobs[child_id]
         if existed:
             self.save()
             self._notify_update()
@@ -284,11 +321,14 @@ class DVRScheduler:
             job["recording_id"] = None
             if output_path:
                 job["output_path"] = output_path
+            if job.get("status") in DONE_STATUSES and job.get("status") != STATUS_CANCELED:
+                return
             # A canceled job's recording ending afterwards keeps it canceled,
             # with the user's reason, instead of turning it "completed".
             if job.get("status") != STATUS_CANCELED:
                 job["status"] = STATUS_COMPLETED if success else STATUS_FAILED
                 job["message"] = message
+                self._schedule_next_occurrence(job)
         self.save()
         self._notify_update()
 
@@ -315,6 +355,10 @@ class DVRScheduler:
         while not self._stop_event.is_set():
             try:
                 self.tick()
+                now = float(self.clock())
+                if self.on_series and now - self._last_series_scan >= 3600:
+                    self._last_series_scan = now
+                    self.on_series()
             except Exception:
                 LOG.exception("DVR scheduler tick failed")
             self._wake_event.wait(self.poll_seconds)
@@ -361,6 +405,7 @@ class DVRScheduler:
                     job["status"] = STATUS_FAILED
                     job["recording_id"] = None
                     job["message"] = str(err)
+                    self._schedule_next_occurrence(job)
             self.save()
             self._notify_update()
 
@@ -387,8 +432,37 @@ class DVRScheduler:
                 return
             job["status"] = status
             job["message"] = message
+            if status in {STATUS_MISSED, STATUS_FAILED}:
+                self._schedule_next_occurrence(job)
         self.save()
         self._notify_update()
+
+    def _schedule_next_occurrence(self, job: Dict[str, object]) -> None:
+        """Keep one future daily/weekly job when an occurrence has ended."""
+        repeat = job.get("repeat")
+        if repeat not in {"daily", "weekly"}:
+            return
+        days = 1 if repeat == "daily" else 7
+        next_job = copy.deepcopy(job)
+        next_job["id"] = uuid.uuid4().hex
+        now = float(self.clock())
+        for field in ("start_ts", "stop_ts"):
+            next_job[field] = float(job[field])
+        while float(next_job["stop_ts"]) <= now:
+            for field in ("start_ts", "stop_ts"):
+                local = datetime.datetime.fromtimestamp(float(next_job[field]))
+                next_job[field] = (local + datetime.timedelta(days=days)).timestamp()
+        # A completed occurrence can finish before its planned stop; its next
+        # occurrence still starts on the following day/week, never now.
+        if float(next_job["start_ts"]) <= float(job["start_ts"]):
+            for field in ("start_ts", "stop_ts"):
+                local = datetime.datetime.fromtimestamp(float(next_job[field]))
+                next_job[field] = (local + datetime.timedelta(days=days)).timestamp()
+        next_job["start_at"] = iso_from_ts(float(next_job["start_ts"]) + 60 * int(job.get("pre_padding_minutes") or 0))
+        next_job["end_at"] = iso_from_ts(float(next_job["stop_ts"]) - 60 * int(job.get("post_padding_minutes") or 0))
+        next_job.update(status=STATUS_SCHEDULED, recording_id=None, output_path="",
+                        message="", created_at=iso_from_ts(now))
+        self._jobs[str(next_job["id"])] = next_job
 
     def _notify_update(self) -> None:
         if self.on_update:

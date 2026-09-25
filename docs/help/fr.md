@@ -81,6 +81,8 @@ La liste des chaînes affiche les chaînes de la catégorie ou de la recherche c
 - La touche Applications, Shift+F10 ou un clic droit ouvre le menu de la chaîne : Lire, Ajouter aux favoris ou Retirer des favoris, Enregistrer ou Arrêter l'enregistrement, Programmer l'enregistrement, Afficher l'EPG…, et Rattrapage pour les chaînes qui ont une archive.
 - Ctrl+D ajoute la chaîne aux favoris ou la retire. Dans la catégorie Favoris, Suppr la retire.
 - Ctrl+Shift+R démarre l'enregistrement de la chaîne ; appuyé de nouveau, il l'arrête.
+- Ctrl+G demande un numéro de chaîne et lit la chaîne correspondante. Ctrl+0 revient à la chaîne précédente et Ctrl+H ouvre Récemment regardé.
+- Ctrl+Shift+I annonce la chaîne actuelle, les horaires des programmes, le prochain programme et l'état d'enregistrement sans déplacer le focus.
 
 Les chaînes favorites sont marquées « (Favori) », et chaque ligne nomme aussi l'émission à l'antenne quand le guide la connaît. Quand une recherche a aussi trouvé des émissions, ses lignes nomment l'émission et la chaîne qui la diffuse.
 
@@ -97,6 +99,8 @@ Les favoris gardent au même endroit les chaînes que vous regardez le plus. App
 Pour retirer un favori, appuyez de nouveau sur Ctrl+D dessus, ou sur Suppr dans la catégorie Favoris.
 
 Les favoris sont stockés par fournisseur et chaîne, pas par adresse de flux ; ils survivent donc à une actualisation de la liste. Rien sur votre compte n'est stocké avec eux.
+
+Affichage > Récemment regardés répertorie les chaînes que vous avez écoutées. Affichage > Chaîne précédente (Ctrl+0) revient à la chaîne que vous avez regardée avant celle-ci.
 
 ## Vidéo à la demande {#video-on-demand}
 
@@ -206,6 +210,8 @@ Touches du lecteur :
 - Ctrl+R : enregistrer ce que vous regardez, puis arrêter cet enregistrement.
 - Flèches haut et bas : volume par pas de 2 %. Ctrl+Haut et Ctrl+Bas : pas de 5 %.
 - A : piste audio suivante.
+- S : piste de sous-titres suivante, y compris Off. Lecture > Sous-titres vous permet de choisir une piste ou de charger un fichier de sous-titres externe.
+- I : annonce la chaîne actuelle, les horaires des programmes, le prochain programme et l'état de l'enregistrement.
 - D : choisir le périphérique de sortie audio.
 - Ctrl+C : diffuser vers un appareil.
 - F11 : plein écran activé ou désactivé. Échap quitte le plein écran.
@@ -219,6 +225,8 @@ Les mêmes commandes se trouvent dans le menu Lecture du lecteur. Le lecteur se 
 Les chaînes peuvent porter plusieurs pistes audio, comme d'autres langues ou l'audiodescription. Appuyez sur A pour passer à la piste suivante, utilisez Lecture > Piste audio, ou Tab jusqu'à Choisir la piste audio, qui nomme toujours la piste en lecture.
 
 Une piste choisie est mémorisée pour cette chaîne et revient la prochaine fois. Pour les choisir automatiquement, voir Piste audio préférée.
+
+Le texte des sous-titres apparaît dans la vidéo lorsque le flux le fournit. Lecture > Charger le fichier de sous-titres accepte un fichier de sous-titres externe ; la parole du lecteur d'écran pour le texte des sous-titres n'est pas disponible.
 
 ### Périphérique de sortie audio {#audio-output-device}
 
@@ -282,11 +290,14 @@ Pour enregistrer une émission à venir, choisissez Programmer l'enregistrement 
 Enregistrements > Enregistrements programmés… liste chaque enregistrement programmé, en cours et terminé avec son heure, son titre, sa chaîne, son état et son format.
 
 - La touche Applications ou Shift+F10 sur un enregistrement ouvre son menu : Actualiser, Annuler et Supprimer.
+- Le menu d'enregistrement propose également Record Daily, Record Weekly et Record Series. L'enregistrement de la série recherche les futurs programmes guides portant le même titre sur cette chaîne pendant que l'application est en cours d'exécution.
 - Vous pouvez sélectionner plusieurs enregistrements ; Ctrl+A sélectionne toutes les lignes.
 - Suppr ou Suppr du pavé numérique demande une confirmation, puis retire les enregistrements sélectionnés. Si certains sont encore en cours, le programme les arrête d'abord.
 - Échap ferme la fenêtre.
 
 Les enregistrements programmés démarrent tout seuls pendant que le programme tourne, même réduit dans la barre d'état système. La fenêtre s'actualise d'elle-même à l'ouverture et chaque fois qu'un enregistrement démarre, se termine ou est annulé ; la commande Actualiser est donc rarement utile.
+
+Lorsqu'un nouvel enregistrement chevauche un autre enregistrement programmé, le programme vous avertit avant de l'ajouter. Votre fournisseur peut limiter le nombre de flux pouvant être exécutés simultanément.
 
 Le programme demande confirmation avant de se fermer si des enregistrements programmés attendent encore de démarrer, car ils ne peuvent démarrer que pendant que le programme tourne. Si vous le fermez quand même, ces enregistrements ne démarreront pas.
 
@@ -327,6 +338,9 @@ Le menu Options contient les réglages du programme. Chacun est sauvegardé dès
 - Afficher le lecteur avec Entrée : activé, lire une chaîne montre la fenêtre du lecteur intégré. Désactivé, la lecture démarre et le focus reste dans la liste des chaînes.
 - Afficher l'URL du flux : ajoute le champ URL du flux après la description de l'épisode dans la fenêtre principale.
 - Vérifier automatiquement les mises à jour : voir Mises à jour.
+- Annonces automatiques : choisissez Aucune, Erreurs uniquement, Événements importants ou État détaillé pour les commentaires automatiques des joueurs et des chaînes.
+- Raccourcis clavier : modifiez la combinaison de touches d'une commande. Les raccourcis conflictuels sont rejetés ; redémarrez le programme après avoir enregistré.
+- Paramètres d'exportation et paramètres d'importation : enregistrez ou restaurez une sauvegarde cryptée des listes de lecture, des sources de guide, des favoris et des préférences. Conservez le mot de passe de sauvegarde ; vous en avez besoin pour restaurer les informations d'identification du fournisseur.
 
 ### Langue {#language}
 
@@ -380,6 +394,8 @@ Fenêtre principale :
 - Ctrl+Shift+R : démarrer ou arrêter l'enregistrement de la chaîne sélectionnée.
 - Ctrl+Shift+D : montrer les fenêtres de téléchargement de rattrapage.
 - Ctrl+Shift+J : montrer le lecteur intégré.
+- Ctrl+0 : revenir à la chaîne précédente. Ctrl+H : choisissez une chaîne récemment regardée. Ctrl+G : saisissez un numéro de chaîne.
+- Ctrl+Shift+I : annonce ce qui est en cours de lecture maintenant et ensuite, y compris l'état de l'enregistrement.
 - Ctrl+Shift+P : lire ou mettre en pause le lecteur intégré.
 - Ctrl+Shift+S : arrêter le lecteur intégré.
 - Ctrl+Shift+C : diffuser ou connecter.
@@ -394,6 +410,7 @@ Lecteur intégré :
 - Ctrl+P : lire ou mettre en pause.
 - Ctrl+S : arrêter.
 - Ctrl+R : enregistrer.
+- S: Cycle des pistes de sous-titres. I: Annoncez ce qui se joue.
 - Haut et Bas : volume par pas de 2 % ; avec Ctrl, pas de 5 %.
 - A : piste audio suivante.
 - D : périphérique de sortie audio.

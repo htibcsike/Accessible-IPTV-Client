@@ -83,6 +83,8 @@ from recorder import audio_stream_label, probe_audio_streams
 import catchup_direct
 import dvr
 import favorites
+import settings_backup
+import shortcuts
 import power
 import user_guide
 
@@ -106,26 +108,9 @@ ALL_PLAYLISTS_SCOPE = ""
 _MAIN_ACCEL_SHOW_PLAYER_ID = 4021
 
 
-def _main_window_accelerator_entries():
+def _main_window_accelerator_entries(config=None):
     """Return the main-window shortcuts as one duplicate-checkable mapping."""
-    return [
-        (wx.ACCEL_CTRL, ord('M'), 4001),
-        (wx.ACCEL_CTRL, ord('E'), 4002),
-        (wx.ACCEL_CTRL, ord('I'), 4003),
-        (wx.ACCEL_CTRL, ord('Q'), 4004),
-        (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('P'), 4010),  # Play/Pause
-        (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('S'), 4011),  # Stop
-        (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('C'), 4012),  # Cast/connect
-        (wx.ACCEL_CTRL, wx.WXK_UP, 4015),   # Volume up
-        (wx.ACCEL_CTRL, wx.WXK_DOWN, 4016), # Volume down
-        (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('R'), 4017),  # Start/stop recording
-        (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('A'), 4018),  # Account info
-        (wx.ACCEL_CTRL, ord('D'), 4019),  # Add/remove favorite
-        # Windows skips a menu accelerator whose item was greyed out when the
-        # menu last opened, so downloads and the player window live here too.
-        (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('D'), 4020),  # Show downloads
-        (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('J'), _MAIN_ACCEL_SHOW_PLAYER_ID),
-    ]
+    return shortcuts.main_entries(config or {})
 
 
 def _source_scope_id(src) -> str:
@@ -1532,6 +1517,7 @@ class IPTVClient(wx.Frame):
         self.favorite_keys: List[str] = favorites.normalize(self.config.get("favorites"))
         self._favorite_key_set = set(self.favorite_keys)
         self._favorites_cache: Optional[List[Dict[str, str]]] = None
+        self.recent_channel_keys = favorites.normalize(self.config.get("recent_channels"))[:20]
         # Parallel list of real group keys, indexed like group_list, so group
         # names containing " (" round-trip correctly instead of being truncated.
         self._group_keys: List[str] = []
@@ -1667,6 +1653,7 @@ class IPTVClient(wx.Frame):
         self._db_tune_lock = threading.Lock()
         self._db_tune_started = False
         self._build_ui()
+        self._info_status_bar = self.CreateStatusBar()
         install_help_hooks(wx.GetApp())
         self._start_now_playing_timer()
         threading.Thread(target=self._refresh_now_playing_labels, daemon=True).start()
@@ -1714,6 +1701,7 @@ class IPTVClient(wx.Frame):
                 on_start=self._start_scheduled_recording,
                 on_stop=self._stop_scheduled_recording,
                 on_update=self._on_dvr_schedule_updated,
+                on_series=self._refresh_series_recordings,
                 poll_seconds=10,
             )
             self.dvr_scheduler = scheduler
@@ -2212,6 +2200,69 @@ class IPTVClient(wx.Frame):
         except Exception:
             LOG.debug("IPTVClient._announce_channel_row: ignored exception", exc_info=True)
 
+    def _announce_what_is_playing(self, _event=None) -> None:
+        channel = getattr(self, "_internal_player_channel", None)
+        if not channel:
+            recent = self._recent_channels()
+            channel = recent[0] if recent else self._selected_channel()
+        if not channel:
+            self._show_playing_info(_("No channel is selected."))
+            return
+
+        def fetch():
+            name = self._channel_display_name(channel)
+            now = datetime.datetime.now(datetime.timezone.utc)
+            current = upcoming = None
+            try:
+                db = EPGDatabase(get_db_path(), readonly=True)
+                try:
+                    programmes = db.get_schedule(
+                        channel, now - datetime.timedelta(hours=12),
+                        now + datetime.timedelta(hours=6))
+                finally:
+                    db.close()
+                for program in programmes:
+                    start = dvr.parse_epg_utc(program["start"])
+                    end = dvr.parse_epg_utc(program["end"])
+                    if start <= now < end:
+                        current = program
+                    elif start > now and upcoming is None:
+                        upcoming = program
+            except Exception:
+                LOG.debug("Could not load current programme", exc_info=True)
+
+            def describe(program):
+                if not program:
+                    return _("Guide information unavailable")
+                start = utc_to_local(dvr.parse_epg_utc(program["start"]))
+                end = utc_to_local(dvr.parse_epg_utc(program["end"]))
+                return _("{title}, {start} to {end}").format(
+                    title=dvr.program_title(program),
+                    start=start.strftime("%H:%M"), end=end.strftime("%H:%M"))
+
+            recording = bool(self.recorder.is_recording(self._channel_record_key(channel)))
+            text = _("{channel}. Now: {current}. Next: {next}. Recording: {recording}.").format(
+                channel=name, current=describe(current), next=describe(upcoming),
+                recording=_("Yes") if recording else _("No"))
+            wx.CallAfter(self._show_playing_info, text)
+
+        self._epg_executor.submit(fetch)
+
+    def _show_playing_info(self, text: str) -> None:
+        frame = getattr(self, "_internal_player_frame", None)
+        target = (frame.status_label if frame is not None and frame.IsShown()
+                  else getattr(self, "_info_status_bar", None))
+        if target is None:
+            return
+        if isinstance(target, wx.StatusBar):
+            target.SetStatusText(text)
+        else:
+            target.SetName(text)
+        try:
+            wx.Accessible.NotifyEvent(wx.ACC_EVENT_SYSTEM_ALERT, target, wx.OBJID_CLIENT, 0)
+        except Exception:
+            LOG.debug("Could not announce programme information", exc_info=True)
+
     def _rebuild_favorites_view(self, removed_name: str = ""):
         """Refresh the Favorites category after a channel was removed from it."""
         index = self.channel_list.GetSelection()
@@ -2300,7 +2351,7 @@ class IPTVClient(wx.Frame):
         if item is None:
             return
         try:
-            item.SetItemLabel(self._favorite_action_label() + "\tCtrl+D")
+            item.SetItemLabel(self._shortcut_label(self._favorite_action_label(), "favorite"))
         except Exception:
             LOG.debug("IPTVClient._sync_favorite_menu_item: ignored exception", exc_info=True)
 
@@ -2385,10 +2436,145 @@ class IPTVClient(wx.Frame):
             for label, item in self._player_radio_items.items():
                 item.Check(label == defplayer)
 
+    def _backup_password(self, *, confirm: bool = False) -> Optional[str]:
+        dlg = wx.PasswordEntryDialog(self, _("Enter a password for the settings backup:"),
+                                     _("Settings Backup"))
+        try:
+            if dlg.ShowModal() != wx.ID_OK:
+                return None
+            password = dlg.GetValue()
+        finally:
+            dlg.Destroy()
+        if not password:
+            message_box(_("A backup password is required."), _("Settings Backup"),
+                        wx.OK | wx.ICON_WARNING)
+            return None
+        if confirm:
+            verify = wx.PasswordEntryDialog(self, _("Enter the password again:"),
+                                            _("Settings Backup"))
+            try:
+                if verify.ShowModal() != wx.ID_OK:
+                    return None
+                if verify.GetValue() != password:
+                    message_box(_("The passwords do not match."), _("Settings Backup"),
+                                wx.OK | wx.ICON_WARNING)
+                    return None
+            finally:
+                verify.Destroy()
+        return password
+
+    def _set_announcement_level(self, level: int) -> None:
+        self.config["announcement_level"] = level
+        save_config(self.config)
+        frame = getattr(self, "_internal_player_frame", None)
+        if frame is not None:
+            frame.announcement_level = level
+
+    def _shortcut_label(self, label: str, action: str) -> str:
+        return label + "\t" + shortcuts.effective(self.config, "main")[action]
+
+    def _customize_shortcuts(self, _event=None) -> None:
+        actions = [
+            ("main", "play_pause", _("Play/Pause")),
+            ("main", "stop", _("Stop")),
+            ("main", "previous_channel", _("Previous Channel")),
+            ("main", "channel_number", _("Go to Channel Number...")),
+            ("main", "recent_channels", _("Recently Watched...")),
+            ("main", "volume_up", _("Volume Up")),
+            ("main", "volume_down", _("Volume Down")),
+            ("main", "epg_manager", _("EPG Manager")),
+            ("main", "whats_on_now", _("What's on Now")),
+            ("main", "what_is_playing", _("What Is Playing")),
+            ("main", "record", _("Start Recording")),
+            ("main", "cast", _("Cast / Connect...")),
+            ("player", "play_pause", _("Play/Pause")),
+            ("player", "stop", _("Stop")),
+            ("player", "volume_up", _("Volume Up")),
+            ("player", "volume_down", _("Volume Down")),
+            ("player", "record", _("Record")),
+            ("player", "cast", _("Cast...")),
+            ("player", "audio_track", _("Audio Track")),
+            ("player", "subtitles", _("Subtitles")),
+            ("player", "what_is_playing", _("What Is Playing")),
+        ]
+        labels = ["{name}: {key}".format(
+            name=name, key=shortcuts.effective(self.config, context)[action])
+            for context, action, name in actions]
+        dlg = wx.SingleChoiceDialog(self, _("Choose a command to change:"),
+                                    _("Keyboard Shortcuts"), labels)
+        try:
+            if dlg.ShowModal() != wx.ID_OK:
+                return
+            context, action, name = actions[dlg.GetSelection()]
+        finally:
+            dlg.Destroy()
+        current = shortcuts.effective(self.config, context)[action]
+        entry = wx.TextEntryDialog(self,
+                                   _("Enter a shortcut (leave blank to restore the default):"),
+                                   _("Keyboard Shortcuts"), current)
+        try:
+            if entry.ShowModal() != wx.ID_OK:
+                return
+            value = entry.GetValue()
+        finally:
+            entry.Destroy()
+        try:
+            shortcuts.set_shortcut(self.config, context, action, value)
+        except ValueError as err:
+            message_box(str(err), _("Keyboard Shortcuts"), wx.OK | wx.ICON_WARNING)
+            return
+        save_config(self.config)
+        message_box(_("Shortcut saved. Restart the app to use it."),
+                    _("Keyboard Shortcuts"), wx.OK | wx.ICON_INFORMATION)
+
+    def _export_settings(self, _event=None) -> None:
+        password = self._backup_password(confirm=True)
+        if password is None:
+            return
+        with wx.FileDialog(self, _("Export Settings"),
+                           wildcard="Accessible IPTV backup (*.aiptv)|*.aiptv",
+                           style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as dlg:
+            if dlg.ShowModal() != wx.ID_OK:
+                return
+            path = dlg.GetPath()
+        try:
+            settings_backup.export_settings(path, load_config(), password)
+        except Exception as err:
+            message_box(_("Could not export settings: {error}").format(error=err),
+                        _("Settings Backup"), wx.OK | wx.ICON_ERROR)
+            return
+        message_box(_("Encrypted settings backup saved."), _("Settings Backup"),
+                    wx.OK | wx.ICON_INFORMATION)
+
+    def _import_settings(self, _event=None) -> None:
+        with wx.FileDialog(self, _("Import Settings"),
+                           wildcard="Accessible IPTV backup (*.aiptv)|*.aiptv",
+                           style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as dlg:
+            if dlg.ShowModal() != wx.ID_OK:
+                return
+            path = dlg.GetPath()
+        password = self._backup_password()
+        if password is None:
+            return
+        try:
+            config = settings_backup.import_settings(path, password)
+        except Exception as err:
+            message_box(_("Could not import settings: {error}").format(error=err),
+                        _("Settings Backup"), wx.OK | wx.ICON_ERROR)
+            return
+        if message_box(_("Replace current settings with this backup? Restart the app after importing."),
+                       _("Import Settings"), wx.YES_NO | wx.ICON_QUESTION) != wx.YES:
+            return
+        save_config(config)
+        message_box(_("Settings imported. Restart the app to use them."),
+                    _("Settings Backup"), wx.OK | wx.ICON_INFORMATION)
+
     def on_menu_open(self, event):
         from options import load_config
         self.config = load_config()
         self._sync_player_menu_from_config()
+        for level, item in enumerate(getattr(self, "_announcement_items", ())):
+            item.Check(level == self.config.get("announcement_level", 2))
         # The config was just replaced, so anything cached out of it is re-read.
         self._sync_favorites_from_config()
         self._update_recording_menu_state()
@@ -2848,10 +3034,12 @@ class IPTVClient(wx.Frame):
             self._player_radio_items = {}
             def on_menu_btn(evt):
                 menu = wx.Menu()
-                menu.Append(1001, _("Playlist Manager") + "\tCtrl+M")
-                menu.Append(1002, _("EPG Manager") + "\tCtrl+E")
-                menu.Append(1003, _("Import EPG to DB") + "\tCtrl+I")
-                menu.Append(1007, _("Account Info") + "\tCtrl+Shift+A")
+                menu.Append(1001, self._shortcut_label(_("Playlist Manager"), "playlist_manager"))
+                menu.Append(1002, self._shortcut_label(_("EPG Manager"), "epg_manager"))
+                menu.Append(1003, self._shortcut_label(_("Import EPG to DB"), "import_epg"))
+                menu.Append(1333, self._shortcut_label(_("What Is Playing"), "what_is_playing"))
+                self.Bind(wx.EVT_MENU, self._announce_what_is_playing, id=1333)
+                menu.Append(1007, self._shortcut_label(_("Account Info"), "account"))
                 menu.AppendSeparator()
                 player_ctrl_menu = wx.Menu()
                 player_ctrl_menu.Append(1201, _("Show Built-in Player"))
@@ -2872,10 +3060,16 @@ class IPTVClient(wx.Frame):
                 self.Bind(wx.EVT_MENU, lambda _evt: self._set_view_mode("live"), id=1301)
                 self.Bind(wx.EVT_MENU, lambda _evt: self._set_view_mode("vod"), id=1302)
                 view_menu.AppendSeparator()
-                view_menu.Append(1310, self._favorite_action_label() + "\tCtrl+D")
+                view_menu.Append(1310, self._shortcut_label(self._favorite_action_label(), "favorite"))
                 view_menu.Append(1311, _("Go to Favorites"))
+                view_menu.Append(1320, self._shortcut_label(_("Previous Channel"), "previous_channel"))
+                view_menu.Append(1321, self._shortcut_label(_("Recently Watched..."), "recent_channels"))
+                view_menu.Append(1322, self._shortcut_label(_("Go to Channel Number..."), "channel_number"))
                 self.Bind(wx.EVT_MENU, self._toggle_favorite_selected, id=1310)
                 self.Bind(wx.EVT_MENU, self._go_to_favorites, id=1311)
+                self.Bind(wx.EVT_MENU, self._play_previous_channel, id=1320)
+                self.Bind(wx.EVT_MENU, self._show_recent_channels, id=1321)
+                self.Bind(wx.EVT_MENU, self._go_to_channel_number, id=1322)
                 menu.AppendSubMenu(view_menu, _("View"))
                 menu.AppendSeparator()
                 player_menu = wx.Menu()
@@ -2928,6 +3122,19 @@ class IPTVClient(wx.Frame):
                 auto_update_item = menu.AppendCheckItem(auto_update_id, _("Auto-check for Updates"))
                 auto_update_item.Check(self.auto_check_updates)
                 self.Bind(wx.EVT_MENU, self.on_toggle_auto_check_updates, id=auto_update_id)
+                menu.Append(1330, _("Export Settings..."))
+                menu.Append(1331, _("Import Settings..."))
+                self.Bind(wx.EVT_MENU, self._export_settings, id=1330)
+                self.Bind(wx.EVT_MENU, self._import_settings, id=1331)
+                announcement_menu = wx.Menu()
+                for level, label in enumerate((_("None"), _("Errors only"),
+                                               _("Important events"), _("Detailed status"))):
+                    item = announcement_menu.AppendRadioItem(1340 + level, label)
+                    item.Check(level == self.config.get("announcement_level", 2))
+                    self.Bind(wx.EVT_MENU, lambda _evt, value=level: self._set_announcement_level(value), id=1340 + level)
+                menu.AppendSubMenu(announcement_menu, _("Automatic Announcements"))
+                menu.Append(1332, _("Keyboard Shortcuts..."))
+                self.Bind(wx.EVT_MENU, self._customize_shortcuts, id=1332)
                 menu.Append(1006, _("Check for Updates"))
                 self.Bind(wx.EVT_MENU, self.on_check_updates, id=1006)
                 menu.AppendSeparator()
@@ -2949,7 +3156,7 @@ class IPTVClient(wx.Frame):
                 menu.Append(1005, _("Cast To..."))
                 self.Bind(wx.EVT_MENU, self.show_cast_dialog, id=1005)
 
-                menu.Append(1004, _("Exit") + "\tCtrl+Q")
+                menu.Append(1004, self._shortcut_label(_("Exit"), "exit"))
                 self.Bind(wx.EVT_MENU, self.show_manager, id=1001)
                 self.Bind(wx.EVT_MENU, self.show_epg_manager, id=1002)
                 self.Bind(wx.EVT_MENU, self.import_epg, id=1003)
@@ -2965,23 +3172,24 @@ class IPTVClient(wx.Frame):
             p.SetSizerAndFit(hs)
             mb = wx.MenuBar()
             fm = wx.Menu()
-            m_mgr = fm.Append(wx.ID_ANY, _("Playlist Manager") + "\tCtrl+M")
-            m_epg = fm.Append(wx.ID_ANY, _("EPG Manager") + "\tCtrl+E")
-            m_imp = fm.Append(wx.ID_ANY, _("Import EPG to DB") + "\tCtrl+I")
-            m_now = fm.Append(wx.ID_ANY, _("What's on Now") + "\tCtrl+W")
-            m_acct = fm.Append(wx.ID_ANY, _("Account Info") + "\tCtrl+Shift+A")
+            m_mgr = fm.Append(wx.ID_ANY, self._shortcut_label(_("Playlist Manager"), "playlist_manager"))
+            m_epg = fm.Append(wx.ID_ANY, self._shortcut_label(_("EPG Manager"), "epg_manager"))
+            m_imp = fm.Append(wx.ID_ANY, self._shortcut_label(_("Import EPG to DB"), "import_epg"))
+            m_now = fm.Append(wx.ID_ANY, self._shortcut_label(_("What's on Now"), "whats_on_now"))
+            m_playing = fm.Append(wx.ID_ANY, self._shortcut_label(_("What Is Playing"), "what_is_playing"))
+            m_acct = fm.Append(wx.ID_ANY, self._shortcut_label(_("Account Info"), "account"))
             fm.AppendSeparator()
             # Casting Menu Item (Windows/Mac)
             m_cast = fm.Append(wx.ID_ANY, _("Cast To..."))
             fm.AppendSeparator()
-            m_exit = fm.Append(wx.ID_EXIT, _("Exit") + "\tCtrl+Q")
+            m_exit = fm.Append(wx.ID_EXIT, self._shortcut_label(_("Exit"), "exit"))
             mb.Append(fm, _("File"))
             pm = wx.Menu()
             pm_show = pm.Append(_MAIN_ACCEL_SHOW_PLAYER_ID,
-                                _("Show Built-in Player") + "\tCtrl+Shift+J")
-            pm_toggle = pm.Append(wx.ID_ANY, _("Play/Pause") + "\tCtrl+Shift+P")
-            pm_stop = pm.Append(wx.ID_ANY, _("Stop") + "\tCtrl+Shift+S")
-            pm_cast = pm.Append(wx.ID_ANY, _("Cast / Connect...") + "\tCtrl+Shift+C")
+                                self._shortcut_label(_("Show Built-in Player"), "show_player"))
+            pm_toggle = pm.Append(wx.ID_ANY, self._shortcut_label(_("Play/Pause"), "play_pause"))
+            pm_stop = pm.Append(wx.ID_ANY, self._shortcut_label(_("Stop"), "stop"))
+            pm_cast = pm.Append(wx.ID_ANY, self._shortcut_label(_("Cast / Connect..."), "cast"))
             self._player_control_items = (pm_show, pm_toggle, pm_stop, pm_cast)
             mb.Append(pm, _("Player"))
             # View menu: switch between Live TV / catch-up and Video on Demand.
@@ -2993,19 +3201,25 @@ class IPTVClient(wx.Frame):
             vm.AppendSeparator()
             # The label follows the selected channel, so it always says what
             # activating it will do (see _sync_favorite_menu_item).
-            self.favorite_menu_item = vm.Append(wx.ID_ANY, _("Add to Favorites") + "\tCtrl+D")
+            self.favorite_menu_item = vm.Append(wx.ID_ANY, self._shortcut_label(_("Add to Favorites"), "favorite"))
             self.goto_favorites_item = vm.Append(wx.ID_ANY, _("Go to Favorites"))
+            previous_item = vm.Append(wx.ID_ANY, self._shortcut_label(_("Previous Channel"), "previous_channel"))
+            recent_item = vm.Append(wx.ID_ANY, self._shortcut_label(_("Recently Watched..."), "recent_channels"))
+            number_item = vm.Append(wx.ID_ANY, self._shortcut_label(_("Go to Channel Number..."), "channel_number"))
             vm.AppendSeparator()
             # Escape hides a download window without stopping the download,
             # and a modeless window is easy to lose behind this one: this is
             # the way back to it.
-            self.show_downloads_item = vm.Append(wx.ID_ANY, _("Show Downloads") + "\tCtrl+Shift+D")
+            self.show_downloads_item = vm.Append(wx.ID_ANY, self._shortcut_label(_("Show Downloads"), "downloads"))
             mb.Append(vm, _("View"))
             self.Bind(wx.EVT_MENU, self._show_catchup_downloads, self.show_downloads_item)
             self.Bind(wx.EVT_MENU, lambda _evt: self._set_view_mode("live"), self.view_live_item)
             self.Bind(wx.EVT_MENU, lambda _evt: self._set_view_mode("vod"), self.view_vod_item)
             self.Bind(wx.EVT_MENU, self._toggle_favorite_selected, self.favorite_menu_item)
             self.Bind(wx.EVT_MENU, self._go_to_favorites, self.goto_favorites_item)
+            self.Bind(wx.EVT_MENU, self._play_previous_channel, previous_item)
+            self.Bind(wx.EVT_MENU, self._show_recent_channels, recent_item)
+            self.Bind(wx.EVT_MENU, self._go_to_channel_number, number_item)
             om = wx.Menu()
             player_menu = wx.Menu()
             self.player_menu_items = []
@@ -3032,6 +3246,21 @@ class IPTVClient(wx.Frame):
             self.show_player_on_enter_item = om.AppendCheckItem(wx.ID_ANY, _("Show Player on Enter"))
             self.show_channel_url_item = om.AppendCheckItem(wx.ID_ANY, _("Show Stream URL"))
             self.auto_check_updates_item = om.AppendCheckItem(wx.ID_ANY, _("Auto-check for Updates"))
+            export_item = om.Append(wx.ID_ANY, _("Export Settings..."))
+            import_item = om.Append(wx.ID_ANY, _("Import Settings..."))
+            self.Bind(wx.EVT_MENU, self._export_settings, export_item)
+            self.Bind(wx.EVT_MENU, self._import_settings, import_item)
+            announcement_menu = wx.Menu()
+            self._announcement_items = []
+            for level, label in enumerate((_("None"), _("Errors only"),
+                                           _("Important events"), _("Detailed status"))):
+                item = announcement_menu.AppendRadioItem(wx.ID_ANY, label)
+                item.Check(level == self.config.get("announcement_level", 2))
+                self._announcement_items.append(item)
+                self.Bind(wx.EVT_MENU, lambda _evt, value=level: self._set_announcement_level(value), item)
+            om.AppendSubMenu(announcement_menu, _("Automatic Announcements"))
+            shortcut_item = om.Append(wx.ID_ANY, _("Keyboard Shortcuts..."))
+            self.Bind(wx.EVT_MENU, self._customize_shortcuts, shortcut_item)
             mb.Append(om, _("Options"))
             # Recordings menu
             rm = wx.Menu()
@@ -3081,6 +3310,7 @@ class IPTVClient(wx.Frame):
             self.Bind(wx.EVT_MENU, self.show_epg_manager, m_epg)
             self.Bind(wx.EVT_MENU, self.import_epg, m_imp)
             self.Bind(wx.EVT_MENU, self.show_whats_on_now, m_now)
+            self.Bind(wx.EVT_MENU, self._announce_what_is_playing, m_playing)
             self.Bind(wx.EVT_MENU, self.show_account_info, m_acct)
             self.Bind(wx.EVT_MENU, self.show_cast_dialog, m_cast)
             self.Bind(wx.EVT_MENU, self.request_exit, m_exit)
@@ -3118,7 +3348,7 @@ class IPTVClient(wx.Frame):
         # screen-reader user can filter and move on without hunting for Enter.
         self.filter_box.Bind(wx.EVT_CHAR_HOOK, self._on_filter_char_hook)
 
-        entries = _main_window_accelerator_entries()
+        entries = _main_window_accelerator_entries(self.config)
         atable = wx.AcceleratorTable(entries)
         self.SetAcceleratorTable(atable)
         self.Bind(wx.EVT_MENU, self.show_manager, id=4001)
@@ -3133,6 +3363,11 @@ class IPTVClient(wx.Frame):
         self.Bind(wx.EVT_MENU, self._record_selected, id=4017)
         self.Bind(wx.EVT_MENU, self.show_account_info, id=4018)
         self.Bind(wx.EVT_MENU, self._toggle_favorite_selected, id=4019)
+        self.Bind(wx.EVT_MENU, self._play_previous_channel, id=4022)
+        self.Bind(wx.EVT_MENU, self._go_to_channel_number, id=4023)
+        self.Bind(wx.EVT_MENU, self._show_recent_channels, id=4024)
+        self.Bind(wx.EVT_MENU, self.show_whats_on_now, id=4025)
+        self.Bind(wx.EVT_MENU, self._announce_what_is_playing, id=4026)
         self.Bind(wx.EVT_MENU, self._show_catchup_downloads, id=4020)
         self.Bind(wx.EVT_MENU, self._menu_show_player,
                   id=_MAIN_ACCEL_SHOW_PLAYER_ID)
@@ -3389,6 +3624,82 @@ class IPTVClient(wx.Frame):
                 or channel.get("tvg_id")
                 or _("IPTV Stream"))
 
+    def _remember_played_channel(self, channel: Optional[Dict[str, str]]) -> None:
+        key = favorites.channel_key(channel)
+        if not key:
+            return
+        recent = favorites.normalize(getattr(self, "recent_channel_keys", []))
+        if recent and recent[0] == key:
+            return
+        self.recent_channel_keys = ([key] + [item for item in recent if item != key])[:20]
+        self.config["recent_channels"] = self.recent_channel_keys
+        save_config(self.config)
+
+    def _recent_channels(self) -> List[Dict[str, str]]:
+        by_key = {favorites.channel_key(ch): ch for ch in self.all_channels}
+        return [by_key[key] for key in self.recent_channel_keys if key in by_key]
+
+    def _play_live_channel(self, channel: Dict[str, str]) -> None:
+        try:
+            url = self._resolve_live_url(channel)
+        except Exception as err:
+            message_box(_("Could not resolve stream URL:\n{error}").format(error=err),
+                        _("Playback Error"), wx.OK | wx.ICON_ERROR)
+            return
+        self._terminate_media_probe(channel)
+        self._launch_stream(url, self._channel_display_name(channel), stream_kind="live",
+                            channel=channel)
+
+    def _play_previous_channel(self, _event=None) -> None:
+        recent = self._recent_channels()
+        if len(recent) < 2:
+            message_box(_("No previous channel is available."), _("Previous Channel"),
+                        wx.OK | wx.ICON_INFORMATION)
+            return
+        self._play_live_channel(recent[1])
+
+    def _show_recent_channels(self, _event=None) -> None:
+        recent = self._recent_channels()
+        if not recent:
+            message_box(_("No recently watched channels are available."),
+                        _("Recently Watched"), wx.OK | wx.ICON_INFORMATION)
+            return
+        dlg = wx.SingleChoiceDialog(self, _("Choose a channel to play:"),
+                                    _("Recently Watched"),
+                                    [self._channel_display_name(ch) for ch in recent])
+        try:
+            if dlg.ShowModal() == wx.ID_OK:
+                self._play_live_channel(recent[dlg.GetSelection()])
+        finally:
+            dlg.Destroy()
+
+    def _go_to_channel_number(self, _event=None) -> None:
+        channels = self.scoped_all_channels()
+        if not channels:
+            return
+        dlg = wx.TextEntryDialog(self, _("Enter a channel number:"),
+                                 _("Go to Channel Number"))
+        try:
+            if dlg.ShowModal() != wx.ID_OK:
+                return
+            value = dlg.GetValue().strip()
+        finally:
+            dlg.Destroy()
+        if not value.isdecimal() or int(value) < 1:
+            message_box(_("Enter a positive channel number."),
+                        _("Go to Channel Number"), wx.OK | wx.ICON_WARNING)
+            return
+        number = int(value)
+        channel = next((ch for ch in channels
+                        if str(ch.get("number") or ch.get("tvg-chno") or "") == value), None)
+        if channel is None and number <= len(channels):
+            channel = channels[number - 1]
+        if channel is None:
+            message_box(_("Channel number {number} was not found.").format(number=number),
+                        _("Go to Channel Number"), wx.OK | wx.ICON_INFORMATION)
+            return
+        self._play_live_channel(channel)
+
     def _find_matching_channel_for_program(self, program: Dict[str, str]) -> Optional[Dict[str, str]]:
         """Find the playlist channel that best matches an EPG/search program row."""
         channel_name = program.get("channel_name", "")
@@ -3490,7 +3801,8 @@ class IPTVClient(wx.Frame):
         except Exception:
             return _("Unknown time")
 
-    def _schedule_program_recording(self, channel: Dict[str, str], program: Dict[str, str]):
+    def _schedule_program_recording(self, channel: Dict[str, str], program: Dict[str, str],
+                                    *, repeat: str = ""):
         if not channel:
             message_box(_("Could not identify the channel."), _("Schedule Recording"), wx.OK | wx.ICON_ERROR)
             return
@@ -3504,6 +3816,7 @@ class IPTVClient(wx.Frame):
                 fmt,
                 pre_padding_minutes=self.config.get("recording_pre_padding_minutes", 0),
                 post_padding_minutes=self.config.get("recording_post_padding_minutes", 2),
+                repeat=repeat,
             )
         except Exception as err:
             message_box(_("Could not schedule recording:\n{error}").format(error=err),
@@ -3517,8 +3830,20 @@ class IPTVClient(wx.Frame):
 
         duplicate = self._find_duplicate_scheduled_job(job)
         if duplicate:
+            if repeat and self._ensure_dvr_scheduler().set_repeat(str(duplicate["id"]), repeat):
+                message_box(_("Recording updated to repeat."), _("Schedule Recording"),
+                            wx.OK | wx.ICON_INFORMATION)
+                return
             message_box(_("This programme is already scheduled to record."),
                           _("Schedule Recording"), wx.OK | wx.ICON_INFORMATION)
+            return
+
+        overlap = [existing for existing in self._ensure_dvr_scheduler().list_jobs(include_done=False)
+                   if float(existing.get("start_ts") or 0) < float(job["stop_ts"])
+                   and float(job["start_ts"]) < float(existing.get("stop_ts") or 0)]
+        if overlap and message_box(
+                _("This recording overlaps {count} other scheduled recording(s). Schedule it anyway?").format(count=len(overlap)),
+                _("Recording Conflict"), wx.YES_NO | wx.ICON_WARNING) != wx.YES:
             return
 
         self._ensure_dvr_scheduler(start=True).add_job(job)
@@ -3542,7 +3867,7 @@ class IPTVClient(wx.Frame):
             ),
             _("Schedule Recording"), wx.OK | wx.ICON_INFORMATION)
 
-    def _schedule_epg_program_recording(self, program: Dict[str, str]):
+    def _schedule_epg_program_recording(self, program: Dict[str, str], *, repeat: str = ""):
         channel = self._find_matching_channel_for_program(program)
         if not channel:
             message_box(
@@ -3552,7 +3877,7 @@ class IPTVClient(wx.Frame):
                 wx.OK | wx.ICON_WARNING,
             )
             return
-        self._schedule_program_recording(channel, program)
+        self._schedule_program_recording(channel, program, repeat=repeat)
 
     def _find_duplicate_scheduled_job(self, new_job: Dict[str, object]) -> Optional[Dict[str, object]]:
         new_channel = new_job.get("channel") if isinstance(new_job.get("channel"), dict) else {}
@@ -3565,6 +3890,46 @@ class IPTVClient(wx.Frame):
                     and job.get("end_at") == new_job.get("end_at")):
                 return job
         return None
+
+    def _refresh_series_recordings(self) -> None:
+        """Scheduler thread: fill series rules from the current EPG horizon."""
+        scheduler = self._ensure_dvr_scheduler()
+        rules = [job for job in scheduler.list_jobs()
+                 if job.get("repeat") == "series"
+                 and job.get("status") != dvr.STATUS_CANCELED]
+        if not rules or not epg_database_has_programmes(get_db_path()):
+            return
+        now = datetime.datetime.now(datetime.timezone.utc)
+        db = EPGDatabase(get_db_path(), readonly=True)
+        try:
+            for rule in rules:
+                channel = rule.get("channel") or {}
+                title = str(rule.get("title") or "").strip().casefold()
+                if not channel or not title:
+                    continue
+                for program in db.get_schedule(channel, now, now + datetime.timedelta(days=14)):
+                    if dvr.program_title(program).strip().casefold() != title:
+                        continue
+                    try:
+                        job = dvr.build_job(
+                            channel, program, str(rule.get("format") or "provider_mkv"),
+                            pre_padding_minutes=rule.get("pre_padding_minutes", 0),
+                            post_padding_minutes=rule.get("post_padding_minutes", 2))
+                    except (ValueError, TypeError):
+                        continue
+                    if float(job["stop_ts"]) <= time.time():
+                        continue
+                    if any(existing.get("start_at") == job["start_at"]
+                           and self._channel_record_key(existing.get("channel") or {})
+                           == self._channel_record_key(channel)
+                           for existing in scheduler.list_jobs()):
+                        continue
+                    if job["start_at"] == rule.get("start_at"):
+                        continue
+                    job["series_source"] = rule["id"]
+                    scheduler.add_job(job)
+        finally:
+            db.close()
 
     def _show_scheduled_recordings(self, *_args):
         if self._dvr_dialog:
@@ -4648,7 +5013,7 @@ class IPTVClient(wx.Frame):
 
     def _populate_recordings_menu(self, menu: wx.Menu):
         """Fill a Recordings menu (shared by the menubar and the Linux button menu)."""
-        start_item = menu.Append(wx.ID_ANY, _("Start Recording") + "\tCtrl+Shift+R")
+        start_item = menu.Append(wx.ID_ANY, self._shortcut_label(_("Start Recording"), "record"))
         menu.Bind(wx.EVT_MENU, self._record_selected, start_item)
         stop_item = menu.Append(wx.ID_ANY, _("Stop Recording"))
         menu.Bind(wx.EVT_MENU, self._stop_selected_recording, stop_item)
@@ -6591,6 +6956,7 @@ class IPTVClient(wx.Frame):
                 self.config["epg_last_import_epoch"] = int(time.time())
                 self.config["epg_last_sources_hash"] = self._hash_epg_sources(self.epg_sources)
                 save_config(self.config)
+                self._ensure_dvr_scheduler(start=True).request_series_scan()
             except Exception:
                 LOG.debug("IPTVClient.finish_import_background: ignored exception", exc_info=True)
         # The rows read the on-air programme, so refresh the bulk labels now
@@ -7558,6 +7924,8 @@ class IPTVClient(wx.Frame):
                 getattr(self, "_internal_player_audio_key", "")),
             audio_output_device=str(self.config.get("audio_output_device") or ""),
             on_audio_device=self._on_player_audio_device,
+            announcement_level=self.config.get("announcement_level", 2),
+            shortcut_config=self.config,
         )
         self._internal_player_frame = frame
         return frame
@@ -7809,6 +8177,11 @@ class IPTVClient(wx.Frame):
                     video_visible=show_internal_player,
                     focus_controls=focus_player,
                 )
+                announce = getattr(frame, "_update_status_label", None)
+                if callable(announce):
+                    announce(display_title, priority=2)
+                if stream_kind == "live":
+                    self._remember_played_channel(channel)
                 self._sync_internal_player_record_state()
                 if not show_internal_player:
                     wx.CallAfter(self._restore_main_focus)
@@ -7820,6 +8193,8 @@ class IPTVClient(wx.Frame):
         ok, err = self.player_launcher.launch(player, url, custom_path)
         if not ok:
             message_box(_("Failed to launch {player}:\n{error}").format(player=player, error=err), _("Launch Error"), wx.OK | wx.ICON_ERROR)
+        elif stream_kind == "live":
+            self._remember_played_channel(channel)
 
     def _restore_main_focus(self) -> None:
         """Restore focus to channel list only if this window is active."""
@@ -9804,6 +10179,11 @@ class WhatsOnNowDialog(wx.Dialog):
         if selection:
             self.schedule_callback(selection)
 
+    def _on_schedule_repeat(self, repeat: str) -> None:
+        selection = self.get_selection()
+        if selection and self.schedule_callback:
+            self.schedule_callback(selection, repeat=repeat)
+
     def _show_context_menu(self):
         """Row actions for the highlighted programme, keyboard reachable."""
         if not self.filtered_programs:
@@ -9817,6 +10197,12 @@ class WhatsOnNowDialog(wx.Dialog):
         schedule_item = menu.Append(wx.ID_ANY, _("Schedule Recording"))
         schedule_item.Enable(self.schedule_callback is not None)
         menu.Bind(wx.EVT_MENU, self._on_schedule, schedule_item)
+        for repeat, label in (("daily", _("Record Daily")),
+                              ("weekly", _("Record Weekly")),
+                              ("series", _("Record Series"))):
+            item = menu.Append(wx.ID_ANY, label)
+            item.Enable(self.schedule_callback is not None)
+            menu.Bind(wx.EVT_MENU, lambda _evt, value=repeat: self._on_schedule_repeat(value), item)
         pos = wx.DefaultPosition
         index = self.listbox.GetFirstSelected()
         if index != -1:
@@ -10106,6 +10492,12 @@ class ChannelEPGDialog(wx.Dialog):
         schedule_item = menu.Append(wx.ID_ANY, _("Schedule Recording"))
         schedule_item.Enable(self.schedule_callback is not None)
         menu.Bind(wx.EVT_MENU, self._on_schedule, schedule_item)
+        for repeat, label in (("daily", _("Record Daily")),
+                              ("weekly", _("Record Weekly")),
+                              ("series", _("Record Series"))):
+            item = menu.Append(wx.ID_ANY, label)
+            item.Enable(self.schedule_callback is not None)
+            menu.Bind(wx.EVT_MENU, lambda _evt, value=repeat: self._on_schedule_repeat(value), item)
         pos = wx.DefaultPosition
         index = self.list_ctrl.GetFirstSelected()
         if index != -1:
@@ -10149,6 +10541,11 @@ class ChannelEPGDialog(wx.Dialog):
                           wx.OK | wx.ICON_INFORMATION)
             return
         self.schedule_callback(self.channel, prog)
+
+    def _on_schedule_repeat(self, repeat: str) -> None:
+        prog = self._selected_programme()
+        if prog and self.schedule_callback:
+            self.schedule_callback(self.channel, prog, repeat=repeat)
 
 def _install_exception_logging():
     """Send uncaught exceptions to the debug log instead of losing them.

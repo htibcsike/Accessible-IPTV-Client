@@ -81,6 +81,8 @@ Die Senderliste zeigt die Sender der gewählten Kategorie oder Suche.
 - Die Anwendungstaste, Shift+F10 oder ein Rechtsklick öffnet das Menü des Senders: Wiedergeben, Zu Favoriten hinzufügen bzw. Aus Favoriten entfernen, Aufnehmen bzw. Aufnahme stoppen, Aufnahme planen, EPG anzeigen…, sowie Nachholen bei Sendern mit Archiv.
 - Ctrl+D fügt den Sender zu den Favoriten hinzu bzw. entfernt ihn. In der Kategorie Favoriten entfernt ihn die Entf-Taste.
 - Ctrl+Shift+R startet die Aufnahme des Senders; noch einmal gedrückt, stoppt sie.
+- Strg+G fragt nach einer Kanalnummer und spielt den passenden Kanal ab. Strg+0 kehrt zum vorherigen Kanal zurück und Strg+H öffnet „Zuletzt angesehen“.
+- Strg+Umschalt+I kündigt den aktuellen Sender, die Programmzeiten, das nächste Programm und den Aufnahmestatus an, ohne den Fokus zu verschieben.
 
 Favoritensender sind mit „(Favorit)“ markiert, und jede Zeile nennt auch die Sendung, die gerade läuft, wenn die Zeitschrift sie führt. Wenn eine Suche auch Sendungen fand, nennen ihre Zeilen die Sendung und den Sender, auf dem sie läuft.
 
@@ -97,6 +99,8 @@ Die Favoriten halten die Sender, die Sie am häufigsten ansehen, an einem Ort. D
 Um einen Favoriten zu entfernen, drücken Sie erneut Ctrl+D auf ihm oder Entf in der Kategorie Favoriten.
 
 Favoriten werden nach Anbieter und Sender gespeichert, nicht nach Stream-Adresse, und überstehen so eine Aktualisierung der Wiedergabeliste. Über Ihr Konto wird nichts dabei gespeichert.
+
+Unter „Ansicht“ > „Zuletzt angesehen“ werden die von Ihnen abgespielten Kanäle aufgelistet. „Ansicht“ > „Vorheriger Kanal“ (Strg+0) wechselt zurück zu dem Kanal, den Sie zuvor gesehen haben.
 
 ## Video-on-Demand {#video-on-demand}
 
@@ -206,6 +210,8 @@ Tasten im Player:
 - Ctrl+R: aufnehmen, was Sie ansehen, und diese Aufnahme stoppen.
 - Pfeil auf und ab: Lautstärke in 2%-Schritten. Ctrl+Pfeil auf/ab: 5%-Schritte.
 - A: nächste Tonspur.
+- S: nächster Untertiteltrack, einschließlich Aus. Mit „Wiedergabe“ > „Untertitel“ können Sie einen Titel auswählen oder eine externe Untertiteldatei laden.
+- I: Ansage des aktuellen Senders, der Programmzeiten, des nächsten Programms und des Aufnahmestatus.
 - D: das Audioausgabegerät wählen.
 - Ctrl+C: an ein Gerät übertragen.
 - F11: Vollbild an oder aus. Escape verlässt den Vollbildmodus.
@@ -219,6 +225,8 @@ Dieselben Befehle liegen im Wiedergabe-Menü des Players. Der Player verbindet s
 Sender können mehrere Tonspuren mitführen, etwa andere Sprachen oder Audiodeskription. Drücken Sie A für die nächste Spur, benutzen Sie Wiedergabe > Audiospur, oder Tab zu Tonspur wählen, die immer die laufende Spur nennt.
 
 Eine gewählte Spur wird pro Sender gemerkt und kommt beim nächsten Mal wieder. Zum automatischen Wählen siehe Bevorzugte Audiospur.
+
+Untertiteltext erscheint im Video, wenn der Stream ihn bereitstellt. „Wiedergabe > Untertiteldatei laden“ akzeptiert eine externe Untertiteldatei; Für den Untertiteltext ist keine Sprachausgabe per Screenreader verfügbar.
 
 ### Audioausgabegerät {#audio-output-device}
 
@@ -282,11 +290,14 @@ Um eine künftige Sendung aufzunehmen, wählen Sie Aufnahme planen auf einer Sen
 Aufnahmen > Geplante Aufnahmen… listet jede geplante, laufende und fertige Aufnahme mit Zeit, Titel, Sender, Status und Format.
 
 - Die Anwendungstaste oder Shift+F10 auf einer Aufnahme öffnet ihr Menü: Aktualisieren, Abbrechen und Löschen.
+- Das Aufnahmemenü bietet außerdem „Täglich aufzeichnen“, „Wöchentlich aufzeichnen“ und „Serien aufzeichnen“. Die Serienaufzeichnung findet zukünftige Guide-Sendungen mit demselben Titel auf diesem Kanal, während die App läuft.
 - Es lassen sich mehrere Aufnahmen markieren; Ctrl+A markiert alle Zeilen.
 - Entf oder Entf auf dem Ziffernblock fragt nach und entfernt dann die markierten Aufnahmen. Laufen davon noch welche, stoppt das Programm sie zuerst.
 - Escape schließt das Fenster.
 
 Geplante Aufnahmen starten von selbst, während das Programm läuft, auch wenn es in den Infobereich minimiert ist. Das Fenster aktualisiert sich von selbst, wenn Sie es öffnen und wann immer eine Aufnahme beginnt, endet oder abgebrochen wird; der Befehl Aktualisieren ist daher selten nötig.
+
+Wenn eine neue Aufnahme eine andere geplante Aufnahme überschneidet, warnt Sie das Programm vor dem Hinzufügen. Ihr Provider begrenzt möglicherweise die Anzahl der Streams, die gleichzeitig ausgeführt werden können.
 
 Das Programm fragt vor dem Schließen nach, solange geplante Aufnahmen noch auf ihren Start warten, denn sie können nur starten, während das Programm läuft. Schließen Sie es trotzdem, starten die wartenden Aufnahmen nicht.
 
@@ -327,6 +338,9 @@ Das Optionen-Menü enthält die Einstellungen des Programms. Jede wird gespeiche
 - Player bei Eingabetaste anzeigen: eingeschaltet zeigt das Abspielen eines Senders das Playerfenster. Ausgeschaltet startet die Wiedergabe und der Fokus bleibt in der Senderliste.
 - Stream-URL anzeigen: fügt das Stream-URL-Feld hinter der Folgenbeschreibung im Hauptfenster ein.
 - Automatisch nach Updates suchen: siehe Updates.
+- Automatische Ankündigungen: Wählen Sie „Keine“, „Nur Fehler“, „Wichtige Ereignisse“ oder „Detaillierter Status“ für automatisches Spieler- und Kanal-Feedback.
+- Tastaturkürzel: Ändern Sie die Tastenkombination eines Befehls. Widersprüchliche Verknüpfungen werden abgelehnt; Starten Sie das Programm nach dem Speichern neu.
+- Exporteinstellungen und Importeinstellungen: Speichern oder wiederherstellen Sie eine verschlüsselte Sicherung von Wiedergabelisten, Guide-Quellen, Favoriten und Präferenzen. Behalten Sie das Backup-Passwort; Sie benötigen es, um die Anmeldeinformationen des Anbieters wiederherzustellen.
 
 ### Sprache {#language}
 
@@ -380,6 +394,8 @@ Hauptfenster:
 - Ctrl+Shift+R: die Aufnahme des gewählten Senders starten oder stoppen.
 - Ctrl+Shift+D: die Nachholen-Downloadfenster zeigen.
 - Ctrl+Shift+J: den integrierten Player zeigen.
+- Strg+0: Rückkehr zum vorherigen Kanal. Strg+H: Wählen Sie einen kürzlich angesehenen Kanal aus. Strg+G: Geben Sie eine Kanalnummer ein.
+- Strg+Umschalt+I: Ansagen, was jetzt und als nächstes abgespielt wird, einschließlich Aufnahmestatus.
 - Ctrl+Shift+P: den integrierten Player wiedergeben oder pausieren.
 - Ctrl+Shift+S: den integrierten Player stoppen.
 - Ctrl+Shift+C: übertragen oder verbinden.
@@ -394,6 +410,7 @@ Integrierter Player:
 - Ctrl+P: wiedergeben oder pausieren.
 - Ctrl+S: stoppen.
 - Ctrl+R: aufnehmen.
+- S: Durchlaufen Sie Untertitelspuren. I: Kündigen Sie an, was gerade gespielt wird.
 - Pfeil auf und ab: Lautstärke in 2%-Schritten; mit Ctrl 5%-Schritte.
 - A: nächste Tonspur.
 - D: Audioausgabegerät.

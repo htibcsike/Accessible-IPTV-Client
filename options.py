@@ -477,6 +477,9 @@ def load_config() -> Dict:
         "recording_post_padding_minutes": DEFAULT_RECORDING_POST_PADDING_MINUTES,
         "shutdown_after_recordings": False,
         "favorites": [],
+        "recent_channels": [],
+        "announcement_level": 2,
+        "shortcuts": {},
         "preferred_audio_tracks": [],
         "prefer_audio_description": False,
         "last_audio_track": "",
@@ -504,6 +507,10 @@ def load_config() -> Dict:
                     migrate_recording_format_prefs(data)
                     normalize_recording_padding(data)
                     normalize_channel_and_audio_settings(data)
+                    try:
+                        data["announcement_level"] = max(0, min(3, int(data["announcement_level"])))
+                    except (TypeError, ValueError):
+                        data["announcement_level"] = 2
                     resolve_internal_player_settings(data)
                     _CONFIG_PATH = p
                     return data
@@ -525,6 +532,10 @@ def save_config(cfg: Dict):
     migrate_recording_format_prefs(cfg)
     normalize_recording_padding(cfg)
     normalize_channel_and_audio_settings(cfg)
+    try:
+        cfg["announcement_level"] = max(0, min(3, int(cfg.get("announcement_level", 2))))
+    except (TypeError, ValueError):
+        cfg["announcement_level"] = 2
     resolve_internal_player_settings(cfg)
     path = get_config_write_target()
     try:

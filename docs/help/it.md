@@ -81,6 +81,8 @@ L'elenco dei canali mostra i canali della categoria o ricerca scelta.
 - Il tasto applicazioni, Shift+F10 o un clic destro apre il menu del canale: Riproduci, Aggiungi ai preferiti o Rimuovi dai preferiti, Registra o Ferma la registrazione, Programma registrazione, Visualizza EPG…, e Replay per i canali che hanno un archivio.
 - Ctrl+D aggiunge il canale ai preferiti o lo rimuove. Nella categoria Preferiti, Canc lo rimuove.
 - Ctrl+Shift+R avvia la registrazione del canale; premuto di nuovo, la ferma.
+- Ctrl+G richiede un numero di canale e riproduce il canale corrispondente. Ctrl+0 ritorna al canale precedente e Ctrl+H apre Guardati di recente.
+- Ctrl+Shift+I annuncia il canale corrente, gli orari dei programmi, il programma successivo e lo stato della registrazione senza spostare il focus.
 
 I canali preferiti sono marcati "(Preferito)", e ogni riga nomina anche la trasmissione in onda quando la guida la conosce. Quando una ricerca ha trovato anche trasmissioni, le sue righe nominano la trasmissione e il canale su cui va.
 
@@ -97,6 +99,8 @@ I preferiti tengono in un posto solo i canali che si guardano di più. Premere C
 Per togliere un preferito, premere di nuovo Ctrl+D su di esso, o Canc nella categoria Preferiti.
 
 I preferiti sono salvati per provider e canale, non per indirizzo di flusso: sopravvivono quindi a un aggiornamento della playlist. Nulla del proprio account è salvato con loro.
+
+Visualizza > Guardati di recente elenca i canali riprodotti. Visualizza > Canale precedente (Ctrl+0) torna al canale guardato prima di questo.
 
 ## Video on demand {#video-on-demand}
 
@@ -206,6 +210,8 @@ Tasti nel lettore:
 - Ctrl+R: registrare ciò che si guarda, e fermare quella registrazione.
 - Frecce su e giù: volume a passi del 2%. Ctrl+Su e Ctrl+Giù: passi del 5%.
 - A: traccia audio successiva.
+- S: traccia dei sottotitoli successiva, incluso Off. Riproduzione > Sottotitoli ti consente di scegliere una traccia o caricare un file di sottotitoli esterno.
+- I: annuncia il canale corrente, gli orari dei programmi, il programma successivo e lo stato della registrazione.
 - D: scegliere il dispositivo di uscita audio.
 - Ctrl+C: trasmettere a un dispositivo.
 - F11: schermo intero acceso o spento. Escape lo lascia.
@@ -219,6 +225,8 @@ Gli stessi comandi sono nel menu Riproduzione del lettore. Il lettore si riconne
 I canali possono portare più tracce audio, come altre lingue o audiodescrizione. Premere A per passare alla traccia successiva, usare Riproduzione > Traccia audio, o Tab fino a Scegli traccia audio, che nomina sempre la traccia in riproduzione.
 
 Una traccia scelta è ricordata per quel canale e torna la volta successiva. Per sceglierle in automatico vedere Traccia audio preferita.
+
+Il testo dei sottotitoli appare nel video quando lo stream lo fornisce. Riproduzione > Carica file sottotitoli accetta un file di sottotitoli esterno; la sintesi vocale dello screen reader per il testo dei sottotitoli non è disponibile.
 
 ### Dispositivo di uscita audio {#audio-output-device}
 
@@ -282,11 +290,14 @@ Per registrare una trasmissione futura, scegliere Programma registrazione su una
 Registrazioni > Registrazioni programmate… elenca ogni registrazione programmata, in corso e conclusa con orario, titolo, canale, stato e formato.
 
 - Il tasto applicazioni o Shift+F10 su una registrazione apre il suo menu: Aggiorna, Annulla ed Elimina.
+- Il menu di registrazione offre anche Registra giornaliera, Registra settimanale e Registra serie. La registrazione della serie trova i futuri programmi della guida con lo stesso titolo su quel canale mentre l'app è in esecuzione.
 - Si può selezionare più di una registrazione; Ctrl+A seleziona tutte le righe.
 - Canc o Canc del tastierino numerico chiede conferma, poi rimuove le registrazioni selezionate. Se alcune sono ancora in corso, il programma le ferma prima.
 - Escape chiude la finestra.
 
 Le registrazioni programmate partono da sole mentre il programma gira, anche minimizzato nella barra delle applicazioni. La finestra si aggiorna da sola quando la apri e ogni volta che una registrazione inizia, finisce o viene annullata, quindi il comando Aggiorna serve di rado.
+
+Quando una nuova registrazione si sovrappone ad un'altra registrazione programmata, il programma ti avvisa prima di aggiungerla. Il tuo provider potrebbe limitare il numero di stream che possono essere eseguiti contemporaneamente.
 
 Il programma chiede conferma prima di chiudersi se ci sono registrazioni programmate ancora in attesa di iniziare, perché possono iniziare solo mentre il programma è aperto. Se lo chiudi comunque, le registrazioni in attesa non partiranno.
 
@@ -327,6 +338,9 @@ Il menu Opzioni contiene le impostazioni del programma. Ognuna è salvata appena
 - Mostra il lettore con Invio: attiva, riprodurre un canale mostra la finestra del lettore integrato. Spenta, la riproduzione parte e il focus resta nell'elenco dei canali.
 - Mostra l'URL del flusso: aggiunge il campo URL del flusso dopo la descrizione dell'episodio nella finestra principale.
 - Controlla automaticamente gli aggiornamenti: vedere Aggiornamenti.
+- Annunci automatici: scegli Nessuno, Solo errori, Eventi importanti o Stato dettagliato per il feedback automatico del giocatore e del canale.
+- Scorciatoie da tastiera: modifica la combinazione di tasti di un comando. Le scorciatoie in conflitto vengono rifiutate; riavviare il programma dopo aver salvato.
+- Impostazioni di esportazione e impostazioni di importazione: salva o ripristina un backup crittografato di playlist, fonti guida, preferiti e preferenze. Conserva la password di backup; ti serve per ripristinare le credenziali del provider.
 
 ### Lingua {#language}
 
@@ -380,6 +394,8 @@ Finestra principale:
 - Ctrl+Shift+R: avviare o fermare la registrazione del canale selezionato.
 - Ctrl+Shift+D: mostrare le finestre di download dei replay.
 - Ctrl+Shift+J: mostrare il lettore integrato.
+- Ctrl+0: torna al canale precedente. Ctrl+H: scegli un canale guardato di recente. Ctrl+G: inserisci un numero di canale.
+- Ctrl+Shift+I: annuncia cosa è in riproduzione adesso e dopo, incluso lo stato della registrazione.
 - Ctrl+Shift+P: riprodurre o mettere in pausa il lettore integrato.
 - Ctrl+Shift+S: fermare il lettore integrato.
 - Ctrl+Shift+C: trasmettere o connettere.
@@ -394,6 +410,7 @@ Lettore integrato:
 - Ctrl+P: riprodurre o mettere in pausa.
 - Ctrl+S: fermare.
 - Ctrl+R: registrare.
+- S: Scorri le tracce dei sottotitoli. I: Annuncia cosa sta suonando.
 - Su e Giù: volume a passi del 2%; con Ctrl, passi del 5%.
 - A: traccia audio successiva.
 - D: dispositivo di uscita audio.

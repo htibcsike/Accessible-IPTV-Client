@@ -90,6 +90,8 @@ The channel list shows the channels of the chosen category or search.
 - The Applications key, Shift+F10 or a right click opens the channel's menu: Play, Add to Favorites or Remove from Favorites, Record or Stop Recording, Schedule Recording, View EPG, and Catch-up for channels that have an archive.
 - Ctrl+D adds the channel to Favorites or removes it. In the Favorites category, Delete removes it.
 - Ctrl+Shift+R starts recording the channel, and pressed again stops it.
+- Ctrl+G asks for a channel number and plays the matching channel. Ctrl+0 returns to the previous channel, and Ctrl+H opens Recently Watched.
+- Ctrl+Shift+I announces the current channel, programme times, next programme and recording status without moving focus.
 
 Favorite channels are marked "(Favorite)", and each row also names the programme on air now when the guide has it. When a search also found programmes, their rows name the programme and the channel it is on.
 
@@ -106,6 +108,8 @@ Favorites keep the channels you watch most in one place. Press Ctrl+D on a chann
 To remove a favorite, press Ctrl+D on it again, or press Delete in the Favorites category.
 
 Favorites are stored by provider and channel, not by stream address, so they survive a playlist refresh. Nothing about your account is stored with them.
+
+View > Recently Watched lists channels you have played. View > Previous Channel (Ctrl+0) switches back to the channel you watched before this one.
 
 ## Video on demand {#video-on-demand}
 
@@ -215,6 +219,8 @@ Keys in the player:
 - Ctrl+R: record what you are watching, and stop that recording.
 - Up and Down arrows: volume in 2% steps. Ctrl+Up and Ctrl+Down: 5% steps.
 - A: next audio track.
+- S: next subtitle track, including Off. Playback > Subtitles lets you choose a track or load an external subtitle file.
+- I: announce the current channel, programme times, next programme and recording status.
 - D: choose the audio output device.
 - Ctrl+C: cast to a device.
 - F11: full screen on or off. Escape leaves full screen.
@@ -228,6 +234,8 @@ The same commands are on the player's Playback menu. The player reconnects on it
 Channels can carry several audio tracks, such as other languages or audio description. Press A to move to the next track, use Playback > Audio Track, or Tab to Choose Audio Track, which always names the track that is playing.
 
 A track you choose is remembered for that channel and comes back next time. See Preferred audio track for choosing tracks automatically.
+
+Subtitle text appears in the video when the stream provides it. Playback > Load Subtitle File accepts an external subtitle file; screen reader speech for subtitle text is not available.
 
 ### Audio output device {#audio-output-device}
 
@@ -291,11 +299,14 @@ To record a programme in the future, choose Schedule Recording on a programme in
 Recordings > Scheduled Recordings lists every scheduled, running and finished recording with its time, title, channel, status and format.
 
 - The Applications key or Shift+F10 on a recording opens its menu: Refresh, Cancel and Delete.
+- The recording menu also offers Record Daily, Record Weekly and Record Series. Series recording finds future guide programmes with the same title on that channel while the app is running.
 - More than one recording can be selected; Ctrl+A selects every row.
 - Delete or Numpad Delete asks for confirmation, then removes the selected recordings. If any selected recordings are still in progress, the program stops them first.
 - Escape closes the window.
 
 Scheduled recordings start by themselves while the program is running, even when it is minimized to the system tray. The window refreshes by itself when you open it and whenever a recording starts, finishes or is cancelled, so the Refresh command is rarely needed.
+
+When a new recording overlaps another scheduled recording, the program warns you before adding it. Your provider may limit how many streams can run at once.
 
 The program asks before it closes while any scheduled recordings are still waiting to start, because they can only start while the program is running. If you close it anyway, the waiting recordings will not start.
 
@@ -336,6 +347,9 @@ The Options menu holds the program's settings. Each one is saved as soon as you 
 - Show Player on Enter: when on, playing a channel shows the built-in player window. When off, playback starts and focus stays in the channel list.
 - Show Stream URL: adds the Stream URL field after the episode description in the main window.
 - Auto-check for Updates: see Updates.
+- Automatic Announcements: choose None, Errors only, Important events or Detailed status for automatic player and channel feedback.
+- Keyboard Shortcuts: change a command's key combination. Conflicting shortcuts are rejected; restart the program after saving.
+- Export Settings and Import Settings: save or restore an encrypted backup of playlists, guide sources, favorites and preferences. Keep the backup password; you need it to restore provider credentials.
 
 ### Language {#language}
 
@@ -389,6 +403,8 @@ Main window:
 - Ctrl+Shift+R: start or stop recording the selected channel.
 - Ctrl+Shift+D: show the catch-up download windows.
 - Ctrl+Shift+J: show the built-in player.
+- Ctrl+0: return to the previous channel. Ctrl+H: choose a recently watched channel. Ctrl+G: enter a channel number.
+- Ctrl+Shift+I: announce what is playing now and next, including recording status.
 - Ctrl+Shift+P: play or pause the built-in player.
 - Ctrl+Shift+S: stop the built-in player.
 - Ctrl+Shift+C: cast or connect.
@@ -403,6 +419,7 @@ Built-in player:
 - Ctrl+P: play or pause.
 - Ctrl+S: stop.
 - Ctrl+R: record.
+- S: cycle subtitle tracks. I: announce what is playing.
 - Up and Down: volume in 2% steps; with Ctrl, 5% steps.
 - A: next audio track.
 - D: audio output device.

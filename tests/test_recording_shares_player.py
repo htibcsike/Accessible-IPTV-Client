@@ -83,10 +83,13 @@ def _client(monkeypatch, *, showing, frame=None):
         _channel_display_name=lambda _channel: "TVP 1",
         _recording_audio_intent=lambda _channel, **_k: None,
         _recording_audio_choice=lambda url, headers, intent: None,
+        _recording_format_for_channel=lambda _channel: ("provider_mkv", "video", "saved"),
+        _terminate_media_probe=lambda _channel: None,
         _note_recording_started=lambda: None,
         _recording_format_label=lambda fmt: fmt,
         _on_recording_finished=lambda *a: None,
         _sync_internal_player_record_state=lambda: None,
+        _remember_played_channel=lambda _channel: None,
         _player_is_showing=lambda _channel: showing,
     )
     client._launch_stream = lambda url, title, **kwargs: (
@@ -157,6 +160,7 @@ def test_relay_handoff_keeps_the_existing_focus_in_the_player():
         caster=None,
         config={},
         _ensure_internal_player=lambda: frame,
+        _remember_played_channel=lambda _channel: None,
         _channel_audio_key=lambda _channel: "tvp 1",
         _sync_internal_player_record_state=lambda: None,
     )

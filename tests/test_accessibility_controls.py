@@ -241,6 +241,8 @@ def test_catchup_download_prefers_the_fast_direct_url(monkeypatch, tmp_path):
         _channel_display_name=lambda _channel: "News",
         _channel_record_key=lambda _channel: "news",
         _recording_audio_intent=lambda _channel, **_kw: None,
+        _recording_format_for_channel=lambda _channel: ("provider_mkv", "video", "saved"),
+        _terminate_media_probe=lambda _channel: None,
     )
     for name in ("_download_catchup_programme", "_begin_catchup_download",
                  "_start_catchup_recording", "_padded_catchup_window"):

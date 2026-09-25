@@ -11,6 +11,7 @@ soco>=0.30.0
 # That subpackage first appears in 7.0.0; on 6.x and earlier the release build
 # fails at spec-parse time with ModuleNotFoundError.
 chardet>=7.0.0
+cryptography>=43.0.0
 
 # Development dependencies
 pytest>=7.0.0

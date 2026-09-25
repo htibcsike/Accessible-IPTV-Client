@@ -90,8 +90,9 @@ class TestProbeReport:
     def test_http_options_go_only_to_http_streams(self, monkeypatch):
         # ffmpeg refuses "-user_agent" on any other input and then lists nothing.
         seen = []
-        monkeypatch.setattr(recorder.subprocess, "run",
-                            lambda cmd, **_k: seen.append(cmd) or types.SimpleNamespace(stderr=b""))
+        monkeypatch.setattr(recorder.subprocess, "Popen",
+                            lambda cmd, **_k: seen.append(cmd) or types.SimpleNamespace(
+                                communicate=lambda **_kwargs: (b"", b"")))
         recorder.probe_audio_streams("http://h/live.ts", {"user-agent": "Box/1.0"})
         recorder.probe_audio_streams("udp://@239.0.0.1:1234", {"user-agent": "Box/1.0"})
         assert "-user_agent" in seen[0]
@@ -344,6 +345,8 @@ def _live_client(monkeypatch, choice, deferred):
         _channel_display_name=lambda _channel: "TVP 1",
         _recording_audio_intent=lambda _channel, **_k: {"keywords": ["x"]},
         _recording_audio_choice=lambda url, headers, intent: choice,
+        _recording_format_for_channel=lambda _channel: ("audio_mp3_v0", "audio", "saved"),
+        _terminate_media_probe=lambda _channel: None,
         _note_recording_started=lambda: None,
         _recording_format_label=lambda fmt: fmt,
         _on_recording_finished=lambda *a: None,
@@ -383,7 +386,9 @@ def test_scheduled_recording_keeps_the_chosen_track(monkeypatch):
         _resolve_live_url=lambda _channel: "http://h/live.ts",
         _channel_display_name=lambda _channel: "TVP 1",
         _recording_audio_intent=lambda channel, **k: asked.append(k) or {"keywords": ["x"]},
-        _recording_audio_choice=lambda url, headers, intent: (2, 3),
+            _recording_audio_choice=lambda url, headers, intent: (2, 3),
+            _terminate_media_probe=lambda _channel: None,
+            _classify_channel_media=lambda _channel: ("audio", "saved"),
         _note_recording_started=lambda: None,
         _on_recording_finished=lambda *a: None,
         _show_or_queue_message_box=lambda *a: None,

@@ -103,6 +103,35 @@ def test_scheduler_tick_starts_and_stops_jobs(tmp_path):
     assert scheduler.get_job("job1")["status"] == dvr.STATUS_STOPPING
 
 
+def test_daily_recording_schedules_one_next_occurrence(tmp_path):
+    start = datetime.datetime(2026, 9, 24, 20, tzinfo=datetime.timezone.utc)
+    end = start + datetime.timedelta(hours=1)
+    now = [start.timestamp()]
+    scheduler = dvr.DVRScheduler(str(tmp_path / "schedule.json"),
+                                 on_start=lambda _job: 42, on_stop=lambda _job: None,
+                                 clock=lambda: now[0])
+    scheduler.add_job(dvr.build_job({"name": "News"}, _sample_program(start, end),
+                                    "provider_mkv", job_id="daily", repeat="daily"))
+    scheduler.tick()
+    scheduler.mark_finished("daily", success=True)
+    next_jobs = scheduler.list_jobs(include_done=False)
+    assert len(next_jobs) == 1
+    assert next_jobs[0]["repeat"] == "daily"
+    assert next_jobs[0]["start_ts"] > start.timestamp()
+    scheduler.mark_finished("daily", success=True)
+    assert len(scheduler.list_jobs(include_done=False)) == 1
+
+
+def test_canceling_series_rule_cancels_future_episodes(tmp_path):
+    scheduler = dvr.DVRScheduler(str(tmp_path / "schedule.json"),
+                                 on_start=lambda _job: None, on_stop=lambda _job: None)
+    scheduler.add_job({"id": "series", "repeat": "series", "status": dvr.STATUS_COMPLETED})
+    scheduler.add_job({"id": "episode", "series_source": "series",
+                       "status": dvr.STATUS_SCHEDULED})
+    assert scheduler.cancel_job("series")
+    assert scheduler.get_job("episode")["status"] == dvr.STATUS_CANCELED
+
+
 def test_scheduler_persists_jobs_and_resets_interrupted_recording(tmp_path):
     schedule_path = tmp_path / "schedule.json"
     scheduler = dvr.DVRScheduler(str(schedule_path), on_start=lambda job: 1, on_stop=lambda job: None)

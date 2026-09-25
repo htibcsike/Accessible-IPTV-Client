@@ -81,6 +81,8 @@ A lista de canais mostra os canais da categoria ou pesquisa escolhida.
 - A tecla de menu de aplicativo, Shift+F10 ou um clique com o botão direito abre o menu do canal: Reproduzir, Adicionar aos favoritos ou Remover dos favoritos, Gravar ou Parar gravação, Agendar gravação, Exibir EPG…, e Replay para canais que têm arquivo.
 - Ctrl+D adiciona o canal aos favoritos ou o remove. Na categoria Favoritos, Delete o remove.
 - Ctrl+Shift+R inicia a gravação do canal; pressionado de novo, ela para.
+- Ctrl+G pede um número de canal e reproduz o canal correspondente. Ctrl+0 retorna ao canal anterior e Ctrl+H abre Assistidos recentemente.
+- Ctrl+Shift+I anuncia o canal atual, os horários dos programas, o próximo programa e o status da gravação sem mover o foco.
 
 Os canais favoritos são marcados com "(Favorito)", e cada linha também nomeia o programa no ar quando o guia o tem. Quando uma pesquisa também encontrou programas, suas linhas nomeiam o programa e o canal em que ele passa.
 
@@ -97,6 +99,8 @@ Os favoritos mantêm em um só lugar os canais que você mais assiste. Pressione
 Para remover um favorito, pressione Ctrl+D nele de novo, ou pressione Delete na categoria Favoritos.
 
 Os favoritos são guardados por provedor e canal, não por endereço de transmissão, então sobrevivem a uma atualização da lista. Nada da sua conta é guardado com eles.
+
+Ver > Assistidos recentemente lista os canais que você reproduziu. Ver > Canal Anterior (Ctrl+0) volta para o canal que você assistiu antes deste.
 
 ## Vídeo sob demanda {#video-on-demand}
 
@@ -206,6 +210,8 @@ Teclas no reprodutor:
 - Ctrl+R: gravar o que você está assistindo, e parar essa gravação.
 - Setas para cima e para baixo: volume em passos de 2%. Ctrl+Acima e Ctrl+Abaixo: passos de 5%.
 - A: próxima faixa de áudio.
+- S: próxima faixa de legenda, incluindo Off. Reprodução > Legendas permite escolher uma faixa ou carregar um arquivo de legenda externo.
+- I: anuncia o canal atual, horários dos programas, próximo programa e status da gravação.
 - D: escolher o dispositivo de saída de áudio.
 - Ctrl+C: transmitir para um dispositivo.
 - F11: tela cheia ligada ou desligada. Escape sai dela.
@@ -219,6 +225,8 @@ Os mesmos comandos estão no menu Reprodução do reprodutor. O reprodutor se re
 Canais podem carregar várias faixas de áudio, como outros idiomas ou audiodescrição. Pressione A para ir à próxima faixa, use Reprodução > Faixa de áudio, ou Tab até Escolher faixa de áudio, que sempre nomeia a faixa em reprodução.
 
 Uma faixa que você escolhe é lembrada para aquele canal e volta na próxima vez. Para escolhê-las automaticamente, veja Faixa de áudio preferida.
+
+O texto da legenda aparece no vídeo quando o stream o fornece. Reproduzir > Carregar arquivo de legenda aceita um arquivo de legenda externo; a fala do leitor de tela para o texto da legenda não está disponível.
 
 ### Dispositivo de saída de áudio {#audio-output-device}
 
@@ -282,11 +290,14 @@ Para gravar um programa futuro, escolha Agendar gravação sobre um programa em 
 Gravações > Gravações agendadas… lista cada gravação agendada, em andamento e concluída com hora, título, canal, status e formato.
 
 - A tecla de menu de aplicativo ou Shift+F10 sobre uma gravação abre o menu dela: Atualizar, Cancelar e Eliminar.
+- O menu de gravação também oferece Record Daily, Record Weekly e Record Series. A gravação da série encontra futuros programas de guia com o mesmo título naquele canal enquanto o aplicativo está em execução.
 - É possível selecionar mais de uma gravação; Ctrl+A seleciona todas as linhas.
 - Delete ou Delete do teclado numérico pede confirmação e depois remove as gravações selecionadas. Se alguma delas ainda estiver em andamento, o programa a para primeiro.
 - Escape fecha a janela.
 
 As gravações agendadas começam sozinhas enquanto o programa está em execução, mesmo minimizado para a bandeja do sistema. A janela se atualiza sozinha ao ser aberta e sempre que uma gravação começa, termina ou é cancelada, por isso o comando Atualizar raramente é necessário.
+
+Quando uma nova gravação se sobrepõe a outra gravação agendada, o programa avisa antes de adicioná-la. Seu provedor pode limitar quantos streams podem ser executados de uma vez.
 
 O programa pergunta antes de fechar se ainda houver gravações agendadas esperando para começar, porque elas só começam com o programa aberto. Se você fechá-lo mesmo assim, essas gravações não vão começar.
 
@@ -327,6 +338,9 @@ O menu Opções contém as configurações do programa. Cada uma é salva assim 
 - Mostrar o reprodutor ao pressionar Enter: ligado, reproduzir um canal mostra a janela do reprodutor integrado. Desligado, a reprodução começa e o foco fica na lista de canais.
 - Mostrar o URL da transmissão: adiciona o campo URL da transmissão depois da descrição do episódio na janela principal.
 - Verificar atualizações automaticamente: veja Atualizações.
+- Anúncios automáticos: escolha Nenhum, Somente erros, Eventos importantes ou Status detalhado para feedback automático do player e do canal.
+- Atalhos de teclado: altere a combinação de teclas de um comando. Atalhos conflitantes são rejeitados; reinicie o programa após salvar.
+- Configurações de exportação e configurações de importação: salve ou restaure um backup criptografado de listas de reprodução, fontes de guia, favoritos e preferências. Mantenha a senha de backup; você precisa dele para restaurar as credenciais do provedor.
 
 ### Idioma {#language}
 
@@ -380,6 +394,8 @@ Janela principal:
 - Ctrl+Shift+R: iniciar ou parar a gravação do canal selecionado.
 - Ctrl+Shift+D: mostrar as janelas de transferência de replay.
 - Ctrl+Shift+J: mostrar o reprodutor integrado.
+- Ctrl+0: retorna ao canal anterior. Ctrl+H: escolha um canal assistido recentemente. Ctrl+G: insira um número de canal.
+- Ctrl+Shift+I: anuncia o que está tocando agora e o próximo, incluindo o status da gravação.
 - Ctrl+Shift+P: reproduzir ou pausar o reprodutor integrado.
 - Ctrl+Shift+S: parar o reprodutor integrado.
 - Ctrl+Shift+C: transmitir ou conectar.
@@ -394,6 +410,7 @@ Reprodutor integrado:
 - Ctrl+P: reproduzir ou pausar.
 - Ctrl+S: parar.
 - Ctrl+R: gravar.
+- S: Percorra as faixas de legenda. I: Anuncie o que está tocando.
 - Acima e Abaixo: volume em passos de 2%; com Ctrl, passos de 5%.
 - A: próxima faixa de áudio.
 - D: dispositivo de saída de áudio.

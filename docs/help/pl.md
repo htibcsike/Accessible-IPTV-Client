@@ -81,6 +81,8 @@ Lista kanałów pokazuje kanały wybranej kategorii albo wyszukiwania.
 - Klawisz aplikacji, Shift+F10 albo klik prawym przyciskiem otwiera menu kanału: Odtwórz, Dodaj do ulubionych albo Usuń z ulubionych, Nagraj albo Zatrzymaj nagrywanie, Zaplanuj nagrywanie, Pokaż EPG..., oraz Powtórki dla kanałów, które mają archiwum.
 - Ctrl+D dodaje kanał do ulubionych albo usuwa go. W kategorii Ulubione usuwa go klawisz Delete.
 - Ctrl+Shift+R rozpoczyna nagrywanie kanału; naciśnięte ponownie, je zatrzymuje.
+- Ctrl+G pyta o numer kanału i odtwarza pasujący kanał. Ctrl+0 powoduje powrót do poprzedniego kanału, a Ctrl+H otwiera Ostatnio oglądane.
+- Ctrl+Shift+I ogłasza bieżący kanał, godziny programu, następny program i stan nagrywania bez przesuwania fokusu.
 
 Ulubione kanały są oznaczone „(Ulubione)", a każdy wiersz podaje też audycję właśnie nadawaną, gdy przewodnik ją zna. Gdy wyszukiwanie znalazło też audycje, jego wiersze podają audycję i kanał, na którym leci.
 
@@ -97,6 +99,8 @@ Ulubione trzymają w jednym miejscu kanały, które oglądasz najczęściej. Nac
 Aby usunąć ulubiony kanał, naciśnij na nim ponownie Ctrl+D albo naciśnij Delete w kategorii Ulubione.
 
 Ulubione są zapisywane według dostawcy i kanału, nie według adresu strumienia, więc przeżywają odświeżenie playlisty. Nic o twoim koncie nie jest z nimi zapisywane.
+
+Widok > Ostatnio oglądane zawiera listę kanałów, z których korzystałeś. Widok > Poprzedni kanał (Ctrl+0) powoduje powrót do kanału, który oglądałeś wcześniej.
 
 ## Wideo na żądanie {#video-on-demand}
 
@@ -206,6 +210,8 @@ Klawisze w odtwarzaczu:
 - Ctrl+R: nagrywanie tego, co oglądasz, i zatrzymanie tego nagrania.
 - Strzałki góra i dół: głośność skokami po 2%. Ctrl+Góra i Ctrl+Dół: skoki po 5%.
 - A: następna ścieżka audio.
+- S: następna ścieżka napisów, łącznie z wyłączona. Odtwarzanie > Napisy umożliwia wybranie ścieżki lub załadowanie zewnętrznego pliku napisów.
+- I: ogłasza bieżący kanał, godziny programów, następny program i stan nagrywania.
 - D: wybór urządzenia wyjścia audio.
 - Ctrl+C: przesyłanie na urządzenie.
 - F11: pełny ekran włączony albo wyłączony. Escape z niego wychodzi.
@@ -219,6 +225,8 @@ Te same polecenia są w menu Odtwarzanie odtwarzacza. Odtwarzacz sam łączy si�
 Kanały mogą nieść wiele ścieżek audio, na przykład inne języki albo audiodeskrypcję. Naciśnij A, aby przejść do następnej ścieżki, użyj Odtwarzanie > Ścieżka audio, albo Tab do Wybierz ścieżkę dźwiękową, które zawsze nazywa grającą ścieżkę.
 
 Wybrana ścieżka jest zapamiętywana dla tego kanału i wraca następnym razem. O automatycznym wyborze zobacz Preferowana ścieżka audio.
+
+Tekst napisów pojawi się w filmie, jeśli zostanie udostępniony w strumieniu. Odtwarzanie > Załaduj plik napisów akceptuje zewnętrzny plik napisów; Mowa czytnika ekranu dla tekstu napisów nie jest dostępna.
 
 ### Urządzenie wyjścia audio {#audio-output-device}
 
@@ -282,11 +290,14 @@ Aby nagrać przyszłą audycję, wybierz Zaplanuj nagrywanie na audycji w Pokaż
 Nagrania > Zaplanowane nagrania... wypisuje każde zaplanowane, trwające i zakończone nagranie z czasem, tytułem, kanałem, statusem i formatem.
 
 - Klawisz aplikacji albo Shift+F10 na nagraniu otwiera jego menu: Odśwież, Anuluj i Usuń.
+- Menu nagrywania oferuje także opcję Nagrywaj codziennie, Nagrywaj co tydzień i Nagrywaj serie. Nagrywanie serii umożliwia odnalezienie przyszłych programów przewodników o tym samym tytule na tym kanale, gdy aplikacja jest uruchomiona.
 - Można zaznaczyć więcej niż jedno nagranie; Ctrl+A zaznacza wszystkie wiersze.
 - Delete lub Delete na klawiaturze numerycznej prosi o potwierdzenie, a potem usuwa zaznaczone nagrania. Jeśli któreś z nich jeszcze trwa, program najpierw je zatrzymuje.
 - Escape zamyka okno.
 
 Zaplanowane nagrania startują same, gdy program działa, także zminimalizowany do zasobnika systemowego. Okno odświeża się samo po otwarciu i za każdym razem, gdy nagranie się zaczyna, kończy lub zostaje anulowane, więc polecenie Odśwież rzadko jest potrzebne.
+
+Gdy nowe nagranie nakłada się na inne zaplanowane nagranie, program ostrzega przed jego dodaniem. Twój dostawca może ograniczyć liczbę strumieni jednocześnie.
 
 Program pyta przed zamknięciem, jeśli zaplanowane nagrania wciąż czekają na start, bo mogą się zacząć tylko wtedy, gdy program działa. Jeśli mimo to go zamkniesz, oczekujące nagrania się nie zaczną.
 
@@ -327,6 +338,9 @@ Menu Opcje zawiera ustawienia programu. Każde jest zapisywane od razu po zmiani
 - Pokaż odtwarzacz po naciśnięciu Enter: włączone, odtwarzanie kanału pokazuje okno wbudowanego odtwarzacza. Wyłączone, odtwarzanie zaczyna się, a focus zostaje na liście kanałów.
 - Pokaż adres URL strumienia: dodaje pole Adres URL strumienia za opisem odcinka w oknie głównym.
 - Automatycznie sprawdzaj aktualizacje: zobacz Aktualizacje.
+- Automatyczne powiadomienia: wybierz Brak, Tylko błędy, Ważne zdarzenia lub Szczegółowy status, aby uzyskać automatyczną informację zwrotną o odtwarzaczu i kanale.
+- Skróty klawiaturowe: zmień kombinację klawiszy polecenia. Skróty powodujące konflikt są odrzucane; uruchom ponownie program po zapisaniu.
+- Eksportuj ustawienia i importuj ustawienia: zapisz lub przywróć zaszyfrowaną kopię zapasową list odtwarzania, źródeł przewodników, ulubionych i preferencji. Zachowaj hasło zapasowe; potrzebujesz go, aby przywrócić dane uwierzytelniające dostawcy.
 
 ### Język {#language}
 
@@ -380,6 +394,8 @@ Okno główne:
 - Ctrl+Shift+R: rozpoczęcie albo zatrzymanie nagrywania wybranego kanału.
 - Ctrl+Shift+D: pokazanie okien pobierania powtórek.
 - Ctrl+Shift+J: pokazanie wbudowanego odtwarzacza.
+- Ctrl+0: powrót do poprzedniego kanału. Ctrl+H: wybierz ostatnio oglądany kanał. Ctrl+G: wprowadź numer kanału.
+- Ctrl+Shift+I: ogłaszaj, co jest odtwarzane teraz i w następnej kolejności, łącznie ze stanem nagrania.
 - Ctrl+Shift+P: odtwarzanie albo wstrzymanie wbudowanego odtwarzacza.
 - Ctrl+Shift+S: zatrzymanie wbudowanego odtwarzacza.
 - Ctrl+Shift+C: przesyłanie albo łączenie.
@@ -394,6 +410,7 @@ Wbudowany odtwarzacz:
 - Ctrl+P: odtwarzanie albo wstrzymanie.
 - Ctrl+S: zatrzymanie.
 - Ctrl+R: nagrywanie.
+- S: Cykliczne ścieżki napisów. I: Ogłoś, co jest odtwarzane.
 - Góra i Dół: głośność skokami po 2%; z Ctrl, skoki po 5%.
 - A: następna ścieżka audio.
 - D: urządzenie wyjścia audio.

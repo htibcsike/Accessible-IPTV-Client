@@ -2,6 +2,7 @@
 import logging
 import os
 import platform
+from pathlib import Path
 import re
 import threading
 import time
@@ -15,6 +16,7 @@ import wx
 from http_headers import normalize_header_name, split_stream_modifiers
 from i18n import gettext as _
 import user_guide
+import shortcuts
 
 
 def _prime_vlc_search_path() -> None:
@@ -174,6 +176,8 @@ class InternalPlayerFrame(wx.Frame):
         channel_audio_track: str = "",
         audio_output_device: str = "",
         on_audio_device: Optional[Callable[[str], None]] = None,
+        announcement_level: int = 2,
+        shortcut_config: Optional[dict] = None,
     ) -> None:
         _prepare_vlc_runtime()
         if vlc is None:
@@ -183,6 +187,8 @@ class InternalPlayerFrame(wx.Frame):
         self._on_cast_cb = on_cast
         self._on_record_cb = on_record
         self._is_recording = False
+        self.announcement_level = max(0, min(3, int(announcement_level)))
+        self._shortcuts = shortcuts.effective(shortcut_config or {}, "player")
         self._allow_close = False
         base_value = self._coerce_seconds(base_buffer_seconds, fallback=0.0)
         self._last_bitrate_mbps: Optional[float] = None
@@ -457,29 +463,37 @@ class InternalPlayerFrame(wx.Frame):
         menu_bar = wx.MenuBar()
 
         playback_menu = wx.Menu()
-        m_play_pause = playback_menu.Append(wx.ID_ANY, _("Play/Pause") + "\tCtrl+P")
-        m_stop = playback_menu.Append(wx.ID_ANY, _("Stop") + "\tCtrl+S")
-        self.record_menu_item = playback_menu.Append(wx.ID_ANY, _("Record") + "\tCtrl+R")
+        m_play_pause = playback_menu.Append(wx.ID_ANY, self._shortcut_label(_("Play/Pause"), "play_pause"))
+        m_stop = playback_menu.Append(wx.ID_ANY, self._shortcut_label(_("Stop"), "stop"))
+        self.record_menu_item = playback_menu.Append(wx.ID_ANY, self._shortcut_label(_("Record"), "record"))
         playback_menu.AppendSeparator()
         self.audio_track_menu = wx.Menu()
         self._audio_track_menu_map: Dict[int, int] = {}
         self.Bind(wx.EVT_MENU_OPEN, self._on_any_menu_open)
         self.Bind(wx.EVT_MENU, self._on_audio_track_menu_select)
-        audio_track_item = playback_menu.AppendSubMenu(self.audio_track_menu, _("Audio Track") + "\tA")
+        audio_track_item = playback_menu.AppendSubMenu(self.audio_track_menu, self._shortcut_label(_("Audio Track"), "audio_track"))
+        self.subtitle_menu = wx.Menu()
+        self._subtitle_menu_map: Dict[int, int] = {}
+        subtitle_item = playback_menu.AppendSubMenu(self.subtitle_menu, self._shortcut_label(_("Subtitles"), "subtitles"))
+        m_load_subtitle = playback_menu.Append(wx.ID_ANY, _("Load Subtitle File..."))
         m_audio_device = playback_menu.Append(wx.ID_ANY, _("Audio Output Device...") + "\tD")
         playback_menu.AppendSeparator()
-        m_cast = playback_menu.Append(wx.ID_ANY, _("Cast...") + "\tCtrl+C")
-        m_full = playback_menu.Append(wx.ID_ANY, _("Toggle Full Screen") + "\tF11")
+        m_cast = playback_menu.Append(wx.ID_ANY, self._shortcut_label(_("Cast..."), "cast"))
+        m_full = playback_menu.Append(wx.ID_ANY, self._shortcut_label(_("Toggle Full Screen"), "fullscreen"))
+        m_info = playback_menu.Append(wx.ID_ANY, self._shortcut_label(_("What Is Playing"), "what_is_playing"))
         playback_menu.AppendSeparator()
-        m_hide = playback_menu.Append(wx.ID_ANY, _("Hide Window") + "\tCtrl+W")
-        m_exit = playback_menu.Append(wx.ID_EXIT, _("Exit Player") + "\tCtrl+Q")
+        m_hide = playback_menu.Append(wx.ID_ANY, self._shortcut_label(_("Hide Window"), "hide"))
+        m_exit = playback_menu.Append(wx.ID_EXIT, self._shortcut_label(_("Exit Player"), "exit"))
 
         self.Bind(wx.EVT_MENU, lambda _evt: self._on_toggle_pause(), m_play_pause)
         self.Bind(wx.EVT_MENU, lambda _evt: self.stop(manual=True), m_stop)
         self.Bind(wx.EVT_MENU, self._on_record, self.record_menu_item)
         self.Bind(wx.EVT_MENU, self._on_audio_device_menu, m_audio_device)
+        self.Bind(wx.EVT_MENU, self._on_subtitle_menu_select)
+        self.Bind(wx.EVT_MENU, self._load_subtitle_file, m_load_subtitle)
         self.Bind(wx.EVT_MENU, lambda _evt: self._on_cast(), m_cast)
         self.Bind(wx.EVT_MENU, lambda _evt: self._on_toggle_fullscreen(), m_full)
+        self.Bind(wx.EVT_MENU, lambda _evt: self.GetParent()._announce_what_is_playing(), m_info)
         self.Bind(wx.EVT_MENU, lambda _evt: self._hide_player(), m_hide)
         self.Bind(wx.EVT_MENU, lambda _evt: self._exit_player(), m_exit)
 
@@ -488,6 +502,10 @@ class InternalPlayerFrame(wx.Frame):
         # F1 on an open Playback menu item opens the guide section about it.
         user_guide.set_menu_help(self, playback_menu, "built-in-player")
         user_guide.set_menu_help(self, audio_track_item, "audio-tracks")
+        user_guide.set_menu_help(self, subtitle_item, "built-in-player")
+
+    def _shortcut_label(self, label: str, action: str) -> str:
+        return label + "\t" + self._shortcuts[action]
         user_guide.set_menu_help(self, m_audio_device, "audio-output-device")
         user_guide.set_menu_help(self, self.record_menu_item, "recordings")
         user_guide.set_menu_help(self, m_cast, "casting")
@@ -725,7 +743,7 @@ class InternalPlayerFrame(wx.Frame):
         self._is_paused = True
         self._has_seen_playing = False
         self.play_pause_btn.SetLabel(_("Play"))
-        self._update_status_label(_("Stopped"))
+        self._update_status_label(_("Stopped"), priority=2)
 
     # ---------------------------------------------------------------- internal
     def _apply_cache_options(self, media: "vlc.Media", profile: dict) -> None:
@@ -987,7 +1005,7 @@ class InternalPlayerFrame(wx.Frame):
                 _("Stream Lost"),
                 wx.OK | wx.ICON_WARNING,
             )
-            self._update_status_label(_("Stream lost"))
+            self._update_status_label(_("Stream lost"), priority=1)
             return False
         self._xtream_refresh_count += 1
         self._pending_restart = True
@@ -995,7 +1013,7 @@ class InternalPlayerFrame(wx.Frame):
         self._last_restart_reason = "xtream segment rollover"
         self._last_restart_ts = time.monotonic()
         LOG.info("Xtream TS segment ended; refreshing stream without consuming retries.")
-        self._update_status_label(_("Refreshing stream..."))
+        self._update_status_label(_("Refreshing stream..."), priority=2)
 
         def _do_restart() -> None:
             self._pending_restart = False
@@ -1332,7 +1350,7 @@ class InternalPlayerFrame(wx.Frame):
                     _("Stream Lost"),
                     wx.OK | wx.ICON_WARNING,
                 )
-                self._update_status_label(_("Stream lost"))
+                self._update_status_label(_("Stream lost"), priority=1)
             return
 
         self._pending_restart = True
@@ -1345,7 +1363,7 @@ class InternalPlayerFrame(wx.Frame):
             self._reconnect_attempts,
             self._max_reconnect_attempts,
         )
-        self._update_status_label(_("Reconnecting..."))
+        self._update_status_label(_("Reconnecting..."), priority=2)
 
         def _do_restart() -> None:
             self._pending_restart = False
@@ -1714,7 +1732,8 @@ class InternalPlayerFrame(wx.Frame):
         }
         return labels.get(state_name.capitalize(), state_name.capitalize())
 
-    def _update_status_label(self, prefix: str = "", volume_override: Optional[int] = None) -> None:
+    def _update_status_label(self, prefix: str = "", volume_override: Optional[int] = None,
+                             *, priority: int = 3) -> None:
         bitrate_txt = ""
         if self._last_bitrate_mbps:
             bitrate_txt = " | " + _("~{value} Mbps").format(value=f"{self._last_bitrate_mbps:.1f}")
@@ -1732,7 +1751,16 @@ class InternalPlayerFrame(wx.Frame):
             audio_txt = " | " + _("Audio: {name}").format(name=self._audio_track_label)
 
         label = f"{real_prefix}{(' ' if real_prefix else '')}{buf_txt}{bitrate_txt}{vol_txt}{audio_txt}"
-        self.status_label.SetLabel(label.strip())
+        label = label.strip()
+        if self.status_label.GetLabel() == label:
+            return
+        self.status_label.SetLabel(label)
+        if prefix and getattr(self, "announcement_level", 2) >= priority:
+            try:
+                wx.Accessible.NotifyEvent(wx.ACC_EVENT_SYSTEM_ALERT, self.status_label,
+                                          wx.OBJID_CLIENT, 0)
+            except Exception:
+                LOG.debug("Could not announce player status", exc_info=True)
 
     @staticmethod
     def _state_name(state) -> str:
@@ -1878,27 +1906,49 @@ class InternalPlayerFrame(wx.Frame):
                 and key in (wx.WXK_UP, wx.WXK_NUMPAD_UP, wx.WXK_DOWN, wx.WXK_NUMPAD_DOWN)):
             event.Skip()
             return
-        
-        # Volume control with optional Ctrl modifier for speed
-        if key in (wx.WXK_UP, wx.WXK_NUMPAD_UP):
-            step = 5 if event.ControlDown() else 2
-            self._adjust_volume(step)
-            return
-        if key in (wx.WXK_DOWN, wx.WXK_NUMPAD_DOWN):
-            step = 5 if event.ControlDown() else 2
-            self._adjust_volume(-step)
-            return
-            
-        if key == wx.WXK_F11:
-            self._set_fullscreen(not self._fullscreen)
-            return
-        if key == ord("A") and not event.ControlDown() and not event.AltDown():
+        key = {wx.WXK_NUMPAD_UP: wx.WXK_UP,
+               wx.WXK_NUMPAD_DOWN: wx.WXK_DOWN}.get(key, key)
+        flags = (wx.ACCEL_CTRL if event.ControlDown() else 0)
+        flags |= wx.ACCEL_SHIFT if event.ShiftDown() else 0
+        flags |= wx.ACCEL_ALT if event.AltDown() else 0
+        action = next((name for name, value in self._shortcuts.items()
+                       if shortcuts.parse(value)[:2] == (flags, key)), None)
+        if action is None and flags == wx.ACCEL_CTRL and key in (wx.WXK_UP, wx.WXK_DOWN):
+            # Preserve the original fast-volume variant when arrows remain the
+            # configured volume keys.
+            name = "volume_up" if key == wx.WXK_UP else "volume_down"
+            if self._shortcuts[name] in {"Up", "Down"}:
+                action = name
+        if action == "volume_up":
+            self._adjust_volume(5 if event.ControlDown() else 2)
+        elif action == "volume_down":
+            self._adjust_volume(-5 if event.ControlDown() else -2)
+        elif action == "audio_track":
             self._cycle_audio_track()
-            return
-        if key == wx.WXK_ESCAPE and self._fullscreen:
+        elif action == "subtitles":
+            self._cycle_subtitle()
+        elif action == "fullscreen":
+            self._set_fullscreen(not self._fullscreen)
+        elif action == "play_pause":
+            self._on_toggle_pause()
+        elif action == "stop":
+            self.stop(manual=True)
+        elif action == "record":
+            self._on_record(None)
+        elif action == "cast":
+            self._on_cast()
+        elif action == "hide":
+            self._hide_player()
+        elif action == "exit":
+            self._exit_player()
+        elif action == "what_is_playing":
+            self.GetParent()._announce_what_is_playing()
+        elif key == wx.WXK_ESCAPE and self._fullscreen:
             self._set_fullscreen(False)
+        else:
+            event.Skip()
             return
-        event.Skip()
+        return
 
     def _schedule_volume_apply(self) -> None:
         def _apply() -> None:
@@ -2078,7 +2128,7 @@ class InternalPlayerFrame(wx.Frame):
             self.player.audio_set_track(track_id)
         except Exception:
             LOG.debug("InternalPlayerFrame._select_audio_track: ignored exception", exc_info=True)
-            self._update_status_label(_("Audio track unavailable"))
+            self._update_status_label(_("Audio track unavailable"), priority=1)
             return
         if not name:
             name = _("Track {id}").format(id=track_id)
@@ -2097,7 +2147,7 @@ class InternalPlayerFrame(wx.Frame):
                 except Exception:
                     LOG.debug("InternalPlayerFrame._select_audio_track: ignored exception", exc_info=True)
         self._audio_reapply_pending = False
-        self._update_status_label(_("Audio: {name}").format(name=name))
+        self._update_status_label(_("Audio: {name}").format(name=name), priority=2)
         self._refresh_audio_track_choice()
 
     def _cycle_audio_track(self) -> None:
@@ -2122,7 +2172,74 @@ class InternalPlayerFrame(wx.Frame):
             menu = None
         if menu is self.audio_track_menu:
             self._on_audio_track_menu_open(event)
+        elif menu is self.subtitle_menu:
+            self._on_subtitle_menu_open()
         event.Skip()
+
+    def _subtitle_tracks(self) -> List[Tuple[int, str]]:
+        try:
+            tracks = self.player.video_get_spu_description() or []
+        except Exception:
+            return []
+        result = []
+        for track_id, raw_name in tracks:
+            name = self._decode_track_name(raw_name)
+            result.append((int(track_id), name or _("Track {id}").format(id=track_id)))
+        return result
+
+    def _select_subtitle(self, track_id: int) -> None:
+        try:
+            if self.player.video_set_spu(track_id) == -1:
+                raise RuntimeError(_("Subtitle track unavailable"))
+        except Exception as err:
+            self._update_status_label(str(err))
+            return
+        name = next((name for tid, name in self._subtitle_tracks() if tid == track_id),
+                    _("Off") if track_id == -1 else _("Track {id}").format(id=track_id))
+        self._update_status_label(_("Subtitles: {name}").format(name=name), priority=2)
+
+    def _cycle_subtitle(self) -> None:
+        tracks = [(-1, _("Off"))] + [track for track in self._subtitle_tracks() if track[0] >= 0]
+        ids = [track_id for track_id, _name in tracks]
+        try:
+            current = self.player.video_get_spu()
+        except Exception:
+            current = -1
+        self._select_subtitle(ids[(ids.index(current) + 1) % len(ids)] if current in ids else ids[0])
+
+    def _on_subtitle_menu_open(self) -> None:
+        menu = self.subtitle_menu
+        for item in list(menu.GetMenuItems()):
+            menu.DestroyItem(item)
+        self._subtitle_menu_map = {}
+        try:
+            current = self.player.video_get_spu()
+        except Exception:
+            current = -1
+        for track_id, name in [(-1, _("Off"))] + [t for t in self._subtitle_tracks() if t[0] >= 0]:
+            item = menu.AppendRadioItem(wx.ID_ANY, name)
+            item.Check(track_id == current)
+            self._subtitle_menu_map[item.GetId()] = track_id
+
+    def _on_subtitle_menu_select(self, event: wx.CommandEvent) -> None:
+        track_id = self._subtitle_menu_map.get(event.GetId())
+        if track_id is not None:
+            self._select_subtitle(track_id)
+
+    def _load_subtitle_file(self, _event: wx.CommandEvent) -> None:
+        with wx.FileDialog(self, _("Load Subtitle File"),
+                           wildcard="Subtitle files (*.srt;*.ass;*.ssa;*.vtt)|*.srt;*.ass;*.ssa;*.vtt",
+                           style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as dlg:
+            if dlg.ShowModal() != wx.ID_OK:
+                return
+            path = dlg.GetPath()
+        try:
+            if self.player.add_slave(vlc.MediaSlaveType.subtitle, Path(path).as_uri(), True) != 0:
+                raise RuntimeError(_("Could not load subtitle file."))
+        except Exception as err:
+            self._update_status_label(str(err))
+            return
+        self._update_status_label(_("Subtitle file loaded: {name}").format(name=Path(path).name))
 
     def _on_audio_track_menu_open(self, _event: Optional[wx.MenuEvent] = None) -> None:
         menu = self.audio_track_menu

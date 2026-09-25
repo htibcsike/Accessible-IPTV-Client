@@ -223,7 +223,8 @@ def test_whats_on_now_context_menu_offers_play_and_schedule(host, monkeypatch):
         captured = []
         _capture_menu(monkeypatch, dlg.listbox, captured)
         dlg._show_context_menu()
-        assert [label for label, _enabled in captured] == ["Play", "Schedule Recording"]
+        assert [label for label, _enabled in captured] == [
+            "Play", "Schedule Recording", "Record Daily", "Record Weekly", "Record Series"]
 
         dlg.listbox.Select(0)
         dlg._on_schedule(None)
@@ -756,7 +757,7 @@ def test_changelog_dialog_hides_older_releases_behind_a_toggle(host):
         # The bundled history is far longer than the three-release window.
         assert dlg.toggle_btn is not None
         initial = dlg.text.GetValue()
-        assert "## v1.139.1" in initial
+        assert f"## v{appmod.app_meta.APP_VERSION}" in initial
         assert "## v1.138.3" not in initial
         assert dlg.toggle_btn.GetLabel() == "Show older releases (English)"
 

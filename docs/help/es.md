@@ -81,6 +81,8 @@ La lista de canales muestra los canales de la categoría o búsqueda elegida.
 - La tecla de aplicaciones, Shift+F10 o un clic derecho abre el menú del canal: Reproducir, Añadir a favoritos o Quitar de favoritos, Grabar o Detener grabación, Programar grabación, Ver EPG…, y Repetición en los canales que tienen archivo.
 - Ctrl+D añade el canal a favoritos o lo quita. En la categoría Favoritos, Supr lo elimina.
 - Ctrl+Shift+R inicia la grabación del canal; pulsado de nuevo, la detiene.
+- Ctrl+G solicita un número de canal y reproduce el canal correspondiente. Ctrl+0 vuelve al canal anterior y Ctrl+H abre Vistos recientemente.
+- Ctrl+Shift+I anuncia el canal actual, los horarios del programa, el próximo programa y el estado de la grabación sin mover el foco.
 
 Los canales favoritos se marcan con "(Favorito)", y cada fila también nombra el programa en emisión cuando la guía lo tiene. Cuando una búsqueda también encontró programas, sus filas nombran el programa y el canal que lo emite.
 
@@ -97,6 +99,8 @@ Los favoritos mantienen en un solo lugar los canales que más ve. Pulse Ctrl+D s
 Para quitar un favorito, pulse Ctrl+D sobre él de nuevo, o pulse Supr en la categoría Favoritos.
 
 Los favoritos se guardan por proveedor y canal, no por dirección de flujo, así que sobreviven a una actualización de la lista. Nada de su cuenta se guarda con ellos.
+
+Ver > Vistos recientemente enumera los canales que ha reproducido. Ver > Canal anterior (Ctrl+0) vuelve al canal que viste antes de este.
 
 ## Video bajo demanda {#video-on-demand}
 
@@ -206,6 +210,8 @@ Teclas en el reproductor:
 - Ctrl+R: grabar lo que está viendo, y detener esa grabación.
 - Flechas arriba y abajo: volumen en pasos de 2%. Ctrl+Arriba y Ctrl+Abajo: pasos de 5%.
 - A: siguiente pista de audio.
+- S: siguiente pista de subtítulos, incluido Off. Reproducción > Subtítulos te permite elegir una pista o cargar un archivo de subtítulos externo.
+- I: anuncio el canal actual, los horarios de los programas, el próximo programa y el estado de la grabación.
 - D: elegir el dispositivo de salida de audio.
 - Ctrl+C: transmitir a un dispositivo.
 - F11: pantalla completa activada o desactivada. Escape la abandona.
@@ -219,6 +225,8 @@ Los mismos comandos están en el menú Reproducción del reproductor. El reprodu
 Los canales pueden llevar varias pistas de audio, como otros idiomas o audiodescripción. Pulse A para pasar a la siguiente pista, use Reproducción > Pista de audio, o Tab hasta Elegir pista de audio, que siempre nombra la pista en reproducción.
 
 Una pista que elija se recuerda para ese canal y vuelve la próxima vez. Para elegirlas automáticamente, vea Pista de audio preferida.
+
+El texto de los subtítulos aparece en el vídeo cuando la transmisión lo proporciona. Reproducción > Cargar archivo de subtítulos acepta un archivo de subtítulos externo; La voz del lector de pantalla para el texto de los subtítulos no está disponible.
 
 ### Dispositivo de salida de audio {#audio-output-device}
 
@@ -282,11 +290,14 @@ Para grabar un programa futuro, elija Programar grabación sobre un programa en 
 Grabaciones > Grabaciones programadas… enumera cada grabación programada, en curso y terminada con su hora, título, canal, estado y formato.
 
 - La tecla de aplicaciones o Shift+F10 sobre una grabación abre su menú: Actualizar, Cancelar y Eliminar.
+- El menú de grabación también ofrece Grabar diariamente, Grabar semanalmente y Grabar series. La grabación de series encuentra programas guía futuros con el mismo título en ese canal mientras la aplicación se está ejecutando.
 - Se puede seleccionar más de una grabación; Ctrl+A selecciona todas las filas.
 - Supr o Supr del teclado numérico pide confirmación y luego elimina las grabaciones seleccionadas. Si alguna de ellas sigue en curso, el programa la detiene primero.
 - Escape cierra la ventana.
 
 Las grabaciones programadas comienzan solas mientras el programa está en ejecución, incluso minimizado a la bandeja del sistema. La ventana se actualiza sola al abrirla y cada vez que una grabación empieza, termina o se cancela, así que la orden Actualizar rara vez hace falta.
+
+Cuando una nueva grabación se superpone a otra grabación programada, el programa te avisa antes de agregarla. Su proveedor puede limitar la cantidad de transmisiones que se pueden ejecutar a la vez.
 
 El programa pregunta antes de cerrarse si quedan grabaciones programadas esperando a empezar, porque solo pueden empezar mientras el programa está abierto. Si lo cierra de todos modos, esas grabaciones no se iniciarán.
 
@@ -327,6 +338,9 @@ El menú Opciones contiene los ajustes del programa. Cada uno se guarda en cuant
 - Mostrar el reproductor al presionar Entrar: activado, reproducir un canal muestra la ventana del reproductor integrado. Desactivado, la reproducción empieza y el foco se queda en la lista de canales.
 - Mostrar la URL del flujo: añade el campo URL del flujo tras la descripción del episodio en la ventana principal.
 - Buscar actualizaciones automáticamente: vea Actualizaciones.
+- Anuncios automáticos: elija Ninguno, Sólo errores, Eventos importantes o Estado detallado para obtener comentarios automáticos del reproductor y del canal.
+- Atajos de teclado: cambia la combinación de teclas de un comando. Se rechazan los atajos conflictivos; reinicie el programa después de guardar.
+- Configuración de exportación y configuración de importación: guarde o restaure una copia de seguridad cifrada de listas de reproducción, fuentes de guías, favoritos y preferencias. Guarde la contraseña de respaldo; lo necesita para restaurar las credenciales del proveedor.
 
 ### Idioma {#language}
 
@@ -380,6 +394,8 @@ Ventana principal:
 - Ctrl+Shift+R: iniciar o detener la grabación del canal seleccionado.
 - Ctrl+Shift+D: mostrar las ventanas de descarga de repetición.
 - Ctrl+Shift+J: mostrar el reproductor integrado.
+- Ctrl+0: vuelve al canal anterior. Ctrl+H: elige un canal visto recientemente. Ctrl+G: ingresa un número de canal.
+- Ctrl+Shift+I: anuncia lo que se está reproduciendo ahora y lo próximo, incluido el estado de la grabación.
 - Ctrl+Shift+P: reproducir o pausar el reproductor integrado.
 - Ctrl+Shift+S: detener el reproductor integrado.
 - Ctrl+Shift+C: transmitir o conectar.
@@ -394,6 +410,7 @@ Reproductor integrado:
 - Ctrl+P: reproducir o pausar.
 - Ctrl+S: detener.
 - Ctrl+R: grabar.
+- S: Ciclo de pistas de subtítulos. I: Anuncia lo que está sonando.
 - Arriba y Abajo: volumen en pasos de 2%; con Ctrl, pasos de 5%.
 - A: siguiente pista de audio.
 - D: dispositivo de salida de audio.
