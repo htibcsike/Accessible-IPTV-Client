@@ -35,7 +35,7 @@ def test_slow_until_full_then_normal_without_flapping():
 
 def test_slow_rate_keeps_speech_natural():
     assert 0.9 <= SLOW_RATE < 1.0
-    assert QUICK_START_SECONDS <= 2.0
+    assert QUICK_START_SECONDS == 0.5
 
 
 def test_saved_small_buffer_still_grows_a_twenty_five_second_cushion(monkeypatch):
@@ -82,8 +82,8 @@ def test_new_live_channel_opens_on_the_quick_cache():
     f._quick_start = True
     target, profile, _ = internal_player.InternalPlayerFrame._compute_buffer_profile(f, "http://h/live/u/p/1.ts")
     assert target == 25.0
-    assert profile["network_ms"] == profile["live_ms"] == 2000
-    assert f._live_cache_seconds == 2.0
+    assert profile["network_ms"] == profile["live_ms"] == 500
+    assert f._live_cache_seconds == 0.5
 
 
 def test_restart_after_a_stall_opens_on_the_full_cache():

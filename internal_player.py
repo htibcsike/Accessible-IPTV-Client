@@ -161,7 +161,7 @@ class AudioDeviceDialog(wx.Dialog):
 # libVLC keeps reading at network speed and the unplayed bytes pile up in its stream cache.
 # Measured on Sky Crime (IPTVCanada): 0.2 MB backlog at 5 s, 2.9 MB (~5 s of video) at 60 s.
 # The Android app does the same (Cushion.kt). A restart after a stall opens with the full cache.
-QUICK_START_SECONDS = 2.0
+QUICK_START_SECONDS = 0.5
 SLOW_RATE = 0.95
 # The cushion grows to at least this, whatever buffer is saved: every install saved the old
 # 2 s default, which would leave nothing to grow. A larger saved buffer still wins.
