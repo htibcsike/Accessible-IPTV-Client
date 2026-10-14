@@ -8219,15 +8219,17 @@ class IPTVClient(wx.Frame):
             offset_hours = 0.0
             LOG.debug("IPTVClient._build_generic_catchup_url: ignored exception", exc_info=True)
 
-        # Template style (catchup="append", e.g. teleelevidenie's
-        # "?utc=${start}&lutc=${timestamp}"): fill the placeholders into the
-        # template and append it to the channel's live URL.
+        # Absolute archive templates stand alone; relative templates append
+        # to the live URL (e.g. teleelevidenie's "?utc=${start}").
         expanded = _expand_catchup_template(source, start_dt, end_dt, offset_hours)
         if expanded is not None:
-            base = (channel.get("url") or "").split("|")[0].rstrip()
-            if "?" in base and expanded.startswith("?"):
-                expanded = "&" + expanded[1:]
-            url = base + expanded
+            if expanded.lower().startswith(("http://", "https://")):
+                url = expanded
+            else:
+                base = (channel.get("url") or "").split("|")[0].rstrip()
+                if "?" in base and expanded.startswith("?"):
+                    expanded = "&" + expanded[1:]
+                url = base + expanded
             ua = channel.get("http-user-agent")
             if ua and "|" not in url:
                 url = f"{url}|User-Agent={urllib.parse.quote(ua)}"

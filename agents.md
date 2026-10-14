@@ -120,6 +120,8 @@ The standalone Windows build also explicitly collects dynamic modules and metada
 
 ## Current Learnings
 
+- Expanded HTTP(S) `catchup-source` templates are complete archive URLs, even with `catchup="append"`. Only relative templates are appended to the live URL; keep offset/token expansion and user-agent modifiers in the shared builder. `tests/test_catchup_url.py` covers both schemes and modes.
+
 - Search results must be installed before focusing/selecting a result. `_VirtualChannelList.replace_contents()` clears selection even when the new row count is unchanged; focus alone leaves a one-result search with no selected channel and an empty URL. Select the first installed result only while the channel list has focus, preserving the search-focus generation guard. `tools/smoke_playlist_navigation.py` checks Sky Mix via Enter and Tab, then two Tabs to its URL.
 
 - M3U and EPG display names are stored in `playlist_names` / `epg_names` mappings keyed by `playlist.source_name_key()` (SHA-256 of the original source). Keep source strings intact for existing loaders/caches. Provider names remain in their source dictionaries. Managers copy editable state so Cancel cannot change the live configuration; names are accepted with `GetNames()` alongside `GetResult()`.

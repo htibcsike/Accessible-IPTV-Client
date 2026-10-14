@@ -102,6 +102,22 @@ class TestExpandCatchupTemplate:
 
 
 class TestGenericCatchupUrl:
+    @pytest.mark.parametrize("scheme", ["http", "https"])
+    @pytest.mark.parametrize("catchup", ["default", "append"])
+    def test_absolute_template_uses_archive_url(self, scheme, catchup):
+        channel = {
+            "url": "https://live.example/1234.ts?token=live|User-Agent=Live",
+            "catchup": catchup,
+            "catchup-source": f"{scheme}://archive.example/1234?utc={{utc}}&duration={{duration}}",
+            "catchup-offset": "2",
+            "http-user-agent": "Archive Agent",
+        }
+        url = main.IPTVClient._build_generic_catchup_url(_client(), channel, START, END)
+        assert url == (
+            f"{scheme}://archive.example/1234?utc={int(START.timestamp()) - 7200}"
+            "&duration=3600|User-Agent=Archive%20Agent"
+        )
+
     def test_append_template_uses_channel_url(self):
         client = _client()
         channel = {
