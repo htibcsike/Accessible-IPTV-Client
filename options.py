@@ -37,8 +37,8 @@ _IS_WINDOWS = sys.platform.startswith("win")
 # The cushion live TV builds up to. Start is prompt anyway: the player opens a live channel on
 # internal_player.QUICK_START_SECONDS and grows the rest by playing slightly slow.
 # A saved value is an explicit choice and is kept (test_load_config_preserves_explicit_buffer_settings).
-DEFAULT_INTERNAL_PLAYER_BUFFER_SECONDS = 10.0
-DEFAULT_INTERNAL_PLAYER_MAX_BUFFER_SECONDS = 18.0
+DEFAULT_INTERNAL_PLAYER_BUFFER_SECONDS = 25.0
+DEFAULT_INTERNAL_PLAYER_MAX_BUFFER_SECONDS = 30.0
 DEFAULT_RECORDING_FORMAT = "provider_mkv"
 DEFAULT_RECORDING_PRE_PADDING_MINUTES = 0
 DEFAULT_RECORDING_POST_PADDING_MINUTES = 2
@@ -394,6 +394,9 @@ def _apply_internal_player_bounds(cfg: Dict) -> None:
     except Exception:
         max_val = DEFAULT_INTERNAL_PLAYER_MAX_BUFFER_SECONDS
     if max_val <= 0:
+        max_val = DEFAULT_INTERNAL_PLAYER_MAX_BUFFER_SECONDS
+    # The old saved default must leave room for the live cushion to grow.
+    if max_val == 18.0:
         max_val = DEFAULT_INTERNAL_PLAYER_MAX_BUFFER_SECONDS
     max_val = min(max_val, 300.0)  # Allow up to 5 mins buffer for stability
     cfg["internal_player_max_buffer_seconds"] = max_val

@@ -165,7 +165,7 @@ QUICK_START_SECONDS = 2.0
 SLOW_RATE = 0.95
 # The cushion grows to at least this, whatever buffer is saved: every install saved the old
 # 2 s default, which would leave nothing to grow. A larger saved buffer still wins.
-LIVE_CUSHION_SECONDS = 10.0
+LIVE_CUSHION_SECONDS = 25.0
 
 
 def live_cushion_seconds(read_bytes: int, demux_bytes: int, played_ms: int, cache_seconds: float) -> float:

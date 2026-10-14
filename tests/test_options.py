@@ -64,7 +64,21 @@ def test_missing_buffer_defaults_to_the_live_cushion(tmp_path, monkeypatch):
     monkeypatch.setattr(options, "get_config_read_candidates", lambda: [str(cfg_file)])
     cfg = options.load_config()
     # Start stays fast: the player opens on QUICK_START_SECONDS and builds this by slow play.
-    assert cfg["internal_player_buffer_seconds"] == 10.0
+    assert cfg["internal_player_buffer_seconds"] == 25.0
+
+
+def test_old_default_maximum_no_longer_caps_live_cushion(tmp_path, monkeypatch):
+    cfg_file = tmp_path / "config.json"
+    monkeypatch.setattr(options, "get_config_read_candidates", lambda: [str(cfg_file)])
+    monkeypatch.setattr(options, "get_config_write_target", lambda: str(cfg_file))
+    for maximum, expected in ((18.0, 30.0), (12.0, 12.0), (45.0, 45.0)):
+        cfg_file.write_text(json.dumps({"internal_player_buffer_seconds": 2.0,
+                                        "internal_player_max_buffer_seconds": maximum}), encoding="utf-8")
+        cfg = options.load_config()
+        assert cfg["internal_player_buffer_seconds"] == 2.0
+        assert cfg["internal_player_max_buffer_seconds"] == expected
+        options.save_config(cfg)
+        assert options.load_config()["internal_player_max_buffer_seconds"] == expected
 
 
 def test_load_config_keeps_existing_split_prefs(tmp_path, monkeypatch):

@@ -1,6 +1,7 @@
 """Quick start plus a cushion built by slow play (live channels in the built-in player)."""
 import os
 import sys
+from types import SimpleNamespace
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -37,17 +38,30 @@ def test_slow_rate_keeps_speech_natural():
     assert QUICK_START_SECONDS <= 2.0
 
 
-def test_saved_small_buffer_still_grows_a_ten_second_cushion():
-    assert internal_player.LIVE_CUSHION_SECONDS == 10.0
-    src = open(internal_player.__file__, encoding="utf-8").read()
-    assert "max(LIVE_CUSHION_SECONDS, self.base_buffer_seconds)" in src
+def test_saved_small_buffer_still_grows_a_twenty_five_second_cushion(monkeypatch):
+    stats = SimpleNamespace(read_bytes=0, demux_read_bytes=0)
+    monkeypatch.setattr(internal_player.vlc, "MediaStats", lambda: stats)
+    rates = []
+    frame = SimpleNamespace(
+        _current_stream_kind="live", _is_paused=False, _paced_rate=1.0,
+        _max_buffer_seconds=30.0, base_buffer_seconds=2.0, _live_cache_seconds=10.0,
+        player=SimpleNamespace(get_media=lambda: SimpleNamespace(get_stats=lambda _: True),
+                               get_time=lambda: 30_000, set_rate=rates.append),
+        _vlc_call=lambda call: call(),
+    )
+    internal_player.InternalPlayerFrame._pace_live(frame, "playing")
+    assert rates == [SLOW_RATE]
+    frame._live_cache_seconds = 25.0
+    internal_player.InternalPlayerFrame._pace_live(frame, "playing")
+    assert rates == [SLOW_RATE, 1.0]
 
 
-def test_default_cushion_is_ten_and_saved_values_are_kept():
-    assert options.DEFAULT_INTERNAL_PLAYER_BUFFER_SECONDS == 10.0
+def test_default_cushion_is_twenty_five_and_saved_values_are_kept():
+    assert options.DEFAULT_INTERNAL_PLAYER_BUFFER_SECONDS == 25.0
     cfg = {}
     options._apply_internal_player_bounds(cfg)
-    assert cfg["internal_player_buffer_seconds"] == 10.0
+    assert cfg["internal_player_buffer_seconds"] == 25.0
+    assert cfg["internal_player_max_buffer_seconds"] >= 25.0
     cfg = {"internal_player_buffer_seconds": 2.0}  # saved: an explicit choice
     options._apply_internal_player_bounds(cfg)
     assert cfg["internal_player_buffer_seconds"] == 2.0
@@ -56,8 +70,8 @@ def test_default_cushion_is_ten_and_saved_values_are_kept():
 class _Frame:
     """Just the attributes _compute_buffer_profile reads."""
 
-    _max_buffer_seconds = 18.0
-    base_buffer_seconds = 10.0
+    _max_buffer_seconds = 30.0
+    base_buffer_seconds = 25.0
 
     def _estimate_stream_bitrate(self, url, headers=None):
         return None
@@ -67,7 +81,7 @@ def test_new_live_channel_opens_on_the_quick_cache():
     f = _Frame()
     f._quick_start = True
     target, profile, _ = internal_player.InternalPlayerFrame._compute_buffer_profile(f, "http://h/live/u/p/1.ts")
-    assert target == 10.0
+    assert target == 25.0
     assert profile["network_ms"] == profile["live_ms"] == 2000
     assert f._live_cache_seconds == 2.0
 
@@ -76,4 +90,4 @@ def test_restart_after_a_stall_opens_on_the_full_cache():
     f = _Frame()
     f._quick_start = False
     _, profile, _ = internal_player.InternalPlayerFrame._compute_buffer_profile(f, "http://h/live/u/p/1.ts")
-    assert profile["network_ms"] == 10000
+    assert profile["network_ms"] == 25000

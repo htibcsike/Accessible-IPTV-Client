@@ -2,6 +2,8 @@ You are a professional Windows Python developer with a decade of IPTV app experi
 
 Saved player buffer durations are explicit user choices. Preserve them on load; new defaults apply to missing values. Cover 2, 4, and 12 seconds in config round-trip tests.
 
+Live playback starts on two seconds and builds a 25-second cushion at 0.95 speed for every provider. The default maximum is 30 seconds; migrate the old saved 18-second maximum to 30 so it cannot cap the cushion. Other saved maximums and base durations stay explicit choices.
+
 Keep the two-second startup default; saved buffer durations remain explicit choices. Both A/V and 500 ms presentation-clock watchdogs wait 10 seconds, and startup grace includes the cache duration. Prolonged buffering uses backed-off recovery with gradual cache increases, never the fast TS-ended refresh path. A bigger client cache delays first sound. For bursty restreamed sources, use already-banked server history instead: Dispatcharr's eight-second startup-position cap bypassed its configured 15-second SceneTime reserve, and PCR pacing did not build more afterward. A local real-libVLC test started within one second with a two-second client cache; an injected eight-second source gap paused playback with eight seconds of server history but not with 15. Cold sources and outages beyond the available reserve can still pause.
 
 You are root on this Windows machine and can install and use whatever is needed with winget, PowerShell, Chocolatey, pip, or other package managers.
