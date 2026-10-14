@@ -34,8 +34,10 @@ DVR_SCHEDULE_FILE = "scheduled_recordings.json"
 CACHE_DIR_NAME = "iptv_cache"
 _CONFIG_PATH = None  # Path of config last loaded/saved
 _IS_WINDOWS = sys.platform.startswith("win")
-# Start promptly; saved durations remain explicit choices.
-DEFAULT_INTERNAL_PLAYER_BUFFER_SECONDS = 2.0
+# The cushion live TV builds up to. Start is prompt anyway: the player opens a live channel on
+# internal_player.QUICK_START_SECONDS and grows the rest by playing slightly slow.
+# A saved value is an explicit choice and is kept (test_load_config_preserves_explicit_buffer_settings).
+DEFAULT_INTERNAL_PLAYER_BUFFER_SECONDS = 10.0
 DEFAULT_INTERNAL_PLAYER_MAX_BUFFER_SECONDS = 18.0
 DEFAULT_RECORDING_FORMAT = "provider_mkv"
 DEFAULT_RECORDING_PRE_PADDING_MINUTES = 0

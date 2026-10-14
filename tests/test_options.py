@@ -58,12 +58,13 @@ def test_load_config_preserves_explicit_buffer_settings(tmp_path, monkeypatch):
         assert options.load_config()["internal_player_buffer_seconds"] == expected
 
 
-def test_missing_buffer_defaults_to_fast_start(tmp_path, monkeypatch):
+def test_missing_buffer_defaults_to_the_live_cushion(tmp_path, monkeypatch):
     cfg_file = tmp_path / "config.json"
     cfg_file.write_text("{}", encoding="utf-8")
     monkeypatch.setattr(options, "get_config_read_candidates", lambda: [str(cfg_file)])
     cfg = options.load_config()
-    assert cfg["internal_player_buffer_seconds"] == 2.0
+    # Start stays fast: the player opens on QUICK_START_SECONDS and builds this by slow play.
+    assert cfg["internal_player_buffer_seconds"] == 10.0
 
 
 def test_load_config_keeps_existing_split_prefs(tmp_path, monkeypatch):

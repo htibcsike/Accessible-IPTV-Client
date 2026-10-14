@@ -149,7 +149,7 @@ Recordings follow the same choice. An MP3, or any other audio-only recording, ho
 
 The internal player sizes its network buffer dynamically. You can tune it in `iptvclient.conf`:
 
-- `internal_player_buffer_seconds` (default 2s; existing saved values are preserved)
+- `internal_player_buffer_seconds` (default 10s): the cushion live TV builds up to. A live channel still starts after about 2 seconds, then plays 5% slower (pitch unchanged) until this much is buffered, so provider pauses no longer cut in. Live TV always builds at least 10 seconds; a larger saved value builds more.
 - `internal_player_max_buffer_seconds` (default ~18s)
 - `internal_player_variant_max_mbps` (HLS quality cap in Mbps, 0 = no cap)
 
