@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:8
+#: CHANGELOG.md:14
 msgid "Build a 25-second live cushion without delaying first playback"
 msgstr "Накапливать 25-секундный запас прямого эфира без задержки начала воспроизведения"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "Catch-up links use complete archive addresses"
 msgstr "Ссылки на архивные программы используют полные адреса архива"
 
-#: CHANGELOG.md:20
-msgid "Live channels start fast and build a 10-second cushion"
-msgstr "Прямые каналы запускаются быстро и набирают 10-секундный запас"
+#: CHANGELOG.md:8
+msgid "Start live playback with a half-second cache while keeping the 25-second cushion"
+msgstr "Начинать воспроизведение прямого эфира с кэшем в полсекунды, сохраняя 25-секундный запас"
 

@@ -1,6 +1,12 @@
 # Changelog
 
 Readable release history for Accessible IPTV Client. New entries are prepended automatically by `build.bat release`. Older entries were reconstructed from the [Forgejo mirror](https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client).
+## v1.150.3 - 2026-10-13
+
+### Bug fixes
+
+- Start live playback with a half-second cache while keeping the 25-second cushion
+
 ## v1.150.2 - 2026-10-13
 
 ### Bug fixes
