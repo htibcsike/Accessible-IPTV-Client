@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "Build a 25-second live cushion without delaying first playback"
 msgstr "积累25秒的直播缓冲，同时不延迟首次播放"
 
-#: CHANGELOG.md:20
-msgid "Catch-up links use complete archive addresses"
-msgstr "回看链接使用完整的存档地址"
-
 #: CHANGELOG.md:8
+msgid "Skip silent player Tab stops and disable playback controls after connection failure"
+msgstr "使用 Tab 键在播放器中导航时跳过无法朗读的控件，并在连接失败后禁用播放控件"
+
+#: CHANGELOG.md:14
 msgid "Start live playback with a half-second cache while keeping the 25-second cushion"
 msgstr "以半秒缓存开始直播播放，同时保持25秒缓冲"
 

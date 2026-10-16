@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "Build a 25-second live cushion without delaying first playback"
 msgstr "Einen Puffer von 25 Sekunden für Live-Streams aufbauen, ohne den Wiedergabestart zu verzögern"
 
-#: CHANGELOG.md:20
-msgid "Catch-up links use complete archive addresses"
-msgstr "Catch-up-Links verwenden vollständige Archiv-Adressen"
-
 #: CHANGELOG.md:8
+msgid "Skip silent player Tab stops and disable playback controls after connection failure"
+msgstr "Stumme Bedienelemente bei der Tab-Navigation im Player überspringen und die Wiedergabesteuerung nach einem Verbindungsfehler deaktivieren"
+
+#: CHANGELOG.md:14
 msgid "Start live playback with a half-second cache while keeping the 25-second cushion"
 msgstr "Live-Wiedergabe mit einem Cache von einer halben Sekunde starten und den Puffer von 25 Sekunden beibehalten"
 

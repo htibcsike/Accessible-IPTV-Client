@@ -1,6 +1,12 @@
 # Changelog
 
 Readable release history for Accessible IPTV Client. New entries are prepended automatically by `build.bat release`. Older entries were reconstructed from the [Forgejo mirror](https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client).
+## v1.150.4 - 2026-10-16
+
+### Bug fixes
+
+- Skip silent player Tab stops and disable playback controls after connection failure
+
 ## v1.150.3 - 2026-10-13
 
 ### Bug fixes
