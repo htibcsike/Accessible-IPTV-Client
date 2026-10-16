@@ -531,7 +531,7 @@ class InternalPlayerFrame(wx.Frame):
         self.Bind(wx.EVT_TIMER, self._on_cue_timer, self._cue_timer)
 
         wx.CallAfter(self._ensure_player_window)
-        wx.CallAfter(self.play_pause_btn.SetFocus)
+        wx.CallAfter(self._focus_control_step, True)
         self._update_status_label(_("Idle"))
 
     def _build_menu_bar(self) -> None:
@@ -540,6 +540,8 @@ class InternalPlayerFrame(wx.Frame):
         playback_menu = wx.Menu()
         m_play_pause = playback_menu.Append(wx.ID_ANY, self._shortcut_label(_("Play/Pause"), "play_pause"))
         m_stop = playback_menu.Append(wx.ID_ANY, self._shortcut_label(_("Stop"), "stop"))
+        self.play_pause_menu_item = m_play_pause
+        self.stop_menu_item = m_stop
         self.record_menu_item = playback_menu.Append(wx.ID_ANY, self._shortcut_label(_("Record"), "record"))
         playback_menu.AppendSeparator()
         self.audio_track_menu = wx.Menu()
@@ -852,6 +854,8 @@ class InternalPlayerFrame(wx.Frame):
         let go of the stream (None when it already has): a hand-off to another
         connection on a one-stream provider waits on it, off the GUI thread."""
         manual_stop = manual or (_evt is not None)
+        if manual_stop and self._gave_up:
+            return None
         if manual_stop:
             self._manual_stop = True
             self._reconnect_attempts = 0
@@ -1786,7 +1790,8 @@ class InternalPlayerFrame(wx.Frame):
         return (length - current) > self._end_near_threshold_ms
 
     def _focus_control_step(self, forward: bool) -> None:
-        order = [ctrl for ctrl in self._controls_focus_order if ctrl]
+        order = [ctrl for ctrl in self._controls_focus_order
+                 if ctrl and ctrl.IsShown() and ctrl.IsEnabled()]
         if not order:
             return
         current = wx.Window.FindFocus()
@@ -1801,6 +1806,8 @@ class InternalPlayerFrame(wx.Frame):
             target.SetFocus()
 
     def _on_toggle_pause(self, _event: Optional[wx.Event] = None) -> None:
+        if self._gave_up:
+            return
         switch = getattr(self, "_vlc_switch", None)
         if switch is not None and not switch.done() and not self._manual_stop:
             # libVLC still reports the old stream's state; act on what the
@@ -1922,8 +1929,25 @@ class InternalPlayerFrame(wx.Frame):
         }
         return labels.get(state_name.capitalize(), state_name.capitalize())
 
+    def _update_playback_controls(self) -> None:
+        can_play = bool(self._current_url or self._last_resolved_url) and not self._gave_up
+        can_stop = bool(self._current_url) and not self._manual_stop and not self._gave_up
+        focused = wx.Window.FindFocus()
+        self.play_pause_btn.Enable(can_play)
+        self.stop_btn.Enable(can_stop)
+        self.play_pause_menu_item.Enable(can_play)
+        self.stop_menu_item.Enable(can_stop)
+        if not can_stop:
+            self.play_pause_btn.SetLabel(_("Play"))
+        self.play_pause_btn.SetName(self.play_pause_btn.GetLabel())
+        # Disabling a focused button otherwise leaves NVDA on an unusable control.
+        if (focused in (self.play_pause_btn, self.stop_btn) and not focused.IsEnabled()
+                and wx.Window.FindFocus() is focused):
+            self._focus_control_step(True)
+
     def _update_status_label(self, prefix: str = "", volume_override: Optional[int] = None,
                              *, priority: int = 3) -> None:
+        self._update_playback_controls()
         bitrate_txt = ""
         if self._last_bitrate_mbps:
             bitrate_txt = " | " + _("~{value} Mbps").format(value=f"{self._last_bitrate_mbps:.1f}")
@@ -2085,7 +2109,7 @@ class InternalPlayerFrame(wx.Frame):
         self._have_handle = False
 
     def _on_video_panel_click(self, _event: wx.Event) -> None:
-        self.video_panel.SetFocus()
+        self._focus_control_step(True)
 
     def _on_navigation_key(self, event: wx.NavigationKeyEvent) -> None:
         self._focus_control_step(event.GetDirection())
@@ -2100,6 +2124,9 @@ class InternalPlayerFrame(wx.Frame):
 
     def _on_key_down(self, event: wx.KeyEvent) -> None:
         key = event.GetKeyCode()
+        if key == wx.WXK_TAB and not event.ControlDown() and not event.AltDown():
+            self._focus_control_step(not event.ShiftDown())
+            return
         if (wx.Window.FindFocus() is getattr(self, "audio_track_choice", None)
                 and key in (wx.WXK_UP, wx.WXK_NUMPAD_UP, wx.WXK_DOWN, wx.WXK_NUMPAD_DOWN)):
             event.Skip()

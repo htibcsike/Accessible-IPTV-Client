@@ -5,6 +5,7 @@ import http.server
 import ssl
 import sys
 import threading
+import uuid
 
 import pytest
 from cryptography import x509
@@ -44,8 +45,10 @@ def archive(tmp_path, monkeypatch, request):
                                        x509.UniformResourceIdentifier(aia))]), False)
         return builder.sign(signer_key, hashes.SHA256())
 
-    root_name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "Catch-up test root")])
-    issuer_name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "Catch-up test issuer")])
+    # Windows caches issuer chains across runs; reused names can select an old root.
+    identity = uuid.uuid4().hex
+    root_name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "Catch-up test root " + identity)])
+    issuer_name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "Catch-up test issuer " + identity)])
     root = certificate(root_name, root_key, root_name, root_key, True)
     issuer = certificate(issuer_name, issuer_key, root_name, root_key, True)
 
@@ -66,6 +69,12 @@ def archive(tmp_path, monkeypatch, request):
     class Media(http.server.BaseHTTPRequestHandler):
         def log_message(self, *_args):
             pass
+
+        def handle(self):
+            try:
+                super().handle()
+            except ConnectionResetError:
+                pass  # Rejected certificates close TLS before an HTTP request.
 
         def do_HEAD(self):
             requests.append((self.command, self.path))

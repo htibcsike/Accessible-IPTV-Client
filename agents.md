@@ -122,6 +122,10 @@ The standalone Windows build also explicitly collects dynamic modules and metada
 
 ## Current Learnings
 
+- Player Tab traversal must skip hidden and disabled controls, including the empty audio-track chooser. Handle Tab in the frame's key hook so the volume slider cannot hand focus to the video surface. Failed playback must disable both transport buttons and their menu items, guard transport shortcuts, and leave focus on an enabled control. Manual Stop must still offer Play.
+
+- Windows certificate-chain tests need unique issuer/root subject names per fixture. Reusing names with new keys lets the native chain cache select an old root and fail otherwise trusted local TLS probes.
+
 - Expanded HTTP(S) `catchup-source` templates are complete archive URLs, even with `catchup="append"`. Only relative templates are appended to the live URL; keep offset/token expansion and user-agent modifiers in the shared builder. `tests/test_catchup_url.py` covers both schemes and modes.
 
 - Startup smoke tests of a portable build can write `iptvclient.conf` beside the executable even with fresh `APPDATA` and a scratch working directory. Test a copied bundle, or wait until release archives are sealed; never run the release-tree executable between config validation and zipping. Verify the final zip contains no config.
