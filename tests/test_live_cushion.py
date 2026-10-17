@@ -1,5 +1,6 @@
-"""Quick start plus a cushion built by slow play (live channels in the built-in player)."""
+"""Live buffering in the built-in player: a quick start, and a fill that never slows playback."""
 import os
+import pathlib
 import sys
 from types import SimpleNamespace
 
@@ -7,56 +8,23 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 import internal_player  # noqa: E402
 import options  # noqa: E402
-from internal_player import QUICK_START_SECONDS, SLOW_RATE, live_cushion_seconds, pace_rate  # noqa: E402
+from internal_player import QUICK_START_SECONDS  # noqa: E402
 
 
-def test_cushion_is_cache_plus_unread_backlog():
-    # 4 Mbps = 500 kB/s; 10 s played on a 2 s cache = 12 s demuxed = 6 MB. 1 MB more read = 2 s.
-    assert live_cushion_seconds(7_000_000, 6_000_000, 10_000, 2.0) == 4.0
+def test_playback_is_never_slowed_down_to_fill_the_buffer():
+    """Filling the buffer used to play live streams at 0.95, which made speech
+    drag. Every provider now fills at 1.0 or faster - the buffer grows from what
+    the server hands over ahead of real time - so the player must never touch
+    the media player's rate at all."""
+    source = pathlib.Path(internal_player.__file__).read_text(encoding="utf-8")
+    assert "set_rate" not in source
 
 
-def test_cushion_without_history_is_the_cache():
-    assert live_cushion_seconds(500_000, 400_000, 1_000, 2.0) == 2.0
-    assert live_cushion_seconds(9_000_000, 1_000_000, 3_000, 2.0) == 2.0  # startup burst: not trusted yet
-    assert live_cushion_seconds(0, 0, 30_000, 2.0) == 2.0
-
-
-def test_cushion_never_counts_negative_backlog():
-    assert live_cushion_seconds(5_000_000, 6_000_000, 10_000, 2.0) == 2.0
-
-
-def test_slow_until_full_then_normal_without_flapping():
-    assert pace_rate(2.0, 10.0, 1.0) == SLOW_RATE
-    assert pace_rate(9.9, 10.0, SLOW_RATE) == SLOW_RATE  # keeps building
-    assert pace_rate(10.0, 10.0, SLOW_RATE) == 1.0  # full
-    assert pace_rate(9.5, 10.0, 1.0) == 1.0  # just under: no flip back
-    assert pace_rate(8.9, 10.0, 1.0) == SLOW_RATE  # a second short: rebuild
-
-
-def test_slow_rate_keeps_speech_natural():
-    assert 0.9 <= SLOW_RATE < 1.0
+def test_quick_start_cache_is_half_a_second():
     assert QUICK_START_SECONDS == 0.5
 
 
-def test_saved_small_buffer_still_grows_a_twenty_five_second_cushion(monkeypatch):
-    stats = SimpleNamespace(read_bytes=0, demux_read_bytes=0)
-    monkeypatch.setattr(internal_player.vlc, "MediaStats", lambda: stats)
-    rates = []
-    frame = SimpleNamespace(
-        _current_stream_kind="live", _is_paused=False, _paced_rate=1.0,
-        _max_buffer_seconds=30.0, base_buffer_seconds=2.0, _live_cache_seconds=10.0,
-        player=SimpleNamespace(get_media=lambda: SimpleNamespace(get_stats=lambda _: True),
-                               get_time=lambda: 30_000, set_rate=rates.append),
-        _vlc_call=lambda call: call(),
-    )
-    internal_player.InternalPlayerFrame._pace_live(frame, "playing")
-    assert rates == [SLOW_RATE]
-    frame._live_cache_seconds = 25.0
-    internal_player.InternalPlayerFrame._pace_live(frame, "playing")
-    assert rates == [SLOW_RATE, 1.0]
-
-
-def test_default_cushion_is_twenty_five_and_saved_values_are_kept():
+def test_default_buffer_is_twenty_five_and_saved_values_are_kept():
     assert options.DEFAULT_INTERNAL_PLAYER_BUFFER_SECONDS == 25.0
     cfg = {}
     options._apply_internal_player_bounds(cfg)
@@ -83,7 +51,6 @@ def test_new_live_channel_opens_on_the_quick_cache():
     target, profile, _ = internal_player.InternalPlayerFrame._compute_buffer_profile(f, "http://h/live/u/p/1.ts")
     assert target == 25.0
     assert profile["network_ms"] == profile["live_ms"] == 500
-    assert f._live_cache_seconds == 0.5
 
 
 def test_restart_after_a_stall_opens_on_the_full_cache():
@@ -91,3 +58,27 @@ def test_restart_after_a_stall_opens_on_the_full_cache():
     f._quick_start = False
     _, profile, _ = internal_player.InternalPlayerFrame._compute_buffer_profile(f, "http://h/live/u/p/1.ts")
     assert profile["network_ms"] == 25000
+
+
+def test_dispatcharr_stall_does_not_raise_the_saved_buffer(monkeypatch):
+    """Dispatcharr buffers server-side, so its channels keep the saved buffer:
+    a stall reconnects without growing the client cache."""
+    later = []
+    monkeypatch.setattr(internal_player.wx, "CallLater", lambda ms, fn: later.append(fn))
+    monkeypatch.setattr(internal_player.time, "monotonic", lambda: 100.0)
+    frame = SimpleNamespace(
+        _destroyed=False, _manual_stop=False, _gave_up=False, _dispatcharr=True,
+        _current_url="http://h/live/u/p/1", _current_title="A", _current_stream_kind="live",
+        _pending_xtream_refresh=False, _pending_restart=False,
+        _last_restart_ts=0.0, _reconnect_reset_window=120.0, _restart_cooldown=2.0,
+        _reconnect_attempts=0, _max_reconnect_attempts=6, _last_restart_reason="",
+        _vlc_generation=5, _update_status_label=lambda *a, **k: None,
+        _reconnect_delay_ms=internal_player.InternalPlayerFrame._reconnect_delay_ms,
+        base_buffer_seconds=0.5, _buffer_step_seconds=1.0, _max_buffer_seconds=30.0,
+        _refresh_ts_floor=lambda: None, _update_cache_bounds=lambda: None,
+        _estimate_stream_bitrate=lambda *a, **k: None, play=lambda *a, **k: None,
+    )
+    internal_player.InternalPlayerFrame._schedule_restart(frame, "playback stalled", adjust_buffer=True)
+    later[0]()
+    assert frame.base_buffer_seconds == 0.5
+    assert frame._reconnect_attempts == 1

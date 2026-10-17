@@ -35,7 +35,8 @@ CACHE_DIR_NAME = "iptv_cache"
 _CONFIG_PATH = None  # Path of config last loaded/saved
 _IS_WINDOWS = sys.platform.startswith("win")
 # The cushion live TV builds up to. Start is prompt anyway: the player opens a live channel on
-# internal_player.QUICK_START_SECONDS and grows the rest by playing slightly slow.
+# internal_player.QUICK_START_SECONDS and lets the rest of the buffer fill at full speed (it
+# never plays slower than real time to build one).
 # A saved value is an explicit choice and is kept (test_load_config_preserves_explicit_buffer_settings).
 DEFAULT_INTERNAL_PLAYER_BUFFER_SECONDS = 25.0
 DEFAULT_INTERNAL_PLAYER_MAX_BUFFER_SECONDS = 30.0

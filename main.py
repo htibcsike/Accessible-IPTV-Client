@@ -1412,7 +1412,7 @@ def _now_playing_key(channel: Dict[str, str]) -> str:
 
 # Bump whenever _parse_m3u_return starts producing different channel dicts
 # from the same playlist text; it salts the parsed-playlist cache key.
-_PARSED_PLAYLIST_CACHE_VERSION = "2"
+_PARSED_PLAYLIST_CACHE_VERSION = "3"
 
 # Xtream Codes live URL: /live/USER/PASS/ID[.ext] or the short /USER/PASS/ID[.ext].
 _XTREAM_LIVE_PATH_RE = re.compile(r"^/(?:live/)?([^/]+)/([^/]+)/(\d+)(?:\.[A-Za-z0-9]+)?$")
@@ -7832,8 +7832,15 @@ class IPTVClient(wx.Frame):
                 channel["catchup-source"] = catchup_source
             if catchup_offset:
                 channel["catchup-offset"] = catchup_offset
-            if catchup_timezone and (catchup or catchup_source):
-                channel["catchup-timezone"] = catchup_timezone
+            # Dispatcharr advertises its own catch-up clock in the header
+            # (catchup-timezone, an attribute it introduced) and no other
+            # server is known to send it, so the whole playlist is marked as
+            # coming from its restreamer: the player adds no buffer on top of
+            # what Dispatcharr already holds.
+            if catchup_timezone:
+                channel["dispatcharr"] = True
+                if catchup or catchup_source:
+                    channel["catchup-timezone"] = catchup_timezone
             if http_user_agent:
                 channel["http-user-agent"] = http_user_agent
             if http_referrer:
@@ -8999,6 +9006,7 @@ class IPTVClient(wx.Frame):
                     headers=stream_headers,
                     video_visible=show_internal_player,
                     focus_controls=focus_player,
+                    dispatcharr=bool((channel or {}).get("dispatcharr")),
                 )
                 announce = getattr(frame, "_update_status_label", None)
                 if callable(announce):

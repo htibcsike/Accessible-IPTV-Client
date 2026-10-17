@@ -316,6 +316,14 @@ class TestPlaylistHeaderCatchupTimezone:
         assert channels[0]["catchup-timezone"] == "UTC"
         assert "catchup-timezone" not in channels[1]
 
+    def test_header_timezone_marks_every_channel_as_dispatcharr(self):
+        """The whole playlist comes from the restreamer, not just its archive
+        channels: every channel of it skips the player's buffer cushion."""
+        channels = main.IPTVClient._parse_m3u_return(_client(), self.TEXT)
+        assert [ch.get("dispatcharr") for ch in channels] == [True, True]
+        plain = main.IPTVClient._parse_m3u_return(_client(), '#EXTM3U\n#EXTINF:-1,A\nhttp://a/1\n')
+        assert "dispatcharr" not in plain[0]
+
     def test_parser_version_is_part_of_the_cache_hash(self):
         plain = __import__("hashlib").sha1(self.TEXT.encode("utf-8")).hexdigest()
         assert main.IPTVClient._playlist_text_hash(None, self.TEXT) != plain

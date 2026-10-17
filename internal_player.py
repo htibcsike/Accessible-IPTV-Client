@@ -156,40 +156,13 @@ class AudioDeviceDialog(wx.Dialog):
 
 
 # Quick start (2026-10-13): a live channel starts once QUICK_START_SECONDS are cached, then
-# plays at SLOW_RATE (pitch kept by VLC's scaletempo) until the full buffer setting is held
-# locally. Live TV arrives at real time, so slower playback is the only way the cushion grows;
-# libVLC keeps reading at network speed and the unplayed bytes pile up in its stream cache.
-# Measured on Sky Crime (IPTVCanada): 0.2 MB backlog at 5 s, 2.9 MB (~5 s of video) at 60 s.
-# The Android app does the same (Cushion.kt). A restart after a stall opens with the full cache.
+# plays the rest of the buffer as it arrives. Filling must never slow playback down
+# (2026-10-17): live TV arrives at real time, so a rate under 1.0 was the only way to grow
+# the buffer, and it made speech drag for the sake of a cushion the server can hand over
+# itself (a Dispatcharr restreamer starts a client up to eight seconds back). Every provider,
+# Dispatcharr included, fills at 1.0 or faster; a restart after a stall opens on the saved
+# buffer. The Android app's Cushion.kt paces on the same principle.
 QUICK_START_SECONDS = 0.5
-SLOW_RATE = 0.95
-# The cushion grows to at least this, whatever buffer is saved: every install saved the old
-# 2 s default, which would leave nothing to grow. A larger saved buffer still wins.
-LIVE_CUSHION_SECONDS = 25.0
-
-
-def live_cushion_seconds(read_bytes: int, demux_bytes: int, played_ms: int, cache_seconds: float) -> float:
-    """Seconds of live media held locally: VLC's cache plus bytes read but not yet demuxed.
-
-    The byte rate comes from what was demuxed over the time played (demux runs one cache
-    ahead of playback). Under 10 s of history the rate is noise (Sky Crime read 85 s at 3 s
-    played): just the cache, so pacing keeps building.
-    """
-    span = played_ms / 1000.0 + cache_seconds
-    if played_ms < 10_000 or demux_bytes <= 0 or span <= 0:
-        return cache_seconds
-    rate = demux_bytes / span
-    return cache_seconds + max(0, read_bytes - demux_bytes) / rate
-
-
-def pace_rate(cushion: float, target: float, current: float) -> float:
-    """SLOW_RATE while the cushion is short of target, 1.0 once full; slow again only a
-    second below target, so the rate does not flip back and forth around it."""
-    if cushion >= target:
-        return 1.0
-    if current < 1.0 or cushion < target - 1.0:
-        return SLOW_RATE
-    return 1.0
 
 
 class InternalPlayerFrame(wx.Frame):
@@ -304,6 +277,9 @@ class InternalPlayerFrame(wx.Frame):
         self._first_play_request_ts = 0.0
         self._played_since_request = False
         self._detected_content_ts = False  # True if stream detected as TS via Content-Type
+        # True for a Dispatcharr restreamer: it buffers server-side, so the
+        # client leaves the saved buffer alone instead of growing a cushion.
+        self._dispatcharr = False
         self._refresh_ts_floor()
         self._update_cache_bounds()
         self._last_buffer_seconds: float = self.base_buffer_seconds
@@ -691,6 +667,7 @@ class InternalPlayerFrame(wx.Frame):
         _retry: bool = False,
         video_visible: bool = True,
         focus_controls: bool = True,
+        dispatcharr: bool = False,
     ) -> None:
         """Start playback of the given URL with buffering and recovery hooks.
 
@@ -698,6 +675,11 @@ class InternalPlayerFrame(wx.Frame):
         switching between a recording relay and the provider. Those hand-offs
         can finish while a modal status box is being read; moving focus then
         strands screen readers on the disabled player behind that box.
+
+        ``dispatcharr`` marks a stream from a Dispatcharr restreamer, which
+        buffers server-side: the client never raises its cache for one (see
+        ``_schedule_restart``). Reconnects keep the flag of the stream they are
+        reopening.
         """
         if self._destroyed:
             raise InternalPlayerUnavailableError(_("Player window has been destroyed."))
@@ -732,6 +714,7 @@ class InternalPlayerFrame(wx.Frame):
             self._first_play_request_ts = time.monotonic()
             self._played_since_request = False
             self._video_visible = bool(video_visible)
+            self._dispatcharr = bool(dispatcharr)
             self._begin_new_stream_audio_state()
             # Retry adjustments belong to this stream, not every later channel.
             if hasattr(self, "_initial_buffer_seconds"):
@@ -775,10 +758,6 @@ class InternalPlayerFrame(wx.Frame):
             self._detect_stream_content_type(playback_url, headers=merged_headers)
         
         self._quick_start = not _retry and stream_kind == "live"
-        if getattr(self, "_paced_rate", 1.0) != 1.0:
-            # The rate belongs to the player, not the media: a new stream starts at normal speed.
-            self._paced_rate = 1.0
-            self._vlc_call(lambda: self.player.set_rate(1.0))
         target_buffer, cache_profile, bitrate = self._compute_buffer_profile(
             playback_url, bitrate_hint=variant_bitrate, headers=merged_headers
         )
@@ -1350,9 +1329,8 @@ class InternalPlayerFrame(wx.Frame):
         # Honor the requested cache budget, including increases after a stall.
         # Bitrate floors and access-specific padding silently overrode it.
         target = min(self._max_buffer_seconds, max(0.1, self.base_buffer_seconds))
-        # A new live channel opens on a small cache and builds the rest by pacing (_pace_live).
+        # A live channel opens on a small cache and plays the rest of the buffer as it comes.
         cache = min(target, QUICK_START_SECONDS) if getattr(self, "_quick_start", False) else target
-        self._live_cache_seconds = cache
         cache_ms = int(cache * 1000)
         profile = {
             "network_ms": cache_ms,
@@ -1504,7 +1482,12 @@ class InternalPlayerFrame(wx.Frame):
             self._pending_restart = False
             if self._destroyed or not self._current_url or self._manual_stop or self._gave_up:
                 return
-            if adjust_buffer:
+            # A Dispatcharr live stream buffers server-side, and its buffer is
+            # whatever the saved setting asks for: a bigger client cache only
+            # adds delay. Its archive streams are ordinary files and keep the
+            # increase.
+            if adjust_buffer and not (getattr(self, "_dispatcharr", False)
+                                      and self._current_stream_kind == "live"):
                 new_base = self.base_buffer_seconds + self._buffer_step_seconds
                 new_base = min(new_base, self._max_buffer_seconds)
                 if new_base > self.base_buffer_seconds:
@@ -1553,28 +1536,6 @@ class InternalPlayerFrame(wx.Frame):
             return
         self._last_adjust_ts = now
         self._schedule_restart("detected choppy playback", adjust_buffer=True)
-
-    def _pace_live(self, state_key: str) -> None:
-        """Play a live channel slightly slow until the buffer setting is held locally."""
-        current = getattr(self, "_paced_rate", 1.0)
-        if self._current_stream_kind != "live" or state_key != "playing" or self._is_paused:
-            return
-        try:
-            media = self.player.get_media()
-            stats = vlc.MediaStats()  # type: ignore[attr-defined]
-            if media is None or not media.get_stats(stats):
-                return
-            played = int(self.player.get_time() or 0)
-            cushion = live_cushion_seconds(int(stats.read_bytes), int(stats.demux_read_bytes), played,
-                                           getattr(self, "_live_cache_seconds", self.base_buffer_seconds))
-        except Exception:
-            return
-        target = min(self._max_buffer_seconds, max(LIVE_CUSHION_SECONDS, self.base_buffer_seconds))
-        want = pace_rate(cushion, target, current)
-        if want != current:
-            LOG.info("Live cushion %.1fs of %.1fs: playback rate %.2f", cushion, target, want)
-            self._paced_rate = want
-            self._vlc_call(lambda: self.player.set_rate(want))
 
     def _reset_av_watchdog(self) -> None:
         self._av_last_stats = None
@@ -2042,7 +2003,6 @@ class InternalPlayerFrame(wx.Frame):
             self._maybe_reapply_audio_track()
 
         self._monitor_playback_progress(now, state_key)
-        self._pace_live(state_key)
         if state_key == "buffering":
             if self._buffer_start_ts is None:
                 self._buffer_start_ts = now
