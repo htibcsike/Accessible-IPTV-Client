@@ -17,12 +17,14 @@ import http.server
 import logging
 import socketserver
 import threading
+from time import monotonic
 
 LOG = logging.getLogger(__name__)
 
 _CHUNK_BYTES = 64 * 1024
 # What a player joining mid-stream is handed first (a few seconds of video).
 _BACKLOG_BYTES = 2 * 1024 * 1024
+_BACKLOG_SECONDS = 2.0
 # Per-player slack before chunks are dropped for it; the recording never waits.
 _CLIENT_QUEUE_CHUNKS = 256
 
@@ -34,7 +36,7 @@ class _Server(socketserver.ThreadingMixIn, http.server.HTTPServer):
 
 class _Client:
     def __init__(self, backlog):
-        self.chunks = collections.deque(backlog)
+        self.chunks = collections.deque(backlog, maxlen=_CLIENT_QUEUE_CHUNKS)
 
 
 class RecordingRelay:
@@ -43,7 +45,7 @@ class RecordingRelay:
     def __init__(self, source, host: str = "127.0.0.1"):
         self._source = source
         self._cond = threading.Condition()
-        self._backlog: "collections.deque[bytes]" = collections.deque()
+        self._backlog: "collections.deque[tuple[float, bytes]]" = collections.deque()
         self._backlog_size = 0
         self._clients: "list[_Client]" = []
         self._closed = False
@@ -83,6 +85,14 @@ class RecordingRelay:
         data = read1(_CHUNK_BYTES) if callable(read1) else self._source.read(_CHUNK_BYTES)
         return bytes(data) if isinstance(data, (bytes, bytearray)) else b""
 
+    def _trim_backlog(self, now: float) -> None:
+        # A byte-only limit can replay minutes of a low-bitrate stream.
+        while self._backlog and (
+            self._backlog_size > _BACKLOG_BYTES
+            or now - self._backlog[0][0] > _BACKLOG_SECONDS
+        ):
+            self._backlog_size -= len(self._backlog.popleft()[1])
+
     def _pump(self) -> None:
         try:
             while True:
@@ -90,13 +100,12 @@ class RecordingRelay:
                 if not chunk:
                     break
                 with self._cond:
-                    self._backlog.append(chunk)
+                    now = monotonic()
+                    self._backlog.append((now, chunk))
                     self._backlog_size += len(chunk)
-                    while self._backlog_size > _BACKLOG_BYTES and len(self._backlog) > 1:
-                        self._backlog_size -= len(self._backlog.popleft())
+                    self._trim_backlog(now)
                     for client in self._clients:
-                        if len(client.chunks) < _CLIENT_QUEUE_CHUNKS:
-                            client.chunks.append(chunk)
+                        client.chunks.append((now, chunk))
                     self._cond.notify_all()
         except Exception:
             LOG.debug("RecordingRelay._pump: ignored exception", exc_info=True)
@@ -107,6 +116,7 @@ class RecordingRelay:
 
     def _serve(self, wfile) -> None:
         with self._cond:
+            self._trim_backlog(monotonic())
             client = _Client(self._backlog)
             self._clients.append(client)
         try:
@@ -114,12 +124,15 @@ class RecordingRelay:
                 with self._cond:
                     while not client.chunks and not self._closed:
                         self._cond.wait(1.0)
+                    now = monotonic()
+                    while client.chunks and now - client.chunks[0][0] > _BACKLOG_SECONDS:
+                        client.chunks.popleft()
                     if not client.chunks:
-                        return  # the recording ended and everything was sent
-                    chunks = list(client.chunks)
-                    client.chunks.clear()
-                for chunk in chunks:
-                    wfile.write(chunk)
+                        if self._closed:
+                            return  # the recording ended and everything was sent
+                        continue
+                    _, chunk = client.chunks.popleft()
+                wfile.write(chunk)
                 wfile.flush()
         except OSError:
             # The player went away; the recording carries on.

@@ -4,6 +4,7 @@ One provider connection instead of two (issue #13): ffmpeg writes a copy of
 the stream to its stdout and the player reads it from here.
 """
 import os
+import io
 import queue
 import sys
 import threading
@@ -92,4 +93,114 @@ def test_head_answers_like_a_stream(monkeypatch):
             assert response.headers.get("Content-Type") == "video/mp2t"
     finally:
         pipe.end()
+        relay.close()
+
+
+def test_joining_player_gets_only_two_seconds_of_recent_stream(monkeypatch):
+    now = [0.0]
+    monkeypatch.setattr(recording_relay, "monotonic", lambda: now[0], raising=False)
+    pipe = _Pipe()
+    relay = recording_relay.RecordingRelay(pipe)
+    try:
+        pipe.feed(b"old-")
+        assert _wait_for(lambda: relay._backlog_size == 4)
+        now[0] = 1.0
+        pipe.feed(b"recent-")
+        assert _wait_for(lambda: relay._backlog_size == 11)
+        now[0] = 2.1
+        pipe.feed(b"live")
+        pipe.end()
+        assert _wait_for(lambda: relay.closed)
+        output = io.BytesIO()
+        relay._serve(output)
+        assert output.getvalue() == b"recent-live"
+        assert relay._backlog_size == 11
+    finally:
+        pipe.end()
+        relay.close()
+
+
+def test_joining_after_a_source_gap_does_not_replay_stale_stream(monkeypatch):
+    now = [0.0]
+    monkeypatch.setattr(recording_relay, "monotonic", lambda: now[0], raising=False)
+    pipe = _Pipe()
+    relay = recording_relay.RecordingRelay(pipe)
+    try:
+        pipe.feed(b"stale")
+        pipe.end()
+        assert _wait_for(lambda: relay.closed)
+        now[0] = 2.1
+        output = io.BytesIO()
+        relay._serve(output)
+        assert output.getvalue() == b""
+        assert relay._backlog_size == 0
+    finally:
+        relay.close()
+
+
+class _SlowWriter(io.BytesIO):
+    def __init__(self):
+        super().__init__()
+        self.started = threading.Event()
+        self.resume = threading.Event()
+
+    def write(self, chunk):
+        result = super().write(chunk)
+        if not self.started.is_set():
+            self.started.set()
+            assert self.resume.wait(5)
+        return result
+
+
+def test_slow_player_skips_old_chunks_after_a_write_stalls(monkeypatch):
+    now = [0.0]
+    monkeypatch.setattr(recording_relay, "monotonic", lambda: now[0], raising=False)
+    pipe = _Pipe()
+    relay = recording_relay.RecordingRelay(pipe)
+    output = _SlowWriter()
+    reader = threading.Thread(target=relay._serve, args=(output,))
+    try:
+        pipe.feed(b"first-")
+        pipe.feed(b"stale-")
+        assert _wait_for(lambda: relay._backlog_size == 12)
+        reader.start()
+        assert output.started.wait(5)
+        now[0] = 3.0
+        pipe.feed(b"live")
+        pipe.end()
+        assert _wait_for(lambda: relay.closed)
+        output.resume.set()
+        reader.join(5)
+        assert not reader.is_alive()
+        assert output.getvalue() == b"first-live"
+    finally:
+        output.resume.set()
+        pipe.end()
+        reader.join(5)
+        relay.close()
+
+
+def test_full_player_queue_keeps_newest_chunks_without_blocking_recording(monkeypatch):
+    monkeypatch.setattr(recording_relay, "monotonic", lambda: 0.0, raising=False)
+    pipe = _Pipe()
+    relay = recording_relay.RecordingRelay(pipe)
+    output = _SlowWriter()
+    reader = threading.Thread(target=relay._serve, args=(output,))
+    try:
+        pipe.feed(b"first-")
+        reader.start()
+        assert output.started.wait(5)
+        chunks = [bytes((index // 256, index % 256)) for index in range(300)]
+        for chunk in chunks:
+            pipe.feed(chunk)
+        pipe.end()
+        assert _wait_for(lambda: relay.closed)
+        output.resume.set()
+        reader.join(5)
+        assert not reader.is_alive()
+        assert output.getvalue() == b"first-" + b"".join(chunks[-256:])
+    finally:
+        output.resume.set()
+        pipe.end()
+        reader.join(5)
         relay.close()

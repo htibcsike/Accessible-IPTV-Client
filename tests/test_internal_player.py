@@ -913,6 +913,30 @@ class TestReconnectKeepsVideoHidden:
         internal_player.InternalPlayerFrame.play(
             frame, "http://example/stream.ts", "Chan", **kw)
 
+    @pytest.mark.parametrize("kind,retry,reason,expected_ms", [
+        ("live", False, "", 500),
+        ("live", True, "xtream segment rollover", 500),
+        ("live", True, "prolonged buffering", 25000),
+        ("catchup", False, "", 25000),
+        ("catchup", True, "xtream segment rollover", 25000),
+    ])
+    def test_normal_live_refresh_keeps_quick_start_but_stalls_use_recovery_cache(
+            self, monkeypatch, kind, retry, reason, expected_ms):
+        monkeypatch.setattr(internal_player.wx, "CallAfter", lambda *a, **kw: None)
+        frame = self._stub_frame()
+        frame.base_buffer_seconds = 25.0
+        frame._max_buffer_seconds = 30.0
+        frame._last_restart_reason = reason
+        frame._estimate_stream_bitrate = lambda *a, **kw: None
+        frame._compute_buffer_profile = types.MethodType(
+            internal_player.InternalPlayerFrame._compute_buffer_profile, frame)
+        profiles = []
+        frame._apply_cache_options = lambda media, profile: profiles.append(profile)
+        self._play(frame, stream_kind=kind, _retry=retry, video_visible=False)
+        assert profiles[0]["network_ms"] == expected_ms
+        assert profiles[0]["live_ms"] == expected_ms
+        assert frame.base_buffer_seconds == 25.0
+
     def test_new_channel_resets_retry_buffer_but_retry_keeps_it(self):
         frame = self._stub_frame()
         frame._initial_buffer_seconds = 6.0

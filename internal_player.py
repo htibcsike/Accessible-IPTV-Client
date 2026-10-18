@@ -757,7 +757,11 @@ class InternalPlayerFrame(wx.Frame):
         if not _retry:
             self._detect_stream_content_type(playback_url, headers=merged_headers)
         
-        self._quick_start = not _retry and stream_kind == "live"
+        # A normal TS segment rollover is a fresh live connection, not a stall.
+        # Reusing the full recovery cache here can add the default 25 s of delay.
+        self._quick_start = stream_kind == "live" and (
+            not _retry or self._last_restart_reason == "xtream segment rollover"
+        )
         target_buffer, cache_profile, bitrate = self._compute_buffer_profile(
             playback_url, bitrate_hint=variant_bitrate, headers=merged_headers
         )
