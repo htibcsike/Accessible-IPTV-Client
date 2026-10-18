@@ -986,13 +986,18 @@ def test_epg_search_treats_percent_and_underscore_literally(tmp_path):
         db.close()
 
 
-def test_import_checkpoints_the_wal_between_batches(tmp_path):
+def test_import_checkpoints_the_wal_between_batches(tmp_path, monkeypatch):
     """wal_autocheckpoint is off during import; without a checkpoint per batch
-    a 618 MB guide grew the WAL past 1.8 GB before the final TRUNCATE."""
+    a 618 MB guide grew the WAL past 1.8 GB before the final TRUNCATE.
+
+    The batch size is patched down so the same code path is crossed twice in a
+    second instead of importing 15,001 programmes (the test used to take 11 s).
+    """
+    monkeypatch.setattr(playlist, "EPG_IMPORT_BATCH", 500)
     start = datetime.datetime.now(datetime.timezone.utc).replace(minute=0, second=0, microsecond=0)
     fmt = "%Y%m%d%H%M%S +0000"
     parts = ['<?xml version="1.0" encoding="UTF-8"?><tv><channel id="c"><display-name>C</display-name></channel>']
-    for i in range(15001):
+    for i in range(1001):
         st = start + datetime.timedelta(minutes=i)
         parts.append(f'<programme start="{st.strftime(fmt)}" stop="{(st + datetime.timedelta(minutes=1)).strftime(fmt)}" '
                      f'channel="c"><title>P{i}</title></programme>')
@@ -1018,7 +1023,8 @@ def test_import_checkpoints_the_wal_between_batches(tmp_path):
     finally:
         db.conn = real
         db.close()
-    assert any("wal_checkpoint(PASSIVE)" in sql for sql in executed)
+    # Two batches were written, so the checkpoint ran between them (not only at the end).
+    assert sum(1 for sql in executed if "wal_checkpoint(PASSIVE)" in sql) >= 2
 
 
 def _guide_xml(path, channels):

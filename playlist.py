@@ -1003,6 +1003,11 @@ PRAGMA_IMPORT = [
     "PRAGMA busy_timeout=20000;",
 ]
 
+# Programmes per import transaction: each batch commits and runs a PASSIVE WAL
+# checkpoint (wal_autocheckpoint is off for the import). Module level so tests can
+# cross a batch boundary without importing a whole guide (test_epg_database.py).
+EPG_IMPORT_BATCH = 15000
+
 
 # Bump this whenever `_detect_region_from_id`'s logic changes in a way that could
 # flip previously-computed group_tag values. `_repair_channel_regions_prefer_id`
@@ -2562,7 +2567,6 @@ class EPGDatabase:
                 _logger.debug("EPGDatabase.import_epg_xml: ignored exception", exc_info=True)
 
         total = len(xml_sources)
-        BATCH = 15000
         grand_prog, grand_chan = 0, 0
 
         def _open_stream(src):
@@ -2756,7 +2760,7 @@ class EPGDatabase:
                                     self.insert_programme(ch_id, title_txt, st_utc, en_utc, desc_txt)
                                     prog_count += 1
                                     inserted_since_commit += 1
-                                    if inserted_since_commit >= BATCH:
+                                    if inserted_since_commit >= EPG_IMPORT_BATCH:
                                         self.commit()
                                         # wal_autocheckpoint is off for the import, so without
                                         # this the whole guide piled up in the WAL until the
@@ -2768,7 +2772,7 @@ class EPGDatabase:
                                             self.conn.execute("PRAGMA wal_checkpoint(PASSIVE);").fetchall()
                                         except Exception:
                                             _logger.debug("EPGDatabase.import_epg_xml: ignored exception", exc_info=True)
-                                        _logger.debug("EPG COMMIT src=%s progs+%d total=%d mem=%sMB", src, BATCH, prog_count, _mem_mb())
+                                        _logger.debug("EPG COMMIT src=%s progs+%d total=%d mem=%sMB", src, EPG_IMPORT_BATCH, prog_count, _mem_mb())
                                         inserted_since_commit = 0
                             # Clear processed nodes and detach them from their parent so
                             # completed <programme>/<channel> elements don't accumulate.

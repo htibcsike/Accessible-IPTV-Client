@@ -928,6 +928,17 @@ class TestReconnectKeepsVideoHidden:
         self._play(frame, _retry=True)
         assert frame.base_buffer_seconds == 9.0
 
+    def test_dispatcharr_marker_survives_a_reconnect_and_clears_on_a_new_channel(self):
+        """A reconnect reopens the same stream, so it keeps the flag; the next
+        channel sets it from its own playlist (main passes channel["dispatcharr"])."""
+        frame = self._stub_frame()
+        self._play(frame, video_visible=False, dispatcharr=True)
+        assert frame._dispatcharr is True
+        self._play(frame, _retry=True)
+        assert frame._dispatcharr is True
+        self._play(frame, video_visible=False)
+        assert frame._dispatcharr is False
+
     def test_hidden_stream_is_remembered_and_survives_a_reconnect(self, monkeypatch):
         # Neutralise the visible-play focus hop so a regression fails on the
         # assertions below rather than on wx wanting an app.
