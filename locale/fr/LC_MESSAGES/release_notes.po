@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:8
+#: CHANGELOG.md:14
 msgid "Keep the saved live buffer and never slow playback to build one"
 msgstr "Conserver le tampon du direct enregistré et ne jamais ralentir la lecture pour le remplir"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "Skip silent player Tab stops and disable playback controls after connection failure"
 msgstr "Éviter les contrôles silencieux lors de la navigation avec Tab dans le lecteur et désactiver les commandes de lecture après un échec de connexion"
 
-#: CHANGELOG.md:20
-msgid "Start live playback with a half-second cache while keeping the 25-second cushion"
-msgstr "Démarrer la lecture en direct avec un cache d’une demi-seconde tout en conservant la réserve de 25 secondes"
+#: CHANGELOG.md:8
+msgid "Stop the proxy waiting two seconds on every stop"
+msgstr "Le proxy ne patiente plus deux secondes à chaque arrêt"
 

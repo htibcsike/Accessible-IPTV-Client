@@ -1,6 +1,12 @@
 # Changelog
 
 Readable release history for Accessible IPTV Client. New entries are prepended automatically by `build.bat release`. Older entries were reconstructed from the [Forgejo mirror](https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client).
+## v1.150.6 - 2026-10-17
+
+### Bug fixes
+
+- Stop the proxy waiting two seconds on every stop
+
 ## v1.150.5 - 2026-10-17
 
 ### Bug fixes

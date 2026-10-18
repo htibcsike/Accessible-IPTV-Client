@@ -105,34 +105,34 @@ msgstr "Etkin"
 msgid "Active recordings: {count}"
 msgstr "Etkin kayıtlar: {count}"
 
-#: playlist.py:3472
-#: playlist.py:3591
+#: playlist.py:3476
+#: playlist.py:3595
 msgid "Add"
 msgstr "Ekle"
 
-#: playlist.py:3146
-#: playlist.py:3249
+#: playlist.py:3150
+#: playlist.py:3253
 msgid "Add File"
 msgstr "Dosya ekle"
 
-#: playlist.py:3252
+#: playlist.py:3256
 msgid "Add Stalker Portal"
 msgstr "Stalker Portal ekle"
 
-#: playlist.py:3525
+#: playlist.py:3529
 msgid "Add Stalker Portal Account"
 msgstr "Stalker Portal hesabı ekle"
 
-#: playlist.py:3147
-#: playlist.py:3250
+#: playlist.py:3151
+#: playlist.py:3254
 msgid "Add URL"
 msgstr "URL ekle"
 
-#: playlist.py:3251
+#: playlist.py:3255
 msgid "Add Xtream Codes"
 msgstr "Xtream Codes ekle"
 
-#: playlist.py:3410
+#: playlist.py:3414
 msgid "Add Xtream Codes Account"
 msgstr "Xtream Codes hesabı ekle"
 
@@ -149,8 +149,8 @@ msgstr "Sık kullanılanlara ekle"
 msgid "All Channels"
 msgstr "Tüm kanallar"
 
-#: playlist.py:3185
-#: playlist.py:3285
+#: playlist.py:3189
+#: playlist.py:3289
 msgid "All files"
 msgstr "Tüm dosyalar"
 
@@ -162,7 +162,7 @@ msgstr "Tüm oynatma listeleri"
 msgid "All playlists refreshed."
 msgstr "Tüm oynatma listeleri yenilendi."
 
-#: playlist.py:3308
+#: playlist.py:3312
 msgid "All playlists selected. Press F5 to refresh them all."
 msgstr "Tüm oynatma listeleri seçildi. Hepsini yenilemek için F5 tuşuna basın."
 
@@ -174,7 +174,7 @@ msgstr "Tüm kayıtlar tamamlandı.\n\nBilgisayar kendiliğinden kapanacak. Kala
 msgid "Allowed formats"
 msgstr "İzin verilen biçimler"
 
-#: playlist.py:3160
+#: playlist.py:3164
 msgid "Also use the guide each playlist links to"
 msgstr "Her oynatma listesinin belirttiği EPG'yi de kullan"
 
@@ -202,9 +202,9 @@ msgstr "Uygulama sesi düzeyi"
 msgid "Application voice volume..."
 msgstr "Uygulama sesi düzeyi..."
 
-#: playlist.py:3565
-#: playlist.py:3566
-#: playlist.py:3568
+#: playlist.py:3569
+#: playlist.py:3570
+#: playlist.py:3572
 msgid "Attempt to add provider XMLTV"
 msgstr "Sağlayıcının XMLTV'sini eklemeyi dene"
 
@@ -300,9 +300,9 @@ msgstr "Otomatik"
 msgid "Automatic Announcements"
 msgstr "Otomatik Duyurular"
 
-#: playlist.py:3452
-#: playlist.py:3453
-#: playlist.py:3455
+#: playlist.py:3456
+#: playlist.py:3457
+#: playlist.py:3459
 msgid "Automatically add XMLTV URL"
 msgstr "XMLTV URL'sini otomatik ekle"
 
@@ -318,11 +318,11 @@ msgstr "Yedekteki ayarlar geçersiz."
 msgid "Banned"
 msgstr "Yasaklı"
 
-#: playlist.py:3578
+#: playlist.py:3582
 msgid "Base URL of the Stalker/Ministra portal"
 msgstr "Stalker/Ministra portalının temel URL'si"
 
-#: playlist.py:3460
+#: playlist.py:3464
 msgid "Base URL of the Xtream Codes server"
 msgstr "Xtream Codes sunucusunun temel URL'si"
 
@@ -370,10 +370,10 @@ msgstr "Yerleşik oynatıcı kullanılamıyor:\n{detail}"
 #: main.py:10563
 #: main.py:10753
 #: options.py:873
-#: playlist.py:3165
-#: playlist.py:3265
-#: playlist.py:3473
-#: playlist.py:3592
+#: playlist.py:3169
+#: playlist.py:3269
+#: playlist.py:3477
+#: playlist.py:3596
 msgid "Cancel"
 msgstr "İptal"
 
@@ -549,11 +549,11 @@ msgstr "{account} denetleniyor..."
 msgid "Choose Audio Track"
 msgstr "Ses parçası seç"
 
-#: playlist.py:3187
+#: playlist.py:3191
 msgid "Choose EPG XML file"
 msgstr "EPG XML dosyasını seç"
 
-#: playlist.py:3287
+#: playlist.py:3291
 msgid "Choose M3U file"
 msgstr "M3U dosyasını seç"
 
@@ -586,11 +586,11 @@ msgstr "Topluluk ve destek"
 msgid "Completed"
 msgstr "Tamamlandı"
 
-#: playlist.py:3152
+#: playlist.py:3156
 msgid "Configured EPG sources"
 msgstr "Yapılandırılmış EPG kaynakları"
 
-#: playlist.py:3257
+#: playlist.py:3261
 msgid "Configured playlists and providers"
 msgstr "Yapılandırılmış oynatma listeleri ve sağlayıcılar"
 
@@ -624,7 +624,7 @@ msgstr "Ayrıntıları kopyala"
 msgid "Copy Log and Debug Information"
 msgstr "Günlüğü ve hata ayıklama bilgilerini kopyala"
 
-#: playlist.py:3095
+#: playlist.py:3099
 msgid "Copy URL"
 msgstr "URL'yi kopyala"
 
@@ -706,7 +706,7 @@ msgstr "EPG penceresi açılamadı: {error}"
 
 #: main.py:9985
 #: main.py:10513
-#: playlist.py:3067
+#: playlist.py:3071
 msgid "Could not open the clipboard."
 msgstr "Pano açılamadı."
 
@@ -779,15 +779,15 @@ msgid "Days since expiry"
 msgstr "Bitişten sonra geçen gün"
 
 #: main.py:10755
-#: playlist.py:3103
+#: playlist.py:3107
 msgid "Delete"
 msgstr "Sil"
 
-#: playlist.py:3374
+#: playlist.py:3378
 msgid "Delete Playlist"
 msgstr "Oynatma listesini sil"
 
-#: playlist.py:3371
+#: playlist.py:3375
 msgid "Delete the playlist “{name}”?\n\nThis removes it from the list of playlists. It cannot be undone."
 msgstr "“{name}” oynatma listesi silinsin mi?\n\nOynatma listeleri arasından kaldırılacak. Bu işlem geri alınamaz."
 
@@ -822,8 +822,8 @@ msgstr "Devre dışı"
 msgid "Disconnected from the cast device. Open the cast menu to pick another device."
 msgstr "Yayınlama cihazının bağlantısı kesildi. Başka bir cihaz seçmek için yayınlama menüsünü açın."
 
-#: playlist.py:3459
-#: playlist.py:3577
+#: playlist.py:3463
+#: playlist.py:3581
 msgid "Display name"
 msgstr "Görünen ad"
 
@@ -920,7 +920,7 @@ msgstr "EPG Veritabanı Güncellemesi Gerekli"
 #: main.py:2739
 #: main.py:3327
 #: main.py:3465
-#: playlist.py:3133
+#: playlist.py:3137
 #: shortcuts.py:51
 msgid "EPG Manager"
 msgstr "EPG Yöneticisi"
@@ -968,11 +968,11 @@ msgstr "Şifrelenmiş ayarların yedeği kaydedildi."
 msgid "Ended"
 msgstr "Sona erdi"
 
-#: playlist.py:3195
+#: playlist.py:3199
 msgid "Enter EPG XML URL"
 msgstr "EPG XML URL'sini girin"
 
-#: playlist.py:3295
+#: playlist.py:3299
 msgid "Enter M3U URL"
 msgstr "M3U URL'sini girin"
 
@@ -1189,7 +1189,7 @@ msgstr "Tam ekran"
 msgid "Full ffmpeg log:\n{path}"
 msgstr "Tam ffmpeg günlüğü:\n{path}"
 
-#: playlist.py:3184
+#: playlist.py:3188
 msgid "GZip XML"
 msgstr "GZip XML"
 
@@ -1298,11 +1298,11 @@ msgstr "İçe aktarma başladı"
 msgid "Important events"
 msgstr "Önemli olaylar"
 
-#: playlist.py:2929
+#: playlist.py:2933
 msgid "Importing EPG"
 msgstr "EPG içe aktarılıyor"
 
-#: playlist.py:2939
+#: playlist.py:2943
 msgid "Importing EPG data…"
 msgstr "EPG verileri içe aktarılıyor…"
 
@@ -1310,7 +1310,7 @@ msgstr "EPG verileri içe aktarılıyor…"
 msgid "In Progress"
 msgstr "Devam ediyor"
 
-#: playlist.py:3456
+#: playlist.py:3460
 msgid "Include the provider's XMLTV guide automatically"
 msgstr "Sağlayıcının XMLTV kılavuzunu otomatik olarak dahil et"
 
@@ -1412,20 +1412,20 @@ msgstr "Oynatma listeleri yükleniyor..."
 msgid "Logs"
 msgstr "Günlükler"
 
-#: playlist.py:3284
+#: playlist.py:3288
 msgid "M3U files"
 msgstr "M3U dosyaları"
 
 #: account_info.py:388
-#: playlist.py:3581
+#: playlist.py:3585
 msgid "MAC address"
 msgstr "MAC adresi"
 
-#: playlist.py:3630
+#: playlist.py:3634
 msgid "MAC address must contain six octets (e.g., 00:1A:79:12:34:56)."
 msgstr "MAC adresi altı sekizli içermelidir (örn. 00:1A:79:12:34:56)."
 
-#: playlist.py:3581
+#: playlist.py:3585
 msgid "MAC address presented to the portal"
 msgstr "Portala sunulan MAC adresi"
 
@@ -1480,7 +1480,7 @@ msgstr "Kaçırıldı"
 msgid "Movies"
 msgstr "Filmler"
 
-#: playlist.py:3020
+#: playlist.py:3024
 msgid "Name"
 msgstr "Ad"
 
@@ -1698,8 +1698,8 @@ msgstr "Şimdi: {title} ({start} – {end})"
 #: main.py:10440
 #: main.py:10562
 #: options.py:873
-#: playlist.py:3164
-#: playlist.py:3264
+#: playlist.py:3168
+#: playlist.py:3268
 msgid "OK"
 msgstr "OK"
 
@@ -1750,19 +1750,19 @@ msgstr "Kaydedilen dosyayı VLC'de açın, Ctrl+T'ye basın ve listelenen zamanl
 msgid "Opening"
 msgstr "Açılıyor"
 
-#: playlist.py:3459
+#: playlist.py:3463
 msgid "Optional nickname for this Xtream Codes account"
 msgstr "Bu Xtream Codes hesabı için isteğe bağlı takma ad"
 
-#: playlist.py:3577
+#: playlist.py:3581
 msgid "Optional nickname for this portal account"
 msgstr "Bu portal hesabı için isteğe bağlı takma ad"
 
-#: playlist.py:3580
+#: playlist.py:3584
 msgid "Optional portal account password"
 msgstr "İsteğe bağlı portal hesabı parolası"
 
-#: playlist.py:3579
+#: playlist.py:3583
 msgid "Optional portal account username"
 msgstr "İsteğe bağlı portal hesabı kullanıcı adı"
 
@@ -1791,7 +1791,7 @@ msgstr "Uygulama sesi için çıkış aygıtı:"
 msgid "Package"
 msgstr "Paket"
 
-#: playlist.py:3462
+#: playlist.py:3466
 msgid "Password"
 msgstr "Parola"
 
@@ -1873,7 +1873,7 @@ msgstr "Oynatma listesi"
 
 #: main.py:3326
 #: main.py:3464
-#: playlist.py:3234
+#: playlist.py:3238
 #: shortcuts.py:50
 msgid "Playlist Manager"
 msgstr "Oynatma listesi yöneticisi"
@@ -1882,7 +1882,7 @@ msgstr "Oynatma listesi yöneticisi"
 msgid "Playlist refreshed: {name}"
 msgstr "Oynatma listesi yenilendi: {name}"
 
-#: playlist.py:3463
+#: playlist.py:3467
 msgid "Playlist type"
 msgstr "Oynatma listesi türü"
 
@@ -1897,12 +1897,12 @@ msgstr "Çalma listesi görünümü"
 msgid "Please try another channel or try again later."
 msgstr "Lütfen başka bir kanal deneyin veya daha sonra tekrar deneyin."
 
-#: playlist.py:3626
+#: playlist.py:3630
 msgid "Portal URL is required."
 msgstr "Portal URL'si gereklidir."
 
-#: playlist.py:3460
-#: playlist.py:3578
+#: playlist.py:3464
+#: playlist.py:3582
 msgid "Portal base URL"
 msgstr "Portal temel URL'si"
 
@@ -1936,7 +1936,7 @@ msgstr "Tercih edilen ses parçası"
 msgid "Preferred Audio Track..."
 msgstr "Tercih edilen ses parçası..."
 
-#: playlist.py:3464
+#: playlist.py:3468
 msgid "Preferred stream container format"
 msgstr "Tercih edilen yayın kapsayıcı biçimi"
 
@@ -1981,7 +1981,7 @@ msgstr "İlerleme: {percent}%"
 
 #: account_info.py:111
 #: main.py:2079
-#: playlist.py:3385
+#: playlist.py:3389
 msgid "Provider"
 msgstr "Sağlayıcı"
 
@@ -2005,7 +2005,7 @@ msgid "Provider quality (stream copy, MKA)"
 msgstr "Sağlayıcı kalitesi (akış kopyası, MKA)"
 
 #: main.py:2084
-#: playlist.py:3390
+#: playlist.py:3394
 msgid "Provider – {name}"
 msgstr "Sağlayıcı – {name}"
 
@@ -2013,7 +2013,7 @@ msgstr "Sağlayıcı – {name}"
 msgid "Python: {version}"
 msgstr "Python: {version}"
 
-#: playlist.py:3574
+#: playlist.py:3578
 msgid "Randomise MAC"
 msgstr "MAC'i rastgele oluştur"
 
@@ -2170,11 +2170,11 @@ msgstr "Kayıtlar"
 #: main.py:9879
 #: main.py:10711
 #: main.py:10749
-#: playlist.py:3098
+#: playlist.py:3102
 msgid "Refresh"
 msgstr "Yenile"
 
-#: playlist.py:3098
+#: playlist.py:3102
 msgid "Refresh All Playlists"
 msgstr "Tüm Oynatma Listelerini Yenile"
 
@@ -2210,8 +2210,8 @@ msgstr "Sık kullanılanlardan kaldır"
 msgid "Remove scheduled recording '{title}' from the list?"
 msgstr "Zamanlanmış '{title}' kaydı listeden kaldırılsın mı?"
 
-#: playlist.py:3021
-#: playlist.py:3102
+#: playlist.py:3025
+#: playlist.py:3106
 msgid "Rename"
 msgstr "Yeniden adlandır"
 
@@ -2347,7 +2347,7 @@ msgstr "Durumunu denetlemek için bir hesap seçin:"
 msgid "Select the audio output device for the built-in player."
 msgstr "Yerleşik oynatıcı için ses çıkış cihazını seçin."
 
-#: playlist.py:3463
+#: playlist.py:3467
 msgid "Select the playlist format to download"
 msgstr "İndirilecek oynatma listesi biçimini seçin"
 
@@ -2483,7 +2483,7 @@ msgid "Stalker Portal"
 msgstr "Stalker Portal"
 
 #: main.py:2083
-#: playlist.py:3389
+#: playlist.py:3393
 msgid "Stalker Portal – {name}"
 msgstr "Stalker Portal – {name}"
 
@@ -2589,7 +2589,7 @@ msgstr "Akış kesildi. Yayın çevrimdışı olabilir veya sorun yaşıyor olab
 msgid "Stream lost"
 msgstr "Yayın kaybedildi"
 
-#: playlist.py:3464
+#: playlist.py:3468
 msgid "Stream output"
 msgstr "Yayın çıkışı"
 
@@ -2850,7 +2850,7 @@ msgstr "Parça {id}"
 msgid "Trial account"
 msgstr "Deneme hesabı"
 
-#: playlist.py:3569
+#: playlist.py:3573
 msgid "Try to add the portal's XMLTV guide automatically"
 msgstr "Portalın XMLTV kılavuzunu otomatik olarak eklemeyi dene"
 
@@ -2858,7 +2858,7 @@ msgstr "Portalın XMLTV kılavuzunu otomatik olarak eklemeyi dene"
 msgid "Type"
 msgstr "Tür"
 
-#: playlist.py:3064
+#: playlist.py:3068
 msgid "URL copied to the clipboard."
 msgstr "URL panoya kopyalandı."
 
@@ -3016,17 +3016,17 @@ msgid "User Guide"
 msgstr "Kullanım Kılavuzu"
 
 #: account_info.py:386
-#: playlist.py:3461
+#: playlist.py:3465
 msgid "Username"
 msgstr "Kullanıcı adı"
 
-#: playlist.py:3492
+#: playlist.py:3496
 msgid "Username, password, and URL are required."
 msgstr "Kullanıcı adı, parola ve URL gereklidir."
 
-#: playlist.py:3492
-#: playlist.py:3626
+#: playlist.py:3496
 #: playlist.py:3630
+#: playlist.py:3634
 msgid "Validation"
 msgstr "Doğrulama"
 
@@ -3125,7 +3125,7 @@ msgstr "Windows güncellemeyi yüklemek için izin alamadı."
 msgid "Wrong password or damaged backup."
 msgstr "Yanlış parola veya hasarlı yedek."
 
-#: playlist.py:3183
+#: playlist.py:3187
 msgid "XML files"
 msgstr "XML dosyaları"
 
@@ -3133,16 +3133,16 @@ msgstr "XML dosyaları"
 msgid "Xtream Codes"
 msgstr "Xtream Codes"
 
-#: playlist.py:3462
+#: playlist.py:3466
 msgid "Xtream Codes password"
 msgstr "Xtream Codes parolası"
 
-#: playlist.py:3461
+#: playlist.py:3465
 msgid "Xtream Codes username"
 msgstr "Xtream Codes kullanıcı adı"
 
 #: main.py:2081
-#: playlist.py:3387
+#: playlist.py:3391
 msgid "Xtream Codes – {name}"
 msgstr "Xtream Codes – {name}"
 
@@ -3240,15 +3240,15 @@ msgstr "{kind} – {who}"
 msgid "{kind} – {who} (detected)"
 msgstr "{kind} – {who} (algılandı)"
 
-#: playlist.py:3429
-#: playlist.py:3544
+#: playlist.py:3433
+#: playlist.py:3548
 msgid "{label} field"
 msgstr "{label} alanı"
 
-#: playlist.py:3423
-#: playlist.py:3425
-#: playlist.py:3538
-#: playlist.py:3540
+#: playlist.py:3427
+#: playlist.py:3429
+#: playlist.py:3542
+#: playlist.py:3544
 msgid "{label} label"
 msgstr "{label} etiketi"
 

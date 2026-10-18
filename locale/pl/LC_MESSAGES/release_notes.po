@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:8
+#: CHANGELOG.md:14
 msgid "Keep the saved live buffer and never slow playback to build one"
 msgstr "Zachowaj zapisany bufor transmisji na żywo i nigdy nie zwalniaj odtwarzania, aby go zapełnić"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "Skip silent player Tab stops and disable playback controls after connection failure"
 msgstr "Pomijanie niewypowiadanych elementów odtwarzacza podczas nawigacji klawiszem Tab i wyłączanie przycisków odtwarzania po błędzie połączenia"
 
-#: CHANGELOG.md:20
-msgid "Start live playback with a half-second cache while keeping the 25-second cushion"
-msgstr "Rozpoczynanie odtwarzania na żywo z półsekundową pamięcią podręczną przy zachowaniu 25-sekundowego bufora"
+#: CHANGELOG.md:8
+msgid "Stop the proxy waiting two seconds on every stop"
+msgstr "Proxy nie czeka już dwóch sekund przy każdym zatrzymaniu"
 

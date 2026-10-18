@@ -105,34 +105,34 @@ msgstr "有效"
 msgid "Active recordings: {count}"
 msgstr "正在进行的录制：{count}"
 
-#: playlist.py:3472
-#: playlist.py:3591
+#: playlist.py:3476
+#: playlist.py:3595
 msgid "Add"
 msgstr "添加"
 
-#: playlist.py:3146
-#: playlist.py:3249
+#: playlist.py:3150
+#: playlist.py:3253
 msgid "Add File"
 msgstr "添加文件"
 
-#: playlist.py:3252
+#: playlist.py:3256
 msgid "Add Stalker Portal"
 msgstr "添加 Stalker Portal"
 
-#: playlist.py:3525
+#: playlist.py:3529
 msgid "Add Stalker Portal Account"
 msgstr "添加 Stalker Portal 账户"
 
-#: playlist.py:3147
-#: playlist.py:3250
+#: playlist.py:3151
+#: playlist.py:3254
 msgid "Add URL"
 msgstr "添加 URL"
 
-#: playlist.py:3251
+#: playlist.py:3255
 msgid "Add Xtream Codes"
 msgstr "添加 Xtream Codes"
 
-#: playlist.py:3410
+#: playlist.py:3414
 msgid "Add Xtream Codes Account"
 msgstr "添加 Xtream Codes 账户"
 
@@ -149,8 +149,8 @@ msgstr "添加到收藏"
 msgid "All Channels"
 msgstr "所有频道"
 
-#: playlist.py:3185
-#: playlist.py:3285
+#: playlist.py:3189
+#: playlist.py:3289
 msgid "All files"
 msgstr "所有文件"
 
@@ -162,7 +162,7 @@ msgstr "所有播放列表"
 msgid "All playlists refreshed."
 msgstr "所有播放列表已刷新。"
 
-#: playlist.py:3308
+#: playlist.py:3312
 msgid "All playlists selected. Press F5 to refresh them all."
 msgstr "已选择所有播放列表。按 F5 全部刷新。"
 
@@ -174,7 +174,7 @@ msgstr "所有录制均已完成。\n\n计算机将自动关机。剩余秒数�
 msgid "Allowed formats"
 msgstr "允许的格式"
 
-#: playlist.py:3160
+#: playlist.py:3164
 msgid "Also use the guide each playlist links to"
 msgstr "同时使用各播放列表指定的 EPG"
 
@@ -202,9 +202,9 @@ msgstr "应用语音音量"
 msgid "Application voice volume..."
 msgstr "应用语音音量..."
 
-#: playlist.py:3565
-#: playlist.py:3566
-#: playlist.py:3568
+#: playlist.py:3569
+#: playlist.py:3570
+#: playlist.py:3572
 msgid "Attempt to add provider XMLTV"
 msgstr "尝试添加提供商的 XMLTV"
 
@@ -300,9 +300,9 @@ msgstr "自动"
 msgid "Automatic Announcements"
 msgstr "自动公告"
 
-#: playlist.py:3452
-#: playlist.py:3453
-#: playlist.py:3455
+#: playlist.py:3456
+#: playlist.py:3457
+#: playlist.py:3459
 msgid "Automatically add XMLTV URL"
 msgstr "自动添加 XMLTV URL"
 
@@ -318,11 +318,11 @@ msgstr "备份中的设置无效。"
 msgid "Banned"
 msgstr "已封禁"
 
-#: playlist.py:3578
+#: playlist.py:3582
 msgid "Base URL of the Stalker/Ministra portal"
 msgstr "Stalker/Ministra 门户的基础 URL"
 
-#: playlist.py:3460
+#: playlist.py:3464
 msgid "Base URL of the Xtream Codes server"
 msgstr "Xtream Codes 服务器的基础 URL"
 
@@ -370,10 +370,10 @@ msgstr "内置播放器不可用：\n{detail}"
 #: main.py:10563
 #: main.py:10753
 #: options.py:873
-#: playlist.py:3165
-#: playlist.py:3265
-#: playlist.py:3473
-#: playlist.py:3592
+#: playlist.py:3169
+#: playlist.py:3269
+#: playlist.py:3477
+#: playlist.py:3596
 msgid "Cancel"
 msgstr "取消"
 
@@ -549,11 +549,11 @@ msgstr "正在检查 {account}..."
 msgid "Choose Audio Track"
 msgstr "选择音轨"
 
-#: playlist.py:3187
+#: playlist.py:3191
 msgid "Choose EPG XML file"
 msgstr "选择 EPG XML 文件"
 
-#: playlist.py:3287
+#: playlist.py:3291
 msgid "Choose M3U file"
 msgstr "选择 M3U 文件"
 
@@ -586,11 +586,11 @@ msgstr "社区与支持"
 msgid "Completed"
 msgstr "已完成"
 
-#: playlist.py:3152
+#: playlist.py:3156
 msgid "Configured EPG sources"
 msgstr "已配置的 EPG 来源"
 
-#: playlist.py:3257
+#: playlist.py:3261
 msgid "Configured playlists and providers"
 msgstr "已配置的播放列表和提供商"
 
@@ -624,7 +624,7 @@ msgstr "复制详情"
 msgid "Copy Log and Debug Information"
 msgstr "复制日志和调试信息"
 
-#: playlist.py:3095
+#: playlist.py:3099
 msgid "Copy URL"
 msgstr "复制 URL"
 
@@ -706,7 +706,7 @@ msgstr "无法打开节目单窗口：{error}"
 
 #: main.py:9985
 #: main.py:10513
-#: playlist.py:3067
+#: playlist.py:3071
 msgid "Could not open the clipboard."
 msgstr "无法打开剪贴板。"
 
@@ -779,15 +779,15 @@ msgid "Days since expiry"
 msgstr "到期后天数"
 
 #: main.py:10755
-#: playlist.py:3103
+#: playlist.py:3107
 msgid "Delete"
 msgstr "删除"
 
-#: playlist.py:3374
+#: playlist.py:3378
 msgid "Delete Playlist"
 msgstr "删除播放列表"
 
-#: playlist.py:3371
+#: playlist.py:3375
 msgid "Delete the playlist “{name}”?\n\nThis removes it from the list of playlists. It cannot be undone."
 msgstr "要删除播放列表“{name}”吗?\n\n它将从播放列表中移除，此操作无法撤销。"
 
@@ -822,8 +822,8 @@ msgstr "已禁用"
 msgid "Disconnected from the cast device. Open the cast menu to pick another device."
 msgstr "已与投屏设备断开连接。打开投屏菜单以选择其他设备。"
 
-#: playlist.py:3459
-#: playlist.py:3577
+#: playlist.py:3463
+#: playlist.py:3581
 msgid "Display name"
 msgstr "显示名称"
 
@@ -920,7 +920,7 @@ msgstr "需要更新节目单数据库"
 #: main.py:2739
 #: main.py:3327
 #: main.py:3465
-#: playlist.py:3133
+#: playlist.py:3137
 #: shortcuts.py:51
 msgid "EPG Manager"
 msgstr "EPG 管理器"
@@ -968,11 +968,11 @@ msgstr "已保存加密设置备份。"
 msgid "Ended"
 msgstr "已结束"
 
-#: playlist.py:3195
+#: playlist.py:3199
 msgid "Enter EPG XML URL"
 msgstr "输入 EPG XML URL"
 
-#: playlist.py:3295
+#: playlist.py:3299
 msgid "Enter M3U URL"
 msgstr "输入 M3U URL"
 
@@ -1189,7 +1189,7 @@ msgstr "全屏"
 msgid "Full ffmpeg log:\n{path}"
 msgstr "完整的 ffmpeg 日志：\n{path}"
 
-#: playlist.py:3184
+#: playlist.py:3188
 msgid "GZip XML"
 msgstr "GZip XML"
 
@@ -1298,11 +1298,11 @@ msgstr "导入已开始"
 msgid "Important events"
 msgstr "重要事件"
 
-#: playlist.py:2929
+#: playlist.py:2933
 msgid "Importing EPG"
 msgstr "正在导入 EPG"
 
-#: playlist.py:2939
+#: playlist.py:2943
 msgid "Importing EPG data…"
 msgstr "正在导入 EPG 数据…"
 
@@ -1310,7 +1310,7 @@ msgstr "正在导入 EPG 数据…"
 msgid "In Progress"
 msgstr "进行中"
 
-#: playlist.py:3456
+#: playlist.py:3460
 msgid "Include the provider's XMLTV guide automatically"
 msgstr "自动包含提供商的 XMLTV 指南"
 
@@ -1412,20 +1412,20 @@ msgstr "正在加载播放列表..."
 msgid "Logs"
 msgstr "日志"
 
-#: playlist.py:3284
+#: playlist.py:3288
 msgid "M3U files"
 msgstr "M3U 文件"
 
 #: account_info.py:388
-#: playlist.py:3581
+#: playlist.py:3585
 msgid "MAC address"
 msgstr "MAC 地址"
 
-#: playlist.py:3630
+#: playlist.py:3634
 msgid "MAC address must contain six octets (e.g., 00:1A:79:12:34:56)."
 msgstr "MAC 地址必须包含六个八位字节（例如 00:1A:79:12:34:56）。"
 
-#: playlist.py:3581
+#: playlist.py:3585
 msgid "MAC address presented to the portal"
 msgstr "提交给门户的 MAC 地址"
 
@@ -1480,7 +1480,7 @@ msgstr "已错过"
 msgid "Movies"
 msgstr "电影"
 
-#: playlist.py:3020
+#: playlist.py:3024
 msgid "Name"
 msgstr "名称"
 
@@ -1698,8 +1698,8 @@ msgstr "现在：{title}（{start} – {end}）"
 #: main.py:10440
 #: main.py:10562
 #: options.py:873
-#: playlist.py:3164
-#: playlist.py:3264
+#: playlist.py:3168
+#: playlist.py:3268
 msgid "OK"
 msgstr "确定"
 
@@ -1750,19 +1750,19 @@ msgstr "在 VLC 中打开录制文件，按 Ctrl+T，然后输入列出的时间
 msgid "Opening"
 msgstr "正在打开"
 
-#: playlist.py:3459
+#: playlist.py:3463
 msgid "Optional nickname for this Xtream Codes account"
 msgstr "此 Xtream Codes 账户的可选昵称"
 
-#: playlist.py:3577
+#: playlist.py:3581
 msgid "Optional nickname for this portal account"
 msgstr "此门户账户的可选昵称"
 
-#: playlist.py:3580
+#: playlist.py:3584
 msgid "Optional portal account password"
 msgstr "可选的门户账户密码"
 
-#: playlist.py:3579
+#: playlist.py:3583
 msgid "Optional portal account username"
 msgstr "可选的门户账户用户名"
 
@@ -1791,7 +1791,7 @@ msgstr "应用语音的输出设备："
 msgid "Package"
 msgstr "套餐"
 
-#: playlist.py:3462
+#: playlist.py:3466
 msgid "Password"
 msgstr "密码"
 
@@ -1873,7 +1873,7 @@ msgstr "播放列表"
 
 #: main.py:3326
 #: main.py:3464
-#: playlist.py:3234
+#: playlist.py:3238
 #: shortcuts.py:50
 msgid "Playlist Manager"
 msgstr "播放列表管理器"
@@ -1882,7 +1882,7 @@ msgstr "播放列表管理器"
 msgid "Playlist refreshed: {name}"
 msgstr "播放列表已刷新：{name}"
 
-#: playlist.py:3463
+#: playlist.py:3467
 msgid "Playlist type"
 msgstr "播放列表类型"
 
@@ -1897,12 +1897,12 @@ msgstr "播放列表视图"
 msgid "Please try another channel or try again later."
 msgstr "请尝试其他频道或稍后重试。"
 
-#: playlist.py:3626
+#: playlist.py:3630
 msgid "Portal URL is required."
 msgstr "必须填写门户 URL。"
 
-#: playlist.py:3460
-#: playlist.py:3578
+#: playlist.py:3464
+#: playlist.py:3582
 msgid "Portal base URL"
 msgstr "门户基础 URL"
 
@@ -1936,7 +1936,7 @@ msgstr "首选音轨"
 msgid "Preferred Audio Track..."
 msgstr "首选音轨..."
 
-#: playlist.py:3464
+#: playlist.py:3468
 msgid "Preferred stream container format"
 msgstr "首选流容器格式"
 
@@ -1981,7 +1981,7 @@ msgstr "进度：{percent}%"
 
 #: account_info.py:111
 #: main.py:2079
-#: playlist.py:3385
+#: playlist.py:3389
 msgid "Provider"
 msgstr "提供商"
 
@@ -2005,7 +2005,7 @@ msgid "Provider quality (stream copy, MKA)"
 msgstr "提供商质量（流复制，MKA）"
 
 #: main.py:2084
-#: playlist.py:3390
+#: playlist.py:3394
 msgid "Provider – {name}"
 msgstr "提供商 – {name}"
 
@@ -2013,7 +2013,7 @@ msgstr "提供商 – {name}"
 msgid "Python: {version}"
 msgstr "Python: {version}"
 
-#: playlist.py:3574
+#: playlist.py:3578
 msgid "Randomise MAC"
 msgstr "随机生成 MAC"
 
@@ -2170,11 +2170,11 @@ msgstr "录制"
 #: main.py:9879
 #: main.py:10711
 #: main.py:10749
-#: playlist.py:3098
+#: playlist.py:3102
 msgid "Refresh"
 msgstr "刷新"
 
-#: playlist.py:3098
+#: playlist.py:3102
 msgid "Refresh All Playlists"
 msgstr "刷新所有播放列表"
 
@@ -2210,8 +2210,8 @@ msgstr "从收藏中移除"
 msgid "Remove scheduled recording '{title}' from the list?"
 msgstr "要从列表中移除计划录制“{title}”吗？"
 
-#: playlist.py:3021
-#: playlist.py:3102
+#: playlist.py:3025
+#: playlist.py:3106
 msgid "Rename"
 msgstr "重命名"
 
@@ -2347,7 +2347,7 @@ msgstr "选择一个账户以检查其状态："
 msgid "Select the audio output device for the built-in player."
 msgstr "请选择内置播放器的音频输出设备。"
 
-#: playlist.py:3463
+#: playlist.py:3467
 msgid "Select the playlist format to download"
 msgstr "选择要下载的播放列表格式"
 
@@ -2483,7 +2483,7 @@ msgid "Stalker Portal"
 msgstr "Stalker Portal"
 
 #: main.py:2083
-#: playlist.py:3389
+#: playlist.py:3393
 msgid "Stalker Portal – {name}"
 msgstr "Stalker Portal – {name}"
 
@@ -2589,7 +2589,7 @@ msgstr "流已断开。该流可能处于离线状态或出现问题。"
 msgid "Stream lost"
 msgstr "流已丢失"
 
-#: playlist.py:3464
+#: playlist.py:3468
 msgid "Stream output"
 msgstr "流输出"
 
@@ -2850,7 +2850,7 @@ msgstr "音轨 {id}"
 msgid "Trial account"
 msgstr "试用账户"
 
-#: playlist.py:3569
+#: playlist.py:3573
 msgid "Try to add the portal's XMLTV guide automatically"
 msgstr "尝试自动添加门户的 XMLTV 指南"
 
@@ -2858,7 +2858,7 @@ msgstr "尝试自动添加门户的 XMLTV 指南"
 msgid "Type"
 msgstr "类型"
 
-#: playlist.py:3064
+#: playlist.py:3068
 msgid "URL copied to the clipboard."
 msgstr "已将 URL 复制到剪贴板。"
 
@@ -3016,17 +3016,17 @@ msgid "User Guide"
 msgstr "用户指南"
 
 #: account_info.py:386
-#: playlist.py:3461
+#: playlist.py:3465
 msgid "Username"
 msgstr "用户名"
 
-#: playlist.py:3492
+#: playlist.py:3496
 msgid "Username, password, and URL are required."
 msgstr "需要用户名、密码和 URL。"
 
-#: playlist.py:3492
-#: playlist.py:3626
+#: playlist.py:3496
 #: playlist.py:3630
+#: playlist.py:3634
 msgid "Validation"
 msgstr "验证"
 
@@ -3125,7 +3125,7 @@ msgstr "Windows 未获得安装更新的权限。"
 msgid "Wrong password or damaged backup."
 msgstr "密码错误或备份已损坏。"
 
-#: playlist.py:3183
+#: playlist.py:3187
 msgid "XML files"
 msgstr "XML 文件"
 
@@ -3133,16 +3133,16 @@ msgstr "XML 文件"
 msgid "Xtream Codes"
 msgstr "Xtream Codes"
 
-#: playlist.py:3462
+#: playlist.py:3466
 msgid "Xtream Codes password"
 msgstr "Xtream Codes 密码"
 
-#: playlist.py:3461
+#: playlist.py:3465
 msgid "Xtream Codes username"
 msgstr "Xtream Codes 用户名"
 
 #: main.py:2081
-#: playlist.py:3387
+#: playlist.py:3391
 msgid "Xtream Codes – {name}"
 msgstr "Xtream Codes – {name}"
 
@@ -3240,15 +3240,15 @@ msgstr "{kind} – {who}"
 msgid "{kind} – {who} (detected)"
 msgstr "{kind} – {who}（已检测）"
 
-#: playlist.py:3429
-#: playlist.py:3544
+#: playlist.py:3433
+#: playlist.py:3548
 msgid "{label} field"
 msgstr "{label} 字段"
 
-#: playlist.py:3423
-#: playlist.py:3425
-#: playlist.py:3538
-#: playlist.py:3540
+#: playlist.py:3427
+#: playlist.py:3429
+#: playlist.py:3542
+#: playlist.py:3544
 msgid "{label} label"
 msgstr "{label} 标签"
 
