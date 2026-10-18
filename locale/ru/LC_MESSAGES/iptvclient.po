@@ -223,7 +223,7 @@ msgstr "Устройство вывода звука..."
 msgid "Audio Track"
 msgstr "Аудиодорожка"
 
-#: internal_player.py:2288
+#: internal_player.py:2292
 msgid "Audio Track: {name}"
 msgstr "Звуковая дорожка: {name}"
 
@@ -251,7 +251,7 @@ msgstr "Только звук (WAV)"
 msgid "Audio output devices"
 msgstr "Устройства вывода звука"
 
-#: internal_player.py:2324
+#: internal_player.py:2328
 msgid "Audio track unavailable"
 msgstr "Аудиодорожка недоступна"
 
@@ -259,9 +259,9 @@ msgstr "Аудиодорожка недоступна"
 msgid "Audio-only stream detected. Recording started ({fmt}):\n{path}"
 msgstr "Обнаружен поток только со звуком. Запись начата ({fmt}):\n{path}"
 
-#: internal_player.py:1926
-#: internal_player.py:2343
-#: internal_player.py:2352
+#: internal_player.py:1930
+#: internal_player.py:2347
+#: internal_player.py:2356
 msgid "Audio: {name}"
 msgstr "Аудио: {name}"
 
@@ -334,11 +334,11 @@ msgstr "Несовместимые изменения"
 msgid "Browse..."
 msgstr "Обзор..."
 
-#: internal_player.py:824
-#: internal_player.py:1810
-#: internal_player.py:1822
-#: internal_player.py:1884
-#: internal_player.py:2055
+#: internal_player.py:828
+#: internal_player.py:1814
+#: internal_player.py:1826
+#: internal_player.py:1888
+#: internal_player.py:2059
 msgid "Buffering..."
 msgstr "Буферизация..."
 
@@ -420,8 +420,8 @@ msgstr "Транслировать на устройство"
 msgid "Cast..."
 msgstr "Транслировать..."
 
-#: internal_player.py:1867
 #: internal_player.py:1871
+#: internal_player.py:1875
 #: main.py:8954
 #: main.py:9087
 #: main.py:9114
@@ -439,7 +439,7 @@ msgstr "Ошибка трансляции"
 msgid "Casting failed: {error}"
 msgstr "Не удалось выполнить трансляцию: {error}"
 
-#: internal_player.py:1867
+#: internal_player.py:1871
 msgid "Casting is unavailable because the caster is not initialised."
 msgstr "Трансляция недоступна, так как модуль трансляции не инициализирован."
 
@@ -675,7 +675,7 @@ msgstr "Не удалось загрузить серии этого сериа�
 msgid "Could not load episodes:\n{error}"
 msgstr "Не удалось загрузить серии:\n{error}"
 
-#: internal_player.py:2434
+#: internal_player.py:2438
 msgid "Could not load subtitle file."
 msgstr "Не удалось загрузить файл субтитров."
 
@@ -745,7 +745,7 @@ msgstr "Не удалось выключить компьютер:\n{error}"
 msgid "Could not start catch-up download:\n{error}"
 msgstr "Не удалось начать загрузку из архива:\n{error}"
 
-#: internal_player.py:817
+#: internal_player.py:821
 msgid "Could not start playback: {error}"
 msgstr "Не удалось начать воспроизведение: {error}"
 
@@ -963,8 +963,8 @@ msgstr "Прошло: {time}"
 msgid "Encrypted settings backup saved."
 msgstr "Зашифрованная резервная копия настроек сохранена."
 
-#: internal_player.py:1888
-#: internal_player.py:2053
+#: internal_player.py:1892
+#: internal_player.py:2057
 msgid "Ended"
 msgstr "Завершено"
 
@@ -1011,7 +1011,7 @@ msgstr "Описание эпизода"
 msgid "Episode {num}"
 msgstr "Серия {num}"
 
-#: internal_player.py:1889
+#: internal_player.py:1893
 #: main.py:3880
 #: main.py:3934
 #: main.py:5525
@@ -1048,7 +1048,7 @@ msgstr "Исполняемый файл не найден: {path}"
 msgid "Exit"
 msgstr "Выход"
 
-#: internal_player.py:2751
+#: internal_player.py:2755
 msgid "Exit Full Screen"
 msgstr "Выйти из полноэкранного режима"
 
@@ -1181,7 +1181,7 @@ msgid "Found {count} devices:"
 msgstr "Найдено устройств: {count}"
 
 #: internal_player.py:435
-#: internal_player.py:2751
+#: internal_player.py:2755
 msgid "Full Screen"
 msgstr "Полный экран"
 
@@ -1251,7 +1251,7 @@ msgstr "IPTV-поток"
 
 #: internal_player.py:478
 #: internal_player.py:511
-#: internal_player.py:1882
+#: internal_player.py:1886
 msgid "Idle"
 msgstr "Ожидание"
 
@@ -1364,11 +1364,11 @@ msgstr "Сочетания клавиш..."
 msgid "Language"
 msgstr "Язык"
 
-#: internal_player.py:1450
+#: internal_player.py:1454
 msgid "Last error: {reason}"
 msgstr "Последняя ошибка: {reason}"
 
-#: internal_player.py:2531
+#: internal_player.py:2535
 msgid "Last subtitle: {text}"
 msgstr "Последний субтитр: {text}"
 
@@ -1388,7 +1388,7 @@ msgstr "Ошибка запуска"
 msgid "Live TV && Catch-up"
 msgstr "Прямой эфир && Архив"
 
-#: internal_player.py:2426
+#: internal_player.py:2430
 msgid "Load Subtitle File"
 msgstr "Загрузить файл субтитров"
 
@@ -1527,7 +1527,7 @@ msgstr "Нет источников"
 msgid "No Video on Demand content found."
 msgstr "Контент видео по запросу не найден."
 
-#: internal_player.py:1871
+#: internal_player.py:1875
 #: main.py:9087
 msgid "No active stream to cast."
 msgstr "Нет активного потока для трансляции."
@@ -1544,9 +1544,9 @@ msgstr "Устройства вывода голоса приложения не
 msgid "No audio output devices were found."
 msgstr "Устройства вывода звука не найдены."
 
-#: internal_player.py:2283
-#: internal_player.py:2349
-#: internal_player.py:2567
+#: internal_player.py:2287
+#: internal_player.py:2353
+#: internal_player.py:2571
 msgid "No audio tracks available"
 msgstr "Нет доступных аудиодорожек"
 
@@ -1572,7 +1572,7 @@ msgstr "Для этой программы нет описания."
 msgid "No devices found."
 msgstr "Устройства не найдены."
 
-#: internal_player.py:2535
+#: internal_player.py:2539
 msgid "No earlier subtitle."
 msgstr "Более ранних субтитров нет."
 
@@ -1588,7 +1588,7 @@ msgstr "Сведения об ошибке не поступили."
 msgid "No ffmpeg details were reported."
 msgstr "Сведения о ffmpeg не сообщены."
 
-#: internal_player.py:2537
+#: internal_player.py:2541
 msgid "No later subtitle."
 msgstr "Более поздних субтитров нет."
 
@@ -1641,7 +1641,7 @@ msgstr "История выпусков недоступна."
 msgid "No stream URL provided."
 msgstr "URL потока не указан."
 
-#: internal_player.py:2525
+#: internal_player.py:2529
 msgid "No subtitle has been shown yet."
 msgstr "Субтитры ещё не показывались."
 
@@ -1649,11 +1649,11 @@ msgstr "Субтитры ещё не показывались."
 msgid "No subtitle text available yet."
 msgstr "Текст субтитров пока недоступен."
 
-#: internal_player.py:2460
+#: internal_player.py:2464
 msgid "No subtitle text found in this file."
 msgstr "В этом файле не найден текст субтитров."
 
-#: internal_player.py:2523
+#: internal_player.py:2527
 msgid "No subtitle text to read. Load an SRT or WebVTT file."
 msgstr "Нет текста субтитров для чтения. Загрузите файл SRT или WebVTT."
 
@@ -1703,9 +1703,9 @@ msgstr "Сейчас: {title} ({start} – {end})"
 msgid "OK"
 msgstr "ОК"
 
-#: internal_player.py:2390
-#: internal_player.py:2396
-#: internal_player.py:2413
+#: internal_player.py:2394
+#: internal_player.py:2400
+#: internal_player.py:2417
 msgid "Off"
 msgstr "Выкл."
 
@@ -1746,7 +1746,7 @@ msgstr "Открыть проект Accessible IPTV Client на GitHub"
 msgid "Open the recorded file in VLC, press Ctrl+T, and enter a listed time. Times use the file's media clock when FFmpeg reported it; otherwise they are elapsed recording time and may be slightly later after an interruption."
 msgstr "Откройте записанный файл в VLC, нажмите Ctrl+T и введите одно из указанных значений времени. Если FFmpeg сообщил временную позицию файла, используется она; иначе указывается время, прошедшее с начала записи, которое после прерывания может быть немного больше фактической позиции."
 
-#: internal_player.py:1883
+#: internal_player.py:1887
 msgid "Opening"
 msgstr "Открытие"
 
@@ -1796,16 +1796,16 @@ msgid "Password"
 msgstr "Пароль"
 
 #: internal_player.py:409
-#: internal_player.py:821
-#: internal_player.py:1778
-#: internal_player.py:1809
-#: internal_player.py:1820
-#: internal_player.py:1830
+#: internal_player.py:825
+#: internal_player.py:1782
+#: internal_player.py:1813
+#: internal_player.py:1824
+#: internal_player.py:1834
 msgid "Pause"
 msgstr "Пауза"
 
-#: internal_player.py:1886
-#: internal_player.py:2030
+#: internal_player.py:1890
+#: internal_player.py:2034
 msgid "Paused"
 msgstr "Приостановлено"
 
@@ -1821,8 +1821,8 @@ msgstr "Телефон"
 msgid "Platform: {platform}"
 msgstr "Платформа: {platform}"
 
-#: internal_player.py:851
-#: internal_player.py:1902
+#: internal_player.py:855
+#: internal_player.py:1906
 #: main.py:3826
 #: main.py:10903
 #: main.py:11093
@@ -1863,7 +1863,7 @@ msgstr "Управление плеером"
 msgid "Player window has been destroyed."
 msgstr "Окно плеера было закрыто."
 
-#: internal_player.py:1885
+#: internal_player.py:1889
 msgid "Playing"
 msgstr "Воспроизведение"
 
@@ -1892,8 +1892,8 @@ msgstr "Тип плейлиста"
 msgid "Playlist view"
 msgstr "Просмотр плейлиста"
 
-#: internal_player.py:1137
-#: internal_player.py:1457
+#: internal_player.py:1141
+#: internal_player.py:1461
 msgid "Please try another channel or try again later."
 msgstr "Попробуйте другой канал или повторите попытку позже."
 
@@ -2051,19 +2051,19 @@ msgstr "Недавно просмотренные"
 msgid "Recently Watched..."
 msgstr "Недавно смотрел..."
 
-#: internal_player.py:1474
-#: internal_player.py:2035
-#: internal_player.py:2042
-#: internal_player.py:2050
-#: internal_player.py:2058
+#: internal_player.py:1478
+#: internal_player.py:2039
+#: internal_player.py:2046
+#: internal_player.py:2054
+#: internal_player.py:2062
 msgid "Reconnecting..."
 msgstr "Повторное подключение..."
 
 #: internal_player.py:423
 #: internal_player.py:424
 #: internal_player.py:521
-#: internal_player.py:1838
-#: internal_player.py:1854
+#: internal_player.py:1842
+#: internal_player.py:1858
 #: main.py:2748
 #: main.py:3835
 #: main.py:4476
@@ -2132,7 +2132,7 @@ msgstr "Время проблем в записи"
 msgid "Recording Warning"
 msgstr "Предупреждение о записи"
 
-#: internal_player.py:1837
+#: internal_player.py:1841
 msgid "Recording is not available from this window."
 msgstr "Запись недоступна из этого окна."
 
@@ -2186,11 +2186,11 @@ msgstr "Обновление всех плейлистов..."
 msgid "Refreshing playlist: {name}"
 msgstr "Обновление плейлиста: {name}"
 
-#: internal_player.py:1149
-#: internal_player.py:2037
-#: internal_player.py:2044
-#: internal_player.py:2047
-#: internal_player.py:2058
+#: internal_player.py:1153
+#: internal_player.py:2041
+#: internal_player.py:2048
+#: internal_player.py:2051
+#: internal_player.py:2062
 msgid "Refreshing stream..."
 msgstr "Обновление потока..."
 
@@ -2223,8 +2223,8 @@ msgstr "Заменить текущие настройки этой резерв
 msgid "Restore"
 msgstr "Восстановить"
 
-#: internal_player.py:1778
-#: internal_player.py:1830
+#: internal_player.py:1782
+#: internal_player.py:1834
 msgid "Resume"
 msgstr "Продолжить"
 
@@ -2533,7 +2533,7 @@ msgstr "Остановить все записи"
 msgid "Stop Playback"
 msgstr "Остановить воспроизведение"
 
-#: internal_player.py:1854
+#: internal_player.py:1858
 #: main.py:3833
 #: main.py:5422
 msgid "Stop Recording"
@@ -2543,8 +2543,8 @@ msgstr "Остановить запись"
 msgid "Stop Recording(s)"
 msgstr "Остановить запись(и)"
 
-#: internal_player.py:852
-#: internal_player.py:1887
+#: internal_player.py:856
+#: internal_player.py:1891
 msgid "Stopped"
 msgstr "Остановлено"
 
@@ -2565,8 +2565,8 @@ msgstr "Остановка записи..."
 msgid "Stopping {count} recording(s)..."
 msgstr "Остановка записей: {count}..."
 
-#: internal_player.py:1138
-#: internal_player.py:1458
+#: internal_player.py:1142
+#: internal_player.py:1462
 msgid "Stream Lost"
 msgstr "Поток потерян"
 
@@ -2575,17 +2575,17 @@ msgstr "Поток потерян"
 msgid "Stream URL"
 msgstr "URL потока"
 
-#: internal_player.py:1453
+#: internal_player.py:1457
 msgid "Stream disconnected after {count} retries. The stream may be offline or experiencing issues."
 msgstr "Поток отключён после {count} попыток. Возможно, поток недоступен или испытывает проблемы."
 
-#: internal_player.py:1136
+#: internal_player.py:1140
 msgid "Stream disconnected. The stream may be offline or experiencing issues."
 msgstr "Поток отключён. Возможно, он недоступен или испытывает проблемы."
 
-#: internal_player.py:1141
-#: internal_player.py:1461
-#: internal_player.py:2060
+#: internal_player.py:1145
+#: internal_player.py:1465
+#: internal_player.py:2064
 msgid "Stream lost"
 msgstr "Поток потерян"
 
@@ -2614,11 +2614,11 @@ msgstr "Озвучивание субтитров"
 msgid "Subtitle capabilities..."
 msgstr "Возможности субтитров..."
 
-#: internal_player.py:2438
+#: internal_player.py:2442
 msgid "Subtitle file loaded: {name}"
 msgstr "Загружен файл субтитров: {name}."
 
-#: internal_player.py:2427
+#: internal_player.py:2431
 msgid "Subtitle files (*.srt;*.ass;*.ssa;*.vtt)"
 msgstr "Файлы субтитров (*.srt;*.ass;*.ssa;*.vtt)"
 
@@ -2630,19 +2630,19 @@ msgstr "Озвучка субтитров %s."
 msgid "Subtitle speech failed."
 msgstr "Озвучивание субтитров не удалось."
 
-#: internal_player.py:2442
+#: internal_player.py:2446
 msgid "Subtitle speech needs an SRT or WebVTT file."
 msgstr "Для озвучивания субтитров нужен файл SRT или WebVTT."
 
-#: internal_player.py:2553
+#: internal_player.py:2557
 msgid "Subtitle speech off"
 msgstr "Озвучивание субтитров выключено"
 
-#: internal_player.py:2555
+#: internal_player.py:2559
 msgid "Subtitle speech on"
 msgstr "Озвучивание субтитров включено"
 
-#: internal_player.py:2557
+#: internal_player.py:2561
 msgid "Subtitle speech on. Load an SRT or WebVTT file to hear subtitles."
 msgstr "Озвучивание субтитров включено. Загрузите файл SRT или WebVTT, чтобы слышать субтитры."
 
@@ -2658,7 +2658,7 @@ msgstr "Для озвучивания субтитров будет исполь
 msgid "Subtitle speech will use your screen reader."
 msgstr "Для озвучивания субтитров будет использоваться ваша программа экранного доступа."
 
-#: internal_player.py:2386
+#: internal_player.py:2390
 msgid "Subtitle track unavailable"
 msgstr "Трек с субтитрами недоступен."
 
@@ -2668,7 +2668,7 @@ msgstr "Трек с субтитрами недоступен."
 msgid "Subtitles"
 msgstr "Субтитры"
 
-#: internal_player.py:2393
+#: internal_player.py:2397
 msgid "Subtitles: {name}"
 msgstr "Субтитры: {name}"
 
@@ -2839,10 +2839,10 @@ msgstr "Переключить полноэкранный режим"
 msgid "Topics"
 msgstr "Разделы"
 
-#: internal_player.py:2248
-#: internal_player.py:2327
-#: internal_player.py:2380
-#: internal_player.py:2392
+#: internal_player.py:2252
+#: internal_player.py:2331
+#: internal_player.py:2384
+#: internal_player.py:2396
 msgid "Track {id}"
 msgstr "Дорожка {id}"
 
@@ -3059,7 +3059,7 @@ msgstr "Вид"
 msgid "View EPG..."
 msgstr "Показать EPG..."
 
-#: internal_player.py:1918
+#: internal_player.py:1922
 msgid "Vol {value}%"
 msgstr "Громк. {value}%"
 
@@ -3280,7 +3280,7 @@ msgstr "{title} - {channel}"
 msgid "{title}, {start} to {end}"
 msgstr "{title}, {start} — {end}"
 
-#: internal_player.py:1915
+#: internal_player.py:1919
 msgid "{value}s buffer"
 msgstr "буфер {value} с"
 
@@ -3288,7 +3288,7 @@ msgstr "буфер {value} с"
 msgid "{warnings} warnings, {errors} errors and {fatals} fatal errors were logged in total."
 msgstr "Всего в журнал записано: предупреждений — {warnings}, ошибок — {errors}, критических ошибок — {fatals}."
 
-#: internal_player.py:1914
+#: internal_player.py:1918
 msgid "~{value} Mbps"
 msgstr "~{value} Мбит/с"
 

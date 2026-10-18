@@ -223,7 +223,7 @@ msgstr "音频输出设备..."
 msgid "Audio Track"
 msgstr "音轨"
 
-#: internal_player.py:2288
+#: internal_player.py:2292
 msgid "Audio Track: {name}"
 msgstr "音轨：{name}"
 
@@ -251,7 +251,7 @@ msgstr "仅音频（WAV）"
 msgid "Audio output devices"
 msgstr "音频输出设备"
 
-#: internal_player.py:2324
+#: internal_player.py:2328
 msgid "Audio track unavailable"
 msgstr "音轨不可用"
 
@@ -259,9 +259,9 @@ msgstr "音轨不可用"
 msgid "Audio-only stream detected. Recording started ({fmt}):\n{path}"
 msgstr "检测到纯音频流。录制已开始（{fmt}）：\n{path}"
 
-#: internal_player.py:1926
-#: internal_player.py:2343
-#: internal_player.py:2352
+#: internal_player.py:1930
+#: internal_player.py:2347
+#: internal_player.py:2356
 msgid "Audio: {name}"
 msgstr "音频：{name}"
 
@@ -334,11 +334,11 @@ msgstr "不兼容的更改"
 msgid "Browse..."
 msgstr "浏览..."
 
-#: internal_player.py:824
-#: internal_player.py:1810
-#: internal_player.py:1822
-#: internal_player.py:1884
-#: internal_player.py:2055
+#: internal_player.py:828
+#: internal_player.py:1814
+#: internal_player.py:1826
+#: internal_player.py:1888
+#: internal_player.py:2059
 msgid "Buffering..."
 msgstr "正在缓冲..."
 
@@ -420,8 +420,8 @@ msgstr "投屏到设备"
 msgid "Cast..."
 msgstr "投屏..."
 
-#: internal_player.py:1867
 #: internal_player.py:1871
+#: internal_player.py:1875
 #: main.py:8954
 #: main.py:9087
 #: main.py:9114
@@ -439,7 +439,7 @@ msgstr "投屏错误"
 msgid "Casting failed: {error}"
 msgstr "投屏失败：{error}"
 
-#: internal_player.py:1867
+#: internal_player.py:1871
 msgid "Casting is unavailable because the caster is not initialised."
 msgstr "投屏不可用，因为投屏器未初始化。"
 
@@ -675,7 +675,7 @@ msgstr "无法加载此剧集的分集。"
 msgid "Could not load episodes:\n{error}"
 msgstr "无法加载分集：\n{error}"
 
-#: internal_player.py:2434
+#: internal_player.py:2438
 msgid "Could not load subtitle file."
 msgstr "无法加载字幕文件。"
 
@@ -745,7 +745,7 @@ msgstr "无法关闭计算机：\n{error}"
 msgid "Could not start catch-up download:\n{error}"
 msgstr "无法开始回看下载：\n{error}"
 
-#: internal_player.py:817
+#: internal_player.py:821
 msgid "Could not start playback: {error}"
 msgstr "无法开始播放：{error}"
 
@@ -963,8 +963,8 @@ msgstr "已用时间：{time}"
 msgid "Encrypted settings backup saved."
 msgstr "已保存加密设置备份。"
 
-#: internal_player.py:1888
-#: internal_player.py:2053
+#: internal_player.py:1892
+#: internal_player.py:2057
 msgid "Ended"
 msgstr "已结束"
 
@@ -1011,7 +1011,7 @@ msgstr "分集简介"
 msgid "Episode {num}"
 msgstr "第 {num} 集"
 
-#: internal_player.py:1889
+#: internal_player.py:1893
 #: main.py:3880
 #: main.py:3934
 #: main.py:5525
@@ -1048,7 +1048,7 @@ msgstr "未找到可执行文件：{path}"
 msgid "Exit"
 msgstr "退出"
 
-#: internal_player.py:2751
+#: internal_player.py:2755
 msgid "Exit Full Screen"
 msgstr "退出全屏"
 
@@ -1181,7 +1181,7 @@ msgid "Found {count} devices:"
 msgstr "找到 {count} 个设备："
 
 #: internal_player.py:435
-#: internal_player.py:2751
+#: internal_player.py:2755
 msgid "Full Screen"
 msgstr "全屏"
 
@@ -1251,7 +1251,7 @@ msgstr "IPTV 流"
 
 #: internal_player.py:478
 #: internal_player.py:511
-#: internal_player.py:1882
+#: internal_player.py:1886
 msgid "Idle"
 msgstr "空闲"
 
@@ -1364,11 +1364,11 @@ msgstr "键盘快捷键..."
 msgid "Language"
 msgstr "语言"
 
-#: internal_player.py:1450
+#: internal_player.py:1454
 msgid "Last error: {reason}"
 msgstr "上一个错误：{reason}"
 
-#: internal_player.py:2531
+#: internal_player.py:2535
 msgid "Last subtitle: {text}"
 msgstr "最后一条字幕：{text}"
 
@@ -1388,7 +1388,7 @@ msgstr "启动错误"
 msgid "Live TV && Catch-up"
 msgstr "直播电视和回看"
 
-#: internal_player.py:2426
+#: internal_player.py:2430
 msgid "Load Subtitle File"
 msgstr "加载字幕文件"
 
@@ -1527,7 +1527,7 @@ msgstr "无源"
 msgid "No Video on Demand content found."
 msgstr "未找到视频点播内容。"
 
-#: internal_player.py:1871
+#: internal_player.py:1875
 #: main.py:9087
 msgid "No active stream to cast."
 msgstr "没有可投屏的活动流。"
@@ -1544,9 +1544,9 @@ msgstr "未找到应用语音输出。"
 msgid "No audio output devices were found."
 msgstr "未找到音频输出设备。"
 
-#: internal_player.py:2283
-#: internal_player.py:2349
-#: internal_player.py:2567
+#: internal_player.py:2287
+#: internal_player.py:2353
+#: internal_player.py:2571
 msgid "No audio tracks available"
 msgstr "没有可用的音轨"
 
@@ -1572,7 +1572,7 @@ msgstr "该节目暂无简介。"
 msgid "No devices found."
 msgstr "未找到设备。"
 
-#: internal_player.py:2535
+#: internal_player.py:2539
 msgid "No earlier subtitle."
 msgstr "没有更早的字幕。"
 
@@ -1588,7 +1588,7 @@ msgstr "没有报告任何错误详情。"
 msgid "No ffmpeg details were reported."
 msgstr "未报告任何 ffmpeg 详情。"
 
-#: internal_player.py:2537
+#: internal_player.py:2541
 msgid "No later subtitle."
 msgstr "没有更晚的字幕。"
 
@@ -1641,7 +1641,7 @@ msgstr "没有可用的版本历史记录。"
 msgid "No stream URL provided."
 msgstr "未提供流 URL。"
 
-#: internal_player.py:2525
+#: internal_player.py:2529
 msgid "No subtitle has been shown yet."
 msgstr "尚未显示任何字幕。"
 
@@ -1649,11 +1649,11 @@ msgstr "尚未显示任何字幕。"
 msgid "No subtitle text available yet."
 msgstr "还没有可用的字幕文本。"
 
-#: internal_player.py:2460
+#: internal_player.py:2464
 msgid "No subtitle text found in this file."
 msgstr "此文件中未找到字幕文本。"
 
-#: internal_player.py:2523
+#: internal_player.py:2527
 msgid "No subtitle text to read. Load an SRT or WebVTT file."
 msgstr "没有可朗读的字幕文本。请加载 SRT 或 WebVTT 文件。"
 
@@ -1703,9 +1703,9 @@ msgstr "现在：{title}（{start} – {end}）"
 msgid "OK"
 msgstr "确定"
 
-#: internal_player.py:2390
-#: internal_player.py:2396
-#: internal_player.py:2413
+#: internal_player.py:2394
+#: internal_player.py:2400
+#: internal_player.py:2417
 msgid "Off"
 msgstr "关闭"
 
@@ -1746,7 +1746,7 @@ msgstr "在 GitHub 上打开 Accessible IPTV Client 项目"
 msgid "Open the recorded file in VLC, press Ctrl+T, and enter a listed time. Times use the file's media clock when FFmpeg reported it; otherwise they are elapsed recording time and may be slightly later after an interruption."
 msgstr "在 VLC 中打开录制文件，按 Ctrl+T，然后输入列出的时间。如果 FFmpeg 报告了文件的媒体时间，则使用该时间；否则使用从录制开始算起的经过时间，发生中断后该时间可能会稍晚一些。"
 
-#: internal_player.py:1883
+#: internal_player.py:1887
 msgid "Opening"
 msgstr "正在打开"
 
@@ -1796,16 +1796,16 @@ msgid "Password"
 msgstr "密码"
 
 #: internal_player.py:409
-#: internal_player.py:821
-#: internal_player.py:1778
-#: internal_player.py:1809
-#: internal_player.py:1820
-#: internal_player.py:1830
+#: internal_player.py:825
+#: internal_player.py:1782
+#: internal_player.py:1813
+#: internal_player.py:1824
+#: internal_player.py:1834
 msgid "Pause"
 msgstr "暂停"
 
-#: internal_player.py:1886
-#: internal_player.py:2030
+#: internal_player.py:1890
+#: internal_player.py:2034
 msgid "Paused"
 msgstr "已暂停"
 
@@ -1821,8 +1821,8 @@ msgstr "电话"
 msgid "Platform: {platform}"
 msgstr "平台：{platform}"
 
-#: internal_player.py:851
-#: internal_player.py:1902
+#: internal_player.py:855
+#: internal_player.py:1906
 #: main.py:3826
 #: main.py:10903
 #: main.py:11093
@@ -1863,7 +1863,7 @@ msgstr "播放器控件"
 msgid "Player window has been destroyed."
 msgstr "播放器窗口已销毁。"
 
-#: internal_player.py:1885
+#: internal_player.py:1889
 msgid "Playing"
 msgstr "正在播放"
 
@@ -1892,8 +1892,8 @@ msgstr "播放列表类型"
 msgid "Playlist view"
 msgstr "播放列表视图"
 
-#: internal_player.py:1137
-#: internal_player.py:1457
+#: internal_player.py:1141
+#: internal_player.py:1461
 msgid "Please try another channel or try again later."
 msgstr "请尝试其他频道或稍后重试。"
 
@@ -2051,19 +2051,19 @@ msgstr "最近观看"
 msgid "Recently Watched..."
 msgstr "最近观看..."
 
-#: internal_player.py:1474
-#: internal_player.py:2035
-#: internal_player.py:2042
-#: internal_player.py:2050
-#: internal_player.py:2058
+#: internal_player.py:1478
+#: internal_player.py:2039
+#: internal_player.py:2046
+#: internal_player.py:2054
+#: internal_player.py:2062
 msgid "Reconnecting..."
 msgstr "正在重新连接..."
 
 #: internal_player.py:423
 #: internal_player.py:424
 #: internal_player.py:521
-#: internal_player.py:1838
-#: internal_player.py:1854
+#: internal_player.py:1842
+#: internal_player.py:1858
 #: main.py:2748
 #: main.py:3835
 #: main.py:4476
@@ -2132,7 +2132,7 @@ msgstr "录制问题时间点"
 msgid "Recording Warning"
 msgstr "录制警告"
 
-#: internal_player.py:1837
+#: internal_player.py:1841
 msgid "Recording is not available from this window."
 msgstr "此窗口无法进行录制。"
 
@@ -2186,11 +2186,11 @@ msgstr "正在刷新所有播放列表..."
 msgid "Refreshing playlist: {name}"
 msgstr "正在刷新播放列表：{name}"
 
-#: internal_player.py:1149
-#: internal_player.py:2037
-#: internal_player.py:2044
-#: internal_player.py:2047
-#: internal_player.py:2058
+#: internal_player.py:1153
+#: internal_player.py:2041
+#: internal_player.py:2048
+#: internal_player.py:2051
+#: internal_player.py:2062
 msgid "Refreshing stream..."
 msgstr "正在刷新流..."
 
@@ -2223,8 +2223,8 @@ msgstr "用此备份替换当前设置？导入后重新启动应用程序。"
 msgid "Restore"
 msgstr "还原"
 
-#: internal_player.py:1778
-#: internal_player.py:1830
+#: internal_player.py:1782
+#: internal_player.py:1834
 msgid "Resume"
 msgstr "继续"
 
@@ -2533,7 +2533,7 @@ msgstr "停止所有录制"
 msgid "Stop Playback"
 msgstr "停止播放"
 
-#: internal_player.py:1854
+#: internal_player.py:1858
 #: main.py:3833
 #: main.py:5422
 msgid "Stop Recording"
@@ -2543,8 +2543,8 @@ msgstr "停止录制"
 msgid "Stop Recording(s)"
 msgstr "停止录制"
 
-#: internal_player.py:852
-#: internal_player.py:1887
+#: internal_player.py:856
+#: internal_player.py:1891
 msgid "Stopped"
 msgstr "已停止"
 
@@ -2565,8 +2565,8 @@ msgstr "正在停止录制..."
 msgid "Stopping {count} recording(s)..."
 msgstr "正在停止 {count} 个录制..."
 
-#: internal_player.py:1138
-#: internal_player.py:1458
+#: internal_player.py:1142
+#: internal_player.py:1462
 msgid "Stream Lost"
 msgstr "流已丢失"
 
@@ -2575,17 +2575,17 @@ msgstr "流已丢失"
 msgid "Stream URL"
 msgstr "流地址"
 
-#: internal_player.py:1453
+#: internal_player.py:1457
 msgid "Stream disconnected after {count} retries. The stream may be offline or experiencing issues."
 msgstr "在 {count} 次重试后流已断开。流可能已离线或遇到问题。"
 
-#: internal_player.py:1136
+#: internal_player.py:1140
 msgid "Stream disconnected. The stream may be offline or experiencing issues."
 msgstr "流已断开。该流可能处于离线状态或出现问题。"
 
-#: internal_player.py:1141
-#: internal_player.py:1461
-#: internal_player.py:2060
+#: internal_player.py:1145
+#: internal_player.py:1465
+#: internal_player.py:2064
 msgid "Stream lost"
 msgstr "流已丢失"
 
@@ -2614,11 +2614,11 @@ msgstr "字幕朗读"
 msgid "Subtitle capabilities..."
 msgstr "字幕功能..."
 
-#: internal_player.py:2438
+#: internal_player.py:2442
 msgid "Subtitle file loaded: {name}"
 msgstr "已加载字幕文件：{name}"
 
-#: internal_player.py:2427
+#: internal_player.py:2431
 msgid "Subtitle files (*.srt;*.ass;*.ssa;*.vtt)"
 msgstr "字幕文件 (*.srt;*.ass;*.ssa;*.vtt)"
 
@@ -2630,19 +2630,19 @@ msgstr "字幕语音 %s。"
 msgid "Subtitle speech failed."
 msgstr "字幕朗读失败。"
 
-#: internal_player.py:2442
+#: internal_player.py:2446
 msgid "Subtitle speech needs an SRT or WebVTT file."
 msgstr "朗读字幕需要 SRT 或 WebVTT 文件。"
 
-#: internal_player.py:2553
+#: internal_player.py:2557
 msgid "Subtitle speech off"
 msgstr "字幕朗读已关闭"
 
-#: internal_player.py:2555
+#: internal_player.py:2559
 msgid "Subtitle speech on"
 msgstr "字幕朗读已开启"
 
-#: internal_player.py:2557
+#: internal_player.py:2561
 msgid "Subtitle speech on. Load an SRT or WebVTT file to hear subtitles."
 msgstr "字幕朗读已开启。请加载 SRT 或 WebVTT 文件以收听字幕。"
 
@@ -2658,7 +2658,7 @@ msgstr "字幕朗读将使用应用语音。"
 msgid "Subtitle speech will use your screen reader."
 msgstr "字幕朗读将使用您的屏幕阅读器。"
 
-#: internal_player.py:2386
+#: internal_player.py:2390
 msgid "Subtitle track unavailable"
 msgstr "字幕轨道不可用"
 
@@ -2668,7 +2668,7 @@ msgstr "字幕轨道不可用"
 msgid "Subtitles"
 msgstr "字幕"
 
-#: internal_player.py:2393
+#: internal_player.py:2397
 msgid "Subtitles: {name}"
 msgstr "字幕：{name}"
 
@@ -2839,10 +2839,10 @@ msgstr "切换全屏"
 msgid "Topics"
 msgstr "主题"
 
-#: internal_player.py:2248
-#: internal_player.py:2327
-#: internal_player.py:2380
-#: internal_player.py:2392
+#: internal_player.py:2252
+#: internal_player.py:2331
+#: internal_player.py:2384
+#: internal_player.py:2396
 msgid "Track {id}"
 msgstr "音轨 {id}"
 
@@ -3059,7 +3059,7 @@ msgstr "视图"
 msgid "View EPG..."
 msgstr "查看 EPG..."
 
-#: internal_player.py:1918
+#: internal_player.py:1922
 msgid "Vol {value}%"
 msgstr "音量 {value}%"
 
@@ -3280,7 +3280,7 @@ msgstr "{title} - {channel}"
 msgid "{title}, {start} to {end}"
 msgstr "{title}、{start} 至 {end}"
 
-#: internal_player.py:1915
+#: internal_player.py:1919
 msgid "{value}s buffer"
 msgstr "{value} 秒缓冲"
 
@@ -3288,7 +3288,7 @@ msgstr "{value} 秒缓冲"
 msgid "{warnings} warnings, {errors} errors and {fatals} fatal errors were logged in total."
 msgstr "总共记录了 {warnings} 条警告、{errors} 个错误和 {fatals} 个严重错误。"
 
-#: internal_player.py:1914
+#: internal_player.py:1918
 msgid "~{value} Mbps"
 msgstr "~{value} Mbps"
 

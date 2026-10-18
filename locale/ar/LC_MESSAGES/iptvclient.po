@@ -223,7 +223,7 @@ msgstr "جهاز إخراج الصوت..."
 msgid "Audio Track"
 msgstr "المسار الصوتي"
 
-#: internal_player.py:2288
+#: internal_player.py:2292
 msgid "Audio Track: {name}"
 msgstr "المسار الصوتي: {name}"
 
@@ -251,7 +251,7 @@ msgstr "الصوت فقط (WAV)"
 msgid "Audio output devices"
 msgstr "أجهزة إخراج الصوت"
 
-#: internal_player.py:2324
+#: internal_player.py:2328
 msgid "Audio track unavailable"
 msgstr "المسار الصوتي غير متاح"
 
@@ -259,9 +259,9 @@ msgstr "المسار الصوتي غير متاح"
 msgid "Audio-only stream detected. Recording started ({fmt}):\n{path}"
 msgstr "تم اكتشاف دفق صوتي فقط. بدأ التسجيل ({fmt}):\n{path}"
 
-#: internal_player.py:1926
-#: internal_player.py:2343
-#: internal_player.py:2352
+#: internal_player.py:1930
+#: internal_player.py:2347
+#: internal_player.py:2356
 msgid "Audio: {name}"
 msgstr "الصوت: {name}"
 
@@ -334,11 +334,11 @@ msgstr "تغييرات غير متوافقة"
 msgid "Browse..."
 msgstr "استعراض..."
 
-#: internal_player.py:824
-#: internal_player.py:1810
-#: internal_player.py:1822
-#: internal_player.py:1884
-#: internal_player.py:2055
+#: internal_player.py:828
+#: internal_player.py:1814
+#: internal_player.py:1826
+#: internal_player.py:1888
+#: internal_player.py:2059
 msgid "Buffering..."
 msgstr "جارٍ التخزين المؤقت..."
 
@@ -420,8 +420,8 @@ msgstr "البث إلى الجهاز"
 msgid "Cast..."
 msgstr "بث..."
 
-#: internal_player.py:1867
 #: internal_player.py:1871
+#: internal_player.py:1875
 #: main.py:8954
 #: main.py:9087
 #: main.py:9114
@@ -439,7 +439,7 @@ msgstr "خطأ في البث"
 msgid "Casting failed: {error}"
 msgstr "فشل البث: {error}"
 
-#: internal_player.py:1867
+#: internal_player.py:1871
 msgid "Casting is unavailable because the caster is not initialised."
 msgstr "البث غير متوفر لأن وحدة البث لم تتم تهيئتها."
 
@@ -675,7 +675,7 @@ msgstr "تعذّر تحميل حلقات هذا المسلسل."
 msgid "Could not load episodes:\n{error}"
 msgstr "تعذّر تحميل الحلقات:\n{error}"
 
-#: internal_player.py:2434
+#: internal_player.py:2438
 msgid "Could not load subtitle file."
 msgstr "تعذر تحميل ملف الترجمة."
 
@@ -745,7 +745,7 @@ msgstr "تعذر إيقاف تشغيل الكمبيوتر:\n{error}"
 msgid "Could not start catch-up download:\n{error}"
 msgstr "تعذّر بدء تنزيل المشاهدة اللاحقة:\n{error}"
 
-#: internal_player.py:817
+#: internal_player.py:821
 msgid "Could not start playback: {error}"
 msgstr "تعذر بدء التشغيل: {error}"
 
@@ -963,8 +963,8 @@ msgstr "المنقضي: {time}"
 msgid "Encrypted settings backup saved."
 msgstr "تم حفظ النسخة الاحتياطية للإعدادات المشفرة."
 
-#: internal_player.py:1888
-#: internal_player.py:2053
+#: internal_player.py:1892
+#: internal_player.py:2057
 msgid "Ended"
 msgstr "انتهى"
 
@@ -1011,7 +1011,7 @@ msgstr "وصف الحلقة"
 msgid "Episode {num}"
 msgstr "الحلقة {num}"
 
-#: internal_player.py:1889
+#: internal_player.py:1893
 #: main.py:3880
 #: main.py:3934
 #: main.py:5525
@@ -1048,7 +1048,7 @@ msgstr "لم يتم العثور على الملف التنفيذي: {path}"
 msgid "Exit"
 msgstr "خروج"
 
-#: internal_player.py:2751
+#: internal_player.py:2755
 msgid "Exit Full Screen"
 msgstr "الخروج من ملء الشاشة"
 
@@ -1181,7 +1181,7 @@ msgid "Found {count} devices:"
 msgstr "تم العثور على {count} جهاز:"
 
 #: internal_player.py:435
-#: internal_player.py:2751
+#: internal_player.py:2755
 msgid "Full Screen"
 msgstr "ملء الشاشة"
 
@@ -1251,7 +1251,7 @@ msgstr "بث IPTV"
 
 #: internal_player.py:478
 #: internal_player.py:511
-#: internal_player.py:1882
+#: internal_player.py:1886
 msgid "Idle"
 msgstr "خامل"
 
@@ -1364,11 +1364,11 @@ msgstr "اختصارات لوحة المفاتيح..."
 msgid "Language"
 msgstr "اللغة"
 
-#: internal_player.py:1450
+#: internal_player.py:1454
 msgid "Last error: {reason}"
 msgstr "آخر خطأ: {reason}"
 
-#: internal_player.py:2531
+#: internal_player.py:2535
 msgid "Last subtitle: {text}"
 msgstr "آخر ترجمة: {text}"
 
@@ -1388,7 +1388,7 @@ msgstr "خطأ في التشغيل"
 msgid "Live TV && Catch-up"
 msgstr "البث المباشر && المشاهدة اللاحقة"
 
-#: internal_player.py:2426
+#: internal_player.py:2430
 msgid "Load Subtitle File"
 msgstr "تحميل ملف الترجمة"
 
@@ -1527,7 +1527,7 @@ msgstr "لا توجد مصادر"
 msgid "No Video on Demand content found."
 msgstr "لم يتم العثور على محتوى فيديو عند الطلب."
 
-#: internal_player.py:1871
+#: internal_player.py:1875
 #: main.py:9087
 msgid "No active stream to cast."
 msgstr "لا يوجد بث نشط للبث."
@@ -1544,9 +1544,9 @@ msgstr "لم يتم العثور على مخارج صوت التطبيق."
 msgid "No audio output devices were found."
 msgstr "لم يتم العثور على أجهزة إخراج صوت."
 
-#: internal_player.py:2283
-#: internal_player.py:2349
-#: internal_player.py:2567
+#: internal_player.py:2287
+#: internal_player.py:2353
+#: internal_player.py:2571
 msgid "No audio tracks available"
 msgstr "لا توجد مسارات صوتية متاحة"
 
@@ -1572,7 +1572,7 @@ msgstr "لا يوجد وصف لهذا البرنامج."
 msgid "No devices found."
 msgstr "لم يتم العثور على أجهزة."
 
-#: internal_player.py:2535
+#: internal_player.py:2539
 msgid "No earlier subtitle."
 msgstr "لا توجد ترجمة سابقة."
 
@@ -1588,7 +1588,7 @@ msgstr "لم يتم الإبلاغ عن أي تفاصيل خطأ."
 msgid "No ffmpeg details were reported."
 msgstr "لم يتم الإبلاغ عن أي تفاصيل لـ ffmpeg."
 
-#: internal_player.py:2537
+#: internal_player.py:2541
 msgid "No later subtitle."
 msgstr "لا توجد ترجمة لاحقة."
 
@@ -1641,7 +1641,7 @@ msgstr "لا يتوفر سجل بالإصدارات."
 msgid "No stream URL provided."
 msgstr "لم يتم توفير عنوان URL للبث."
 
-#: internal_player.py:2525
+#: internal_player.py:2529
 msgid "No subtitle has been shown yet."
 msgstr "لم تُعرض أي ترجمة بعد."
 
@@ -1649,11 +1649,11 @@ msgstr "لم تُعرض أي ترجمة بعد."
 msgid "No subtitle text available yet."
 msgstr "لا يوجد نص ترجمة متاح بعد."
 
-#: internal_player.py:2460
+#: internal_player.py:2464
 msgid "No subtitle text found in this file."
 msgstr "لم يُعثر على نص ترجمة في هذا الملف."
 
-#: internal_player.py:2523
+#: internal_player.py:2527
 msgid "No subtitle text to read. Load an SRT or WebVTT file."
 msgstr "لا يوجد نص ترجمة لقراءته. حمّل ملف SRT أو WebVTT."
 
@@ -1703,9 +1703,9 @@ msgstr "الآن: {title} ({start} – {end})"
 msgid "OK"
 msgstr "موافق"
 
-#: internal_player.py:2390
-#: internal_player.py:2396
-#: internal_player.py:2413
+#: internal_player.py:2394
+#: internal_player.py:2400
+#: internal_player.py:2417
 msgid "Off"
 msgstr "إيقاف"
 
@@ -1746,7 +1746,7 @@ msgstr "افتح مشروع Accessible IPTV Client على GitHub"
 msgid "Open the recorded file in VLC, press Ctrl+T, and enter a listed time. Times use the file's media clock when FFmpeg reported it; otherwise they are elapsed recording time and may be slightly later after an interruption."
 msgstr "افتح الملف المسجّل في VLC، واضغط Ctrl+T، ثم أدخل أحد الأوقات المدرجة. تستخدم الأوقات توقيت الوسائط في الملف عندما يبلّغ عنه FFmpeg؛ وإلا فهي الوقت المنقضي منذ بدء التسجيل وقد تكون متأخرة قليلًا بعد انقطاع."
 
-#: internal_player.py:1883
+#: internal_player.py:1887
 msgid "Opening"
 msgstr "جارٍ الفتح"
 
@@ -1796,16 +1796,16 @@ msgid "Password"
 msgstr "كلمة المرور"
 
 #: internal_player.py:409
-#: internal_player.py:821
-#: internal_player.py:1778
-#: internal_player.py:1809
-#: internal_player.py:1820
-#: internal_player.py:1830
+#: internal_player.py:825
+#: internal_player.py:1782
+#: internal_player.py:1813
+#: internal_player.py:1824
+#: internal_player.py:1834
 msgid "Pause"
 msgstr "إيقاف مؤقت"
 
-#: internal_player.py:1886
-#: internal_player.py:2030
+#: internal_player.py:1890
+#: internal_player.py:2034
 msgid "Paused"
 msgstr "متوقف مؤقتًا"
 
@@ -1821,8 +1821,8 @@ msgstr "الهاتف"
 msgid "Platform: {platform}"
 msgstr "النظام: {platform}"
 
-#: internal_player.py:851
-#: internal_player.py:1902
+#: internal_player.py:855
+#: internal_player.py:1906
 #: main.py:3826
 #: main.py:10903
 #: main.py:11093
@@ -1863,7 +1863,7 @@ msgstr "عناصر التحكم في المشغّل"
 msgid "Player window has been destroyed."
 msgstr "تم إغلاق نافذة المشغّل."
 
-#: internal_player.py:1885
+#: internal_player.py:1889
 msgid "Playing"
 msgstr "قيد التشغيل"
 
@@ -1892,8 +1892,8 @@ msgstr "نوع قائمة التشغيل"
 msgid "Playlist view"
 msgstr "عرض قائمة التشغيل"
 
-#: internal_player.py:1137
-#: internal_player.py:1457
+#: internal_player.py:1141
+#: internal_player.py:1461
 msgid "Please try another channel or try again later."
 msgstr "يرجى تجربة قناة أخرى أو المحاولة مرة أخرى لاحقًا."
 
@@ -2051,19 +2051,19 @@ msgstr "تمت مشاهدته مؤخرًا"
 msgid "Recently Watched..."
 msgstr "تمت مشاهدته مؤخرًا..."
 
-#: internal_player.py:1474
-#: internal_player.py:2035
-#: internal_player.py:2042
-#: internal_player.py:2050
-#: internal_player.py:2058
+#: internal_player.py:1478
+#: internal_player.py:2039
+#: internal_player.py:2046
+#: internal_player.py:2054
+#: internal_player.py:2062
 msgid "Reconnecting..."
 msgstr "جارٍ إعادة الاتصال..."
 
 #: internal_player.py:423
 #: internal_player.py:424
 #: internal_player.py:521
-#: internal_player.py:1838
-#: internal_player.py:1854
+#: internal_player.py:1842
+#: internal_player.py:1858
 #: main.py:2748
 #: main.py:3835
 #: main.py:4476
@@ -2132,7 +2132,7 @@ msgstr "أوقات مشكلات التسجيل"
 msgid "Recording Warning"
 msgstr "تحذير التسجيل"
 
-#: internal_player.py:1837
+#: internal_player.py:1841
 msgid "Recording is not available from this window."
 msgstr "التسجيل غير متاح من هذه النافذة."
 
@@ -2186,11 +2186,11 @@ msgstr "جارٍ تحديث كل قوائم التشغيل..."
 msgid "Refreshing playlist: {name}"
 msgstr "جارٍ تحديث قائمة التشغيل: {name}"
 
-#: internal_player.py:1149
-#: internal_player.py:2037
-#: internal_player.py:2044
-#: internal_player.py:2047
-#: internal_player.py:2058
+#: internal_player.py:1153
+#: internal_player.py:2041
+#: internal_player.py:2048
+#: internal_player.py:2051
+#: internal_player.py:2062
 msgid "Refreshing stream..."
 msgstr "جارٍ تحديث البث..."
 
@@ -2223,8 +2223,8 @@ msgstr "هل تريد استبدال الإعدادات الحالية بهذه 
 msgid "Restore"
 msgstr "استعادة"
 
-#: internal_player.py:1778
-#: internal_player.py:1830
+#: internal_player.py:1782
+#: internal_player.py:1834
 msgid "Resume"
 msgstr "استئناف"
 
@@ -2533,7 +2533,7 @@ msgstr "إيقاف جميع التسجيلات"
 msgid "Stop Playback"
 msgstr "إيقاف التشغيل"
 
-#: internal_player.py:1854
+#: internal_player.py:1858
 #: main.py:3833
 #: main.py:5422
 msgid "Stop Recording"
@@ -2543,8 +2543,8 @@ msgstr "إيقاف التسجيل"
 msgid "Stop Recording(s)"
 msgstr "إيقاف التسجيل/التسجيلات"
 
-#: internal_player.py:852
-#: internal_player.py:1887
+#: internal_player.py:856
+#: internal_player.py:1891
 msgid "Stopped"
 msgstr "متوقف"
 
@@ -2565,8 +2565,8 @@ msgstr "جارٍ إيقاف التسجيل..."
 msgid "Stopping {count} recording(s)..."
 msgstr "جارٍ إيقاف {count} تسجيل..."
 
-#: internal_player.py:1138
-#: internal_player.py:1458
+#: internal_player.py:1142
+#: internal_player.py:1462
 msgid "Stream Lost"
 msgstr "فُقد البث"
 
@@ -2575,17 +2575,17 @@ msgstr "فُقد البث"
 msgid "Stream URL"
 msgstr "عنوان البث"
 
-#: internal_player.py:1453
+#: internal_player.py:1457
 msgid "Stream disconnected after {count} retries. The stream may be offline or experiencing issues."
 msgstr "انقطع البث بعد {count} محاولة. قد يكون البث غير متصل أو يواجه مشكلات."
 
-#: internal_player.py:1136
+#: internal_player.py:1140
 msgid "Stream disconnected. The stream may be offline or experiencing issues."
 msgstr "انقطع البث. قد يكون غير متصل أو يواجه مشاكل."
 
-#: internal_player.py:1141
-#: internal_player.py:1461
-#: internal_player.py:2060
+#: internal_player.py:1145
+#: internal_player.py:1465
+#: internal_player.py:2064
 msgid "Stream lost"
 msgstr "فُقد البث"
 
@@ -2614,11 +2614,11 @@ msgstr "قراءة الترجمة"
 msgid "Subtitle capabilities..."
 msgstr "إمكانيات الترجمة..."
 
-#: internal_player.py:2438
+#: internal_player.py:2442
 msgid "Subtitle file loaded: {name}"
 msgstr "تم تحميل ملف الترجمة: {name}"
 
-#: internal_player.py:2427
+#: internal_player.py:2431
 msgid "Subtitle files (*.srt;*.ass;*.ssa;*.vtt)"
 msgstr "ملفات الترجمة (*.srt;*.ass;*.ssa;*.vtt)"
 
@@ -2630,19 +2630,19 @@ msgstr "نطق الترجمة %s."
 msgid "Subtitle speech failed."
 msgstr "فشل نطق الترجمة."
 
-#: internal_player.py:2442
+#: internal_player.py:2446
 msgid "Subtitle speech needs an SRT or WebVTT file."
 msgstr "تحتاج قراءة الترجمة إلى ملف SRT أو WebVTT."
 
-#: internal_player.py:2553
+#: internal_player.py:2557
 msgid "Subtitle speech off"
 msgstr "قراءة الترجمة متوقفة"
 
-#: internal_player.py:2555
+#: internal_player.py:2559
 msgid "Subtitle speech on"
 msgstr "قراءة الترجمة مفعّلة"
 
-#: internal_player.py:2557
+#: internal_player.py:2561
 msgid "Subtitle speech on. Load an SRT or WebVTT file to hear subtitles."
 msgstr "قراءة الترجمة مفعّلة. حمّل ملف SRT أو WebVTT لسماع الترجمة."
 
@@ -2658,7 +2658,7 @@ msgstr "ستستخدم قراءة الترجمة صوت التطبيق."
 msgid "Subtitle speech will use your screen reader."
 msgstr "ستستخدم قراءة الترجمة قارئ الشاشة الخاص بك."
 
-#: internal_player.py:2386
+#: internal_player.py:2390
 msgid "Subtitle track unavailable"
 msgstr "مسار الترجمة غير متاح"
 
@@ -2668,7 +2668,7 @@ msgstr "مسار الترجمة غير متاح"
 msgid "Subtitles"
 msgstr "الترجمات"
 
-#: internal_player.py:2393
+#: internal_player.py:2397
 msgid "Subtitles: {name}"
 msgstr "الترجمة: {name}"
 
@@ -2839,10 +2839,10 @@ msgstr "تبديل ملء الشاشة"
 msgid "Topics"
 msgstr "الموضوعات"
 
-#: internal_player.py:2248
-#: internal_player.py:2327
-#: internal_player.py:2380
-#: internal_player.py:2392
+#: internal_player.py:2252
+#: internal_player.py:2331
+#: internal_player.py:2384
+#: internal_player.py:2396
 msgid "Track {id}"
 msgstr "المسار {id}"
 
@@ -3059,7 +3059,7 @@ msgstr "عرض"
 msgid "View EPG..."
 msgstr "عرض EPG..."
 
-#: internal_player.py:1918
+#: internal_player.py:1922
 msgid "Vol {value}%"
 msgstr "الصوت {value}%"
 
@@ -3280,7 +3280,7 @@ msgstr "{title} - {channel}"
 msgid "{title}, {start} to {end}"
 msgstr "{title}، {start} إلى {end}"
 
-#: internal_player.py:1915
+#: internal_player.py:1919
 msgid "{value}s buffer"
 msgstr "مخزن مؤقت {value} ثانية"
 
@@ -3288,7 +3288,7 @@ msgstr "مخزن مؤقت {value} ثانية"
 msgid "{warnings} warnings, {errors} errors and {fatals} fatal errors were logged in total."
 msgstr "تم تسجيل {warnings} تحذيرات و{errors} أخطاء و{fatals} أخطاء فادحة في المجموع."
 
-#: internal_player.py:1914
+#: internal_player.py:1918
 msgid "~{value} Mbps"
 msgstr "~{value} ميغابت/ث"
 
