@@ -1227,6 +1227,9 @@ class StreamProxy:
         self.lock = threading.Lock()
         self._cleanup_thread = None
         self._running = False
+        # Wakes the cleanup loop at once on stop(). Its old flat sleep(10) meant
+        # stop() always waited out the 2 s join below, in the app and in tests.
+        self._stop_event = threading.Event()
         self._firewall_rule_name = None
 
     def _get_local_ip(self):
@@ -1264,8 +1267,10 @@ class StreamProxy:
         self.server = socketserver.ThreadingTCPServer((self.host, 0), StreamProxyHandler)
         self.port = self.server.server_address[1]
         self._running = True
+        self._stop_event.clear()
         self._ensure_firewall_rule()
-        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.thread = threading.Thread(target=self.server.serve_forever,
+                                       kwargs={"poll_interval": 0.1}, daemon=True)
         self.thread.start()
         self._cleanup_thread = threading.Thread(target=self._cleanup_loop, daemon=True)
         self._cleanup_thread.start()
@@ -1273,6 +1278,7 @@ class StreamProxy:
 
     def stop(self):
         self._running = False
+        self._stop_event.set()
         server = self.server
         if server:
             self.server = None
@@ -1378,7 +1384,10 @@ class StreamProxy:
 
     def _cleanup_loop(self):
         while self._running:
-            time.sleep(10)
+            # wait(10) instead of sleep(10): stop() sets the event and this thread
+            # exits at once, so its join below returns instead of timing out.
+            if self._stop_event.wait(10):
+                return
             now = time.time()
             stale_converters = []
             with self.lock:

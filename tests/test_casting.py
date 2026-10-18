@@ -121,7 +121,8 @@ def upstream():
             self.wfile.write(body)
 
     server = socketserver.ThreadingTCPServer(("127.0.0.1", 0), Handler)
-    threading.Thread(target=server.serve_forever, daemon=True).start()
+    # A short poll interval keeps teardown quick: shutdown() waits for the loop to notice.
+    threading.Thread(target=lambda: server.serve_forever(poll_interval=0.05), daemon=True).start()
     try:
         yield f"http://127.0.0.1:{server.server_address[1]}", seen
     finally:
