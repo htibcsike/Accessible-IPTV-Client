@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:20
-msgid "Build a 25-second live cushion without delaying first playback"
-msgstr "再生開始を遅らせずにライブ配信の25秒分のバッファーを蓄積"
-
 #: CHANGELOG.md:8
+msgid "Keep the saved live buffer and never slow playback to build one"
+msgstr "保存したライブバッファーを維持し、それを満たすために再生を遅くしない"
+
+#: CHANGELOG.md:14
 msgid "Skip silent player Tab stops and disable playback controls after connection failure"
 msgstr "プレーヤーで Tab キーによる移動時に読み上げられないコントロールをスキップし、接続失敗後に再生コントロールを無効にする"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "Start live playback with a half-second cache while keeping the 25-second cushion"
 msgstr "25秒分のバッファーを維持しながら、0.5秒のキャッシュでライブ再生を開始"
 

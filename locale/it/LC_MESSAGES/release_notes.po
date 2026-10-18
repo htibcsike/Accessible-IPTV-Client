@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:20
-msgid "Build a 25-second live cushion without delaying first playback"
-msgstr "Accumulare una riserva di 25 secondi per le dirette senza ritardare l’avvio della riproduzione"
-
 #: CHANGELOG.md:8
+msgid "Keep the saved live buffer and never slow playback to build one"
+msgstr "Mantenere il buffer salvato della diretta e non rallentare mai la riproduzione per riempirlo"
+
+#: CHANGELOG.md:14
 msgid "Skip silent player Tab stops and disable playback controls after connection failure"
 msgstr "Saltare i controlli silenziosi durante la navigazione con Tab nel lettore e disattivare i controlli di riproduzione dopo un errore di connessione"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "Start live playback with a half-second cache while keeping the 25-second cushion"
 msgstr "Avviare la riproduzione delle dirette con una cache di mezzo secondo mantenendo la riserva di 25 secondi"
 
