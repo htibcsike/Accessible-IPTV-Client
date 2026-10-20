@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:20
-msgid "Keep the saved live buffer and never slow playback to build one"
-msgstr "保留保存的直播缓冲区，绝不放慢播放来填充它"
-
 #: CHANGELOG.md:8
+msgid "Name the cast and EPG lists, report a failed cast, and fix a failed catch-up lookup (#46)"
+msgstr "为投屏和 EPG 列表命名，报告投屏失败，并修复失败的回看查找 (#46)"
+
+#: CHANGELOG.md:14
 msgid "Reduce live refresh and recording playback delay"
 msgstr "减少重新打开直播流和播放录制内容时的延迟"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "Stop the proxy waiting two seconds on every stop"
 msgstr "每次停止时代理不再等待两秒"
 

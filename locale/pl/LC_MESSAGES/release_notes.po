@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:20
-msgid "Keep the saved live buffer and never slow playback to build one"
-msgstr "Zachowaj zapisany bufor transmisji na żywo i nigdy nie zwalniaj odtwarzania, aby go zapełnić"
-
 #: CHANGELOG.md:8
+msgid "Name the cast and EPG lists, report a failed cast, and fix a failed catch-up lookup (#46)"
+msgstr "Nazwij listy Cast i EPG, zgłaszaj nieudane przesyłanie i napraw nieudane wyszukiwanie catch-up (#46)"
+
+#: CHANGELOG.md:14
 msgid "Reduce live refresh and recording playback delay"
 msgstr "Zmniejszenie opóźnienia przy ponownym otwieraniu transmisji na żywo i odtwarzaniu nagrań"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "Stop the proxy waiting two seconds on every stop"
 msgstr "Proxy nie czeka już dwóch sekund przy każdym zatrzymaniu"
 
