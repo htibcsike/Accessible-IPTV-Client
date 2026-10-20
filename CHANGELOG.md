@@ -1,6 +1,12 @@
 # Changelog
 
 Readable release history for Accessible IPTV Client. New entries are prepended automatically by `build.bat release`. Older entries were reconstructed from the [Forgejo mirror](https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client).
+## v1.150.10 - 2026-10-20
+
+### Bug fixes
+
+- Six more audit findings - the modal guard, the subtitle toggle, a bad EPG date, and three config/provider ones (#49)
+
 ## v1.150.9 - 2026-10-20
 
 ### Bug fixes
