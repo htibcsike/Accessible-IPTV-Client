@@ -2170,12 +2170,12 @@ class IPTVClient(wx.Frame):
                 return ""
             return cache.get(_now_playing_key(channel), "")
 
-    def _refresh_now_playing_labels(self):
+    def _refresh_now_playing_labels(self, force: bool = False):
         """One bulk query: the on-air programme of every EPG channel, for row labels."""
         if not getattr(self, "config", {}).get("epg_enabled", True):
             return
         now = time.time()
-        if now - getattr(self, "_now_playing_refreshed_at", 0.0) < 30:
+        if not force and now - getattr(self, "_now_playing_refreshed_at", 0.0) < 30:
             return
         self._now_playing_refreshed_at = now
         try:
@@ -4324,10 +4324,42 @@ class IPTVClient(wx.Frame):
                     dlg.refresh()
                 except Exception:
                     LOG.debug("IPTVClient._on_dvr_schedule_updated.refresh: ignored exception", exc_info=True)
+            self._report_failed_recordings()
             # A canceled or completed job can be the last thing an armed shutdown
             # was waiting for.
             self._maybe_shutdown_after_recordings()
         wx.CallAfter(refresh)
+
+    def _report_failed_recordings(self):
+        """Tell the user when a scheduled recording was lost.
+
+        The job record keeps the reason, but nothing showed it: the dialog
+        lists the status, and the recording simply never appeared. A failed or
+        missed job is reported once, through the app's modal queue.
+        """
+        scheduler = getattr(self, "dvr_scheduler", None)
+        if scheduler is None:
+            return
+        reported = getattr(self, "_reported_failed_recordings", None)
+        if reported is None:
+            reported = set()
+            self._reported_failed_recordings = reported
+        for job in scheduler.list_jobs(include_done=True):
+            status = str(job.get("status") or "")
+            if status not in {dvr.STATUS_FAILED, dvr.STATUS_MISSED}:
+                continue
+            job_id = str(job.get("id") or "")
+            if not job_id or job_id in reported:
+                continue
+            reported.add(job_id)
+            title = str(job.get("display_title") or job.get("title") or "")
+            status_text = {"failed": _("Failed"), "missed": _("Missed")}.get(status, status)
+            message = "{0}: {1}".format(status_text, title) if title else status_text
+            reason = str(job.get("message") or "")
+            if reason:
+                message = message + "\n" + reason
+            self._show_or_queue_message_box(message, _("Scheduled Recording"),
+                                             wx.OK | wx.ICON_ERROR)
 
     def _single_stream_provider_busy(self, url: str, *, include_player: bool = True) -> bool:
         """Whether another app-owned media operation holds this provider's slot."""
@@ -4891,7 +4923,16 @@ class IPTVClient(wx.Frame):
         """
         self._suppress_recording_notifications = True
         active = self.recorder.list_active()
-        self.recorder.stop_all(wait=True, detach=True)
+        # Waiting for FFmpeg to finalize takes 5 s + 15 s + 15 s per recording.
+        # It used to happen on the GUI thread, so the still-visible window froze
+        # for up to half a minute ("Not Responding") with no way to tell what
+        # was happening. The wait now pumps the event loop: the recordings are
+        # finalized the same way, and the window stays alive and readable.
+        self.recorder.stop_all(wait=False, detach=True)
+        deadline = time.time() + 90
+        while self.recorder.list_active() and time.time() < deadline:
+            wx.Yield()
+            time.sleep(0.05)
         scheduler = getattr(self, "dvr_scheduler", None)
         if scheduler is None:
             return
@@ -7411,8 +7452,10 @@ class IPTVClient(wx.Frame):
             # current list, so this cannot repeat unless the list changes again.
             wx.CallAfter(self.start_epg_import_background)
         # The rows read the on-air programme, so refresh the bulk labels now
-        # that new EPG data may have arrived.
-        threading.Thread(target=self._refresh_now_playing_labels, daemon=True).start()
+        # that new EPG data may have arrived. Forced: the 30 s throttle would
+        # swallow the refresh and the rows would keep showing the programme
+        # from before the import.
+        threading.Thread(target=self._refresh_now_playing_labels, args=(True,), daemon=True).start()
         self.on_highlight()
         if notify:
             # Reported last, so the guide is already reloaded behind the box.
@@ -10803,6 +10846,11 @@ class ScheduledRecordingsDialog(wx.Dialog):
         return labels.get(status, status or "")
 
     def refresh(self):
+        # Keep the row the user was on, and never take the focus: the dialog is
+        # refreshed on every scheduler change, and jumping back to the first
+        # row lost the place of a screen-reader user browsing the schedule.
+        selected = self._selected_job()
+        selected_id = str(selected.get("id") or "") if selected else ""
         self.jobs = self.scheduler.list_jobs(include_done=True)
         self.list_ctrl.DeleteAllItems()
         for job in self.jobs:
@@ -10815,9 +10863,19 @@ class ScheduledRecordingsDialog(wx.Dialog):
                 font = self.list_ctrl.GetItemFont(idx)
                 font.SetWeight(wx.FONTWEIGHT_BOLD)
                 self.list_ctrl.SetItemFont(idx, font)
-        if self.jobs:
-            self.list_ctrl.Select(0)
-            self.list_ctrl.Focus(0)
+        if not self.jobs:
+            return
+        target = -1
+        if selected_id:
+            for idx, job in enumerate(self.jobs):
+                if str(job.get("id") or "") == selected_id:
+                    target = idx
+                    break
+        if target == -1:
+            target = 0
+        self.list_ctrl.Select(target)
+        if wx.Window.FindFocus() is self.list_ctrl:
+            self.list_ctrl.Focus(target)
 
     def _selected_job(self) -> Optional[Dict[str, object]]:
         idx = self.list_ctrl.GetFirstSelected()
