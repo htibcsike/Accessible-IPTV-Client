@@ -170,6 +170,10 @@ class InternalPlayerFrame(wx.Frame):
 
     help_topic = "built-in-player"
     _HANDLE_CHECK_INTERVAL = 0.1
+    # How long the GUI thread waits for the HLS variant probe. The fetch has a
+    # two second timeout of its own, and a slow host must not hold the window
+    # (and the screen reader) silent for that long.
+    _VARIANT_PROBE_WAIT_SECONDS = 0.4
     # How long a quit waits for a close-time libVLC teardown that is still
     # running. Leaking an instance at process exit beats hanging the shutdown.
     _VLC_TEARDOWN_JOIN_SECONDS = 15.0
@@ -1200,6 +1204,28 @@ class InternalPlayerFrame(wx.Frame):
         return selected["url"], selected.get("bandwidth_mbps")
 
     def _fetch_hls_manifest(self, url: str, headers: Optional[Dict[str, object]] = None) -> Optional[str]:
+        """Fetch the HLS manifest without freezing the app.
+
+        The probe is a blocking HTTP GET, so a slow or dead host would hold
+        the GUI thread - and the screen reader with it - silent for the whole
+        timeout. The fetch runs on a worker thread and the caller waits only
+        briefly: a slow host costs the variant selection, not the UI.
+        """
+        result = {}
+
+        def fetch():
+            try:
+                result["text"] = self._fetch_hls_manifest_blocking(url, headers)
+            except Exception as err:
+                LOG.debug("HLS manifest fetch failed: %s", err)
+                result["text"] = None
+
+        worker = threading.Thread(target=fetch, name="hls-manifest", daemon=True)
+        worker.start()
+        worker.join(self._VARIANT_PROBE_WAIT_SECONDS)
+        return result.get("text")
+
+    def _fetch_hls_manifest_blocking(self, url: str, headers: Optional[Dict[str, object]] = None) -> Optional[str]:
         req = urllib.request.Request(url, headers=self._request_headers(headers))
         try:
             with urllib.request.urlopen(req, timeout=2) as response:
@@ -1883,9 +1909,17 @@ class InternalPlayerFrame(wx.Frame):
         except Exception as exc:
             LOG.error("Cast callback failed: %s", type(exc).__name__)
             def restore_focus():
-                if not self._destroyed and self and self.IsShown():
+                # The player can be closed while the box waits behind another
+                # one, and a destroyed window raises on every call.
+                if self._destroyed:
+                    return
+                try:
+                    if not self.IsShown():
+                        return
                     self.Raise()
                     self.cast_btn.SetFocus()
+                except RuntimeError:
+                    LOG.debug("Cast focus restore skipped: the player is gone", exc_info=True)
 
             self._notify_box(_("Casting Error"), _("Casting"), wx.OK | wx.ICON_ERROR,
                              parent=self, on_dismiss=restore_focus)
@@ -1957,7 +1991,12 @@ class InternalPlayerFrame(wx.Frame):
         """
         if self._destroyed:
             return
-        show = getattr(self.GetParent(), "_show_or_queue_message_box", None)
+        try:
+            owner = self.GetParent()
+        except RuntimeError:
+            # The player (or the main window it belongs to) is already gone.
+            owner = None
+        show = getattr(owner, "_show_or_queue_message_box", None)
         if show is not None:
             if parent is None and on_dismiss is None:
                 show(message, caption, style)
@@ -1972,10 +2011,15 @@ class InternalPlayerFrame(wx.Frame):
 
     def _speak(self, ctrl: wx.Window) -> None:
         """Read ``ctrl`` aloud; through the main window when this one is not in front."""
-        if self.IsActive():
+        try:
+            active = self.IsActive()
+            owner = self.GetParent()
+        except RuntimeError:
+            return
+        if active:
             live_announce.notify(ctrl)
             return
-        speak = getattr(self.GetParent(), "_speak", None)
+        speak = getattr(owner, "_speak", None)
         if speak is not None:
             speak(ctrl.GetLabel())
 

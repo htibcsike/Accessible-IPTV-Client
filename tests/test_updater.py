@@ -260,7 +260,75 @@ def test_fetch_update_manifest_reads_installer_metadata(monkeypatch):
 
     assert manifest.installer_asset_filename == "AccessibleIPTVClient-Setup-v1.2.3.exe"
     assert manifest.installer_download_url == "https://example.test/AccessibleIPTVClient-Setup-v1.2.3.exe"
-    assert manifest.installer_sha256 == "b" * 64
+
+
+def test_the_manifest_cannot_pin_its_own_certificate(monkeypatch):
+    """A release that declares its own signing certificate proves nothing.
+
+    Whoever can publish a release can sign it with their own certificate and
+    declare that certificate next to the file, so the pin has to come from
+    outside the release. The environment override is such a pin, and it wins.
+    """
+    release = {
+        "assets": [
+            {
+                "name": "manifest.json",
+                "browser_download_url": "https://example.test/manifest.json",
+            }
+        ]
+    }
+    manifest_payload = {
+        "version": "1.2.3",
+        "asset_filename": "AccessibleIPTVClient-v1.2.3.zip",
+        "download_url": "https://example.test/AccessibleIPTVClient-v1.2.3.zip",
+        "sha256": "a" * 64,
+        "signing_thumbprints": ["ATTACKER0000000000000000000000000000000000"],
+    }
+    monkeypatch.setattr(
+        updater.urllib.request,
+        "urlopen",
+        lambda req, timeout: _Response(manifest_payload),
+    )
+    monkeypatch.setenv("ACCESSIBLEIPTVCLIENT_TRUSTED_SIGNING_THUMBPRINTS",
+                       "TRUSTED0000000000000000000000000000000000")
+
+    manifest = updater.fetch_update_manifest(release, "manifest.json")
+
+    assert manifest.signing_thumbprints == ("TRUSTED0000000000000000000000000000000000",)
+
+
+def test_a_manifest_without_an_out_of_band_pin_is_only_a_last_resort(monkeypatch):
+    """With no pin of its own the client falls back to the manifest's value.
+
+    That is the source-run case (the application is not signed), so it is
+    logged rather than silently accepted.
+    """
+    release = {
+        "assets": [
+            {
+                "name": "manifest.json",
+                "browser_download_url": "https://example.test/manifest.json",
+            }
+        ]
+    }
+    manifest_payload = {
+        "version": "1.2.3",
+        "asset_filename": "AccessibleIPTVClient-v1.2.3.zip",
+        "download_url": "https://example.test/AccessibleIPTVClient-v1.2.3.zip",
+        "sha256": "a" * 64,
+        "signing_thumbprints": ["DECLARED000000000000000000000000000000000"],
+    }
+    monkeypatch.setattr(
+        updater.urllib.request,
+        "urlopen",
+        lambda req, timeout: _Response(manifest_payload),
+    )
+    monkeypatch.delenv("ACCESSIBLEIPTVCLIENT_TRUSTED_SIGNING_THUMBPRINTS", raising=False)
+    monkeypatch.setattr(updater, "_running_app_thumbprint", lambda: "")
+
+    manifest = updater.fetch_update_manifest(release, "manifest.json")
+
+    assert manifest.signing_thumbprints == ("DECLARED000000000000000000000000000000000",)
 
 
 def test_build_manifest_includes_optional_installer_metadata():
@@ -502,6 +570,59 @@ def test_update_helper_extracts_the_installer_error(tmp_path):
         "C:\\Program Files\\AccessibleIPTVClient\\_internal\\python314.dll "
         "An error occurred while trying to replace the existing file: DeleteFile failed; code 5.")
 
+
+
+def _run_helper_function(tmp_path, name, body):
+    """Run one function from update_helper.ps1 with ``body`` appended."""
+    import subprocess
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    with open(os.path.join(root, "update_helper.ps1"), encoding="ascii") as handle:
+        helper = handle.read()
+    start = helper.index("function %s {" % name)
+    end = helper.index("\n}\n", start) + 3
+    script = tmp_path / "t.ps1"
+    script.write_text(
+        "function Write-Log { param([string]$Message) $script:logs += $Message }\n"
+        "$script:logs = @()\n"
+        + helper[start:end] + "\n" + body + "\n'FRAGMENT-OK'\n",
+        encoding="utf-8-sig")
+    out = subprocess.run(
+        [updater.windows_powershell_path(), "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script)],
+        capture_output=True, text=True, timeout=60, env=updater.clean_powershell_env())
+    assert out.returncode == 0, out.stderr + out.stdout
+    assert "FRAGMENT-OK" in out.stdout, out.stderr + out.stdout
+    return out.stdout
+
+
+@pytest.mark.skipif(os.name != "nt", reason="needs Windows PowerShell")
+def test_the_rollback_puts_the_previous_version_back_over_a_partial_install(tmp_path):
+    """A failed move can leave a half-written install directory behind.
+
+    The backup is only restored when the install directory is gone, so the
+    rollback has to remove the partial tree first - otherwise the app is left
+    uninstalled and the working version sits in the .bak folder.
+    """
+    install = tmp_path / "app"
+    backup = tmp_path / "app.bak"
+    install.mkdir()
+    (install / "half-written.dll").write_text("x", encoding="utf-8")
+    backup.mkdir()
+    (backup / "IPTVClient.exe").write_text("old", encoding="utf-8")
+
+    out = _run_helper_function(
+        tmp_path,
+        "Restore-InstallBackup",
+        "$ok = Restore-InstallBackup -BackupDir '%s' -InstallDir '%s'\n"
+        "if (-not $ok) { throw 'rollback reported failure' }\n"
+        "if (-not (Test-Path -LiteralPath (Join-Path '%s' 'IPTVClient.exe'))) "
+        "{ throw 'the previous version was not restored' }\n"
+        "if (Test-Path -LiteralPath (Join-Path '%s' 'half-written.dll')) "
+        "{ throw 'the partial install was left behind' }"
+        % (str(backup).replace("'", "''"), str(install).replace("'", "''"),
+           str(install).replace("'", "''"), str(install).replace("'", "''")))
+
+    assert "FRAGMENT-OK" in out
 
 
 def _run_helper_fragment(tmp_path, body):
