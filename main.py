@@ -8,7 +8,7 @@ import urllib.parse
 import sqlite3
 import threading
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 import wx
 import datetime
 import re
@@ -4942,7 +4942,7 @@ class IPTVClient(wx.Frame):
     # -------------------------------------------------------------- #
     _DEFERRED_NOTIFICATION_LIMIT = 8
 
-    def _deferred_notifications(self) -> List[Tuple[str, str, int]]:
+    def _deferred_notifications(self) -> List[Tuple[str, str, int, Optional[wx.Window], Optional[Callable[[], None]]]]:
         # Must return the *stored* list, not a fresh default: callers append
         # to the return value, so a new default each call would drop entries.
         queue = getattr(self, "_deferred_notification_queue", None)
@@ -4955,32 +4955,39 @@ class IPTVClient(wx.Frame):
         """True while any wx message box is showing in this app."""
         return bool(getattr(self, "_modal_box_depth", 0)) or modal_box_is_open()
 
-    def _show_or_queue_message_box(self, message: str, caption: str, style: int) -> None:
+    def _show_or_queue_message_box(self, message: str, caption: str, style: int,
+                                   *, parent=None, on_dismiss=None) -> None:
         """Show a wx.MessageBox now, or queue it while a modal box is open."""
         if self._modal_box_is_open():
             queue = self._deferred_notifications()
             if len(queue) < self._DEFERRED_NOTIFICATION_LIMIT:
-                queue.append((message, caption, style))
+                queue.append((message, caption, style, parent, on_dismiss))
             else:
                 LOG.warning("Dropping deferred notification %r: queue full", caption)
             return
-        self._show_message_box(message, caption, style)
+        self._show_message_box(message, caption, style, parent=parent, on_dismiss=on_dismiss)
 
-    def _show_message_box(self, message: str, caption: str, style: int) -> None:
+    def _show_message_box(self, message: str, caption: str, style: int,
+                          *, parent=None, on_dismiss=None) -> None:
         """Open a wx.MessageBox, tracking the modal depth it creates."""
         depth = getattr(self, "_modal_box_depth", 0)
         self._modal_box_depth = depth + 1
         try:
-            message_box(message, caption, style, parent=self.frame if hasattr(self, "frame") else None)
+            owner = parent if parent and parent.IsShown() else (self.frame if hasattr(self, "frame") else None)
+            message_box(message, caption, style, parent=owner)
         finally:
             self._modal_box_depth = depth
+            if on_dismiss is not None:
+                on_dismiss()
+            if depth == 0 and getattr(self, "_deferred_notification_queue", None):
+                wx.CallAfter(self._drain_deferred_notifications)
 
     def _drain_deferred_notifications(self) -> None:
         """Show notifications queued while a modal box was open (FIFO)."""
         queue = self._deferred_notifications()
         while queue and not self._modal_box_is_open():
-            message, caption, style = queue.pop(0)
-            self._show_message_box(message, caption, style)
+            message, caption, style, parent, on_dismiss = queue.pop(0)
+            self._show_message_box(message, caption, style, parent=parent, on_dismiss=on_dismiss)
 
     def _report_recording_saved(self, rec) -> None:
         """Recording finished cleanly: notify, or queue the box if one is up."""
@@ -9191,11 +9198,25 @@ class IPTVClient(wx.Frame):
             return
         self._catchup_dialog_open = True
 
-        def fetch():
-            programmes = self._get_catchup_programmes(channel)
-            wx.CallAfter(self._show_catchup_dialog, channel, programmes, select_start)
+        def failed():
+            self._catchup_dialog_open = False
+            self._show_or_queue_message_box(
+                _("EPG Not Available"), _("Catch-up"), wx.OK | wx.ICON_ERROR)
 
-        self._epg_executor.submit(fetch)
+        def fetch():
+            try:
+                programmes = self._get_catchup_programmes(channel)
+            except Exception:
+                LOG.exception("Catch-up programme lookup failed")
+                wx.CallAfter(failed)
+            else:
+                wx.CallAfter(self._show_catchup_dialog, channel, programmes, select_start)
+
+        try:
+            self._epg_executor.submit(fetch)
+        except Exception:
+            LOG.exception("Could not submit catch-up programme lookup")
+            failed()
 
     def _show_catchup_dialog(self, channel: Dict[str, str],
                              programmes: List[Dict[str, str]],
@@ -9757,7 +9778,9 @@ class CastDiscoveryDialog(wx.Dialog):
         sizer = wx.BoxSizer(wx.VERTICAL)
 
         self.status_lbl = wx.StaticText(panel, label=_("Searching for devices..."))
+        self.devices_label = wx.StaticText(panel, label=_("Select Device to Cast"))
         self.listbox = wx.ListBox(panel, style=wx.LB_SINGLE)
+        self.listbox.SetName(_("Select Device to Cast"))
 
         btn_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -9770,6 +9793,7 @@ class CastDiscoveryDialog(wx.Dialog):
         btn_sizer.Add(cancel_btn, 0, wx.ALL, 5)
         
         sizer.Add(self.status_lbl, 0, wx.ALL, 10)
+        sizer.Add(self.devices_label, 0, wx.LEFT | wx.RIGHT, 10)
         sizer.Add(self.listbox, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
         sizer.Add(btn_sizer, 0, wx.EXPAND | wx.ALL, 10)
         
@@ -11290,19 +11314,21 @@ class ChannelEPGDialog(wx.Dialog):
     def __init__(self, parent, channel_name: str, programmes: List[Dict[str, str]],
                  schedule_callback=None, channel: Optional[Dict[str, str]] = None):
         super().__init__(parent, title=_("EPG: {channel}").format(channel=channel_name), size=(600, 450))
-        self.programmes = programmes
+        self.programmes = []
         self.schedule_callback = schedule_callback
         self.channel = channel or {}
 
         panel = wx.Panel(self)
         sizer = wx.BoxSizer(wx.VERTICAL)
 
+        self.list_label = wx.StaticText(panel, label=_("EPG"))
         self.list_ctrl = wx.ListCtrl(panel, style=wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        self.list_ctrl.SetName(_("EPG"))
         self.list_ctrl.InsertColumn(0, _("Time"), width=190)
         self.list_ctrl.InsertColumn(1, _("Title"), width=360)
 
         now_idx = self._populate_list(programmes)
-        if programmes:
+        if self.programmes:
             # Screen readers announce the selected row, so start on the
             # programme that is airing now instead of always row 0 (issue #3).
             first = now_idx if now_idx != -1 else 0
@@ -11318,7 +11344,8 @@ class ChannelEPGDialog(wx.Dialog):
 
         # No buttons: Schedule Recording lives in the row's context menu, and
         # Escape / Alt+F4 close the window, so Close was only a dead Tab stop.
-        sizer.Add(self.list_ctrl, 1, wx.EXPAND | wx.ALL, 10)
+        sizer.Add(self.list_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        sizer.Add(self.list_ctrl, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         sizer.Add(self.description_label, 0, wx.LEFT | wx.RIGHT, 10)
         sizer.Add(self.description_field, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
@@ -11354,6 +11381,7 @@ class ChannelEPGDialog(wx.Dialog):
                 is_now = start <= now <= end
                 
                 idx = self.list_ctrl.InsertItem(self.list_ctrl.GetItemCount(), time_str)
+                self.programmes.append(prog)
                 self.list_ctrl.SetItem(idx, 1, prog.get("title", ""))
                 
                 if is_now:
