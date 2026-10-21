@@ -1,6 +1,12 @@
 # Changelog
 
 Readable release history for Accessible IPTV Client. New entries are prepended automatically by `build.bat release`. Older entries were reconstructed from the [Forgejo mirror](https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client).
+## v1.150.11 - 2026-10-21
+
+### Bug fixes
+
+- The DVR series scan must not block the scheduler, and four more audit findings (#50)
+
 ## v1.150.10 - 2026-10-20
 
 ### Bug fixes

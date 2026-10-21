@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "Keep the update manifest from pinning its own certificate, and four more audit fixes (#48)"
 msgstr "l manifest degli aggiornamenti non può più fissare il proprio certificato, e altre quattro correzioni dell'audit (#48)"
 
-#: CHANGELOG.md:20
-msgid "Name the cast and EPG lists, report a failed cast, and fix a failed catch-up lookup (#46)"
-msgstr "Assegnare un nome agli elenchi Cast ed EPG, segnalare un Cast non riuscito e correggere una ricerca catch-up non riuscita (#46)"
-
-#: CHANGELOG.md:8
+#: CHANGELOG.md:14
 msgid "Six more audit findings - the modal guard, the subtitle toggle, a bad EPG date, and three config/provider ones (#49)"
 msgstr "Altri sei risultati dell'audit - la guardia modale, l'interruttore dei sottotitoli, una data EPG errata e tre su configurazione/provider (#49)"
+
+#: CHANGELOG.md:8
+msgid "The DVR series scan must not block the scheduler, and four more audit findings (#50)"
+msgstr "La scansione delle serie DVR non deve bloccare lo scheduler, e altri quattro risultati dell'audit (#50)"
 
