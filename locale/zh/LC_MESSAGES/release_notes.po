@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:8
+#: CHANGELOG.md:14
 msgid "Cache the guide usability check instead of scanning the index on the GUI thread (#51)"
 msgstr "缓存节目指南可用性检查，而不是在界面线程中扫描索引 (#51)"
 
 #: CHANGELOG.md:20
-msgid "Six more audit findings - the modal guard, the subtitle toggle, a bad EPG date, and three config/provider ones (#49)"
-msgstr "再六项审计发现——模态守卫、字幕开关、一个错误的 EPG 日期，以及三项配置/提供商问题 (#49)"
-
-#: CHANGELOG.md:14
 msgid "The DVR series scan must not block the scheduler, and four more audit findings (#50)"
 msgstr "DVR 系列扫描不得阻塞调度器，以及另外四项审计发现 (#50)"
+
+#: CHANGELOG.md:8
+msgid "The built-in player's cues must reach the speech manager, and six more audit findings (#52)"
+msgstr "内置播放器的提示必须到达语音管理器，以及再六项审计发现 (#52)"
 

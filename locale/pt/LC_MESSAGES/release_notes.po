@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:8
+#: CHANGELOG.md:14
 msgid "Cache the guide usability check instead of scanning the index on the GUI thread (#51)"
 msgstr "Guardar em cache a verificação de usabilidade do guia em vez de analisar o índice no thread da interface (#51)"
 
 #: CHANGELOG.md:20
-msgid "Six more audit findings - the modal guard, the subtitle toggle, a bad EPG date, and three config/provider ones (#49)"
-msgstr "Mais seis achados da auditoria - o guarda modal, o interruptor de legendas, uma data EPG inválida e três de configuração/provedor (#49)"
-
-#: CHANGELOG.md:14
 msgid "The DVR series scan must not block the scheduler, and four more audit findings (#50)"
 msgstr "A verificação de séries do DVR não deve bloquear o agendador, e mais quatro achados da auditoria (#50)"
+
+#: CHANGELOG.md:8
+msgid "The built-in player's cues must reach the speech manager, and six more audit findings (#52)"
+msgstr "As pistas do reprodutor integrado devem chegar ao gestor de voz, e mais seis achados da auditoria (#52)"
 

@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:8
+#: CHANGELOG.md:14
 msgid "Cache the guide usability check instead of scanning the index on the GUI thread (#51)"
 msgstr "Kılavuz kullanılabilirlik denetimini arayüz iş parçacığında dizini taramak yerine önbelleğe alma (#51)"
 
 #: CHANGELOG.md:20
-msgid "Six more audit findings - the modal guard, the subtitle toggle, a bad EPG date, and three config/provider ones (#49)"
-msgstr "Altı denetim bulgusu daha - modal koruma, altyazı geçişi, hatalı bir EPG tarihi ve üç yapılandırma/sağlayıcı konusu (#49)"
-
-#: CHANGELOG.md:14
 msgid "The DVR series scan must not block the scheduler, and four more audit findings (#50)"
 msgstr "DVR dizi taraması zamanlayıcıyı engellememeli ve dört denetim bulgusu daha (#50)"
+
+#: CHANGELOG.md:8
+msgid "The built-in player's cues must reach the speech manager, and six more audit findings (#52)"
+msgstr "Dahili oynatıcının işaretleri konuşma yöneticisine ulaşmalı ve altı denetim bulgusu daha (#52)"
 
