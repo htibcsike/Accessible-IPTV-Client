@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "Cache the guide usability check instead of scanning the index on the GUI thread (#51)"
 msgstr "تخزين نتيجة فحص قابلية استخدام الدليل مؤقتًا بدلًا من فحص الفهرس في خيط الواجهة (#51)"
 
-#: CHANGELOG.md:20
-msgid "The DVR series scan must not block the scheduler, and four more audit findings (#50)"
-msgstr "يجب ألا يحجب فحص مسلسلات DVR المجدول، وأربعة نتائج تدقيق أخرى (#50)"
-
-#: CHANGELOG.md:8
+#: CHANGELOG.md:14
 msgid "The built-in player's cues must reach the speech manager, and six more audit findings (#52)"
 msgstr "يجب أن تصل تلميحات المشغّل المدمج إلى مدير النطق، وستة نتائج أخرى من التدقيق (#52)"
+
+#: CHANGELOG.md:8
+msgid "The recording relay needs a token, the Stalker MAC is masked, and a country code is only a country when it is written like one (#53)"
+msgstr "يحتاج مرحّل التسجيل إلى رمز، ويتم إخفاء عنوان MAC الخاص بـ Stalker، ولا يُعد رمز البلد بلدًا إلا عندما يُكتب بصيغة رمز (#53)"
 

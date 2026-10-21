@@ -1,6 +1,12 @@
 # Changelog
 
 Readable release history for Accessible IPTV Client. New entries are prepended automatically by `build.bat release`. Older entries were reconstructed from the [Forgejo mirror](https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client).
+## v1.150.14 - 2026-10-21
+
+### Bug fixes
+
+- The recording relay needs a token, the Stalker MAC is masked, and a country code is only a country when it is written like one (#53)
+
 ## v1.150.13 - 2026-10-21
 
 ### Bug fixes
