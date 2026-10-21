@@ -216,6 +216,46 @@ def _window_alive(window) -> bool:
     return True
 
 
+def _context_row_index(list_ctrl, event, keep_multi_selection: bool = False) -> int:
+    """The row the user right-clicked, selected so the action uses it.
+
+    A right-click does not move the selection in a list control, so a menu
+    built from the selected row acts on the wrong one: the user pointed at
+    a programme and the app took another. The channel list has always
+    hit-tested here; the programme lists did not.
+
+    ``keep_multi_selection`` is for a list that allows several rows to be
+    selected: a right-click on one of them keeps the selection, and on any
+    other row selects that row alone.
+    """
+    try:
+        selected = list_ctrl.GetFirstSelected()
+    except Exception:
+        return -1
+    if event is None:
+        return selected
+    try:
+        pos = event.GetPosition()
+        if pos == wx.DefaultPosition or (pos.x == -1 and pos.y == -1):
+            return selected
+        local = list_ctrl.ScreenToClient(pos)
+        hit = list_ctrl.HitTest(local)
+        hit_idx = hit[0] if isinstance(hit, tuple) else hit
+    except Exception:
+        LOG.debug("_context_row_index: ignored exception", exc_info=True)
+        return selected
+    if hit_idx in (None, -1) or hit_idx >= list_ctrl.GetItemCount():
+        return selected
+    if keep_multi_selection and list_ctrl.IsItemSelected(hit_idx):
+        return selected
+    list_ctrl.Select(hit_idx)
+    list_ctrl.Focus(hit_idx)
+    ensure_visible = getattr(list_ctrl, "EnsureVisible", None)
+    if callable(ensure_visible):
+        ensure_visible(hit_idx)
+    return hit_idx
+
+
 def _message_box_owner(parent, frame):
     """The window a box belongs to, or None when that window is gone.
 
@@ -8413,6 +8453,8 @@ class IPTVClient(wx.Frame):
         was_catchup = getattr(self, "_internal_player_stream_kind", "live") == "catchup"
         catchup_return = getattr(self, "_catchup_return", None)
         self._catchup_return = None
+        # Nothing is playing any more, so no subtitle session is active.
+        self._subtitle_session.cancel_session()
         self._internal_player_frame = None
         self._internal_player_channel = None
         self._internal_player_audio_key = ""
@@ -9061,6 +9103,11 @@ class IPTVClient(wx.Frame):
                 if callable(index_setter):
                     index_setter(self._remembered_channel_audio_track_index(
                         self._internal_player_audio_key))
+                # A new stream is a new subtitle session: the shared manager
+                # drops the previous channel's cues, so "Read current
+                # subtitle" cannot answer with the last line of the channel
+                # the user just left.
+                self._subtitle_session.activate_session(display_title)
                 frame.play(
                     url,
                     display_title,
@@ -9160,7 +9207,9 @@ class IPTVClient(wx.Frame):
         def cast_failed(err):
             message_box(_("Failed to cast: {error}").format(error=err), _("Casting Error"),
                         wx.OK | wx.ICON_ERROR, owner)
-            if owner is player and player.IsShown():
+            # The player can be closed while this box waits; a destroyed
+            # wx object raises on every call.
+            if owner is player and _window_alive(player) and player.IsShown():
                 player.Raise()
                 player.cast_btn.SetFocus()
 
@@ -9444,6 +9493,11 @@ class IPTVClient(wx.Frame):
             if direct:
                 LOG.info("Catch-up: using fast direct download URL")
                 url = direct
+                # The direct file can live on another host - the provider
+                # redirected there. The channel's credentials must not
+                # follow it: ffmpeg would send the provider's cookie to a
+                # stranger, and so would the audio probe below.
+                headers = catchup_direct.headers_for_host(headers, fetch_url, direct)
         except (TypeError, ValueError):
             LOG.debug("Catch-up direct URL probe skipped: programme window is not valid",
                       exc_info=True)
@@ -10796,7 +10850,7 @@ class ScheduledRecordingsDialog(wx.Dialog):
         panel.SetSizer(sizer)
 
         refresh_btn.Bind(wx.EVT_BUTTON, lambda _event: self.refresh())
-        self.list_ctrl.Bind(wx.EVT_CONTEXT_MENU, lambda _event: self._show_context_menu(keyboard=False))
+        self.list_ctrl.Bind(wx.EVT_CONTEXT_MENU, lambda _event: self._show_context_menu(keyboard=False, event=_event))
         self.Bind(wx.EVT_CHAR_HOOK, self._on_char_hook)
         self.Bind(wx.EVT_CLOSE, self._on_close)
 
@@ -10824,7 +10878,7 @@ class ScheduledRecordingsDialog(wx.Dialog):
         else:
             event.Skip()
 
-    def _show_context_menu(self, keyboard: bool):
+    def _show_context_menu(self, keyboard: bool, event=None):
         menu = wx.Menu()
         refresh_item = menu.Append(wx.ID_ANY, _("Refresh"))
         menu.Bind(wx.EVT_MENU, lambda _event: self.refresh(), refresh_item)
@@ -10844,6 +10898,8 @@ class ScheduledRecordingsDialog(wx.Dialog):
                         pos = self.list_ctrl.ClientToScreen(rect.GetBottomLeft())
                 except Exception:
                     LOG.debug("ScheduledRecordingsDialog._show_context_menu: ignored exception", exc_info=True)
+        else:
+            _context_row_index(self.list_ctrl, event, keep_multi_selection=True)
         try:
             self.list_ctrl.PopupMenu(menu, pos)
         finally:
@@ -11012,9 +11068,14 @@ class WhatsOnNowDialog(wx.Dialog):
         
         # Bind events - use KEY_DOWN to intercept space before ListCtrl handles it
         self.listbox.Bind(wx.EVT_KEY_DOWN, self._on_key_down)
+        # Enter, though, has to come from the char hook: a dialog consumes Enter
+        # before the focused control ever sees a key-down, and this dialog has
+        # no default button for wx to press instead (the Play button is not
+        # one), so pressing Enter on a programme did nothing at all.
+        self.listbox.Bind(wx.EVT_CHAR_HOOK, self._on_list_char_hook)
         self.listbox.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_activate)
         # Right-click / Shift+F10 / Applications key on a programme row.
-        self.listbox.Bind(wx.EVT_CONTEXT_MENU, lambda _evt: self._show_context_menu())
+        self.listbox.Bind(wx.EVT_CONTEXT_MENU, lambda _evt: self._show_context_menu(_evt))
         play_btn.Bind(wx.EVT_BUTTON, self._on_play)
         schedule_btn.Bind(wx.EVT_BUTTON, self._on_schedule)
         self.search_box.Bind(wx.EVT_TEXT, self._on_search)
@@ -11026,6 +11087,14 @@ class WhatsOnNowDialog(wx.Dialog):
             self.listbox.Focus(0)
         self.listbox.SetFocus()
     
+    def _on_list_char_hook(self, event):
+        """Enter on a programme, before the list ever sees a key-down."""
+        if event.GetKeyCode() in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
+            if self.listbox.GetSelectedItemCount() > 0:
+                self.EndModal(wx.ID_OK)
+            return
+        event.Skip()
+
     def _on_key_down(self, event):
         """Handle key input for type-ahead search - intercept before ListCtrl."""
         key = event.GetKeyCode()
@@ -11177,11 +11246,12 @@ class WhatsOnNowDialog(wx.Dialog):
         if selection and self.schedule_callback:
             self.schedule_callback(selection, repeat=repeat)
 
-    def _show_context_menu(self):
+    def _show_context_menu(self, event=None):
         """Row actions for the highlighted programme, keyboard reachable."""
         if not self.filtered_programs:
             return
-        if self.listbox.GetFirstSelected() == -1:
+        index = _context_row_index(self.listbox, event)
+        if index < 0:
             self.listbox.Select(0)
             self.listbox.Focus(0)
         menu = wx.Menu()
@@ -11426,7 +11496,7 @@ class ChannelEPGDialog(wx.Dialog):
         self.list_ctrl.Bind(wx.EVT_LIST_ITEM_SELECTED, lambda _evt: self._update_description())
         self.list_ctrl.Bind(wx.EVT_CHAR_HOOK, self._on_list_key)
         # Right-click / Shift+F10 / Applications key on a programme row.
-        self.list_ctrl.Bind(wx.EVT_CONTEXT_MENU, lambda _evt: self._show_context_menu())
+        self.list_ctrl.Bind(wx.EVT_CONTEXT_MENU, lambda _evt: self._show_context_menu(_evt))
         self.description_field.Bind(wx.EVT_CHAR_HOOK, self._on_description_key)
         self._update_description()
         
@@ -11478,11 +11548,12 @@ class ChannelEPGDialog(wx.Dialog):
             return
         event.Skip()
 
-    def _show_context_menu(self):
+    def _show_context_menu(self, event=None):
         """Row actions for the highlighted programme, keyboard reachable."""
         if not self.programmes:
             return
-        if self.list_ctrl.GetFirstSelected() == -1:
+        index = _context_row_index(self.list_ctrl, event)
+        if index < 0:
             self.list_ctrl.Select(0)
             self.list_ctrl.Focus(0)
         menu = wx.Menu()

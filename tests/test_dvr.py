@@ -1,5 +1,6 @@
 import datetime
 import http.server
+import json
 import os
 import socketserver
 import subprocess
@@ -92,7 +93,14 @@ def test_scheduler_tick_starts_and_stops_jobs(tmp_path):
 
     now[0] = 1010
     scheduler.tick()
+    # The start runs on a worker, so the tick is not held up by it.
+    deadline = time.time() + 5
+    while not events and time.time() < deadline:
+        time.sleep(0.05)
     assert events == [("start", "job1")]
+    deadline = time.time() + 5
+    while scheduler.get_job("job1").get("recording_id") is None and time.time() < deadline:
+        time.sleep(0.05)
     active = scheduler.get_job("job1")
     assert active["status"] == dvr.STATUS_RECORDING
     assert active["recording_id"] == 42
@@ -151,6 +159,28 @@ def test_scheduler_persists_jobs_and_resets_interrupted_recording(tmp_path):
     loaded = reloaded.get_job("job1")
     assert loaded["status"] == dvr.STATUS_SCHEDULED
     assert loaded["recording_id"] is None
+
+
+def test_a_schedule_file_with_a_bad_timestamp_does_not_break_startup(tmp_path):
+    """The schedule file can be hand-edited or left half-written.
+
+    One bad value must not take the scheduler - or the startup that loads
+    it - down with it: the timestamp was read outside any try, so a
+    non-numeric stop_ts raised out of the constructor.
+    """
+    schedule_path = tmp_path / "schedule.json"
+    schedule_path.write_text(json.dumps({"jobs": [
+        {"id": "job1", "status": dvr.STATUS_RECORDING, "start_ts": "later",
+         "stop_ts": "soon", "recording_id": 7},
+    ]}), encoding="utf-8")
+
+    scheduler = dvr.DVRScheduler(str(schedule_path), on_start=lambda job: 1, on_stop=lambda job: None)
+
+    job = scheduler.get_job("job1")
+    assert job is not None
+    assert job["status"] == dvr.STATUS_SCHEDULED
+    # The tick must survive it too.
+    scheduler.tick()
 
 
 def test_scheduler_fails_interrupted_recording_whose_window_closed(tmp_path):
@@ -348,6 +378,10 @@ def test_cancel_while_starting_stops_the_recording(tmp_path):
     holder["scheduler"] = scheduler = _job_scheduler(tmp_path, on_start, on_stop, now)
     scheduler.tick()
 
+    # The start runs on a worker, so the cancel lands while it is still going.
+    deadline = time.time() + 5
+    while not stopped and time.time() < deadline:
+        time.sleep(0.05)
     assert stopped == [7]
     assert scheduler.get_job("job1")["status"] == dvr.STATUS_CANCELED
 
@@ -443,6 +477,64 @@ def test_stopping_a_scheduled_recording_stops_by_id_when_it_resolves():
 
     assert stopped_ids == [7]
     assert stopped_keys == []
+
+
+def test_a_slow_start_does_not_stop_the_scheduler_ticking(tmp_path):
+    """Starting a recording takes seconds: it resolves the URL, classifies the
+    media and probes the audio tracks.
+
+    It used to run inside the scheduler tick, so the scheduler could not tick
+    while it ran: a recording that came due in the meantime started late, and
+    one whose window passed was marked as missed and never recorded.
+    """
+    now = [7000.0]
+    events = []
+    release = threading.Event()
+    started = threading.Event()
+
+    def on_start(job):
+        started.set()
+        release.wait(10)
+        events.append("start")
+        return 42
+
+    scheduler = dvr.DVRScheduler(
+        str(tmp_path / "schedule.json"),
+        on_start=on_start,
+        on_stop=lambda _job: None,
+        clock=lambda: now[0],
+        poll_seconds=0.2,
+    )
+    start = datetime.datetime.fromtimestamp(7010, datetime.timezone.utc)
+    end = datetime.datetime.fromtimestamp(7030, datetime.timezone.utc)
+    for job_id in ("job1", "job2"):
+        scheduler.add_job(dvr.build_job(
+            {"name": "DVR Test Channel", "url": "http://example/stream"},
+            _sample_program(start, end),
+            "provider_mkv",
+            job_id=job_id))
+
+    now[0] = 7010
+    began = time.monotonic()
+    scheduler.tick()
+    elapsed = time.monotonic() - began
+    assert elapsed < 1.0, "the tick waited for the recording to start"
+    assert started.wait(5), "the recording never started"
+
+    # The tick is free again, so a job that comes due now is claimed while the
+    # first one is still starting.
+    now[0] = 7020
+    began = time.monotonic()
+    scheduler.tick()
+    elapsed = time.monotonic() - began
+    assert elapsed < 1.0, "the tick waited for the recording to start"
+    assert scheduler.get_job("job2")["status"] == dvr.STATUS_RECORDING
+
+    release.set()
+    deadline = time.time() + 5
+    while len(events) < 2 and time.time() < deadline:
+        time.sleep(0.05)
+    assert len(events) == 2
 
 
 def test_the_series_scan_does_not_block_the_scheduler(tmp_path):
