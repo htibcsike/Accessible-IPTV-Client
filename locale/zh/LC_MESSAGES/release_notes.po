@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "The MPV adapter starts on a worker, and the one-copy guard is per user (#54)"
 msgstr "MPV 适配器在工作线程上启动，单副本防护按用户生效 (#54)"
 
-#: CHANGELOG.md:20
-msgid "The recording relay needs a token, the Stalker MAC is masked, and a country code is only a country when it is written like one (#53)"
-msgstr "录制中继需要令牌，Stalker MAC 已被掩码，国家代码只有以代码形式书写时才算国家 (#53)"
-
 #: CHANGELOG.md:8
+msgid "The words that are not country codes, and the headers that are not headers (#56)"
+msgstr "不是国家代码的词，以及不是标头的标头 (#56)"
+
+#: CHANGELOG.md:14
 msgid "Two deadlocks, a recording that was truncated on the way out, and the wrong row acted on (#55)"
 msgstr "两个死锁、退出时被截断的录制，以及操作了错误的行 (#55)"
 

@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "The MPV adapter starts on a worker, and the one-copy guard is per user (#54)"
 msgstr "MPV bağdaştırıcısı bir worker üzerinde başlıyor ve tek kopya koruması kullanıcı başına uygulanıyor (#54)"
 
-#: CHANGELOG.md:20
-msgid "The recording relay needs a token, the Stalker MAC is masked, and a country code is only a country when it is written like one (#53)"
-msgstr "Kayıt aktarıcısının bir belirtece ihtiyacı var, Stalker MAC adresi maskeleniyor ve bir ülke kodu yalnızca kod gibi yazıldığında ülkedir (#53)"
-
 #: CHANGELOG.md:8
+msgid "The words that are not country codes, and the headers that are not headers (#56)"
+msgstr "Ülke kodu olmayan kelimeler ve başlık olmayan başlıklar (#56)"
+
+#: CHANGELOG.md:14
 msgid "Two deadlocks, a recording that was truncated on the way out, and the wrong row acted on (#55)"
 msgstr "İki kilitlenme, çıkışta kesilen bir kayıt ve işlem yapılan yanlış satır (#55)"
 
