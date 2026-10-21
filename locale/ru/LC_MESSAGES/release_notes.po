@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:20
-msgid "The MPV adapter starts on a worker, and the one-copy guard is per user (#54)"
-msgstr "Адаптер MPV запускается в рабочем потоке, а защита от второй копии действует для каждого пользователя (#54)"
-
-#: CHANGELOG.md:8
+#: CHANGELOG.md:14
 msgid "The words that are not country codes, and the headers that are not headers (#56)"
 msgstr "Слова, которые не являются кодами стран, и заголовки, которые не являются заголовками (#56)"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:8
+msgid "The words that are not tags, the lock that is not ours, and the MPV handshake (#57)"
+msgstr "Слова, которые не являются тегами, блокировка, которая не наша, и рукопожатие MPV (#57)"
+
+#: CHANGELOG.md:20
 msgid "Two deadlocks, a recording that was truncated on the way out, and the wrong row acted on (#55)"
 msgstr "Два взаимных блокирования, запись, обрезанная при выходе, и действие не по той строке (#55)"
 
