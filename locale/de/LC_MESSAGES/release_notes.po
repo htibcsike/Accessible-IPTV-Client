@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:20
-msgid "Cache the guide usability check instead of scanning the index on the GUI thread (#51)"
-msgstr "Die Prüfung, ob der Programmführer verwendbar ist, wird zwischengespeichert, statt den Index im GUI-Thread zu durchsuchen (#51)"
+#: CHANGELOG.md:8
+msgid "The MPV adapter starts on a worker, and the one-copy guard is per user (#54)"
+msgstr "Der MPV-Adapter startet in einem Worker, und die Sperre für die eine Kopie gilt pro Benutzer (#54)"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "The built-in player's cues must reach the speech manager, and six more audit findings (#52)"
 msgstr "Die Untertitel-Cues des integrierten Players müssen den Sprachmanager erreichen, und sechs weitere Prüfungsbefunde (#52)"
 
-#: CHANGELOG.md:8
+#: CHANGELOG.md:14
 msgid "The recording relay needs a token, the Stalker MAC is masked, and a country code is only a country when it is written like one (#53)"
 msgstr "Das Aufnahme-Relais benötigt ein Token, die Stalker-MAC wird maskiert, und ein Ländercode ist nur dann ein Land, wenn er auch wie einer geschrieben ist (#53)"
 
