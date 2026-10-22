@@ -1,6 +1,12 @@
 # Changelog
 
 Readable release history for Accessible IPTV Client. New entries are prepended automatically by `build.bat release`. Older entries were reconstructed from the [Forgejo mirror](https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client).
+## v1.150.28 - 2026-10-22
+
+### Bug fixes
+
+- The exit that froze the window, the help that was not there, and the tool that reported the session (#67)
+
 ## v1.150.27 - 2026-10-22
 
 ### Bug fixes
