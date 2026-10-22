@@ -16,12 +16,12 @@ msgstr ""
 msgid "&Playback"
 msgstr "&प्लेबैक"
 
-#: main.py:5452
+#: main.py:5393
 msgid "(No EPG debug log has been written yet.)"
 msgstr "(अभी तक कोई EPG डिबग लॉग नहीं लिखा गया है।)"
 
-#: main.py:10770
-#: main.py:11756
+#: main.py:10711
+#: main.py:11697
 msgid "(No title)"
 msgstr "(कोई शीर्षक नहीं)"
 
@@ -29,16 +29,16 @@ msgstr "(कोई शीर्षक नहीं)"
 msgid "(thumbprint {thumbprint})."
 msgstr "(थंबप्रिंट {thumbprint})।"
 
-#: main.py:2770
+#: main.py:2711
 #: settings_backup.py:18
 msgid "A backup password is required."
 msgstr "बैकअप पासवर्ड ज़रूरी है।"
 
-#: main.py:6827
+#: main.py:6768
 msgid "A download is still in progress.\n\nIf you exit now it will stop, and only the part captured so far is kept.\n\nExit anyway?"
 msgstr "कोई डाउनलोड या रिकॉर्डिंग अभी चल रही है।\n\nयदि आप अभी बाहर निकलते हैं तो यह रुक जाएगी, और अब तक कैप्चर किया गया भाग ही सुरक्षित रहेगा।\n\nफिर भी बाहर निकलें?"
 
-#: main.py:6804
+#: main.py:6745
 msgid "A recording is in progress and {count} recording is still scheduled.\n\n{names}\n\nThe app must stay open to start them. Exit anyway?"
 msgstr "एक रिकॉर्डिंग चल रही है और {count} रिकॉर्डिंग अभी भी निर्धारित है।\n\n{names}\n\nइसे शुरू करने के लिए ऐप खुला रहना चाहिए। फिर भी बाहर निकलें?"
 
@@ -50,8 +50,8 @@ msgstr "Windows और Linux के लिए स्क्रीन रीडर
 msgid "About {name}"
 msgstr "{name} के बारे में"
 
-#: main.py:3561
-#: main.py:3757
+#: main.py:3502
+#: main.py:3698
 msgid "About..."
 msgstr "के बारे में..."
 
@@ -59,8 +59,8 @@ msgstr "के बारे में..."
 msgid "Accessibility"
 msgstr "सुगम्यता"
 
-#: main.py:2859
-#: main.py:2875
+#: main.py:2800
+#: main.py:2816
 msgid "Accessible IPTV backup (*.aiptv)"
 msgstr "Accessible IPTV बैकअप (*.aiptv)"
 
@@ -68,9 +68,9 @@ msgstr "Accessible IPTV बैकअप (*.aiptv)"
 msgid "Account"
 msgstr "खाता"
 
-#: main.py:3455
-#: main.py:3593
-#: main.py:10297
+#: main.py:3396
+#: main.py:3534
+#: main.py:10238
 #: shortcuts.py:64
 msgid "Account Info"
 msgstr "खाता जानकारी"
@@ -79,12 +79,12 @@ msgstr "खाता जानकारी"
 msgid "Account balance"
 msgstr "खाता शेष"
 
-#: main.py:10316
-#: main.py:10318
+#: main.py:10257
+#: main.py:10259
 msgid "Account details"
 msgstr "खाता विवरण"
 
-#: main.py:10436
+#: main.py:10377
 msgid "Account details copied to the clipboard."
 msgstr "खाता विवरण क्लिपबोर्ड पर कॉपी किया गया।"
 
@@ -92,8 +92,8 @@ msgstr "खाता विवरण क्लिपबोर्ड पर क�
 msgid "Account information is not supported for this provider type."
 msgstr "इस प्रदाता प्रकार के लिए खाता जानकारी समर्थित नहीं है।"
 
-#: main.py:10310
-#: main.py:10312
+#: main.py:10251
+#: main.py:10253
 msgid "Accounts"
 msgstr "खाते"
 
@@ -101,73 +101,73 @@ msgstr "खाते"
 msgid "Active"
 msgstr "सक्रिय"
 
-#: main.py:5447
+#: main.py:5388
 msgid "Active recordings: {count}"
 msgstr "सक्रिय रिकॉर्डिंग: {count}"
 
-#: playlist.py:3497
-#: playlist.py:3616
+#: playlist.py:3453
+#: playlist.py:3572
 msgid "Add"
 msgstr "जोड़ें"
 
-#: playlist.py:3171
-#: playlist.py:3274
+#: playlist.py:3127
+#: playlist.py:3230
 msgid "Add File"
 msgstr "फ़ाइल जोड़ें"
 
-#: playlist.py:3277
+#: playlist.py:3233
 msgid "Add Stalker Portal"
 msgstr "Stalker Portal जोड़ें"
 
-#: playlist.py:3550
+#: playlist.py:3506
 msgid "Add Stalker Portal Account"
 msgstr "Stalker Portal खाता जोड़ें"
 
-#: playlist.py:3172
-#: playlist.py:3275
+#: playlist.py:3128
+#: playlist.py:3231
 msgid "Add URL"
 msgstr "URL जोड़ें"
 
-#: playlist.py:3276
+#: playlist.py:3232
 msgid "Add Xtream Codes"
 msgstr "Xtream Codes जोड़ें"
 
-#: playlist.py:3435
+#: playlist.py:3391
 msgid "Add Xtream Codes Account"
 msgstr "Xtream Codes खाता जोड़ें"
 
-#: main.py:2636
-#: main.py:3617
+#: main.py:2577
+#: main.py:3558
 #: shortcuts.py:65
 msgid "Add to Favorites"
 msgstr "पसंदीदा में जोड़ें"
 
-#: main.py:7247
-#: main.py:7283
-#: main.py:7284
-#: main.py:8381
+#: main.py:7188
+#: main.py:7224
+#: main.py:7225
+#: main.py:8322
 msgid "All Channels"
 msgstr "सभी चैनल"
 
-#: playlist.py:3210
-#: playlist.py:3310
+#: playlist.py:3166
+#: playlist.py:3266
 msgid "All files"
 msgstr "सभी फ़ाइलें"
 
 #: main.py:2161
-#: main.py:7802
+#: main.py:7743
 msgid "All playlists"
 msgstr "सभी प्लेलिस्ट"
 
-#: main.py:7800
+#: main.py:7741
 msgid "All playlists refreshed."
 msgstr "सभी प्लेलिस्ट रीफ़्रेश हो गईं।"
 
-#: playlist.py:3333
+#: playlist.py:3289
 msgid "All playlists selected. Press F5 to refresh them all."
 msgstr "सभी प्लेलिस्ट चुनी गईं। सभी को रीफ़्रेश करने के लिए F5 दबाएँ।"
 
-#: main.py:11091
+#: main.py:11032
 msgid "All recordings have finished.\n\nThe computer will shut down by itself. Seconds remaining: {seconds}"
 msgstr "सभी रिकॉर्डिंग पूरी हो गई हैं।\n\nकंप्यूटर स्वयं बंद हो जाएगा। शेष सेकंड: {seconds}"
 
@@ -175,37 +175,37 @@ msgstr "सभी रिकॉर्डिंग पूरी हो गई ह�
 msgid "Allowed formats"
 msgstr "अनुमत प्रारूप"
 
-#: playlist.py:3185
+#: playlist.py:3141
 msgid "Also use the guide each playlist links to"
 msgstr "हर प्लेलिस्ट द्वारा बताए गए EPG का भी उपयोग करें"
 
-#: main.py:5891
+#: main.py:5832
 msgid "An update is already in progress."
 msgstr "एक अपडेट पहले से ही चल रहा है।"
 
-#: main.py:9185
+#: main.py:9126
 msgid "Application voice output"
 msgstr "एप्लिकेशन वॉइस आउटपुट"
 
-#: main.py:3713
+#: main.py:3654
 msgid "Application voice output..."
 msgstr "एप्लिकेशन वॉइस आउटपुट..."
 
-#: main.py:9210
+#: main.py:9151
 msgid "Application voice output: {name}"
 msgstr "एप्लिकेशन वॉइस आउटपुट: {name}"
 
-#: main.py:9140
+#: main.py:9081
 msgid "Application voice volume"
 msgstr "एप्लिकेशन वॉइस वॉल्यूम"
 
-#: main.py:3710
+#: main.py:3651
 msgid "Application voice volume..."
 msgstr "एप्लिकेशन वॉइस वॉल्यूम..."
 
-#: playlist.py:3590
-#: playlist.py:3591
-#: playlist.py:3593
+#: playlist.py:3546
+#: playlist.py:3547
+#: playlist.py:3549
 msgid "Attempt to add provider XMLTV"
 msgstr "प्रदाता का XMLTV जोड़ने का प्रयास करें"
 
@@ -219,7 +219,7 @@ msgid "Audio Output Device..."
 msgstr "ऑडियो आउटपुट डिवाइस..."
 
 #: internal_player.py:537
-#: main.py:2817
+#: main.py:2758
 #: shortcuts.py:81
 msgid "Audio Track"
 msgstr "ऑडियो ट्रैक"
@@ -228,23 +228,23 @@ msgstr "ऑडियो ट्रैक"
 msgid "Audio Track: {name}"
 msgstr "ऑडियो ट्रैक: {name}"
 
-#: main.py:4399
+#: main.py:4340
 msgid "Audio only (AAC, M4A)"
 msgstr "केवल ऑडियो (AAC, M4A)"
 
-#: main.py:4397
+#: main.py:4338
 msgid "Audio only (FLAC)"
 msgstr "केवल ऑडियो (FLAC)"
 
-#: main.py:4396
+#: main.py:4337
 msgid "Audio only (MP3 V0)"
 msgstr "केवल ऑडियो (MP3 V0)"
 
-#: main.py:4400
+#: main.py:4341
 msgid "Audio only (Opus)"
 msgstr "केवल ऑडियो (Opus)"
 
-#: main.py:4398
+#: main.py:4339
 msgid "Audio only (WAV)"
 msgstr "केवल ऑडियो (WAV)"
 
@@ -256,7 +256,7 @@ msgstr "ऑडियो आउटपुट डिवाइस"
 msgid "Audio track unavailable"
 msgstr "ऑडियो ट्रैक उपलब्ध नहीं है"
 
-#: main.py:4870
+#: main.py:4811
 msgid "Audio-only stream detected. Recording started ({fmt}):\n{path}"
 msgstr "केवल ऑडियो स्ट्रीम मिली. रिकॉर्डिंग प्रारंभ हुई ({fmt}):\n{path}"
 
@@ -287,24 +287,24 @@ msgstr "Authenticode सत्यापन ने अमान्य डेट�
 msgid "Authenticode verification timed out."
 msgstr "Authenticode सत्यापन का समय समाप्त हो गया।"
 
-#: main.py:3535
-#: main.py:3661
+#: main.py:3476
+#: main.py:3602
 msgid "Auto-check for Updates"
 msgstr "अपडेट के लिए स्वतः जाँच करें"
 
-#: main.py:3512
-#: main.py:3651
+#: main.py:3453
+#: main.py:3592
 msgid "Automatic"
 msgstr "स्वचालित"
 
-#: main.py:3548
-#: main.py:3674
+#: main.py:3489
+#: main.py:3615
 msgid "Automatic Announcements"
 msgstr "स्वचालित घोषणाएँ"
 
-#: playlist.py:3477
-#: playlist.py:3478
-#: playlist.py:3480
+#: playlist.py:3433
+#: playlist.py:3434
+#: playlist.py:3436
 msgid "Automatically add XMLTV URL"
 msgstr "XMLTV URL स्वतः जोड़ें"
 
@@ -320,11 +320,11 @@ msgstr "बैकअप की सेटिंग्स अमान्य ह�
 msgid "Banned"
 msgstr "प्रतिबंधित"
 
-#: playlist.py:3603
+#: playlist.py:3559
 msgid "Base URL of the Stalker/Ministra portal"
 msgstr "Stalker/Ministra पोर्टल का बेस URL"
 
-#: playlist.py:3485
+#: playlist.py:3441
 msgid "Base URL of the Xtream Codes server"
 msgstr "Xtream Codes सर्वर का बेस URL"
 
@@ -360,34 +360,34 @@ msgstr "अंतर्निहित प्लेयर"
 msgid "Built-in player is unavailable."
 msgstr "अंतर्निहित प्लेयर उपलब्ध नहीं है।"
 
-#: main.py:9376
+#: main.py:9317
 msgid "Built-in player unavailable:\n{detail}"
 msgstr "अंतर्निहित प्लेयर उपलब्ध नहीं:\n{detail}"
 
 #: internal_player.py:143
-#: main.py:9152
-#: main.py:10207
-#: main.py:10533
-#: main.py:10886
-#: main.py:11009
-#: main.py:11199
+#: main.py:9093
+#: main.py:10148
+#: main.py:10474
+#: main.py:10827
+#: main.py:10950
+#: main.py:11140
 #: options.py:913
-#: playlist.py:3190
-#: playlist.py:3290
-#: playlist.py:3498
-#: playlist.py:3617
+#: playlist.py:3146
+#: playlist.py:3246
+#: playlist.py:3454
+#: playlist.py:3573
 msgid "Cancel"
 msgstr "रद्द करें"
 
-#: main.py:10630
+#: main.py:10571
 msgid "Cancel Download"
 msgstr "डाउनलोड रद्द करें"
 
-#: main.py:11067
+#: main.py:11008
 msgid "Cancel Shutdown"
 msgstr "बंद करना रद्द करें"
 
-#: main.py:11228
+#: main.py:11169
 msgid "Canceled"
 msgstr "रद्द किया गया"
 
@@ -400,15 +400,15 @@ msgid "Cast"
 msgstr "कास्ट करें"
 
 #: main.py:1646
-#: main.py:2810
-#: main.py:3461
-#: main.py:3605
+#: main.py:2751
+#: main.py:3402
+#: main.py:3546
 #: shortcuts.py:60
 msgid "Cast / Connect..."
 msgstr "कास्ट करें / कनेक्ट करें..."
 
-#: main.py:3569
-#: main.py:3596
+#: main.py:3510
+#: main.py:3537
 msgid "Cast To..."
 msgstr "इसमें कास्ट करें..."
 
@@ -417,7 +417,7 @@ msgid "Cast to Device"
 msgstr "डिवाइस पर कास्ट करें"
 
 #: internal_player.py:553
-#: main.py:2816
+#: main.py:2757
 #: shortcuts.py:78
 msgid "Cast..."
 msgstr "कास्ट करें..."
@@ -425,21 +425,21 @@ msgstr "कास्ट करें..."
 #: internal_player.py:1922
 #: internal_player.py:1926
 #: internal_player.py:1945
-#: main.py:9359
-#: main.py:9504
-#: main.py:9533
-#: main.py:10151
+#: main.py:9300
+#: main.py:9445
+#: main.py:9474
+#: main.py:10092
 msgid "Casting"
 msgstr "कास्ट हो रहा है"
 
 #: internal_player.py:1945
-#: main.py:9355
-#: main.py:9362
-#: main.py:9516
+#: main.py:9296
+#: main.py:9303
+#: main.py:9457
 msgid "Casting Error"
 msgstr "कास्टिंग त्रुटि"
 
-#: main.py:9352
+#: main.py:9293
 msgid "Casting failed: {error}"
 msgstr "कास्टिंग विफल: {error}"
 
@@ -447,46 +447,46 @@ msgstr "कास्टिंग विफल: {error}"
 msgid "Casting is unavailable because the caster is not initialised."
 msgstr "कास्टिंग उपलब्ध नहीं है क्योंकि कास्टर प्रारंभ नहीं किया गया है।"
 
-#: main.py:9359
-#: main.py:9533
+#: main.py:9300
+#: main.py:9474
 msgid "Casting to {device}..."
 msgstr "{device} पर कास्ट हो रहा है..."
 
-#: main.py:3980
-#: main.py:9616
-#: main.py:9639
-#: main.py:9663
-#: main.py:9666
-#: main.py:10701
+#: main.py:3921
+#: main.py:9557
+#: main.py:9580
+#: main.py:9604
+#: main.py:9607
+#: main.py:10642
 msgid "Catch-up"
 msgstr "कैच-अप"
 
-#: main.py:9721
-#: main.py:9727
-#: main.py:9739
-#: main.py:9752
-#: main.py:9843
-#: main.py:9851
-#: main.py:9895
-#: main.py:9959
-#: main.py:9977
-#: main.py:9981
-#: main.py:10024
+#: main.py:9662
+#: main.py:9668
+#: main.py:9680
+#: main.py:9693
+#: main.py:9784
+#: main.py:9792
+#: main.py:9836
+#: main.py:9900
+#: main.py:9918
+#: main.py:9922
+#: main.py:9965
 msgid "Catch-up Download"
 msgstr "कैच-अप डाउनलोड"
 
-#: main.py:10736
+#: main.py:10677
 msgid "Catch-up programmes"
 msgstr "कैच-अप प्रोग्राम"
 
-#: main.py:10702
+#: main.py:10643
 msgid "Catch-up: {name}"
 msgstr "कैच-अप: {name}"
 
 #: main.py:848
 #: main.py:850
 #: main.py:1006
-#: main.py:3380
+#: main.py:3321
 msgid "Categories"
 msgstr "श्रेणियाँ"
 
@@ -494,12 +494,12 @@ msgstr "श्रेणियाँ"
 msgid "Changes in each version of {app}, newest first. Notes for the latest versions appear in your language once they have been translated; older entries stay in English."
 msgstr "{app} के हर संस्करण में हुए बदलाव, सबसे नए पहले। नवीनतम संस्करणों के नोट्स अनुवाद हो जाने पर आपकी भाषा में दिखते हैं; पुरानी प्रविष्टियाँ अंग्रेज़ी में रहती हैं।"
 
-#: main.py:11152
+#: main.py:11093
 msgid "Channel"
 msgstr "चैनल"
 
-#: main.py:4489
-#: main.py:7950
+#: main.py:4430
+#: main.py:7891
 msgid "Channel Not Found"
 msgstr "चैनल नहीं मिला"
 
@@ -508,45 +508,45 @@ msgstr "चैनल नहीं मिला"
 msgid "Channel missing command reference"
 msgstr "चैनल में कमांड संदर्भ गायब है"
 
-#: main.py:4174
+#: main.py:4115
 msgid "Channel number {number} was not found."
 msgstr "चैनल नंबर {number} नहीं मिला।"
 
-#: main.py:3398
-#: main.py:11622
-#: main.py:11624
+#: main.py:3339
+#: main.py:11563
+#: main.py:11565
 msgid "Channels"
 msgstr "चैनल"
 
-#: main.py:10410
+#: main.py:10351
 msgid "Check failed."
 msgstr "जाँच विफल।"
 
-#: main.py:3551
+#: main.py:3492
 msgid "Check for Updates"
 msgstr "अपडेट के लिए जाँचें"
 
-#: main.py:3753
+#: main.py:3694
 msgid "Check for Updates..."
 msgstr "अपडेट के लिए जाँचें..."
 
-#: main.py:7766
+#: main.py:7707
 msgid "Check that the EPG sources in File > EPG Manager are reachable, then try again."
 msgstr "जाँचें कि फ़ाइल > EPG प्रबंधक में दिए गए EPG स्रोत उपलब्ध हैं, फिर पुनः प्रयास करें।"
 
-#: main.py:10374
+#: main.py:10315
 msgid "Checking account, please wait..."
 msgstr "खाते की जाँच हो रही है, कृपया प्रतीक्षा करें..."
 
-#: main.py:6055
+#: main.py:5996
 msgid "Checking for update details..."
 msgstr "अपडेट विवरण की जाँच हो रही है..."
 
-#: main.py:5519
+#: main.py:5460
 msgid "Checking stream type…"
 msgstr "स्ट्रीम प्रकार जाँचा जा रहा है…"
 
-#: main.py:10375
+#: main.py:10316
 msgid "Checking {account}..."
 msgstr "{account} की जाँच हो रही है..."
 
@@ -554,32 +554,32 @@ msgstr "{account} की जाँच हो रही है..."
 msgid "Choose Audio Track"
 msgstr "ऑडियो ट्रैक चुनें"
 
-#: playlist.py:3212
+#: playlist.py:3168
 msgid "Choose EPG XML file"
 msgstr "EPG XML फ़ाइल चुनें"
 
-#: playlist.py:3312
+#: playlist.py:3268
 msgid "Choose M3U file"
 msgstr "M3U फ़ाइल चुनें"
 
-#: main.py:7790
+#: main.py:7731
 msgid "Choose OK to save the new playlist, then refresh it."
 msgstr "नई प्लेलिस्ट सहेजने के लिए ठीक चुनें, फिर उसे रीफ़्रेश करें।"
 
-#: main.py:4143
+#: main.py:4084
 msgid "Choose a channel to play:"
 msgstr "खेलने के लिए एक चैनल चुनें:"
 
-#: main.py:2827
+#: main.py:2768
 msgid "Choose a command to change:"
 msgstr "बदलने के लिए एक कमांड चुनें:"
 
 #: main.py:355
 #: main.py:418
 #: main.py:617
-#: main.py:10325
-#: main.py:10946
-#: main.py:11366
+#: main.py:10266
+#: main.py:10887
+#: main.py:11307
 msgid "Close"
 msgstr "बंद करें"
 
@@ -587,31 +587,31 @@ msgstr "बंद करें"
 msgid "Community and support"
 msgstr "समुदाय और सहायता"
 
-#: main.py:11225
+#: main.py:11166
 msgid "Completed"
 msgstr "पूर्ण"
 
-#: playlist.py:3177
+#: playlist.py:3133
 msgid "Configured EPG sources"
 msgstr "कॉन्फ़िगर किए गए EPG स्रोत"
 
-#: playlist.py:3282
+#: playlist.py:3238
 msgid "Configured playlists and providers"
 msgstr "कॉन्फ़िगर की गई प्लेलिस्ट और प्रदाता"
 
-#: main.py:5446
+#: main.py:5387
 msgid "Configured playlists: {count}"
 msgstr "कॉन्फ़िगर की गई प्लेलिस्ट: {count}"
 
-#: main.py:10205
+#: main.py:10146
 msgid "Connect"
 msgstr "कनेक्ट करें"
 
-#: main.py:10164
+#: main.py:10105
 msgid "Connected"
 msgstr "कनेक्ट किया गया"
 
-#: main.py:10164
+#: main.py:10105
 msgid "Connected to {device}"
 msgstr "{device} से कनेक्ट किया गया"
 
@@ -619,25 +619,25 @@ msgstr "{device} से कनेक्ट किया गया"
 msgid "Connections in use"
 msgstr "उपयोग में कनेक्शन"
 
-#: main.py:10324
-#: main.py:10943
+#: main.py:10265
+#: main.py:10884
 msgid "Copy Details"
 msgstr "विवरण कॉपी करें"
 
-#: main.py:3560
-#: main.py:3755
+#: main.py:3501
+#: main.py:3696
 msgid "Copy Log and Debug Information"
 msgstr "लॉग और डिबग जानकारी कॉपी करें"
 
-#: playlist.py:3120
+#: playlist.py:3076
 msgid "Copy URL"
 msgstr "URL कॉपी करें"
 
-#: main.py:10399
+#: main.py:10340
 msgid "Could not check this account.\n\n{error}"
 msgstr "इस खाते की जाँच नहीं हो सकी।\n\n{error}"
 
-#: main.py:5464
+#: main.py:5405
 msgid "Could not copy diagnostic information:\n{error}"
 msgstr "नैदानिक जानकारी कॉपी नहीं की जा सकी:\n{error}"
 
@@ -645,38 +645,38 @@ msgstr "नैदानिक जानकारी कॉपी नहीं �
 msgid "Could not create libVLC media player object."
 msgstr "libVLC मीडिया प्लेयर ऑब्जेक्ट नहीं बनाया जा सका।"
 
-#: main.py:2867
+#: main.py:2808
 msgid "Could not export settings: {error}"
 msgstr "सेटिंग एक्सपोर्ट नहीं की जा सकी: {error}"
 
-#: main.py:4639
-#: main.py:4764
+#: main.py:4580
+#: main.py:4705
 msgid "Could not find a stream URL for this channel."
 msgstr "इस चैनल के लिए स्ट्रीम URL नहीं मिल सका।"
 
-#: main.py:4487
-#: main.py:7950
+#: main.py:4428
+#: main.py:7891
 msgid "Could not find channel '{channel}' in your playlist."
 msgstr "आपकी प्लेलिस्ट में चैनल '{channel}' नहीं मिल सका।"
 
-#: main.py:9319
+#: main.py:9260
 msgid "Could not find stream URL for this selection."
 msgstr "इस चयन के लिए स्ट्रीम URL नहीं मिल सका।"
 
-#: main.py:4420
-#: main.py:7945
+#: main.py:4361
+#: main.py:7886
 msgid "Could not identify the channel."
 msgstr "चैनल की पहचान नहीं की जा सकी।"
 
-#: main.py:2886
+#: main.py:2827
 msgid "Could not import settings: {error}"
 msgstr "सेटिंग इम्पोर्ट नहीं की जा सकी: {error}"
 
-#: main.py:7492
+#: main.py:7433
 msgid "Could not load episodes for this series."
 msgstr "इस सीरीज़ के एपिसोड लोड नहीं किए जा सके।"
 
-#: main.py:7511
+#: main.py:7452
 msgid "Could not load episodes:\n{error}"
 msgstr "एपिसोड लोड नहीं किए जा सके:\n{error}"
 
@@ -692,26 +692,26 @@ msgstr "{player} ऐप का पता नहीं लगाया जा स
 msgid "Could not locate {player} executable."
 msgstr "{player} निष्पादन योग्य फ़ाइल का पता नहीं लगाया जा सका।"
 
-#: main.py:7853
+#: main.py:7794
 msgid "Could not look for provider accounts: {error}"
 msgstr "प्रदाता खातों की खोज नहीं हो सकी: {error}"
 
-#: main.py:8683
+#: main.py:8624
 msgid "Could not match this programme to a playlist channel."
 msgstr "इस कार्यक्रम को प्लेलिस्ट चैनल से मिलान नहीं किया जा सका।"
 
-#: main.py:5407
-#: main.py:5420
+#: main.py:5348
+#: main.py:5361
 msgid "Could not open folder:\n{error}"
 msgstr "फ़ोल्डर नहीं खोला जा सका:\n{error}"
 
-#: main.py:5806
+#: main.py:5747
 msgid "Could not open the EPG window: {error}"
 msgstr "EPG विंडो नहीं खोली जा सकी: {error}"
 
-#: main.py:10429
-#: main.py:10959
-#: playlist.py:3092
+#: main.py:10370
+#: main.py:10900
+#: playlist.py:3048
 msgid "Could not open the clipboard."
 msgstr "क्लिपबोर्ड नहीं खोला जा सका।"
 
@@ -724,9 +724,9 @@ msgstr "Xtream सर्वर तक नहीं पहुँचा जा स
 msgid "Could not reach the portal: {error}"
 msgstr "पोर्टल तक नहीं पहुँचा जा सका: {error}"
 
-#: main.py:4122
-#: main.py:4760
-#: main.py:8700
+#: main.py:4063
+#: main.py:4701
+#: main.py:8641
 msgid "Could not resolve stream URL:\n{error}"
 msgstr "स्ट्रीम URL हल नहीं किया जा सका:\n{error}"
 
@@ -734,19 +734,19 @@ msgstr "स्ट्रीम URL हल नहीं किया जा सक
 msgid "Could not run Authenticode verification: {detail}"
 msgstr "Authenticode सत्यापन नहीं चला सका: {detail}"
 
-#: main.py:4435
+#: main.py:4376
 msgid "Could not schedule recording:\n{error}"
 msgstr "रिकॉर्डिंग शेड्यूल नहीं की जा सकी:\n{error}"
 
-#: main.py:9197
+#: main.py:9138
 msgid "Could not select that output device."
 msgstr "उस आउटपुट डिवाइस का चयन नहीं किया जा सका।"
 
-#: main.py:5147
+#: main.py:5088
 msgid "Could not shut down the computer:\n{error}"
 msgstr "कंप्यूटर बंद नहीं किया जा सका:\n{error}"
 
-#: main.py:9894
+#: main.py:9835
 msgid "Could not start catch-up download:\n{error}"
 msgstr "कैच-अप डाउनलोड शुरू नहीं हो सका:\n{error}"
 
@@ -754,7 +754,7 @@ msgstr "कैच-अप डाउनलोड शुरू नहीं हो 
 msgid "Could not start playback: {error}"
 msgstr "प्लेबैक शुरू नहीं हो सका: {error}"
 
-#: main.py:4852
+#: main.py:4793
 msgid "Could not start recording:\n{error}"
 msgstr "रिकॉर्डिंग प्रारंभ नहीं की जा सकी:\n{error}"
 
@@ -762,16 +762,16 @@ msgstr "रिकॉर्डिंग प्रारंभ नहीं की
 msgid "Created"
 msgstr "बनाया गया"
 
-#: main.py:11358
+#: main.py:11299
 msgid "Currently airing programs"
 msgstr "वर्तमान में प्रसारित हो रहे कार्यक्रम"
 
-#: main.py:10149
+#: main.py:10090
 msgid "Currently connected to: {device}\n\nDisconnect?"
 msgstr "वर्तमान में इससे कनेक्ट किया गया: {device}\n\nडिस्कनेक्ट करें?"
 
-#: main.py:3497
-#: main.py:3643
+#: main.py:3438
+#: main.py:3584
 msgid "Custom Player..."
 msgstr "कस्टम प्लेयर..."
 
@@ -783,26 +783,26 @@ msgstr "शेष दिन"
 msgid "Days since expiry"
 msgstr "समाप्ति के बाद के दिन"
 
-#: main.py:11201
-#: playlist.py:3128
+#: main.py:11142
+#: playlist.py:3084
 msgid "Delete"
 msgstr "हटाएँ"
 
-#: playlist.py:3399
+#: playlist.py:3355
 msgid "Delete Playlist"
 msgstr "प्लेलिस्ट हटाएँ"
 
-#: playlist.py:3396
+#: playlist.py:3352
 msgid "Delete the playlist “{name}”?\n\nThis removes it from the list of playlists. It cannot be undone."
 msgstr "प्लेलिस्ट “{name}” हटाएँ?\n\nयह प्लेलिस्ट की सूची से हटा दी जाएगी। इसे पूर्ववत नहीं किया जा सकता।"
 
-#: main.py:10721
-#: main.py:11791
+#: main.py:10662
+#: main.py:11732
 msgid "Description"
 msgstr "विवरण"
 
-#: main.py:3544
-#: main.py:3669
+#: main.py:3485
+#: main.py:3610
 msgid "Detailed status"
 msgstr "विस्तृत स्थिति"
 
@@ -810,12 +810,12 @@ msgstr "विस्तृत स्थिति"
 msgid "Detected from"
 msgstr "यहाँ से पता चला"
 
-#: main.py:5465
-#: main.py:5468
+#: main.py:5406
+#: main.py:5409
 msgid "Diagnostic Information"
 msgstr "नैदानिक जानकारी"
 
-#: main.py:5467
+#: main.py:5408
 msgid "Diagnostic information was copied to the clipboard. You can paste it into a message to the developer."
 msgstr "नैदानिक जानकारी क्लिपबोर्ड पर कॉपी कर दी गई है। आप इसे डेवलपर को भेजे जाने वाले संदेश में चिपका सकते हैं।"
 
@@ -823,16 +823,16 @@ msgstr "नैदानिक जानकारी क्लिपबोर्�
 msgid "Disabled"
 msgstr "निष्क्रिय"
 
-#: main.py:9353
+#: main.py:9294
 msgid "Disconnected from the cast device. Open the cast menu to pick another device."
 msgstr "कास्ट डिवाइस से डिस्कनेक्ट किया गया। दूसरा डिवाइस चुनने के लिए कास्ट मेनू खोलें।"
 
-#: playlist.py:3484
-#: playlist.py:3602
+#: playlist.py:3440
+#: playlist.py:3558
 msgid "Display name"
 msgstr "प्रदर्शन नाम"
 
-#: main.py:10628
+#: main.py:10569
 msgid "Do you really want to cancel this download? It cannot be resumed afterwards."
 msgstr "क्या आप वाकई यह डाउनलोड रद्द करना चाहते हैं? इसे बाद में जारी नहीं किया जा सकता।"
 
@@ -840,134 +840,134 @@ msgstr "क्या आप वाकई यह डाउनलोड रद्�
 msgid "Documentation"
 msgstr "दस्तावेज़ीकरण"
 
-#: main.py:10820
+#: main.py:10761
 msgid "Download"
 msgstr "डाउनलोड करें"
 
-#: main.py:5968
+#: main.py:5909
 msgid "Download and install now? The app will restart after the update."
 msgstr "अभी डाउनलोड और इंस्टॉल करें? अपडेट के बाद ऐप पुनः प्रारंभ होगा।"
 
-#: main.py:9958
+#: main.py:9899
 msgid "Download canceled. The incomplete file was discarded."
 msgstr "डाउनलोड रद्द कर दिया गया। अधूरी फ़ाइल हटा दी गई।"
 
-#: main.py:9980
+#: main.py:9921
 msgid "Download complete:\n{path}"
 msgstr "डाउनलोड पूरा हुआ:\n{path}"
 
-#: main.py:10541
+#: main.py:10482
 msgid "Download details"
 msgstr "डाउनलोड विवरण"
 
-#: main.py:9970
+#: main.py:9911
 msgid "Download ended early:\n{path}\n\nOnly {written} of {expected} arrived before the provider closed the connection. The incomplete file was kept."
 msgstr "डाउनलोड जल्दी समाप्त हो गया:\n{path}\n\nप्रदाता द्वारा कनेक्शन बंद किए जाने से पहले {expected} में से केवल {written} प्राप्त हुआ। अपूर्ण फ़ाइल रखी गई है।"
 
-#: main.py:10579
+#: main.py:10520
 msgid "Download failed (code {code})."
 msgstr "डाउनलोड विफल (कोड {code})."
 
-#: main.py:10017
+#: main.py:9958
 msgid "Download failed (code {code}):\n{path}\n\n{detail}"
 msgstr "डाउनलोड विफल (कोड {code}):\n{path}\n\n{detail}"
 
-#: main.py:10595
+#: main.py:10536
 msgid "Download failed - retrying (attempt {attempt} of {total}) in {seconds} seconds..."
 msgstr "डाउनलोड विफल - पुनः प्रयास (प्रयास {attempt}/{total}) {seconds} सेकंड में..."
 
-#: main.py:10014
+#: main.py:9955
 msgid "Download failed:\n{path}\n\n{reason}\n\n{detail}"
 msgstr "डाउनलोड विफल:\n{path}\n\n{reason}\n\n{detail}"
 
-#: main.py:6830
+#: main.py:6771
 msgid "Download in progress"
 msgstr "डाउनलोड जारी है"
 
-#: main.py:10540
+#: main.py:10481
 msgid "Download progress"
 msgstr "डाउनलोड प्रगति"
 
-#: main.py:10539
+#: main.py:10480
 msgid "Download status"
 msgstr "डाउनलोड स्थिति"
 
-#: main.py:6081
-#: main.py:6122
+#: main.py:6022
+#: main.py:6063
 msgid "Downloaded update failed SHA-256 verification."
 msgstr "डाउनलोड किया गया अपडेट SHA-256 सत्यापन में विफल रहा।"
 
-#: main.py:10619
+#: main.py:10560
 msgid "Downloaded: {size}"
 msgstr "डाउनलोड हुआ: {size}"
 
-#: main.py:6073
-#: main.py:6077
-#: main.py:6114
-#: main.py:6118
+#: main.py:6014
+#: main.py:6018
+#: main.py:6055
+#: main.py:6059
 msgid "Downloading update..."
 msgstr "अपडेट डाउनलोड हो रहा है..."
 
-#: main.py:10499
-#: main.py:10608
-#: main.py:10612
+#: main.py:10440
+#: main.py:10549
+#: main.py:10553
 msgid "Downloading {name}"
 msgstr "{name} डाउनलोड हो रहा है"
 
-#: main.py:5796
-#: main.py:11775
-#: main.py:11777
+#: main.py:5737
+#: main.py:11716
+#: main.py:11718
 msgid "EPG"
 msgstr "EPG"
 
-#: main.py:4019
+#: main.py:3960
 msgid "EPG Database Update Needed"
 msgstr "EPG डेटाबेस अपडेट आवश्यक"
 
-#: main.py:2806
-#: main.py:3451
-#: main.py:3589
-#: playlist.py:3158
+#: main.py:2747
+#: main.py:3392
+#: main.py:3530
+#: playlist.py:3114
 #: shortcuts.py:55
 msgid "EPG Manager"
 msgstr "EPG प्रबंधक"
 
-#: main.py:7878
-#: main.py:7896
-#: main.py:9616
+#: main.py:7819
+#: main.py:7837
+#: main.py:9557
 msgid "EPG Not Available"
 msgstr "EPG उपलब्ध नहीं"
 
-#: main.py:5449
+#: main.py:5390
 msgid "EPG debug log (latest 128 KiB):"
 msgstr "EPG डिबग लॉग (अंतिम 128 KiB):"
 
-#: main.py:5445
+#: main.py:5386
 msgid "EPG enabled: {enabled}"
 msgstr "EPG सक्षम: {enabled}"
 
-#: main.py:7870
+#: main.py:7811
 msgid "EPG import is already in progress."
 msgstr "EPG आयात पहले से चल रहा है।"
 
-#: main.py:7889
+#: main.py:7830
 msgid "EPG import will start in the background. You can keep using the app; a message will tell you when the import has finished."
 msgstr "EPG आयात पृष्ठभूमि में प्रारंभ होगा। आप ऐप का उपयोग जारी रख सकते हैं; आयात पूरा होने पर एक संदेश आपको सूचित करेगा।"
 
-#: main.py:7878
-#: main.py:7896
+#: main.py:7819
+#: main.py:7837
 msgid "EPG is not enabled."
 msgstr "EPG सक्षम नहीं है।"
 
-#: main.py:11767
+#: main.py:11708
 msgid "EPG: {channel}"
 msgstr "EPG: {channel}"
 
-#: main.py:10617
+#: main.py:10558
 msgid "Elapsed: {time}"
 msgstr "बीता समय: {time}"
 
-#: main.py:2870
+#: main.py:2811
 msgid "Encrypted settings backup saved."
 msgstr "एन्क्रिप्टेड सेटिंग बैकअप सहेजा गया।"
 
@@ -976,27 +976,27 @@ msgstr "एन्क्रिप्टेड सेटिंग बैकअप 
 msgid "Ended"
 msgstr "समाप्त"
 
-#: playlist.py:3220
+#: playlist.py:3176
 msgid "Enter EPG XML URL"
 msgstr "EPG XML URL दर्ज करें"
 
-#: playlist.py:3320
+#: playlist.py:3276
 msgid "Enter M3U URL"
 msgstr "M3U URL दर्ज करें"
 
-#: main.py:4156
+#: main.py:4097
 msgid "Enter a channel number:"
 msgstr "एक चैनल नंबर दर्ज करें:"
 
-#: main.py:2761
+#: main.py:2702
 msgid "Enter a password for the settings backup:"
 msgstr "सेटिंग बैकअप के लिए पासवर्ड डालें:"
 
-#: main.py:4165
+#: main.py:4106
 msgid "Enter a positive channel number."
 msgstr "एक पॉज़िटिव चैनल नंबर डालें।"
 
-#: main.py:2837
+#: main.py:2778
 msgid "Enter a shortcut (leave blank to restore the default):"
 msgstr "एक शॉर्टकट दर्ज करें (डिफ़ॉल्ट को बहाल करने के लिए खाली छोड़ दें):"
 
@@ -1004,14 +1004,14 @@ msgstr "एक शॉर्टकट दर्ज करें (डिफ़ॉ�
 msgid "Enter player executable or path:"
 msgstr "प्लेयर निष्पादन योग्य फ़ाइल या पथ दर्ज करें:"
 
-#: main.py:2774
+#: main.py:2715
 msgid "Enter the password again:"
 msgstr "पासवर्ड फिर से डालें:"
 
-#: main.py:3417
-#: main.py:3419
-#: main.py:10724
-#: main.py:11794
+#: main.py:3358
+#: main.py:3360
+#: main.py:10665
+#: main.py:11735
 msgid "Episode description"
 msgstr "एपिसोड विवरण"
 
@@ -1020,27 +1020,27 @@ msgid "Episode {num}"
 msgstr "एपिसोड {num}"
 
 #: internal_player.py:1959
-#: main.py:4004
-#: main.py:4058
-#: main.py:5807
-#: main.py:7854
-#: main.py:7924
-#: main.py:7945
-#: main.py:10167
+#: main.py:3945
+#: main.py:3999
+#: main.py:5748
+#: main.py:7795
+#: main.py:7865
+#: main.py:7886
+#: main.py:10108
 msgid "Error"
 msgstr "त्रुटि"
 
-#: main.py:4004
-#: main.py:4057
+#: main.py:3945
+#: main.py:3998
 msgid "Error fetching EPG: {error}"
 msgstr "EPG प्राप्त करने में त्रुटि: {error}"
 
-#: main.py:10243
+#: main.py:10184
 msgid "Error: {error}"
 msgstr "त्रुटि: {error}"
 
-#: main.py:3543
-#: main.py:3668
+#: main.py:3484
+#: main.py:3609
 msgid "Errors only"
 msgstr "सिर्फ़ गड़बड़ियाँ"
 
@@ -1050,8 +1050,8 @@ msgid "Executable not found: {path}"
 msgstr "निष्पादन योग्य फ़ाइल नहीं मिली: {path}"
 
 #: main.py:1657
-#: main.py:3572
-#: main.py:3598
+#: main.py:3513
+#: main.py:3539
 #: shortcuts.py:57
 msgid "Exit"
 msgstr "बाहर निकलें"
@@ -1081,16 +1081,16 @@ msgstr "समाप्त"
 msgid "Expires"
 msgstr "समाप्ति"
 
-#: main.py:2858
+#: main.py:2799
 msgid "Export Settings"
 msgstr "सेटिंग एक्सपोर्ट करें"
 
-#: main.py:3538
-#: main.py:3662
+#: main.py:3479
+#: main.py:3603
 msgid "Export Settings..."
 msgstr "सेटिंग एक्सपोर्ट करें..."
 
-#: main.py:6124
+#: main.py:6065
 msgid "Extracting update..."
 msgstr "अपडेट निकाला जा रहा है..."
 
@@ -1098,17 +1098,17 @@ msgstr "अपडेट निकाला जा रहा है..."
 msgid "F1 is reserved for Help."
 msgstr "F1 सहायता के लिए आरक्षित है।"
 
-#: main.py:4596
-#: main.py:11226
+#: main.py:4537
+#: main.py:11167
 msgid "Failed"
 msgstr "विफल"
 
-#: main.py:9362
-#: main.py:9516
+#: main.py:9303
+#: main.py:9457
 msgid "Failed to cast: {error}"
 msgstr "कास्ट करने में विफल: {error}"
 
-#: main.py:10167
+#: main.py:10108
 msgid "Failed to connect: {error}"
 msgstr "कनेक्ट करने में विफल: {error}"
 
@@ -1120,7 +1120,7 @@ msgstr "मेनिफ़ेस्ट डाउनलोड करने मे
 msgid "Failed to download update ({code})."
 msgstr "अपडेट डाउनलोड करने में विफल ({code})।"
 
-#: main.py:7924
+#: main.py:7865
 msgid "Failed to fetch EPG data: {error}"
 msgstr "EPG डेटा प्राप्त करने में विफल: {error}"
 
@@ -1136,19 +1136,19 @@ msgstr "libVLC इंस्टेंस प्रारंभ करने म�
 msgid "Failed to initialise media player: {error}"
 msgstr "मीडिया प्लेयर प्रारंभ करने में विफल: {error}"
 
-#: main.py:9458
+#: main.py:9399
 msgid "Failed to launch {player}:\n{error}"
 msgstr "{player} लॉन्च करने में विफल:\n{error}"
 
-#: main.py:9437
+#: main.py:9378
 msgid "Failed to start built-in player:\n{error}"
 msgstr "अंतर्निहित प्लेयर प्रारंभ करने में विफल:\n{error}"
 
 #: main.py:2083
-#: main.py:2471
-#: main.py:2479
+#: main.py:2412
+#: main.py:2420
+#: main.py:2528
 #: main.py:2587
-#: main.py:2646
 msgid "Favorites"
 msgstr "पसंदीदा"
 
@@ -1156,15 +1156,15 @@ msgstr "पसंदीदा"
 msgid "Features"
 msgstr "नई सुविधाएँ"
 
-#: main.py:3599
+#: main.py:3540
 msgid "File"
 msgstr "फ़ाइल"
 
-#: main.py:11345
+#: main.py:11286
 msgid "Filter (Tab):"
 msgstr "फ़िल्टर (Tab):"
 
-#: main.py:11347
+#: main.py:11288
 msgid "Filter programs"
 msgstr "कार्यक्रम फ़िल्टर करें"
 
@@ -1181,11 +1181,11 @@ msgstr "अगला ढूँढें"
 msgid "Follow Serrebi on GitHub"
 msgstr "GitHub पर Serrebi को फ़ॉलो करें"
 
-#: main.py:11154
+#: main.py:11095
 msgid "Format"
 msgstr "प्रारूप"
 
-#: main.py:10254
+#: main.py:10195
 msgid "Found {count} devices:"
 msgstr "{count} डिवाइस मिले:"
 
@@ -1194,11 +1194,11 @@ msgstr "{count} डिवाइस मिले:"
 msgid "Full Screen"
 msgstr "पूर्ण स्क्रीन"
 
-#: main.py:5346
+#: main.py:5287
 msgid "Full ffmpeg log:\n{path}"
 msgstr "पूर्ण ffmpeg लॉग:\n{path}"
 
-#: playlist.py:3209
+#: playlist.py:3165
 msgid "GZip XML"
 msgstr "GZip XML"
 
@@ -1206,25 +1206,25 @@ msgstr "GZip XML"
 msgid "GitHub API rate limit exceeded. Please try again later."
 msgstr "GitHub API दर सीमा पार हो गई। कृपया बाद में पुनः प्रयास करें।"
 
-#: main.py:4157
-#: main.py:4166
-#: main.py:4175
+#: main.py:4098
+#: main.py:4107
+#: main.py:4116
 msgid "Go to Channel Number"
 msgstr "चैनल नंबर पर जाएँ"
 
-#: main.py:2802
-#: main.py:3480
-#: main.py:3621
+#: main.py:2743
+#: main.py:3421
+#: main.py:3562
 #: shortcuts.py:69
 msgid "Go to Channel Number..."
 msgstr "चैनल नंबर पर जाएँ..."
 
-#: main.py:3477
-#: main.py:3618
+#: main.py:3418
+#: main.py:3559
 msgid "Go to Favorites"
 msgstr "पसंदीदा पर जाएँ"
 
-#: main.py:2547
+#: main.py:2488
 msgid "Guide information unavailable"
 msgstr "गाइड जानकारी उपलब्ध नहीं है"
 
@@ -1237,8 +1237,8 @@ msgstr "गाइड का पाठ"
 msgid "HTTPS port"
 msgstr "HTTPS पोर्ट"
 
-#: main.py:3566
-#: main.py:3758
+#: main.py:3507
+#: main.py:3699
 msgid "Help"
 msgstr "सहायता"
 
@@ -1251,10 +1251,10 @@ msgstr "विंडो छिपाएँ"
 msgid "Hide older releases"
 msgstr "पुराने रिलीज़ छिपाएँ"
 
-#: main.py:4101
-#: main.py:8724
-#: main.py:9338
-#: main.py:9378
+#: main.py:4042
+#: main.py:8665
+#: main.py:9279
+#: main.py:9319
 msgid "IPTV Stream"
 msgstr "IPTV स्ट्रीम"
 
@@ -1264,62 +1264,62 @@ msgstr "IPTV स्ट्रीम"
 msgid "Idle"
 msgstr "निष्क्रिय"
 
-#: main.py:9224
+#: main.py:9165
 msgid "If the output device disappears, subtitle speech pauses until it returns."
 msgstr "यदि आउटपुट डिवाइस गायब हो जाए, तो डिवाइस वापस आने तक उपशीर्षक वाचन रोका जाएगा।"
 
-#: main.py:9228
+#: main.py:9169
 msgid "If the output device disappears, the application voice falls back to the system default."
 msgstr "यदि आउटपुट डिवाइस गायब हो जाए, तो एप्लिकेशन आवाज़ सिस्टम डिफ़ॉल्ट पर वापस आ जाएगी।"
 
-#: main.py:7762
+#: main.py:7703
 msgid "Import Complete"
 msgstr "आयात पूर्ण"
 
-#: main.py:3452
-#: main.py:3590
+#: main.py:3393
+#: main.py:3531
 #: shortcuts.py:56
 msgid "Import EPG to DB"
 msgstr "EPG को डेटाबेस में आयात करें"
 
-#: main.py:4026
-#: main.py:7769
-#: main.py:7884
+#: main.py:3967
+#: main.py:7710
+#: main.py:7825
 msgid "Import Failed"
 msgstr "आयात विफल"
 
-#: main.py:2874
-#: main.py:2890
+#: main.py:2815
+#: main.py:2831
 msgid "Import Settings"
 msgstr "सेटिंग इम्पोर्ट करें"
 
-#: main.py:3539
-#: main.py:3663
+#: main.py:3480
+#: main.py:3604
 msgid "Import Settings..."
 msgstr "सेटिंग इम्पोर्ट करें..."
 
-#: main.py:7891
+#: main.py:7832
 msgid "Import Started"
 msgstr "आयात प्रारंभ हुआ"
 
-#: main.py:3544
-#: main.py:3669
+#: main.py:3485
+#: main.py:3610
 msgid "Important events"
 msgstr "महत्वपूर्ण घटनाएँ"
 
-#: playlist.py:2954
+#: playlist.py:2910
 msgid "Importing EPG"
 msgstr "EPG आयात हो रहा है"
 
-#: playlist.py:2964
+#: playlist.py:2920
 msgid "Importing EPG data…"
 msgstr "EPG डेटा आयात हो रहा है…"
 
-#: main.py:7870
+#: main.py:7811
 msgid "In Progress"
 msgstr "प्रगति पर"
 
-#: playlist.py:3481
+#: playlist.py:3437
 msgid "Include the provider's XMLTV guide automatically"
 msgstr "प्रदाता का XMLTV गाइड स्वतः शामिल करें"
 
@@ -1327,7 +1327,7 @@ msgstr "प्रदाता का XMLTV गाइड स्वतः शा�
 msgid "Installer message: {message}"
 msgstr "इंस्टॉलर संदेश: {message}"
 
-#: main.py:6306
+#: main.py:6247
 msgid "Installing the update. {app} will close and start again by itself - please do not open it yourself in the meantime."
 msgstr "अपडेट इंस्टॉल हो रहा है। {app} बंद होगा और अपने आप फिर से शुरू हो जाएगा — तब तक कृपया इसे स्वयं न खोलें।"
 
@@ -1352,25 +1352,25 @@ msgstr "पोर्टल से अमान्य प्रतिक्रि
 msgid "Join the SerrebiProjects Telegram group"
 msgstr "SerrebiProjects टेलीग्राम समूह में शामिल हों"
 
-#: main.py:9203
+#: main.py:9144
 msgid "Keep this output device?\n{name}"
 msgstr "क्या यह आउटपुट डिवाइस रखें?\n{name}"
 
-#: main.py:2828
-#: main.py:2838
-#: main.py:2848
-#: main.py:2852
+#: main.py:2769
+#: main.py:2779
+#: main.py:2789
+#: main.py:2793
 msgid "Keyboard Shortcuts"
 msgstr "कीबोर्ड शॉर्टकट"
 
-#: main.py:3549
-#: main.py:3738
+#: main.py:3490
+#: main.py:3679
 msgid "Keyboard Shortcuts..."
 msgstr "कुंजीपटल शॉर्टकट..."
 
-#: main.py:3518
-#: main.py:3657
-#: main.py:5869
+#: main.py:3459
+#: main.py:3598
+#: main.py:5810
 msgid "Language"
 msgstr "भाषा"
 
@@ -1382,19 +1382,19 @@ msgstr "अंतिम त्रुटि: {reason}"
 msgid "Last subtitle: {text}"
 msgstr "अंतिम उपशीर्षक: {text}"
 
-#: main.py:5921
+#: main.py:5862
 msgid "Latest release tag is missing or invalid."
 msgstr "नवीनतम रिलीज़ टैग गायब या अमान्य है।"
 
-#: main.py:9324
-#: main.py:9376
-#: main.py:9437
-#: main.py:9458
+#: main.py:9265
+#: main.py:9317
+#: main.py:9378
+#: main.py:9399
 msgid "Launch Error"
 msgstr "लॉन्च त्रुटि"
 
-#: main.py:3469
-#: main.py:3610
+#: main.py:3410
+#: main.py:3551
 msgid "Live TV && Catch-up"
 msgstr "लाइव टीवी && कैच-अप"
 
@@ -1406,45 +1406,45 @@ msgstr "उपशीर्षक फ़ाइल लोड करें"
 msgid "Load Subtitle File..."
 msgstr "उपशीर्षक फ़ाइल लोड करें..."
 
-#: main.py:7370
+#: main.py:7311
 msgid "Loading Video on Demand…"
 msgstr "वीडियो ऑन डिमांड लोड हो रहा है…"
 
-#: main.py:7500
+#: main.py:7441
 msgid "Loading episodes…"
 msgstr "एपिसोड लोड हो रहे हैं…"
 
 #: main.py:1956
-#: main.py:7241
+#: main.py:7182
 msgid "Loading playlists..."
 msgstr "प्लेलिस्ट लोड हो रही हैं..."
 
-#: main.py:5421
+#: main.py:5362
 msgid "Logs"
 msgstr "लॉग"
 
-#: playlist.py:3309
+#: playlist.py:3265
 msgid "M3U files"
 msgstr "M3U फ़ाइलें"
 
 #: account_info.py:448
-#: playlist.py:3606
+#: playlist.py:3562
 msgid "MAC address"
 msgstr "MAC पता"
 
-#: playlist.py:3655
+#: playlist.py:3611
 msgid "MAC address must contain six octets (e.g., 00:1A:79:12:34:56)."
 msgstr "MAC पते में छह ऑक्टेट होने चाहिए (जैसे, 00:1A:79:12:34:56)।"
 
-#: playlist.py:3606
+#: playlist.py:3562
 msgid "MAC address presented to the portal"
 msgstr "पोर्टल को प्रस्तुत किया गया MAC पता"
 
-#: main.py:9265
+#: main.py:9206
 msgid "MPV subtitle speech on."
 msgstr "MPV उपशीर्षक वाचन चालू।"
 
-#: main.py:9269
+#: main.py:9210
 msgid "MPV subtitle speech unavailable."
 msgstr "MPV उपशीर्षक वाचन उपलब्ध नहीं।"
 
@@ -1456,12 +1456,12 @@ msgstr "मुख्य विंडो के शॉर्टकट में C
 msgid "Maximum connections"
 msgstr "अधिकतम कनेक्शन"
 
-#: main.py:3501
-#: main.py:3644
+#: main.py:3442
+#: main.py:3585
 msgid "Media Player to Use"
 msgstr "उपयोग करने के लिए मीडिया प्लेयर"
 
-#: main.py:3446
+#: main.py:3387
 msgid "Menu"
 msgstr "मेनू"
 
@@ -1469,21 +1469,21 @@ msgstr "मेनू"
 msgid "Message from provider"
 msgstr "प्रदाता का संदेश"
 
-#: main.py:3520
-#: main.py:3658
+#: main.py:3461
+#: main.py:3599
 msgid "Minimize to System Tray"
 msgstr "सिस्टम ट्रे में छोटा करें"
 
-#: main.py:10989
+#: main.py:10930
 msgid "Minutes after programme:"
 msgstr "कार्यक्रम के बाद के मिनट:"
 
-#: main.py:10988
+#: main.py:10929
 msgid "Minutes before programme:"
 msgstr "कार्यक्रम से पहले के मिनट:"
 
-#: main.py:4596
-#: main.py:11227
+#: main.py:4537
+#: main.py:11168
 msgid "Missed"
 msgstr "छूट गया"
 
@@ -1492,7 +1492,7 @@ msgstr "छूट गया"
 msgid "Movies"
 msgstr "फ़िल्में"
 
-#: playlist.py:3045
+#: playlist.py:3001
 msgid "Name"
 msgstr "नाम"
 
@@ -1501,55 +1501,55 @@ msgid "Never (no expiry date set)"
 msgstr "कभी नहीं (कोई समाप्ति तिथि निर्धारित नहीं)"
 
 #: internal_player.py:550
-#: main.py:2821
+#: main.py:2762
 #: shortcuts.py:86
 msgid "Next Subtitle"
 msgstr "अगला उपशीर्षक"
 
-#: main.py:2380
+#: main.py:2322
 msgid "Next: {programme}"
 msgstr "आगे: {programme}"
 
-#: main.py:8491
+#: main.py:8432
 msgid "Next: {title} ({start} – {end})"
 msgstr "अगला: {title} ({start} – {end})"
 
 #: account_info.py:357
-#: main.py:2557
+#: main.py:2498
 msgid "No"
 msgstr "नहीं"
 
-#: main.py:7862
+#: main.py:7803
 msgid "No Accounts"
 msgstr "कोई खाता नहीं"
 
-#: main.py:7927
+#: main.py:7868
 msgid "No Data"
 msgstr "कोई डेटा नहीं"
 
-#: main.py:7874
+#: main.py:7815
 msgid "No EPG sources configured. Please add one in File > EPG Manager."
 msgstr "कोई EPG स्रोत कॉन्फ़िगर नहीं किया गया। कृपया फ़ाइल > EPG प्रबंधक में एक जोड़ें।"
 
-#: main.py:7874
+#: main.py:7815
 msgid "No Sources"
 msgstr "कोई स्रोत नहीं"
 
-#: main.py:7432
-#: main.py:7436
+#: main.py:7373
+#: main.py:7377
 msgid "No Video on Demand content found."
 msgstr "कोई वीडियो ऑन डिमांड सामग्री नहीं मिली।"
 
 #: internal_player.py:1926
-#: main.py:9504
+#: main.py:9445
 msgid "No active stream to cast."
 msgstr "कास्ट करने के लिए कोई सक्रिय स्ट्रीम नहीं है।"
 
-#: main.py:8985
+#: main.py:8926
 msgid "No active subtitle session."
 msgstr "कोई सक्रिय उपशीर्षक सत्र नहीं।"
 
-#: main.py:9179
+#: main.py:9120
 msgid "No application voice outputs found."
 msgstr "कोई एप्लिकेशन वॉइस आउटपुट नहीं मिला।"
 
@@ -1563,25 +1563,25 @@ msgstr "कोई ऑडियो आउटपुट डिवाइस नह�
 msgid "No audio tracks available"
 msgstr "कोई ऑडियो ट्रैक उपलब्ध नहीं है"
 
-#: main.py:9638
+#: main.py:9579
 msgid "No catch-up programmes are available for this channel."
 msgstr "इस चैनल के लिए कोई कैच-अप कार्यक्रम उपलब्ध नहीं है।"
 
-#: main.py:2520
+#: main.py:2461
 msgid "No channel is selected."
 msgstr "कोई चैनल नहीं चुना गया है।"
 
-#: main.py:7242
+#: main.py:7183
 msgid "No channels found."
 msgstr "कोई चैनल नहीं मिला।"
 
-#: main.py:3916
-#: main.py:10790
-#: main.py:11909
+#: main.py:3857
+#: main.py:10731
+#: main.py:11850
 msgid "No description available for this programme."
 msgstr "इस कार्यक्रम के लिए कोई विवरण उपलब्ध नहीं है।"
 
-#: main.py:10251
+#: main.py:10192
 msgid "No devices found."
 msgstr "कोई डिवाइस नहीं मिला।"
 
@@ -1589,15 +1589,15 @@ msgstr "कोई डिवाइस नहीं मिला।"
 msgid "No earlier subtitle."
 msgstr "इससे पहले कोई उपशीर्षक नहीं है।"
 
-#: main.py:7531
+#: main.py:7472
 msgid "No episodes found for this series."
 msgstr "इस सीरीज़ के लिए कोई एपिसोड नहीं मिला।"
 
-#: main.py:10588
+#: main.py:10529
 msgid "No error details were reported."
 msgstr "कोई त्रुटि विवरण नहीं दिया गया।"
 
-#: main.py:5334
+#: main.py:5275
 msgid "No ffmpeg details were reported."
 msgstr "कोई ffmpeg विवरण रिपोर्ट नहीं किया गया।"
 
@@ -1609,40 +1609,40 @@ msgstr "इसके बाद कोई उपशीर्षक नहीं �
 msgid "No notable changes."
 msgstr "कोई उल्लेखनीय बदलाव नहीं।"
 
-#: main.py:4132
+#: main.py:4073
 msgid "No previous channel is available."
 msgstr "कोई पिछला चैनल उपलब्ध नहीं है।"
 
-#: main.py:8992
+#: main.py:8933
 msgid "No previous subtitle."
 msgstr "कोई पिछला उपशीर्षक नहीं।"
 
-#: main.py:8489
+#: main.py:8430
 msgid "No program currently airing."
 msgstr "अभी कोई कार्यक्रम प्रसारित नहीं हो रहा है।"
 
-#: main.py:4038
+#: main.py:3979
 msgid "No programme guide has been imported yet, so there is nothing to schedule from.\n\nImport a guide first (File > EPG Manager, then File > Import EPG to DB), then try scheduling again."
 msgstr "अभी कोई प्रोग्राम गाइड आयात नहीं हुई है, इसलिए निर्धारित करने के लिए कुछ भी नहीं है।\n\nपहले एक गाइड आयात करें (फ़ाइल > EPG प्रबंधक, फिर फ़ाइल > EPG को डेटाबेस में आयात करें), फिर दोबारा प्रयास करें।"
 
-#: main.py:7927
+#: main.py:7868
 msgid "No programs are currently airing, or EPG data has not been imported yet."
 msgstr "वर्तमान में कोई कार्यक्रम प्रसारित नहीं हो रहा है, या EPG डेटा अभी तक आयात नहीं किया गया है।"
 
-#: main.py:7858
+#: main.py:7799
 msgid "No provider accounts were found.\n\nXtream Codes and Stalker Portal accounts added in the Playlist Manager are listed here, along with any account detected from a playlist or stream URL."
 msgstr "कोई प्रदाता खाता नहीं मिला।\n\nप्लेलिस्ट प्रबंधक में जोड़े गए Xtream Codes और Stalker Portal खाते यहाँ सूचीबद्ध होते हैं, साथ ही प्लेलिस्ट या स्ट्रीम URL से पता चला कोई भी खाता।"
 
-#: main.py:8998
+#: main.py:8939
 msgid "No recent subtitles."
 msgstr "कोई हालिया उपशीर्षक नहीं।"
 
-#: main.py:4140
+#: main.py:4081
 msgid "No recently watched channels are available."
 msgstr "हाल ही में देखे गए कोई चैनल उपलब्ध नहीं हैं।"
 
-#: main.py:5019
-#: main.py:5030
+#: main.py:4960
+#: main.py:4971
 msgid "No recordings are currently active."
 msgstr "वर्तमान में कोई रिकॉर्डिंग सक्रिय नहीं है।"
 
@@ -1658,7 +1658,7 @@ msgstr "कोई स्ट्रीम URL प्रदान नहीं क�
 msgid "No subtitle has been shown yet."
 msgstr "अभी तक कोई उपशीर्षक नहीं दिखाया गया है।"
 
-#: main.py:8987
+#: main.py:8928
 msgid "No subtitle text available yet."
 msgstr "अभी तक कोई उपशीर्षक पाठ उपलब्ध नहीं।"
 
@@ -1670,21 +1670,21 @@ msgstr "इस फ़ाइल में कोई उपशीर्षक प�
 msgid "No subtitle text to read. Load an SRT or WebVTT file."
 msgstr "पढ़ने के लिए कोई उपशीर्षक पाठ नहीं है। SRT या WebVTT फ़ाइल लोड करें।"
 
-#: main.py:10930
+#: main.py:10871
 msgid "No timed problems were found in the newest recording log."
 msgstr "नवीनतम रिकॉर्डिंग लॉग में समय सहित कोई समस्या नहीं मिली।"
 
-#: main.py:5796
+#: main.py:5737
 msgid "No upcoming schedule found for this channel."
 msgstr "इस चैनल के लिए कोई आगामी शेड्यूल नहीं मिला।"
 
-#: main.py:3543
-#: main.py:3668
+#: main.py:3484
+#: main.py:3609
 msgid "None"
 msgstr "कोई नहीं"
 
-#: main.py:8684
-#: main.py:9319
+#: main.py:8625
+#: main.py:9260
 msgid "Not Found"
 msgstr "नहीं मिला"
 
@@ -1698,22 +1698,22 @@ msgstr "यह Accessible IPTV सेटिंग्स का बैकअप �
 msgid "Not reported by the server"
 msgstr "सर्वर ने नहीं बताया"
 
-#: main.py:9474
+#: main.py:9415
 msgid "Nothing is playing in the built-in player."
 msgstr "अंतर्निर्मित प्लेयर में कुछ भी नहीं चल रहा है।"
 
-#: main.py:8477
+#: main.py:8418
 msgid "Now: {title} ({start} – {end})"
 msgstr "अभी: {title} ({start} – {end})"
 
 #: internal_player.py:142
 #: main.py:354
-#: main.py:9151
-#: main.py:10886
-#: main.py:11008
+#: main.py:9092
+#: main.py:10827
+#: main.py:10949
 #: options.py:913
-#: playlist.py:3189
-#: playlist.py:3289
+#: playlist.py:3145
+#: playlist.py:3245
 msgid "OK"
 msgstr "ठीक है"
 
@@ -1727,28 +1727,28 @@ msgstr "बंद"
 msgid "Older releases (English)"
 msgstr "पुराने रिलीज़ (अंग्रेज़ी में)"
 
-#: main.py:3723
+#: main.py:3664
 msgid "On device loss: pause until the device returns"
 msgstr "डिवाइस खोने पर: डिवाइस वापस आने तक रोकें"
 
-#: main.py:3724
+#: main.py:3665
 msgid "On device loss: use the system default"
 msgstr "डिवाइस खोने पर: सिस्टम डिफ़ॉल्ट का उपयोग करें"
 
-#: main.py:9240
+#: main.py:9181
 msgid "Only players with a documented timed-text API can provide subtitle words. The built-in player reads SRT and WebVTT files; MPV works through the application's own session."
 msgstr "केवल दस्तावेज़ीकृत टाइम्ड-टेक्स्ट API वाले प्लेयर ही उपशीर्षक शब्द प्रदान कर सकते हैं। अंतर्निहित प्लेयर SRT और WebVTT फ़ाइलें पढ़ता है; MPV एप्लिकेशन के अपने सत्र के माध्यम से काम करता है।"
 
-#: main.py:10818
+#: main.py:10759
 msgid "Open"
 msgstr "खोलें"
 
-#: main.py:3559
-#: main.py:3754
+#: main.py:3500
+#: main.py:3695
 msgid "Open Logs Folder"
 msgstr "लॉग फ़ोल्डर खोलें"
 
-#: main.py:5725
+#: main.py:5666
 msgid "Open Recordings Folder"
 msgstr "रिकॉर्डिंग फ़ोल्डर खोलें"
 
@@ -1756,7 +1756,7 @@ msgstr "रिकॉर्डिंग फ़ोल्डर खोलें"
 msgid "Open the Accessible IPTV Client project on GitHub"
 msgstr "GitHub पर Accessible IPTV Client प्रोजेक्ट खोलें"
 
-#: main.py:10934
+#: main.py:10875
 msgid "Open the recorded file in VLC, press Ctrl+T, and enter a listed time. Times use the file's media clock when FFmpeg reported it; otherwise they are elapsed recording time and may be slightly later after an interruption."
 msgstr "रिकॉर्ड की गई फ़ाइल को VLC में खोलें, Ctrl+T दबाएँ और सूची में दिया गया समय दर्ज करें। FFmpeg द्वारा उपलब्ध होने पर समय फ़ाइल की मीडिया घड़ी से लिया जाता है; अन्यथा यह रिकॉर्डिंग शुरू होने से बीता समय होता है और रुकावट के बाद थोड़ा आगे हो सकता है।"
 
@@ -1764,23 +1764,23 @@ msgstr "रिकॉर्ड की गई फ़ाइल को VLC में
 msgid "Opening"
 msgstr "खुल रहा है"
 
-#: playlist.py:3484
+#: playlist.py:3440
 msgid "Optional nickname for this Xtream Codes account"
 msgstr "इस Xtream Codes खाते के लिए वैकल्पिक उपनाम"
 
-#: playlist.py:3602
+#: playlist.py:3558
 msgid "Optional nickname for this portal account"
 msgstr "इस पोर्टल खाते के लिए वैकल्पिक उपनाम"
 
-#: playlist.py:3605
+#: playlist.py:3561
 msgid "Optional portal account password"
 msgstr "वैकल्पिक पोर्टल खाता पासवर्ड"
 
-#: playlist.py:3604
+#: playlist.py:3560
 msgid "Optional portal account username"
 msgstr "वैकल्पिक पोर्टल खाता उपयोगकर्ता नाम"
 
-#: main.py:3740
+#: main.py:3681
 msgid "Options"
 msgstr "विकल्प"
 
@@ -1793,11 +1793,11 @@ msgstr "अन्य बदलाव"
 msgid "Other details reported by the server"
 msgstr "सर्वर द्वारा बताए गए अन्य विवरण"
 
-#: main.py:7277
+#: main.py:7218
 msgid "Other playlists"
 msgstr "अन्य प्लेलिस्ट"
 
-#: main.py:9184
+#: main.py:9125
 msgid "Output device for the application voice:"
 msgstr "एप्लिकेशन वॉइस के लिए आउटपुट डिवाइस:"
 
@@ -1805,7 +1805,7 @@ msgstr "एप्लिकेशन वॉइस के लिए आउटप�
 msgid "Package"
 msgstr "पैकेज"
 
-#: playlist.py:3487
+#: playlist.py:3443
 msgid "Password"
 msgstr "पासवर्ड"
 
@@ -1831,15 +1831,15 @@ msgstr "लंबित"
 msgid "Phone"
 msgstr "फ़ोन"
 
-#: main.py:5442
+#: main.py:5383
 msgid "Platform: {platform}"
 msgstr "प्लेटफ़ॉर्म: {platform}"
 
 #: internal_player.py:867
 #: internal_player.py:1972
-#: main.py:3950
-#: main.py:11364
-#: main.py:11568
+#: main.py:3891
+#: main.py:11305
+#: main.py:11509
 msgid "Play"
 msgstr "चलाएँ"
 
@@ -1849,23 +1849,23 @@ msgstr "चलाएँ या रोकें"
 
 #: internal_player.py:527
 #: main.py:1642
-#: main.py:2799
-#: main.py:2811
-#: main.py:3459
-#: main.py:3603
+#: main.py:2740
+#: main.py:2752
+#: main.py:3400
+#: main.py:3544
 #: shortcuts.py:58
 #: shortcuts.py:75
 msgid "Play/Pause"
 msgstr "चलाएँ/रोकें"
 
-#: main.py:4123
-#: main.py:8697
-#: main.py:8700
+#: main.py:4064
+#: main.py:8638
+#: main.py:8641
 msgid "Playback Error"
 msgstr "प्लेबैक त्रुटि"
 
-#: main.py:3462
-#: main.py:3607
+#: main.py:3403
+#: main.py:3548
 msgid "Player"
 msgstr "प्लेयर"
 
@@ -1885,29 +1885,29 @@ msgstr "चल रहा है"
 msgid "Playlist"
 msgstr "प्लेलिस्ट"
 
-#: main.py:3450
-#: main.py:3588
-#: playlist.py:3259
+#: main.py:3391
+#: main.py:3529
+#: playlist.py:3215
 #: shortcuts.py:54
 msgid "Playlist Manager"
 msgstr "प्लेलिस्ट प्रबंधक"
 
-#: main.py:7801
-#: main.py:7807
+#: main.py:7742
+#: main.py:7748
 msgid "Playlist refresh failed: {name}"
 msgstr "प्लेलिस्ट रीफ़्श नहीं हो सकी: {name}"
 
-#: main.py:7806
+#: main.py:7747
 msgid "Playlist refreshed: {name}"
 msgstr "प्लेलिस्ट रीफ़्रेश हो गई: {name}"
 
-#: playlist.py:3488
+#: playlist.py:3444
 msgid "Playlist type"
 msgstr "प्लेलिस्ट प्रकार"
 
-#: main.py:3368
-#: main.py:3370
-#: main.py:3372
+#: main.py:3309
+#: main.py:3311
+#: main.py:3313
 msgid "Playlist view"
 msgstr "प्लेलिस्ट दृश्य"
 
@@ -1916,12 +1916,12 @@ msgstr "प्लेलिस्ट दृश्य"
 msgid "Please try another channel or try again later."
 msgstr "कृपया दूसरा चैनल आज़माएँ या बाद में पुनः प्रयास करें।"
 
-#: playlist.py:3651
+#: playlist.py:3607
 msgid "Portal URL is required."
 msgstr "पोर्टल URL आवश्यक है।"
 
-#: playlist.py:3485
-#: playlist.py:3603
+#: playlist.py:3441
+#: playlist.py:3559
 msgid "Portal base URL"
 msgstr "पोर्टल बेस URL"
 
@@ -1941,131 +1941,131 @@ msgstr "पोर्टल ने स्ट्रीम URL नहीं लौ�
 msgid "Portal handshake failed: no token returned"
 msgstr "पोर्टल हैंडशेक विफल: कोई टोकन नहीं लौटाया गया"
 
-#: main.py:10865
-#: main.py:10868
+#: main.py:10806
+#: main.py:10809
 msgid "Prefer an audio description track when the channel has one"
 msgstr "जब चैनल में ऑडियो विवरण ट्रैक हो तो उसे प्राथमिकता दें"
 
-#: main.py:10856
+#: main.py:10797
 msgid "Preferred Audio Track"
 msgstr "पसंदीदा ऑडियो ट्रैक"
 
-#: main.py:3502
-#: main.py:3645
+#: main.py:3443
+#: main.py:3586
 msgid "Preferred Audio Track..."
 msgstr "पसंदीदा ऑडियो ट्रैक..."
 
-#: playlist.py:3489
+#: playlist.py:3445
 msgid "Preferred stream container format"
 msgstr "पसंदीदा स्ट्रीम कंटेनर प्रारूप"
 
-#: main.py:10871
+#: main.py:10812
 msgid "Preferred track names or languages, most wanted first:"
 msgstr "पसंदीदा ट्रैक नाम या भाषाएँ, सबसे अधिक वांछित पहले:"
 
-#: main.py:10510
+#: main.py:10451
 msgid "Preparing download..."
 msgstr "डाउनलोड तैयार हो रहा है..."
 
-#: main.py:6099
-#: main.py:6153
+#: main.py:6040
+#: main.py:6094
 msgid "Preparing to restart..."
 msgstr "पुनः प्रारंभ करने की तैयारी हो रही है..."
 
-#: main.py:10524
+#: main.py:10465
 msgid "Press Escape to hide this window; the download continues. View > Show Downloads (Ctrl+Shift+D) brings it back."
 msgstr "इस विंडो को छिपाने के लिए Escape दबाएँ; डाउनलोड जारी रहता है। दृश्य > डाउनलोड दिखाएँ (Ctrl+Shift+D) इसे वापस लाता है।"
 
-#: main.py:2801
-#: main.py:3478
-#: main.py:3619
-#: main.py:4132
+#: main.py:2742
+#: main.py:3419
+#: main.py:3560
+#: main.py:4073
 #: shortcuts.py:68
 msgid "Previous Channel"
 msgstr "पिछला चैनल"
 
 #: internal_player.py:548
-#: main.py:2820
+#: main.py:2761
 #: shortcuts.py:85
 msgid "Previous Subtitle"
 msgstr "पिछला उपशीर्षक"
 
-#: main.py:11359
+#: main.py:11300
 msgid "Program - Channel"
 msgstr "कार्यक्रम - चैनल"
 
-#: main.py:10616
+#: main.py:10557
 msgid "Progress: {percent}%"
 msgstr "प्रगति: {percent}%"
 
 #: account_info.py:111
 #: main.py:2144
-#: playlist.py:3410
+#: playlist.py:3366
 msgid "Provider"
 msgstr "प्रदाता"
 
-#: main.py:4756
-#: main.py:8697
-#: main.py:9663
-#: main.py:9721
+#: main.py:4697
+#: main.py:8638
+#: main.py:9604
+#: main.py:9662
 msgid "Provider error: {error}"
 msgstr "प्रदाता त्रुटि: {error}"
 
-#: main.py:4391
+#: main.py:4332
 msgid "Provider quality (copy, MKV)"
 msgstr "प्रदाता गुणवत्ता (कॉपी, MKV)"
 
-#: main.py:4392
+#: main.py:4333
 msgid "Provider quality (copy, MP4)"
 msgstr "प्रदाता गुणवत्ता (कॉपी, MP4)"
 
-#: main.py:4395
+#: main.py:4336
 msgid "Provider quality (stream copy, MKA)"
 msgstr "प्रदाता गुणवत्ता (स्ट्रीम कॉपी, MKA)"
 
 #: main.py:2149
-#: playlist.py:3415
+#: playlist.py:3371
 msgid "Provider – {name}"
 msgstr "प्रदाता – {name}"
 
-#: main.py:5443
+#: main.py:5384
 msgid "Python: {version}"
 msgstr "Python: {version}"
 
-#: playlist.py:3599
+#: playlist.py:3555
 msgid "Randomise MAC"
 msgstr "MAC यादृच्छिक करें"
 
 #: internal_player.py:546
-#: main.py:2819
+#: main.py:2760
 #: shortcuts.py:84
 msgid "Read Current Subtitle"
 msgstr "वर्तमान उपशीर्षक पढ़ें"
 
-#: main.py:3696
+#: main.py:3637
 msgid "Read current subtitle"
 msgstr "वर्तमान उपशीर्षक पढ़ें"
 
-#: main.py:3700
+#: main.py:3641
 msgid "Read previous subtitle"
 msgstr "पिछला उपशीर्षक पढ़ें"
 
-#: main.py:10410
+#: main.py:10351
 msgid "Ready."
 msgstr "तैयार।"
 
-#: main.py:9006
+#: main.py:8947
 msgid "Recent Subtitles"
 msgstr "हालिया उपशीर्षक"
 
-#: main.py:4141
-#: main.py:4144
+#: main.py:4082
+#: main.py:4085
 msgid "Recently Watched"
 msgstr "हाल ही में देखा गया"
 
-#: main.py:2803
-#: main.py:3479
-#: main.py:3620
+#: main.py:2744
+#: main.py:3420
+#: main.py:3561
 #: shortcuts.py:70
 msgid "Recently Watched..."
 msgstr "हाल ही में देखा गया..."
@@ -2083,71 +2083,71 @@ msgstr "पुनः कनेक्ट हो रहा है..."
 #: internal_player.py:531
 #: internal_player.py:1893
 #: internal_player.py:1909
-#: main.py:2815
-#: main.py:3959
-#: main.py:4731
-#: main.py:9475
-#: main.py:9483
+#: main.py:2756
+#: main.py:3900
+#: main.py:4672
+#: main.py:9416
+#: main.py:9424
 #: shortcuts.py:77
 msgid "Record"
 msgstr "रिकॉर्ड करें"
 
-#: main.py:11573
-#: main.py:11873
+#: main.py:11514
+#: main.py:11814
 msgid "Record Daily"
 msgstr "रोज़ रिकॉर्ड करें"
 
-#: main.py:11575
-#: main.py:11875
+#: main.py:11516
+#: main.py:11816
 msgid "Record Series"
 msgstr "सीरीज़ रिकॉर्ड करें"
 
-#: main.py:11574
-#: main.py:11874
+#: main.py:11515
+#: main.py:11815
 msgid "Record Weekly"
 msgstr "हर हफ़्ते रिकॉर्ड करें"
 
-#: main.py:4747
-#: main.py:4876
-#: main.py:5003
-#: main.py:5006
-#: main.py:5017
-#: main.py:5020
-#: main.py:5028
-#: main.py:5031
-#: main.py:11223
+#: main.py:4688
+#: main.py:4817
+#: main.py:4944
+#: main.py:4947
+#: main.py:4958
+#: main.py:4961
+#: main.py:4969
+#: main.py:4972
+#: main.py:11164
 msgid "Recording"
 msgstr "रिकॉर्डिंग"
 
-#: main.py:5271
+#: main.py:5212
 msgid "Recording Complete"
 msgstr "रिकॉर्डिंग पूर्ण"
 
-#: main.py:4459
+#: main.py:4400
 msgid "Recording Conflict"
 msgstr "रिकॉर्डिंग संघर्ष"
 
-#: main.py:4757
-#: main.py:4761
-#: main.py:4765
-#: main.py:4787
-#: main.py:4853
-#: main.py:5293
+#: main.py:4698
+#: main.py:4702
+#: main.py:4706
+#: main.py:4728
+#: main.py:4794
+#: main.py:5234
 msgid "Recording Error"
 msgstr "रिकॉर्डिंग त्रुटि"
 
-#: main.py:5713
+#: main.py:5654
 msgid "Recording Format"
 msgstr "रिकॉर्डिंग प्रारूप"
 
-#: main.py:5723
-#: main.py:10915
-#: main.py:10921
-#: main.py:10960
+#: main.py:5664
+#: main.py:10856
+#: main.py:10862
+#: main.py:10901
 msgid "Recording Problem Times"
 msgstr "रिकॉर्डिंग की समस्याओं का समय"
 
-#: main.py:5277
+#: main.py:5218
 msgid "Recording Warning"
 msgstr "रिकॉर्डिंग चेतावनी"
 
@@ -2155,53 +2155,53 @@ msgstr "रिकॉर्डिंग चेतावनी"
 msgid "Recording is not available from this window."
 msgstr "इस विंडो से रिकॉर्डिंग उपलब्ध नहीं है।"
 
-#: main.py:5291
+#: main.py:5232
 msgid "Recording of {name} ended unexpectedly (code {code}).\n\n{detail}"
 msgstr "{name} की रिकॉर्डिंग अप्रत्याशित रूप से समाप्त हुई (कोड {code})।\n\n{detail}"
 
-#: main.py:5270
+#: main.py:5211
 msgid "Recording saved:\n{path}"
 msgstr "रिकॉर्डिंग सहेजी गई:\n{path}"
 
-#: main.py:4469
+#: main.py:4410
 msgid "Recording scheduled.\n\nThe programme guide has not been imported yet, so the Scheduled Recordings window may not list anything, and this may be the only episode you can schedule. Import the guide from File > Import EPG to DB to see and schedule upcoming programmes."
 msgstr "रिकॉर्डिंग निर्धारित हुई।\n\nप्रोग्राम गाइड अभी आयात नहीं हुई है, इसलिए निर्धारित रिकॉर्डिंग विंडो में कुछ भी नहीं दिख सकता, और यह एकमात्र एपिसोड हो सकता है जिसे आप निर्धारित कर सकें। आने वाले प्रोग्राम देखने और निर्धारित करने के लिए फ़ाइल > EPG को डेटाबेस में आयात करें से गाइड आयात करें।"
 
-#: main.py:4872
+#: main.py:4813
 msgid "Recording started ({fmt}):\n{path}"
 msgstr "रिकॉर्डिंग प्रारंभ हुई ({fmt}):\n{path}"
 
-#: main.py:5275
+#: main.py:5216
 msgid "Recording stopped, but ffmpeg reported code {code}.\n\n{detail}\n\nFile:\n{path}"
 msgstr "रिकॉर्डिंग रुक गई, लेकिन ffmpeg ने कोड {code} रिपोर्ट किया।\n\n{detail}\n\nफ़ाइल:\n{path}"
 
-#: main.py:4447
+#: main.py:4388
 msgid "Recording updated to repeat."
 msgstr "दोहराने के लिए रिकॉर्डिंग अपडेट की गई।"
 
-#: main.py:3507
-#: main.py:3744
-#: main.py:5408
-#: main.py:5692
+#: main.py:3448
+#: main.py:3685
+#: main.py:5349
+#: main.py:5633
 msgid "Recordings"
 msgstr "रिकॉर्डिंग"
 
-#: main.py:10323
-#: main.py:11157
-#: main.py:11195
-#: playlist.py:3123
+#: main.py:10264
+#: main.py:11098
+#: main.py:11136
+#: playlist.py:3079
 msgid "Refresh"
 msgstr "ताज़ा करें"
 
-#: playlist.py:3123
+#: playlist.py:3079
 msgid "Refresh All Playlists"
 msgstr "सभी प्लेलिस्ट रीफ़्रेश करें"
 
-#: main.py:7803
+#: main.py:7744
 msgid "Refreshing all playlists..."
 msgstr "सभी प्लेलिस्ट रीफ़्रेश हो रही हैं..."
 
-#: main.py:7808
+#: main.py:7749
 msgid "Refreshing playlist: {name}"
 msgstr "प्लेलिस्ट रीफ़्रेश हो रही है: {name}"
 
@@ -2217,24 +2217,24 @@ msgstr "स्ट्रीम ताज़ा हो रही है..."
 msgid "Release history"
 msgstr "रिलीज़ इतिहास"
 
-#: main.py:11305
+#: main.py:11246
 msgid "Remove all scheduled recordings from the list?"
 msgstr "सूची से सभी निर्धारित रिकॉर्डिंग हटाएँ?"
 
-#: main.py:2636
+#: main.py:2577
 msgid "Remove from Favorites"
 msgstr "पसंदीदा से हटाएँ"
 
-#: main.py:11308
+#: main.py:11249
 msgid "Remove scheduled recording '{title}' from the list?"
 msgstr "निर्धारित रिकॉर्डिंग '{title}' को सूची से हटाएँ?"
 
-#: playlist.py:3046
-#: playlist.py:3127
+#: playlist.py:3002
+#: playlist.py:3083
 msgid "Rename"
 msgstr "नाम बदलें"
 
-#: main.py:2889
+#: main.py:2830
 msgid "Replace current settings with this backup? Restart the app after importing."
 msgstr "मौजूदा सेटिंग को इस बैकअप से बदलें? इम्पोर्ट करने के बाद ऐप को रीस्टार्ट करें।"
 
@@ -2247,82 +2247,82 @@ msgstr "पुनर्स्थापित करें"
 msgid "Resume"
 msgstr "फिर से शुरू करें"
 
-#: main.py:3704
+#: main.py:3645
 msgid "Review recent subtitles..."
 msgstr "हालिया उपशीर्षक समीक्षा..."
 
-#: main.py:10978
+#: main.py:10919
 msgid "Schedule Padding"
 msgstr "शेड्यूल पैडिंग"
 
-#: main.py:5719
+#: main.py:5660
 msgid "Schedule Padding..."
 msgstr "शेड्यूल पैडिंग..."
 
-#: main.py:3963
-#: main.py:4042
-#: main.py:4420
-#: main.py:4436
-#: main.py:4440
-#: main.py:4447
-#: main.py:4451
-#: main.py:4474
-#: main.py:4481
-#: main.py:11365
-#: main.py:11570
-#: main.py:11870
-#: main.py:11918
+#: main.py:3904
+#: main.py:3983
+#: main.py:4361
+#: main.py:4377
+#: main.py:4381
+#: main.py:4388
+#: main.py:4392
+#: main.py:4415
+#: main.py:4422
+#: main.py:11306
+#: main.py:11511
+#: main.py:11811
+#: main.py:11859
 msgid "Schedule Recording"
 msgstr "रिकॉर्डिंग शेड्यूल करें"
 
-#: main.py:3972
+#: main.py:3913
 msgid "Schedule Recording..."
 msgstr "रिकॉर्डिंग शेड्यूल करें..."
 
-#: main.py:11222
+#: main.py:11163
 msgid "Scheduled"
 msgstr "शेड्यूल किया गया"
 
-#: main.py:4601
-#: main.py:4692
+#: main.py:4542
+#: main.py:4633
 msgid "Scheduled Recording"
 msgstr "शेड्यूल की गई रिकॉर्डिंग"
 
-#: main.py:11137
-#: main.py:11289
-#: main.py:11298
-#: main.py:11309
+#: main.py:11078
+#: main.py:11230
+#: main.py:11239
+#: main.py:11250
 msgid "Scheduled Recordings"
 msgstr "शेड्यूल की गई रिकॉर्डिंग"
 
-#: main.py:5709
+#: main.py:5650
 msgid "Scheduled Recordings..."
 msgstr "शेड्यूल की गई रिकॉर्डिंग..."
 
-#: main.py:4636
+#: main.py:4577
 msgid "Scheduled recording is missing channel data."
 msgstr "शेड्यूल की गई रिकॉर्डिंग में चैनल डेटा गायब है।"
 
-#: main.py:4690
+#: main.py:4631
 msgid "Scheduled recording started:\n{title}"
 msgstr "शेड्यूल की गई रिकॉर्डिंग प्रारंभ हुई:\n{title}"
 
-#: main.py:4477
+#: main.py:4418
 msgid "Scheduled recording:\n{title}\n{time}"
 msgstr "शेड्यूल की गई रिकॉर्डिंग:\n{title}\n{time}"
 
-#: main.py:6817
-#: main.py:11149
+#: main.py:6758
+#: main.py:11090
 msgid "Scheduled recordings"
 msgstr "शेड्यूल की गई रिकॉर्डिंग"
 
-#: main.py:3389
-#: main.py:3393
-#: main.py:3395
+#: main.py:3330
+#: main.py:3334
+#: main.py:3336
 msgid "Search"
 msgstr "खोज"
 
-#: main.py:10198
+#: main.py:10139
 msgid "Searching for devices..."
 msgstr "डिवाइस खोजे जा रहे हैं..."
 
@@ -2330,9 +2330,9 @@ msgstr "डिवाइस खोजे जा रहे हैं..."
 msgid "Select Custom Player"
 msgstr "कस्टम प्लेयर चुनें"
 
-#: main.py:10190
-#: main.py:10199
-#: main.py:10201
+#: main.py:10131
+#: main.py:10140
+#: main.py:10142
 msgid "Select Device to Cast"
 msgstr "कास्ट करने के लिए डिवाइस चुनें"
 
@@ -2340,28 +2340,28 @@ msgstr "कास्ट करने के लिए डिवाइस चु�
 msgid "Select Player Executable"
 msgstr "प्लेयर निष्पादन योग्य फ़ाइल चुनें"
 
-#: main.py:2471
+#: main.py:2412
 msgid "Select a channel first."
 msgstr "पहले एक चैनल चुनें।"
 
-#: main.py:4731
+#: main.py:4672
 msgid "Select a channel to record first."
 msgstr "पहले रिकॉर्ड करने के लिए एक चैनल चुनें।"
 
-#: main.py:11918
+#: main.py:11859
 msgid "Select a programme first."
 msgstr "पहले एक कार्यक्रम चुनें।"
 
-#: main.py:10706
+#: main.py:10647
 msgid "Select a programme, then press Enter to open it, or use the context menu to download it. Press Escape to close."
 msgstr "कोई कार्यक्रम चुनें, फिर उसे खोलने के लिए Enter दबाएँ, या उसे डाउनलोड करने के लिए संदर्भ मेनू का उपयोग करें। बंद करने के लिए Escape दबाएँ।"
 
-#: main.py:11289
-#: main.py:11298
+#: main.py:11230
+#: main.py:11239
 msgid "Select a scheduled recording first."
 msgstr "पहले एक शेड्यूल की गई रिकॉर्डिंग चुनें।"
 
-#: main.py:10309
+#: main.py:10250
 msgid "Select an account to check its status:"
 msgstr "स्थिति जाँचने के लिए एक खाता चुनें:"
 
@@ -2369,11 +2369,11 @@ msgstr "स्थिति जाँचने के लिए एक खात�
 msgid "Select the audio output device for the built-in player."
 msgstr "इनबिल्ट प्लेयर के लिए ऑडियो आउटपुट डिवाइस चुनें।"
 
-#: playlist.py:3488
+#: playlist.py:3444
 msgid "Select the playlist format to download"
 msgstr "डाउनलोड करने के लिए प्लेलिस्ट प्रारूप चुनें"
 
-#: main.py:10877
+#: main.py:10818
 msgid "Separate them with commas, for example: audio description, English. A track is used when its name contains one of these words. Leave this empty to keep whatever track the channel starts on."
 msgstr "उन्हें अल्पविराम से अलग करें, उदाहरण के लिए: audio description, हिन्दी। जब किसी ट्रैक के नाम में इनमें से कोई शब्द होता है, तो वही ट्रैक चुना जाता है। चैनल जिस ट्रैक से शुरू होता है उसे बनाए रखने के लिए इसे खाली छोड़ें।"
 
@@ -2399,22 +2399,22 @@ msgstr "सर्वर समय"
 msgid "Server time zone"
 msgstr "सर्वर समय क्षेत्र"
 
-#: main.py:5727
+#: main.py:5668
 msgid "Set Download Folder..."
 msgstr "डाउनलोड फ़ोल्डर सेट करें..."
 
-#: main.py:5472
+#: main.py:5413
 msgid "Set download folder"
 msgstr "डाउनलोड फ़ोल्डर सेट करें"
 
-#: main.py:2762
-#: main.py:2770
-#: main.py:2775
-#: main.py:2780
-#: main.py:2868
-#: main.py:2870
-#: main.py:2887
-#: main.py:2894
+#: main.py:2703
+#: main.py:2711
+#: main.py:2716
+#: main.py:2721
+#: main.py:2809
+#: main.py:2811
+#: main.py:2828
+#: main.py:2835
 msgid "Settings Backup"
 msgstr "सेटिंग बैकअप"
 
@@ -2422,7 +2422,7 @@ msgstr "सेटिंग बैकअप"
 msgid "Settings are too large to back up."
 msgstr "सेटिंग्स बैकअप के लिए बहुत बड़ी हैं।"
 
-#: main.py:2893
+#: main.py:2834
 msgid "Settings imported. Restart the app to use them."
 msgstr "सेटिंग इम्पोर्ट की गईं। उनका इस्तेमाल करने के लिए ऐप को फिर से शुरू करें।"
 
@@ -2430,17 +2430,17 @@ msgstr "सेटिंग इम्पोर्ट की गईं। उन�
 msgid "Shortcut conflicts with {command}."
 msgstr "शॉर्टकट {command} से टकराता है।"
 
-#: main.py:2851
+#: main.py:2792
 msgid "Shortcut saved. Restart the app to use it."
 msgstr "शॉर्टकट सेव किया गया। इसका इस्तेमाल करने के लिए ऐप को फिर से शुरू करें।"
 
-#: main.py:3458
-#: main.py:3602
+#: main.py:3399
+#: main.py:3543
 #: shortcuts.py:67
 msgid "Show Built-in Player"
 msgstr "अंतर्निहित प्लेयर दिखाएँ"
 
-#: main.py:3626
+#: main.py:3567
 #: shortcuts.py:66
 msgid "Show Downloads"
 msgstr "डाउनलोड दिखाएँ"
@@ -2449,13 +2449,13 @@ msgstr "डाउनलोड दिखाएँ"
 msgid "Show Player"
 msgstr "प्लेयर दिखाएँ"
 
-#: main.py:3525
-#: main.py:3659
+#: main.py:3466
+#: main.py:3600
 msgid "Show Player on Enter"
 msgstr "Enter पर प्लेयर दिखाएँ"
 
-#: main.py:3529
-#: main.py:3660
+#: main.py:3470
+#: main.py:3601
 msgid "Show Stream URL"
 msgstr "स्ट्रीम URL दिखाएँ"
 
@@ -2464,22 +2464,22 @@ msgstr "स्ट्रीम URL दिखाएँ"
 msgid "Show older releases (English)"
 msgstr "पुराने रिलीज़ दिखाएँ (अंग्रेज़ी में)"
 
-#: main.py:5077
-#: main.py:5138
-#: main.py:5148
-#: main.py:11054
+#: main.py:5018
+#: main.py:5079
+#: main.py:5089
+#: main.py:10995
 msgid "Shut Down After Recordings"
 msgstr "रिकॉर्डिंग के बाद बंद करें"
 
-#: main.py:11068
+#: main.py:11009
 msgid "Shut Down Now"
 msgstr "अभी बंद करें"
 
-#: main.py:5731
+#: main.py:5672
 msgid "Shut Down the Computer When Recordings Finish"
 msgstr "रिकॉर्डिंग पूरी होने पर कंप्यूटर बंद करें"
 
-#: main.py:5137
+#: main.py:5078
 msgid "Shutdown canceled. Automatic shutdown after recordings is now off."
 msgstr "बंद करना रद्द किया गया। रिकॉर्डिंग के बाद स्वचालित शटडाउन अब बंद है।"
 
@@ -2488,15 +2488,15 @@ msgstr "बंद करना रद्द किया गया। रिक�
 msgid "Speak Subtitles"
 msgstr "उपशीर्षक बोलकर पढ़ें"
 
-#: main.py:3690
+#: main.py:3631
 msgid "Speak subtitles"
 msgstr "उपशीर्षक बोलें"
 
-#: main.py:3681
+#: main.py:3622
 msgid "Speak through application voice"
 msgstr "एप्लिकेशन वॉइस से बोलें"
 
-#: main.py:3680
+#: main.py:3621
 msgid "Speak through screen reader"
 msgstr "स्क्रीन रीडर से बोलें"
 
@@ -2505,25 +2505,25 @@ msgid "Stalker Portal"
 msgstr "Stalker Portal"
 
 #: main.py:2148
-#: playlist.py:3414
+#: playlist.py:3370
 msgid "Stalker Portal – {name}"
 msgstr "Stalker Portal – {name}"
 
-#: main.py:2809
-#: main.py:5702
+#: main.py:2750
+#: main.py:5643
 #: shortcuts.py:63
 msgid "Start Recording"
 msgstr "रिकॉर्डिंग प्रारंभ करें"
 
-#: main.py:10981
+#: main.py:10922
 msgid "Start scheduled recordings early or keep recording after the programme ends. Manual recordings are not changed."
 msgstr "निर्धारित रिकॉर्डिंग जल्दी शुरू करें या कार्यक्रम समाप्त होने के बाद भी रिकॉर्डिंग जारी रखें। मैन्युअल रिकॉर्डिंग नहीं बदली जाती।"
 
-#: main.py:5986
+#: main.py:5927
 msgid "Starting update..."
 msgstr "अपडेट प्रारंभ हो रहा है..."
 
-#: main.py:8483
+#: main.py:8424
 msgid "Starts at {start}: {title}"
 msgstr "{start} पर शुरू: {title}"
 
@@ -2531,23 +2531,23 @@ msgstr "{start} पर शुरू: {title}"
 #: account_info.py:530
 #: account_info.py:532
 #: account_info.py:580
-#: main.py:11153
+#: main.py:11094
 msgid "Status"
 msgstr "स्थिति"
 
 #: internal_player.py:425
 #: internal_player.py:528
 #: main.py:1643
-#: main.py:2800
-#: main.py:2812
-#: main.py:3460
-#: main.py:3604
+#: main.py:2741
+#: main.py:2753
+#: main.py:3401
+#: main.py:3545
 #: shortcuts.py:59
 #: shortcuts.py:76
 msgid "Stop"
 msgstr "रोकें"
 
-#: main.py:5706
+#: main.py:5647
 msgid "Stop All Recordings"
 msgstr "सभी रिकॉर्डिंग रोकें"
 
@@ -2556,8 +2556,8 @@ msgid "Stop Playback"
 msgstr "प्लेबैक रोकें"
 
 #: internal_player.py:1909
-#: main.py:3957
-#: main.py:5704
+#: main.py:3898
+#: main.py:5645
 msgid "Stop Recording"
 msgstr "रिकॉर्डिंग रोकें"
 
@@ -2570,20 +2570,20 @@ msgstr "रिकॉर्डिंग रोकें"
 msgid "Stopped"
 msgstr "रुका हुआ"
 
-#: main.py:11224
+#: main.py:11165
 msgid "Stopping"
 msgstr "रुक रहा है"
 
-#: main.py:4745
-#: main.py:5001
+#: main.py:4686
+#: main.py:4942
 msgid "Stopping recording for {name}..."
 msgstr "{name} की रिकॉर्डिंग रुक रही है..."
 
-#: main.py:5017
+#: main.py:4958
 msgid "Stopping recording..."
 msgstr "रिकॉर्डिंग रुक रही है..."
 
-#: main.py:5027
+#: main.py:4968
 msgid "Stopping {count} recording(s)..."
 msgstr "{count} रिकॉर्डिंग रुक रही हैं..."
 
@@ -2592,8 +2592,8 @@ msgstr "{count} रिकॉर्डिंग रुक रही हैं..."
 msgid "Stream Lost"
 msgstr "स्ट्रीम खो गई"
 
-#: main.py:3423
-#: main.py:3425
+#: main.py:3364
+#: main.py:3366
 msgid "Stream URL"
 msgstr "स्ट्रीम URL"
 
@@ -2611,7 +2611,7 @@ msgstr "स्ट्रीम कट गई। यह ऑफ़लाइन ह�
 msgid "Stream lost"
 msgstr "स्ट्रीम खो गई"
 
-#: playlist.py:3489
+#: playlist.py:3445
 msgid "Stream output"
 msgstr "स्ट्रीम आउटपुट"
 
@@ -2620,19 +2620,19 @@ msgstr "स्ट्रीम आउटपुट"
 msgid "Subscription"
 msgstr "सदस्यता"
 
-#: main.py:9243
+#: main.py:9184
 msgid "Subtitle Capabilities"
 msgstr "उपशीर्षक क्षमताएं"
 
-#: main.py:3735
-#: main.py:9127
-#: main.py:9180
-#: main.py:9198
-#: main.py:9204
+#: main.py:3676
+#: main.py:9068
+#: main.py:9121
+#: main.py:9139
+#: main.py:9145
 msgid "Subtitle Speech"
 msgstr "उपशीर्षक वाचन"
 
-#: main.py:3733
+#: main.py:3674
 msgid "Subtitle capabilities..."
 msgstr "उपशीर्षक क्षमताएं..."
 
@@ -2644,11 +2644,11 @@ msgstr "उपशीर्षक फ़ाइल लोड की गई: {name}
 msgid "Subtitle files (*.srt;*.ass;*.ssa;*.vtt)"
 msgstr "उपशीर्षक फ़ाइलें (*.srt;*.ass;*.ssa;*.vtt)"
 
-#: main.py:8960
+#: main.py:8901
 msgid "Subtitle speech %s."
 msgstr "उपशीर्षक वाणी %s।"
 
-#: main.py:9089
+#: main.py:9030
 msgid "Subtitle speech failed."
 msgstr "उपशीर्षक वाचन विफल रहा।"
 
@@ -2668,15 +2668,15 @@ msgstr "उपशीर्षक वाचन चालू"
 msgid "Subtitle speech on. Load an SRT or WebVTT file to hear subtitles."
 msgstr "उपशीर्षक वाचन चालू। उपशीर्षक सुनने के लिए SRT या WebVTT फ़ाइल लोड करें।"
 
-#: main.py:9069
+#: main.py:9010
 msgid "Subtitle speech paused: the selected audio output is unavailable."
 msgstr "उपशीर्षक वाणी रोकी गई: चयनित ऑडियो आउटपुट उपलब्ध नहीं है।"
 
-#: main.py:9133
+#: main.py:9074
 msgid "Subtitle speech will use the application voice."
 msgstr "उपशीर्षक वाचन एप्लिकेशन वॉइस का उपयोग करेगा।"
 
-#: main.py:9135
+#: main.py:9076
 msgid "Subtitle speech will use your screen reader."
 msgstr "उपशीर्षक वाचन आपके स्क्रीन रीडर का उपयोग करेगा।"
 
@@ -2685,7 +2685,7 @@ msgid "Subtitle track unavailable"
 msgstr "सबटाइटल ट्रैक उपलब्ध नहीं है"
 
 #: internal_player.py:540
-#: main.py:2818
+#: main.py:2759
 #: shortcuts.py:82
 msgid "Subtitles"
 msgstr "उपशीर्षक"
@@ -2698,36 +2698,36 @@ msgstr "उपशीर्षक: {name}"
 msgid "System default"
 msgstr "सिस्टम डिफ़ॉल्ट"
 
-#: main.py:4016
+#: main.py:3957
 msgid "The EPG database was created by an older version and is missing newer fields. Import the guide again to update it?\n\n(Without this, the EPG views cannot show programme descriptions.)"
 msgstr "EPG डेटाबेस पुराने संस्करण द्वारा बनाया गया था और उसमें नए फ़ील्ड गायब हैं। इसे अपडेट करने के लिए गाइड फिर से आयात करें?\n\n(इसके बिना, EPG विवरण कार्यक्रम विवरण नहीं दिखा सकते।)"
 
-#: main.py:4026
-#: main.py:7884
+#: main.py:3967
+#: main.py:7825
 msgid "The EPG import could not be started."
 msgstr "EPG आयात प्रारंभ नहीं किया जा सका।"
 
-#: main.py:7765
+#: main.py:7706
 msgid "The EPG import did not finish. The programme guide may be incomplete or unchanged."
 msgstr "EPG आयात पूरा नहीं हुआ। कार्यक्रम गाइड अधूरी या अपरिवर्तित हो सकती है।"
 
-#: main.py:7761
+#: main.py:7702
 msgid "The EPG import has finished. The programme guide is up to date."
 msgstr "EPG आयात पूरा हो गया। कार्यक्रम गाइड अद्यतन है।"
 
-#: main.py:9126
+#: main.py:9067
 msgid "The application voice is only available on Windows with SAPI."
 msgstr "एप्लिकेशन वॉइस केवल SAPI के साथ Windows पर उपलब्ध है।"
 
-#: main.py:5286
+#: main.py:5227
 msgid "The audio could not be copied into an MKA container, so nothing was recorded and nothing was transcoded. Choose another audio format from Recordings > Recording Format and try again.\n\n{detail}"
 msgstr "ऑडियो को MKA कंटेनर में कॉपी नहीं किया जा सका, इसलिए कुछ भी रिकॉर्ड नहीं हुआ और कुछ भी ट्रांसकोड नहीं हुआ. रिकॉर्डिंग > रिकॉर्डिंग प्रारूप में जाकर कोई अन्य ऑडियो प्रारूप चुनें और पुनः प्रयास करें.\n\n{detail}"
 
-#: main.py:5458
+#: main.py:5399
 msgid "The clipboard is unavailable."
 msgstr "क्लिपबोर्ड उपलब्ध नहीं है।"
 
-#: main.py:5072
+#: main.py:5013
 msgid "The computer will shut down once every recording that is running or still scheduled has finished.\n\nYou get a countdown you can cancel first, and this setting turns itself off again as soon as it has been used.\n\nShut down the computer when recordings finish?"
 msgstr "चालू या निर्धारित सभी रिकॉर्डिंग पूरी हो जाने पर कंप्यूटर बंद हो जाएगा।\n\nपहले आपको एक उलटी गिनती मिलेगी जिसे आप रद्द कर सकते हैं, और उपयोग होने के बाद यह सेटिंग स्वयं बंद हो जाती है।\n\nरिकॉर्डिंग पूरी होने पर कंप्यूटर बंद करें?"
 
@@ -2747,11 +2747,11 @@ msgstr "इंस्टॉलर निकास कोड {code} के सा�
 msgid "The installer was still running after 15 minutes."
 msgstr "15 मिनट बाद भी इंस्टॉलर चल रहा था।"
 
-#: main.py:5867
+#: main.py:5808
 msgid "The language has been changed. Please restart Accessible IPTV Client for the change to take full effect."
 msgstr "भाषा बदल दी गई है। परिवर्तन पूरी तरह प्रभावी होने के लिए कृपया Accessible IPTV Client पुनः प्रारंभ करें।"
 
-#: main.py:2780
+#: main.py:2721
 msgid "The passwords do not match."
 msgstr "पासवर्ड मेल नहीं खाते।"
 
@@ -2779,7 +2779,7 @@ msgstr "प्रदाता के सर्वर में त्रुट�
 msgid "The provider's server refused the connection."
 msgstr "प्रदाता के सर्वर ने कनेक्शन अस्वीकार कर दिया।"
 
-#: main.py:9114
+#: main.py:9055
 msgid "The selected audio output is unavailable. Subtitle speech is paused."
 msgstr "चयनित ऑडियो आउटपुट उपलब्ध नहीं है। उपशीर्षक वाणी रोकी गई है।"
 
@@ -2791,7 +2791,7 @@ msgstr "सर्वर ने खाते का कोई विवरण न
 msgid "The stream sent data that could not be read."
 msgstr "स्ट्रीम ने ऐसा डेटा भेजा जिसे पढ़ा नहीं जा सका।"
 
-#: main.py:6386
+#: main.py:6327
 msgid "The update to v{version} did not finish, so {app} is still v{current}. You can try again from Help > Check for Updates..."
 msgstr "v{version} में अपडेट पूरा नहीं हुआ, इसलिए {app} अब भी v{current} है। आप सहायता > अपडेट जाँचें... से फिर से प्रयास कर सकते हैं।"
 
@@ -2799,54 +2799,54 @@ msgstr "v{version} में अपडेट पूरा नहीं हुआ
 msgid "The user guide could not be opened: {error}"
 msgstr "उपयोगकर्ता गाइड नहीं खुल सकी: {error}"
 
-#: main.py:9738
-#: main.py:9842
+#: main.py:9679
+#: main.py:9783
 msgid "This catch-up programme is already downloading."
 msgstr "यह कैच-अप कार्यक्रम पहले से डाउनलोड हो रहा है।"
 
-#: main.py:5005
+#: main.py:4946
 msgid "This channel is not currently recording."
 msgstr "यह चैनल वर्तमान में रिकॉर्ड नहीं हो रहा है।"
 
-#: main.py:2479
+#: main.py:2420
 msgid "This entry cannot be added to Favorites."
 msgstr "इस प्रविष्टि को पसंदीदा में नहीं जोड़ा जा सकता।"
 
-#: main.py:9481
+#: main.py:9422
 msgid "This is a catch-up stream. Use Download in the catch-up list to save it."
 msgstr "यह एक कैच-अप स्ट्रीम है। इसे सहेजने के लिए कैच-अप सूची में डाउनलोड का उपयोग करें।"
 
-#: main.py:9201
+#: main.py:9142
 msgid "This is the application voice."
 msgstr "यह एप्लिकेशन आवाज़ है।"
 
-#: main.py:4440
+#: main.py:4381
 msgid "This programme has already ended."
 msgstr "यह कार्यक्रम पहले ही समाप्त हो चुका है।"
 
-#: main.py:4450
+#: main.py:4391
 msgid "This programme is already scheduled to record."
 msgstr "यह कार्यक्रम पहले से ही रिकॉर्ड करने के लिए शेड्यूल किया गया है।"
 
-#: main.py:9716
+#: main.py:9657
 msgid "This programme is not available as catch-up content yet."
 msgstr "यह कार्यक्रम अभी कैच-अप सामग्री के रूप में उपलब्ध नहीं है।"
 
-#: main.py:4458
+#: main.py:4399
 msgid "This recording overlaps {count} other scheduled recording(s). Schedule it anyway?"
 msgstr "यह रिकॉर्डिंग {count} अन्य शेड्यूल की गई रिकॉर्डिंग(रिकॉर्डिंग) को ओवरलैप करती है। वैसे भी इसे शेड्यूल करें?"
 
-#: main.py:11150
-#: main.py:11778
+#: main.py:11091
+#: main.py:11719
 msgid "Time"
 msgstr "समय"
 
-#: main.py:10618
+#: main.py:10559
 msgid "Time remaining: {time}"
 msgstr "शेष समय: {time}"
 
-#: main.py:11151
-#: main.py:11779
+#: main.py:11092
+#: main.py:11720
 msgid "Title"
 msgstr "शीर्षक"
 
@@ -2872,7 +2872,7 @@ msgstr "ट्रैक {id}"
 msgid "Trial account"
 msgstr "परीक्षण खाता"
 
-#: playlist.py:3594
+#: playlist.py:3550
 msgid "Try to add the portal's XMLTV guide automatically"
 msgstr "पोर्टल का XMLTV गाइड स्वतः जोड़ने का प्रयास करें"
 
@@ -2880,7 +2880,7 @@ msgstr "पोर्टल का XMLTV गाइड स्वतः जोड�
 msgid "Type"
 msgstr "प्रकार"
 
-#: playlist.py:3089
+#: playlist.py:3045
 msgid "URL copied to the clipboard."
 msgstr "URL क्लिपबोर्ड पर कॉपी हो गई।"
 
@@ -2893,11 +2893,11 @@ msgstr "मेनिफ़ेस्ट डाउनलोड नहीं कि
 msgid "Unable to download update. Please check your connection."
 msgstr "अपडेट डाउनलोड नहीं किया जा सका। कृपया अपना कनेक्शन जाँचें।"
 
-#: main.py:9726
+#: main.py:9667
 msgid "Unable to prepare catch-up download:\n{error}"
 msgstr "कैच-अप डाउनलोड तैयार नहीं किया जा सका:\n{error}"
 
-#: main.py:9666
+#: main.py:9607
 msgid "Unable to prepare catch-up stream:\n{error}"
 msgstr "कैच-अप स्ट्रीम तैयार नहीं की जा सकी:\n{error}"
 
@@ -2913,7 +2913,7 @@ msgstr "अवर्गीकृत"
 msgid "Unexpected account response from the Xtream server"
 msgstr "Xtream सर्वर से अप्रत्याशित खाता प्रतिक्रिया"
 
-#: main.py:11757
+#: main.py:11698
 #: updater.py:870
 msgid "Unknown"
 msgstr "अज्ञात"
@@ -2922,30 +2922,30 @@ msgstr "अज्ञात"
 msgid "Unknown command."
 msgstr "अज्ञात कमांड।"
 
-#: main.py:4415
+#: main.py:4356
 msgid "Unknown time"
 msgstr "अज्ञात समय"
 
-#: main.py:5970
+#: main.py:5911
 msgid "Update Available"
 msgstr "अपडेट उपलब्ध"
 
-#: main.py:6401
+#: main.py:6342
 msgid "Update Complete"
 msgstr "अपडेट पूरा हुआ"
 
+#: main.py:6113
+#: main.py:6129
 #: main.py:6172
-#: main.py:6188
-#: main.py:6231
-#: main.py:6275
+#: main.py:6216
 msgid "Update Error"
 msgstr "अपडेट त्रुटि"
 
-#: main.py:6390
+#: main.py:6331
 msgid "Update Not Completed"
 msgstr "अपडेट पूरा नहीं हुआ"
 
-#: main.py:5965
+#: main.py:5906
 msgid "Update available: v{latest} (current v{current})."
 msgstr "अपडेट उपलब्ध: v{latest} (वर्तमान v{current})।"
 
@@ -2953,34 +2953,34 @@ msgstr "अपडेट उपलब्ध: v{latest} (वर्तमान v{c
 msgid "Update cancelled."
 msgstr "अपडेट रद्द किया गया।"
 
-#: main.py:5941
+#: main.py:5882
 msgid "Update check failed: {error}"
 msgstr "अपडेट जाँच विफल: {error}"
 
-#: main.py:5896
+#: main.py:5837
 msgid "Update check is already running."
 msgstr "अपडेट जाँच पहले से चल रही है।"
 
-#: main.py:6230
-#: main.py:6274
+#: main.py:6171
+#: main.py:6215
 msgid "Update failed to start: {error}"
 msgstr "अपडेट प्रारंभ करने में विफल: {error}"
 
-#: main.py:6171
-#: main.py:6187
+#: main.py:6112
+#: main.py:6128
 msgid "Update failed: {error}"
 msgstr "अपडेट विफल: {error}"
 
-#: main.py:6092
-#: main.py:6146
+#: main.py:6033
+#: main.py:6087
 msgid "Update helper is missing from this build."
 msgstr "इस बिल्ड में अपडेट हेल्पर गायब है।"
 
-#: main.py:6112
+#: main.py:6053
 msgid "Update manifest contains an unsafe asset filename."
 msgstr "अपडेट मैनिफ़ेस्ट में असुरक्षित एसेट फ़ाइल नाम है।"
 
-#: main.py:6071
+#: main.py:6012
 msgid "Update manifest contains an unsafe installer filename."
 msgstr "अपडेट मैनिफ़ेस्ट में असुरक्षित इंस्टॉलर फ़ाइल नाम है।"
 
@@ -2988,12 +2988,12 @@ msgstr "अपडेट मैनिफ़ेस्ट में असुरक
 msgid "Update manifest download URL is missing."
 msgstr "अपडेट मेनिफ़ेस्ट डाउनलोड URL गायब है।"
 
-#: main.py:6067
+#: main.py:6008
 #: updater.py:698
 msgid "Update manifest is missing required fields."
 msgstr "अपडेट मेनिफ़ेस्ट में आवश्यक फ़ील्ड गायब हैं।"
 
-#: main.py:6062
+#: main.py:6003
 msgid "Update manifest version is not newer than the current app."
 msgstr "अपडेट मेनिफ़ेस्ट संस्करण वर्तमान ऐप से नया नहीं है।"
 
@@ -3005,79 +3005,79 @@ msgstr "नवीनतम रिलीज़ में अपडेट मे�
 msgid "Update package contains an unsafe file path."
 msgstr "अपडेट पैकेज में एक असुरक्षित फ़ाइल पथ है।"
 
-#: main.py:6131
+#: main.py:6072
 msgid "Updated executable '{name}' not found in the package."
 msgstr "अपडेट किया गया निष्पादन योग्य '{name}' पैकेज में नहीं मिला।"
 
-#: main.py:5891
-#: main.py:5896
-#: main.py:5930
-#: main.py:5942
+#: main.py:5832
+#: main.py:5837
+#: main.py:5871
+#: main.py:5883
 msgid "Updates"
 msgstr "अपडेट"
 
-#: main.py:5906
+#: main.py:5847
 msgid "Updates are only available in the packaged build."
 msgstr "अपडेट केवल पैकेज्ड बिल्ड में उपलब्ध हैं।"
 
-#: main.py:5904
+#: main.py:5845
 msgid "Updates are only supported on Windows builds."
 msgstr "अपडेट केवल Windows बिल्ड पर समर्थित हैं।"
 
-#: main.py:5985
-#: main.py:6314
+#: main.py:5926
+#: main.py:6255
 msgid "Updating {app}"
 msgstr "{app} अपडेट हो रहा है"
 
 #: main.py:394
 #: main.py:539
 #: main.py:685
-#: main.py:3556
-#: main.py:3750
+#: main.py:3497
+#: main.py:3691
 msgid "User Guide"
 msgstr "उपयोगकर्ता गाइड"
 
 #: account_info.py:443
-#: playlist.py:3486
+#: playlist.py:3442
 msgid "Username"
 msgstr "उपयोगकर्ता नाम"
 
-#: playlist.py:3517
+#: playlist.py:3473
 msgid "Username, password, and URL are required."
 msgstr "उपयोगकर्ता नाम, पासवर्ड और URL आवश्यक हैं।"
 
-#: playlist.py:3517
-#: playlist.py:3651
-#: playlist.py:3655
+#: playlist.py:3473
+#: playlist.py:3607
+#: playlist.py:3611
 msgid "Validation"
 msgstr "सत्यापन"
 
-#: main.py:6079
-#: main.py:6120
+#: main.py:6020
+#: main.py:6061
 msgid "Verifying download..."
 msgstr "डाउनलोड सत्यापित हो रहा है..."
 
-#: main.py:6083
-#: main.py:6133
+#: main.py:6024
+#: main.py:6074
 msgid "Verifying signature..."
 msgstr "हस्ताक्षर सत्यापित हो रहा है..."
 
-#: main.py:7493
-#: main.py:7512
+#: main.py:7434
+#: main.py:7453
 msgid "Video on Demand"
 msgstr "वीडियो ऑन डिमांड"
 
-#: main.py:3470
-#: main.py:3611
+#: main.py:3411
+#: main.py:3552
 msgid "Video on Demand (Movies && Series)"
 msgstr "वीडियो ऑन डिमांड (फ़िल्में && सीरीज़)"
 
-#: main.py:3486
-#: main.py:3627
+#: main.py:3427
+#: main.py:3568
 msgid "View"
 msgstr "दृश्य"
 
-#: main.py:3976
+#: main.py:3917
 msgid "View EPG..."
 msgstr "EPG देखें..."
 
@@ -3093,49 +3093,49 @@ msgstr "वॉल्यूम"
 msgid "Volume Control"
 msgstr "वॉल्यूम नियंत्रण"
 
-#: main.py:2805
-#: main.py:2814
+#: main.py:2746
+#: main.py:2755
 #: shortcuts.py:62
 #: shortcuts.py:80
 msgid "Volume Down"
 msgstr "आवाज़ कम करें"
 
-#: main.py:2804
-#: main.py:2813
+#: main.py:2745
+#: main.py:2754
 #: shortcuts.py:61
 #: shortcuts.py:79
 msgid "Volume Up"
 msgstr "आवाज़ बढ़ाएँ"
 
-#: main.py:9144
+#: main.py:9085
 msgid "Volume:"
 msgstr "वॉल्यूम:"
 
 #: internal_player.py:555
-#: main.py:2808
-#: main.py:2822
-#: main.py:3453
-#: main.py:3592
+#: main.py:2749
+#: main.py:2763
+#: main.py:3394
+#: main.py:3533
 #: shortcuts.py:72
 #: shortcuts.py:90
 msgid "What Is Playing"
 msgstr "क्या खेल रहा है"
 
 #: main.py:591
-#: main.py:3558
-#: main.py:3751
+#: main.py:3499
+#: main.py:3692
 #: release_notes.py:146
 msgid "What's New"
 msgstr "नया क्या है"
 
-#: main.py:2807
-#: main.py:3591
-#: main.py:11332
+#: main.py:2748
+#: main.py:3532
+#: main.py:11273
 #: shortcuts.py:71
 msgid "What's on Now"
 msgstr "अभी क्या चल रहा है"
 
-#: main.py:10859
+#: main.py:10800
 msgid "When a channel offers more than one audio track, the built-in player can switch to the track you want on its own."
 msgstr "जब किसी चैनल में एक से अधिक ऑडियो ट्रैक होते हैं, तो अंतर्निहित प्लेयर स्वयं ही आपके पसंदीदा ट्रैक पर स्विच कर सकता है।"
 
@@ -3148,7 +3148,7 @@ msgstr "Windows को अपडेट इंस्टॉल करने की
 msgid "Wrong password or damaged backup."
 msgstr "गलत पासवर्ड या क्षतिग्रस्त बैकअप।"
 
-#: playlist.py:3208
+#: playlist.py:3164
 msgid "XML files"
 msgstr "XML फ़ाइलें"
 
@@ -3156,25 +3156,25 @@ msgstr "XML फ़ाइलें"
 msgid "Xtream Codes"
 msgstr "Xtream Codes"
 
-#: playlist.py:3487
+#: playlist.py:3443
 msgid "Xtream Codes password"
 msgstr "Xtream Codes पासवर्ड"
 
-#: playlist.py:3486
+#: playlist.py:3442
 msgid "Xtream Codes username"
 msgstr "Xtream Codes उपयोगकर्ता नाम"
 
 #: main.py:2146
-#: playlist.py:3412
+#: playlist.py:3368
 msgid "Xtream Codes – {name}"
 msgstr "Xtream Codes – {name}"
 
 #: account_info.py:357
-#: main.py:2557
+#: main.py:2498
 msgid "Yes"
 msgstr "हाँ"
 
-#: main.py:2644
+#: main.py:2585
 msgid "You have not added any favorites yet. Select a channel and press Ctrl+D to add it."
 msgstr "आपने अभी तक कोई पसंदीदा नहीं जोड़ा है। चैनल चुनें और जोड़ने के लिए Ctrl+D दबाएँ।"
 
@@ -3186,7 +3186,7 @@ msgstr "उपलब्ध"
 msgid "channel stream URL"
 msgstr "चैनल स्ट्रीम URL"
 
-#: main.py:10580
+#: main.py:10521
 msgid "ffmpeg exit code: {code}"
 msgstr "ffmpeg एग्ज़िट कोड: {code}"
 
@@ -3198,11 +3198,11 @@ msgstr "इस प्लेयर द्वारा समर्थित न�
 msgid "not verified yet"
 msgstr "अभी सत्यापित नहीं"
 
-#: main.py:8959
+#: main.py:8900
 msgid "off"
 msgstr "बंद"
 
-#: main.py:8959
+#: main.py:8900
 msgid "on"
 msgstr "चालू"
 
@@ -3218,40 +3218,40 @@ msgstr "python-vlc (libVLC) उपलब्ध नहीं है।"
 msgid "unknown source"
 msgstr "अज्ञात स्रोत"
 
-#: main.py:5444
+#: main.py:5385
 msgid "wxPython: {version}"
 msgstr "wxPython: {version}"
 
-#: main.py:4393
+#: main.py:4334
 msgid "x264 re-encode (MKV)"
 msgstr "x264 पुनः एन्कोड (MKV)"
 
-#: main.py:4394
+#: main.py:4335
 msgid "x264 re-encode (MP4)"
 msgstr "x264 पुनः एन्कोड (MP4)"
 
-#: main.py:11975
+#: main.py:11916
 msgid "{app} is already running, but it did not respond. Wait a moment and try again, or close it from the notification area."
 msgstr "{app} पहले से चल रहा है, लेकिन उसने जवाब नहीं दिया। कुछ देर प्रतीक्षा करके फिर से प्रयास करें, या इसे सूचना क्षेत्र से बंद करें।"
 
-#: main.py:5928
+#: main.py:5869
 msgid "{app} is up to date (v{version})."
 msgstr "{app} अद्यतित है (v{version})।"
 
-#: main.py:6399
+#: main.py:6340
 msgid "{app} was successfully updated to v{version}."
 msgstr "{app} सफलतापूर्वक v{version} पर अपडेट हो गया।"
 
-#: main.py:2555
+#: main.py:2496
 msgid "{channel}. Now: {current}. Next: {next}. Recording: {recording}."
 msgstr "{channel}. अब: {current}. अगला: {next}. रिकॉर्डिंग: {recording}."
 
-#: main.py:11353
-#: main.py:11517
+#: main.py:11294
+#: main.py:11458
 msgid "{count} programs"
 msgstr "{count} कार्यक्रम"
 
-#: main.py:6810
+#: main.py:6751
 msgid "{count} recording is scheduled but has not started yet.\n\n{names}\n\nThe app must stay open to start it. Exit anyway?"
 msgstr "{count} रिकॉर्डिंग निर्धारित है लेकिन अभी शुरू नहीं हुई।\n\n{names}\n\nइसे शुरू करने के लिए ऐप खुला रहना चाहिए। फिर भी बाहर निकलें?"
 
@@ -3263,15 +3263,15 @@ msgstr "{kind} – {who}"
 msgid "{kind} – {who} (detected)"
 msgstr "{kind} – {who} (पता चला)"
 
-#: playlist.py:3454
-#: playlist.py:3569
+#: playlist.py:3410
+#: playlist.py:3525
 msgid "{label} field"
 msgstr "{label} फ़ील्ड"
 
-#: playlist.py:3448
-#: playlist.py:3450
-#: playlist.py:3563
-#: playlist.py:3565
+#: playlist.py:3404
+#: playlist.py:3406
+#: playlist.py:3519
+#: playlist.py:3521
 msgid "{label} label"
 msgstr "{label} लेबल"
 
@@ -3279,7 +3279,7 @@ msgstr "{label} लेबल"
 msgid "{name} (Favorite)"
 msgstr "{name} (पसंदीदा)"
 
-#: main.py:2586
+#: main.py:2527
 msgid "{name} was removed. Favorites is now empty."
 msgstr "{name} हटा दिया गया। पसंदीदा अब खाली है।"
 
@@ -3295,11 +3295,11 @@ msgstr "{player} Linux के लिए कॉन्फ़िगर नहीं
 msgid "{title} - Built-in Player"
 msgstr "{title} - अंतर्निहित प्लेयर"
 
-#: main.py:9732
+#: main.py:9673
 msgid "{title} - {channel}"
 msgstr "{title} - {channel}"
 
-#: main.py:2550
+#: main.py:2491
 msgid "{title}, {start} to {end}"
 msgstr "{title}, {start} से {end}"
 
@@ -3307,7 +3307,7 @@ msgstr "{title}, {start} से {end}"
 msgid "{value}s buffer"
 msgstr "{value} सेकंड बफ़र"
 
-#: main.py:5337
+#: main.py:5278
 msgid "{warnings} warnings, {errors} errors and {fatals} fatal errors were logged in total."
 msgstr "कुल {warnings} चेतावनियाँ, {errors} त्रुटियाँ और {fatals} गंभीर त्रुटियाँ लॉग की गईं।"
 
@@ -3315,8 +3315,8 @@ msgstr "कुल {warnings} चेतावनियाँ, {errors} त्र�
 msgid "~{value} Mbps"
 msgstr "~{value} Mbps"
 
-#: main.py:7499
-#: main.py:7524
+#: main.py:7440
+#: main.py:7465
 msgid "◄ Back"
 msgstr "◄ वापस"
 
