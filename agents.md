@@ -141,3 +141,17 @@ anything is missing.
 - **docs/learnings/epg-and-matching.md** - EPG, playlists and channel matching. 64 entries.
 - **docs/learnings/playback.md** - Playback (libVLC, buffering, subtitles). 28 entries.
 - **docs/learnings/tooling-and-process.md** - Tooling, tests and process. 5 entries.
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in this repo's GitHub Issues, via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
