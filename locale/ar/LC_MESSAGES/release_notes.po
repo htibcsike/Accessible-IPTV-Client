@@ -12,15 +12,23 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:8
+#: CHANGELOG.md:22
 msgid "A number in an id cannot make two names agree (#72)"
 msgstr "لا يمكن لرقم في معرّف أن يجعل اسمين متفقين (#72)"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:12
+msgid "Move the learnings out of agents.md, one file per subject (#75)"
+msgstr "نُقلت الدروس المستفادة من agents.md، ملف واحد لكل موضوع (#75)"
+
+#: CHANGELOG.md:16
+msgid "Run the suite and the lint on every push and pull request (#76)"
+msgstr "تعمل مجموعة الاختبارات وأداة lint عند كل دفع وطلب سحب (#76)"
+
+#: CHANGELOG.md:8
+msgid "The MPV pipe belongs to one session (#77)"
+msgstr "أنبوب MPV ينتمي إلى جلسة واحدة (#77)"
+
+#: CHANGELOG.md:28
 msgid "The channel that showed another channel's programme (#71)"
 msgstr "القناة التي عرضت برنامج قناة أخرى (#71)"
-
-#: CHANGELOG.md:20
-msgid "The gaps the two-axis review found in the byte order mark fix (#70)"
-msgstr "الثغرات التي وجدتها المراجعة ذات المحورين في إصلاح علامة ترتيب البايت (#70)"
 

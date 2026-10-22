@@ -1,6 +1,20 @@
 # Changelog
 
 Readable release history for Accessible IPTV Client. New entries are prepended automatically by `build.bat release`. Older entries were reconstructed from the [Forgejo mirror](https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client).
+## v1.150.34 - 2026-10-22
+
+### Bug fixes
+
+- The MPV pipe belongs to one session (#77)
+
+### Documentation
+
+- Move the learnings out of agents.md, one file per subject (#75)
+
+### Other changes
+
+- Run the suite and the lint on every push and pull request (#76)
+
 ## v1.150.33 - 2026-10-22
 
 ### Bug fixes
