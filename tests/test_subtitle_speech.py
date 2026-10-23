@@ -49,7 +49,7 @@ def test_empty_and_blank_cues_ignored():
 def test_duplicate_text_fills_timing_without_respeaking():
     mgr, spoken = _manager()
     mgr.set_auto_speech(True)
-    mgr.on_cue("Hello")
+    mgr.on_cue("Hello", track="2")
     assert spoken == ["Hello"]
     # Same text arriving again without timing (e.g. a repeated property
     # change) updates the recorded cue instead of speaking or duplicating.
@@ -202,7 +202,7 @@ def test_a_queued_speech_is_dropped_when_the_cues_are_cleared():
 
 def test_capability_baseline_is_honest():
     mgr, _spoken = _manager()
-    assert mgr.get_capability("built-in", "timed_cues") == AVAILABLE
+    assert mgr.get_capability("built-in", "timed_cues") == UNVERIFIED
     assert mgr.get_capability("VLC", "timed_cues") == UNAVAILABLE
     assert mgr.get_capability("Kodi", "timed_cues") == UNAVAILABLE
     assert mgr.get_capability("MPV", "timed_cues") == UNVERIFIED
@@ -228,7 +228,7 @@ def test_capability_invalid_values_rejected():
 
 def test_describe_capability():
     mgr, _spoken = _manager()
-    assert mgr.describe_capability("built-in", "timed_cues") == "available"
+    assert mgr.describe_capability("built-in", "timed_cues") == "not verified yet"
     assert "not supported" in mgr.describe_capability("VLC", "timed_cues")
     assert "not verified" in mgr.describe_capability("MPV", "timed_cues")
 
@@ -241,10 +241,69 @@ def test_describe_capability_uses_translation():
         seen.append(s)
         return f"XX:{s}"
 
-    assert mgr.describe_capability("built-in", "timed_cues", fake_gettext) == "XX:available"
+    assert mgr.describe_capability("built-in", "timed_cues", fake_gettext) == "XX:not verified yet"
     assert mgr.describe_capability("VLC", "timed_cues", fake_gettext).startswith("XX:")
     assert mgr.describe_capability("MPV", "timed_cues", fake_gettext).startswith("XX:")
-    assert seen == ["available", "not supported by this player", "not verified yet"]
+    assert seen == ["not verified yet", "not supported by this player", "not verified yet"]
+
+
+def test_old_timing_and_callers_cannot_mutate_committed_history():
+    from dataclasses import FrozenInstanceError
+    mgr, _ = _manager()
+    mgr.on_cue("Yes", 1000, 2000)
+    snapshot = mgr.get_recent()[0]
+    mgr.update_cue_timing(5000, 6000)
+    assert mgr.get_recent()[0] == snapshot
+    with pytest.raises(FrozenInstanceError):
+        snapshot.start_ms = 99
+
+
+@pytest.mark.parametrize("field", ["source", "track", "generation"])
+def test_equal_words_from_different_sources_are_separate(field):
+    mgr, spoken = _manager()
+    mgr.set_auto_speech(True)
+    first = {"source": "builtin-file", "track": "one", "generation": 1}
+    second = dict(first, **{field: 2 if field == "generation" else "other"})
+    mgr.on_cue("Yes", 1000, 2000, **first)
+    mgr.on_cue("Yes", 1000, 2000, **second)
+    assert spoken == ["Yes", "Yes"]
+    assert len(mgr.get_recent()) == 2
+
+
+@pytest.mark.parametrize("transition", ["clear", "source", "pause", "off", "empty"])
+def test_queued_automatic_speech_is_revalidated(transition):
+    queued, spoken = [], []
+    mgr = SubtitleSpeechManager(spoken.append, ui_thread=queued.append)
+    mgr.set_auto_speech(True)
+    mgr.on_cue("Old programme", 1000, 2000)
+    if transition == "clear":
+        mgr.clear()
+    elif transition == "source":
+        mgr.set_source("new")
+    elif transition == "pause":
+        mgr.set_paused(True)
+    elif transition == "off":
+        mgr.set_auto_speech(False)
+    else:
+        mgr.on_cue("")
+    for callback in queued:
+        callback()
+    assert spoken == []
+
+
+def test_pause_and_auto_off_still_allow_manual_review():
+    mgr, spoken = _manager()
+    mgr.set_paused(True)
+    mgr.on_cue("Current", 1000, 2000)
+    assert spoken == []
+    assert mgr.read_current()
+    assert spoken == ["Current"]
+    mgr.on_cue("")
+    assert not mgr.read_current()
+    assert mgr.read_previous()
+    assert spoken == ["Current", "Current"]
+
+
 
 
 def test_a_cue_queued_before_the_speech_was_turned_off_is_not_spoken():
@@ -280,3 +339,15 @@ def test_an_explicit_read_still_speaks_with_the_automatic_speech_off():
         fn(*args)
 
     assert spoken == ["Hello"]
+
+
+def test_slow_ui_speaks_only_the_latest_automatic_cue_but_keeps_history():
+    queued, spoken = [], []
+    manager = SubtitleSpeechManager(spoken.append, ui_thread=queued.append)
+    manager.set_auto_speech(True)
+    manager.on_cue("Already replaced", 1000, 2000)
+    manager.on_cue("Now showing", 2000, 3000)
+    for callback in queued:
+        callback()
+    assert spoken == ["Now showing"]
+    assert [cue.text for cue in manager.get_recent()] == ["Already replaced", "Now showing"]

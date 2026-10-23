@@ -18,7 +18,7 @@ touches audio itself.
 import logging
 import threading
 from collections import deque
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Callable, Deque, Dict, List, Optional
 
 LOG = logging.getLogger(__name__)
@@ -56,15 +56,15 @@ MAX_RECENT_CUES = 50
 #: a documented, versioned timed-text API stays unavailable rather than
 #: guessed at. Runtimes promote entries to available once actually verified.
 BASELINE_CAPABILITIES: Dict[str, Dict[str, str]] = {
-    # Built-in player: application-owned SRT/WebVTT parser, verified.
+    # Built-in player: text becomes available after loading an SRT/WebVTT file.
     "built-in": {
         CAP_ENUMERATE_TRACKS: AVAILABLE,
         CAP_SELECT_TRACK: AVAILABLE,
         CAP_LOAD_EXTERNAL: AVAILABLE,
-        CAP_TIMED_CUES: AVAILABLE,
+        CAP_TIMED_CUES: UNVERIFIED,
         CAP_SEEK: AVAILABLE,
-        CAP_READ_CURRENT: AVAILABLE,
-        CAP_READ_PREVIOUS: AVAILABLE,
+        CAP_READ_CURRENT: UNVERIFIED,
+        CAP_READ_PREVIOUS: UNVERIFIED,
     },
     # MPV: sub-text/sub-start/sub-end via JSON IPC, but only through our own
     # session adapter and only for text subtitles (bitmap stays unavailable).
@@ -90,7 +90,7 @@ BASELINE_CAPABILITIES: Dict[str, Dict[str, str]] = {
 }
 
 
-@dataclass
+@dataclass(frozen=True)
 class CueEvent:
     """A single subtitle cue ready for speech or review.
 
@@ -145,19 +145,30 @@ class SubtitleSpeechManager:
         self._previous: Optional[CueEvent] = None
         self._capabilities: Dict[str, Dict[str, str]] = {}
         self._source_name = ""
-        # Bumped by clear(): a speech queued for a cue that has since been
-        # cleared belongs to the previous source and must not be spoken.
         self._epoch = 0
+        self._output_epoch = 0
+        self._paused = False
 
     # -- Configuration ----------------------------------------------------
 
     @property
     def auto_speech(self) -> bool:
-        return self._auto_speech
+        with self._lock:
+            return self._auto_speech
 
     def set_auto_speech(self, enabled: bool) -> None:
         with self._lock:
+            if self._auto_speech != bool(enabled):
+                self._output_epoch += 1
             self._auto_speech = bool(enabled)
+
+    def set_paused(self, paused: bool) -> bool:
+        with self._lock:
+            changed = self._paused != bool(paused)
+            if changed:
+                self._output_epoch += 1
+            self._paused = bool(paused)
+            return changed
 
     # -- Cue intake (called by sources) ------------------------------------
 
@@ -175,48 +186,42 @@ class SubtitleSpeechManager:
         Duplicate suppression is keyed on generation + track + timing + text,
         never on wording alone: two genuine consecutive cues that both say
         "Yes." are both recorded and spoken. A re-send of the *same* cue
-        (sources such as MPV deliver text/start/end as separate property
-        changes) only fills in the timing and track already on the current
-        cue, without re-speaking or duplicating history.
+        only fills in missing timing on the current cue, without re-speaking
+        or duplicating history. MPV supplies complete Lua-side snapshots.
         """
         text = (text or "").strip()
-        if not text:
-            return
         with self._lock:
+            if not text:
+                self._current = None
+                self._output_epoch += 1
+                return
+            source = source or self._source_name
             current = self._current
             if (
                 current is not None
                 and current.generation == generation
+                and current.source == source
+                and current.track == (track or "")
                 and current.text == text
                 and (start_ms is None or current.start_ms is None
                      or start_ms == current.start_ms)
             ):
-                # Same cue, timing/track arriving separately: merge in place.
-                # A cue that carries no timing at all is a different cue: two
-                # consecutive lines can read the same, and merging them on the
-                # wording alone would silence the second.
-                if start_ms is not None:
-                    current.start_ms = start_ms
-                if end_ms is not None:
-                    current.end_ms = end_ms
-                if track:
-                    current.track = track
+                self.update_cue_timing(start_ms, end_ms, generation)
                 return
             event = CueEvent(
                 text=text,
                 start_ms=start_ms,
                 end_ms=end_ms,
-                source=source or self._source_name,
+                source=source,
                 track=track or "",
                 generation=generation,
             )
-            self._previous = self._current
+            self._output_epoch += 1
+            self._previous = self._recent[-1] if self._recent else None
             self._current = event
             self._recent.append(event)
-            auto = self._auto_speech
-            epoch = self._epoch
-        if auto:
-            self._speak_text(text, epoch, require_auto=True)
+            if self._auto_speech and not self._paused:
+                self._speak_text(text, automatic=True)
 
     def update_cue_timing(
         self,
@@ -226,53 +231,49 @@ class SubtitleSpeechManager:
     ) -> None:
         """Fill in timing for the current cue without speaking it.
 
-        For sources that deliver text and timing as separate events (MPV's
-        sub-text vs sub-start/sub-end): the text arrival creates the cue via
-        :meth:`on_cue`; later timing arrivals land here. A timing event for
-        a different generation is ignored.
+        This compatibility method only enriches missing timing; production
+        sources should submit complete cues through :meth:`on_cue`. A timing
+        event for a different generation is ignored.
         """
         with self._lock:
             current = self._current
             if current is None or current.generation != generation:
                 return
-            if start_ms is not None:
-                current.start_ms = start_ms
-            if end_ms is not None:
-                current.end_ms = end_ms
+            # Only enrich missing fields. A later cue must never retime an
+            # already committed entry. Sources should submit complete cues.
+            if current.start_ms is not None and start_ms not in (None, current.start_ms):
+                return
+            updated = replace(
+                current,
+                start_ms=current.start_ms if current.start_ms is not None else start_ms,
+                end_ms=current.end_ms if current.end_ms is not None else end_ms,
+            )
+            self._current = updated
+            if self._recent and self._recent[-1] is current:
+                self._recent[-1] = updated
 
-    def _speak_text(self, text: str, epoch: Optional[int] = None, *,
-                    require_auto: bool = False) -> None:
-        """Speak on the UI thread; route failures to the error callback.
-
-        ``require_auto`` marks the automatic speech: a cue queued while the
-        user had it on is not spoken when it is turned off before the queue
-        runs. An explicit "read this subtitle" always speaks.
-        """
-        if epoch is None:
-            with self._lock:
-                epoch = self._epoch
+    def _speak_text(self, text: str, automatic: bool = False) -> None:
+        """Speak on the UI thread; route failures to the error callback."""
+        with self._lock:
+            epoch, output_epoch = self._epoch, self._output_epoch
 
         def _do() -> None:
             with self._lock:
                 if epoch != self._epoch:
-                    # The cues were cleared after this speech was queued - a
-                    # source switch or a stop - so it belongs to the source
-                    # that is gone.
                     return
-                if require_auto and not self._auto_speech:
-                    # The user turned the automatic speech off after this cue
-                    # was queued: speaking it now would ignore that.
+                if automatic and (output_epoch != self._output_epoch
+                                  or not self._auto_speech or self._paused):
                     return
-            try:
-                self._speak(text)
-            except Exception as exc:
-                LOG.debug("subtitle speech: speak failed", exc_info=True)
-                if self._on_speak_error is not None:
-                    try:
-                        self._on_speak_error(text, exc)
-                    except Exception:
-                        LOG.debug("subtitle speech: error callback failed",
-                                  exc_info=True)
+                try:
+                    self._speak(text)
+                except Exception as exc:
+                    LOG.debug("subtitle speech: speak failed", exc_info=True)
+                    if self._on_speak_error is not None:
+                        try:
+                            self._on_speak_error(text, exc)
+                        except Exception:
+                            LOG.debug("subtitle speech: error callback failed",
+                                      exc_info=True)
 
         try:
             self._ui_thread(_do)
@@ -286,16 +287,24 @@ class SubtitleSpeechManager:
         previous channel, programme, media generation or subtitle track.
         """
         with self._lock:
+            self._epoch += 1
             self._current = None
             self._previous = None
             self._recent.clear()
-            self._epoch += 1
 
     def set_source(self, name: str) -> None:
         """Switch the active cue source, clearing stale state first."""
         with self._lock:
             self._source_name = name or ""
-        self.clear()
+            self._paused = False
+            self._capabilities.clear()
+            self.clear()
+
+    def speak_review(self, text: str) -> None:
+        """Read source-owned review text through the same validated backend."""
+        with self._lock:
+            if text:
+                self._speak_text(text)
 
     # -- On-demand reading --------------------------------------------------
 
@@ -303,18 +312,18 @@ class SubtitleSpeechManager:
         """Speak the current cue. Returns True if there was one."""
         with self._lock:
             text = self._current.text if self._current else None
-        if text:
-            self._speak_text(text)
-            return True
+            if text:
+                self._speak_text(text)
+                return True
         return False
 
     def read_previous(self) -> bool:
         """Speak the previous cue. Returns True if there was one."""
         with self._lock:
-            text = self._previous.text if self._previous else None
-        if text:
-            self._speak_text(text)
-            return True
+            previous = self._previous if self._current else (self._recent[-1] if self._recent else None)
+            if previous:
+                self._speak_text(previous.text)
+                return True
         return False
 
     def get_recent(self, count: int = 10) -> List[CueEvent]:
@@ -336,14 +345,16 @@ class SubtitleSpeechManager:
 
     def get_capability(self, player: str, capability: str) -> str:
         """Capability state: recorded value, else the honest baseline, else unverified."""
-        recorded = self._capabilities.get(player, {}).get(capability)
-        if recorded is not None:
-            return recorded
-        return BASELINE_CAPABILITIES.get(player, {}).get(capability, UNVERIFIED)
+        with self._lock:
+            recorded = self._capabilities.get(player, {}).get(capability)
+            if recorded is not None:
+                return recorded
+            return BASELINE_CAPABILITIES.get(player, {}).get(capability, UNVERIFIED)
 
     def get_capabilities(self, player: str) -> Dict[str, str]:
         """All capability states for a player."""
-        return {cap: self.get_capability(player, cap) for cap in ALL_CAPABILITIES}
+        with self._lock:
+            return {cap: self.get_capability(player, cap) for cap in ALL_CAPABILITIES}
 
     def describe_capability(
         self,

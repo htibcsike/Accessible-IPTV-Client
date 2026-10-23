@@ -216,6 +216,11 @@ class InternalPlayerFrame(wx.Frame):
         # Cue sink (issue #45, item 2): when set, active cues are emitted to
         # the shared SubtitleSpeechManager instead of spoken directly.
         self._on_cue_cb = on_cue
+        self._subtitle_sink = None
+        self._subtitle_source_id = ""
+        self._subtitle_file_track = None
+        self._subtitle_prior_track_ids = set()
+        self._subtitle_last_time = None
         self._subtitle_cues: List[subtitle_cues.Cue] = []
         self._cue_index: Optional[int] = None
         # The cue most recently shown, and where Previous/Next Subtitle review stands.
@@ -1825,6 +1830,8 @@ class InternalPlayerFrame(wx.Frame):
             # libVLC still reports the old stream's state; act on what the
             # user asked for and let it land after the new stream starts.
             self._is_paused = not self._is_paused
+            if getattr(self, "_subtitle_sink", None) is not None:
+                self._subtitle_sink.set_paused(self._is_paused)
             self._vlc_call(lambda paused=int(self._is_paused): self.player.set_pause(paused))
             self.play_pause_btn.SetLabel(_("Resume") if self._is_paused else _("Pause"))
             self.play_pause_btn.SetName(self.play_pause_btn.GetLabel())
@@ -1881,6 +1888,8 @@ class InternalPlayerFrame(wx.Frame):
         try:
             self._vlc_call(self.player.pause)
             self._is_paused = not self._is_paused
+            if getattr(self, "_subtitle_sink", None) is not None:
+                self._subtitle_sink.set_paused(self._is_paused)
             self.play_pause_btn.SetLabel(_("Resume") if self._is_paused else _("Pause"))
             self.play_pause_btn.SetName(self.play_pause_btn.GetLabel())
         except Exception:
@@ -2484,6 +2493,10 @@ class InternalPlayerFrame(wx.Frame):
         except Exception as err:
             self._update_status_label(str(err), priority=1)
             return
+        # Off retains already-shown review text; choosing another track must
+        # discard the external file, including a parser result still in flight.
+        if track_id != -1 and track_id != getattr(self, "_subtitle_file_track", None):
+            self._set_subtitle_cues([])
         name = _("Off") if track_id == -1 else next(
             (name for tid, name in self._subtitle_tracks() if tid == track_id),
             _("Track {id}").format(id=track_id))
@@ -2527,6 +2540,7 @@ class InternalPlayerFrame(wx.Frame):
                 return
             path = dlg.GetPath()
         try:
+            previous_tracks = {tid for tid, _name in self._subtitle_tracks()}
             if self.player.add_slave(vlc.MediaSlaveType.subtitle, Path(path).as_uri(), True) != 0:
                 raise RuntimeError(_("Could not load subtitle file."))
         except Exception as err:
@@ -2534,6 +2548,8 @@ class InternalPlayerFrame(wx.Frame):
             return
         self._update_status_label(_("Subtitle file loaded: {name}").format(name=Path(path).name), priority=2)
         self._set_subtitle_cues([])
+        self._subtitle_source_id = Path(path).resolve().as_uri()
+        self._subtitle_prior_track_ids = previous_tracks
         if Path(path).suffix.lower() not in subtitle_cues.SPEAKABLE_SUFFIXES:
             if self._speak_subtitles:
                 self._update_status_label(_("Subtitle speech needs an SRT or WebVTT file."), priority=1)
@@ -2563,6 +2579,15 @@ class InternalPlayerFrame(wx.Frame):
         self._cue_index = None
         self._last_cue_index = None
         self._review_cue_index = None
+        self._subtitle_last_time = None
+        if not cues:
+            self._subtitle_source_id = ""
+            self._subtitle_file_track = None
+        sink = getattr(self, "_subtitle_sink", None)
+        if sink is not None:
+            sink.clear()
+            for capability in ("timed_cues", "read_current", "read_previous"):
+                sink.set_capability("built-in", capability, "available" if cues else "unverified")
         self.subtitle_label.SetLabel("")
         if cues:
             self._cue_timer.Start(150)
@@ -2570,12 +2595,35 @@ class InternalPlayerFrame(wx.Frame):
             self._cue_timer.Stop()
 
     def _on_cue_timer(self, _event: Optional[wx.TimerEvent] = None) -> None:
+        if getattr(self, "_destroyed", False):
+            return
+        sink = getattr(self, "_subtitle_sink", None)
+        if sink is not None:
+            sink.set_paused(self._is_paused)
         try:
-            if self.player.video_get_spu() == -1:
+            spu = self.player.video_get_spu()
+            source_id = getattr(self, "_subtitle_source_id", "")
+            file_track = getattr(self, "_subtitle_file_track", None)
+            if source_id and file_track is None and spu >= 0:
+                # add_slave selects asynchronously. Bind only a newly added
+                # track, never whichever embedded track was active before it.
+                if spu not in self._subtitle_prior_track_ids:
+                    self._subtitle_file_track = file_track = spu
+            if source_id and file_track is not None and spu not in (-1, file_track):
+                self._set_subtitle_cues([])
+                return
+            if spu == -1 or (source_id and file_track is None):
                 index = None
             else:
                 # SPU delay is in microseconds; a positive delay shows cues later.
                 ms = self.player.get_time() - self.player.video_get_spu_delay() // 1000
+                last_time = getattr(self, "_subtitle_last_time", None)
+                if last_time is not None and ms < last_time:
+                    self._subtitle_generation += 1
+                    self._cue_index = None
+                    if sink is not None:
+                        sink.clear()
+                self._subtitle_last_time = ms
                 index = subtitle_cues.active(self._subtitle_cues, ms) if ms >= 0 else None
                 # Bound review by the playhead too, so a seek back into a gap
                 # cannot leave a later, unplayed cue reviewable.
@@ -2593,6 +2641,8 @@ class InternalPlayerFrame(wx.Frame):
             self._last_cue_index = self._review_cue_index = index
         text = self._subtitle_cues[index].text if index is not None else ""
         self.subtitle_label.SetLabel(text)
+        if not text and self._on_cue_cb is not None:
+            self._on_cue_cb(text="")
         # Issue #45, item 2: route through the shared manager when a cue sink
         # is set, instead of speaking directly. The visible label is kept,
         # but automatic speech goes through the manager/backend selection.
@@ -2601,10 +2651,10 @@ class InternalPlayerFrame(wx.Frame):
             if self._on_cue_cb is not None:
                 self._on_cue_cb(
                     text=text,
-                    start_ms=getattr(cue, "start", None),
-                    end_ms=getattr(cue, "end", None),
+                    start_ms=cue.start,
+                    end_ms=cue.end,
                     source="builtin-file",
-                    track="",
+                    track=getattr(self, "_subtitle_source_id", ""),
                     generation=self._subtitle_generation,
                 )
             elif self._speak_subtitles and not self._is_paused:
@@ -2636,10 +2686,24 @@ class InternalPlayerFrame(wx.Frame):
         return self._subtitle_cues[target].text
 
     def _read_current_subtitle(self) -> None:
-        live_announce.speak(self._subtitle_review_text(0))
+        self._review_subtitle(0)
 
     def _review_subtitle(self, step: int) -> None:
-        live_announce.speak(self._subtitle_review_text(step))
+        text = self._subtitle_review_text(step)
+        sink = getattr(self, "_subtitle_sink", None)
+        if sink is not None:
+            sink.speak_review(text)
+        else:
+            live_announce.speak(text)
+
+    def set_subtitle_sink(self, sink) -> None:
+        """Bind this frame to one playback owner, including manual review."""
+        self._subtitle_sink = sink
+        self._on_cue_cb = sink.on_cue
+
+    def set_speak_subtitles(self, enabled: bool) -> None:
+        self._speak_subtitles = bool(enabled)
+        self.speak_subtitles_item.Check(self._speak_subtitles)
 
     def _toggle_speak_subtitles(self) -> None:
         self._speak_subtitles = not self._speak_subtitles
@@ -2886,6 +2950,10 @@ class InternalPlayerFrame(wx.Frame):
     def _quiesce(self) -> None:
         """Mark the player closed so nothing schedules more work on it."""
         self._destroyed = True
+        self._subtitle_cues = []
+        sink = getattr(self, "_subtitle_sink", None)
+        if sink is not None:
+            sink.clear()
         self._allow_close = True
         # Without this the status timer's last tick - or an in-flight restart -
         # could reconnect the very stream we are tearing down.

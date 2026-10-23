@@ -18,6 +18,7 @@ def _frame(cues=CUES, time_ms=0):
                                      get_time=lambda: frame.time_ms),
         time_ms=time_ms)
     frame._speak = lambda ctrl: frame.spoken.append(ctrl.value)
+    frame._review_subtitle = lambda step: InternalPlayerFrame._review_subtitle(frame, step)
     return frame
 
 
@@ -181,7 +182,7 @@ def test_the_builtin_player_sends_the_cue_timing():
 
     source = inspect.getsource(internal_player.InternalPlayerFrame)
     assert "cue.start_ms" not in source
-    assert 'getattr(cue, "start", None)' in source
+    assert 'start_ms=cue.start' in source
 
 
 def test_starting_a_channel_drops_the_previous_channels_cues():
@@ -201,6 +202,9 @@ def test_starting_a_channel_drops_the_previous_channels_cues():
     played = []
 
     class FakeFrame:
+        def set_subtitle_sink(self, sink):
+            self.sink = sink
+
         def Enable(self, *_a):
             pass
 
@@ -279,7 +283,7 @@ def test_closing_the_player_cancels_the_subtitle_session():
     client._internal_player_stream_kind = "live"
     client._catchup_return = None
 
-    session.activate_session("a channel")
+    client._builtin_subtitle_token = session.activate_session("a channel")
     manager.on_cue("A line")
 
     appmod.IPTVClient._on_internal_player_closed(client)
@@ -305,7 +309,8 @@ def test_the_subtitle_speech_toggle_saves_the_setting(monkeypatch):
     client = types.SimpleNamespace(
         config={"speak_subtitles": False, "media_player": "VLC"},
         _subtitle_manager=types.SimpleNamespace(set_auto_speech=spoken.append),
-        _ensure_mpv_subtitle_session=lambda: None,
+        _bool_pref=main.IPTVClient._bool_pref,
+        _on_player_speak_subtitles=lambda enabled: main.IPTVClient._on_player_speak_subtitles(client, enabled),
     )
 
     main.IPTVClient._on_toggle_subtitle_speech(client)
