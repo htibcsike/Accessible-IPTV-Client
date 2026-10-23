@@ -133,6 +133,8 @@ A Fájl > Lejátszási lista kezelése (Ctrl+M) ablakban a beállított forráso
 
 A listában kijelölt forrás helyi menüjét az Alkalmazásgombbal vagy a Shift+F10 billentyűkombinációval nyithatja meg; innen érhető el az URL másolása, az Átnevezés (F2) és a Törlés (Delete). A forráshoz megadott név kizárólag azonosításra szolgáló címke; magát a forrást nem módosítja.
 
+A helyi menü Frissítés parancsa (F5) ismét lekéri a kijelölt lejátszási listát, majd betölti annak csatornáit; a művelet befejezéséről értesítés jelenik meg. Új forrás esetén előbb az OK gombbal mentse a beállításokat. Az alkalmazás indításkor, majd háromóránként automatikusan is elvégzi a frissítést. A parancs csak a kijelölt listákra vonatkozik, a többi forrás csatornái változatlanok maradnak. Valamennyi elem kijelöléséhez nyomja meg a Ctrl+A billentyűkombinációt.
+
 A módosítások mentéséhez nyomja meg az OK gombot, elvetésükhöz pedig a Mégse gombot. Mentés után a csatornák újratöltődnek.
 
 ### Xtream Codes-fiókok {#xtream-codes}
@@ -156,7 +158,7 @@ A Fájl > Műsorújság kezelése (Ctrl+E) ablakban a beállított műsorújság
 - Fájl hozzáadása: a számítógépen tárolt XMLTV-fájl (.xml vagy .xml.gz) felvétele.
 - URL hozzáadása: internetes XMLTV-műsorújság címének megadása.
 
-Az egyes lejátszási listákban megadott műsorújság használata is: sok lejátszási lista az első sorában megadja a saját műsorújságát. Amíg ez be van jelölve (alapértelmezés szerint be van), ezek a műsorújságok a fenti forrásokkal együtt kerülnek importálásra, a már hozzáadott műsorújságot pedig nem importálja kétszer.
+Az alapértelmezés szerint bejelölt „Az egyes lejátszási listákban megadott műsorújság használata is” lehetőség engedélyezi a forrásokhoz tartozó adásrendek automatikus importálását. Számos lista az első sorában hivatkozik erre az adatforrásra; a program a kézzel felvett műsorújságokat is betölti, az ismétlődő tételeket azonban csak egyszer dolgozza fel.
 
 A kijelölt forrás helyi menüjét az Alkalmazásgombbal vagy a Shift+F10 billentyűkombinációval nyithatja meg; innen érhető el az URL másolása, az Átnevezés (F2) és a Törlés (Delete). A módosítások megőrzéséhez nyomja meg az OK gombot.
 
@@ -225,6 +227,9 @@ A lejátszó fontosabb billentyűparancsai:
 - Fel és Le nyílbillentyű: a hangerő módosítása 2 százalékpontos lépésekben. Ctrl+Fel és Ctrl+Le: 5 százalékpontos lépésekben változtatja a hangerőt.
 - A: a következő hangsáv kiválasztása.
 - S: váltás a feliratsávok között. A sorban a Kikapcsolva lehetőség is szerepel. Sávot a Lejátszás > Feliratok menüben választhat; külső állomány megnyitására a Feliratfájl betöltése parancs szolgál.
+- Shift+S: a feliratok automatikus felolvasásának be- vagy kikapcsolása.
+- C: az aktuális felirat felolvasása; ha éppen nem látható szöveg, a legutóbb megjelenített bejegyzés ismételt meghallgatása.
+- Page Up és Page Down: lépkedés a már megjelent feliratok között visszafelé, illetve előre a legutóbbi bejegyzésig.
 - I: az aktuális csatorna nevének, a jelenlegi és a következő műsor címének, kezdési és befejezési idejének, valamint a rögzítés állapotának bemondása.
 - D: a hangkimeneti eszköz kiválasztása.
 - Ctrl+C: az adás átküldése másik eszközre.
@@ -240,7 +245,23 @@ Egy csatorna több hangsávot is tartalmazhat, például különböző nyelvű h
 
 A program megjegyzi az adott csatornához kézzel kiválasztott hangsávot, és a következő lejátszáskor ismét azt választja ki. Az automatikus választási lehetőségekről az Előnyben részesített hangsáv című részben olvashat.
 
-Ha az adás tartalmaz feliratot, annak szövege a képen jelenik meg. Külső állomány megnyitására a Lejátszás > Feliratfájl betöltése parancs szolgál. A képernyőolvasó a feliratok szövegét jelenleg nem olvassa fel.
+### Feliratfelolvasás {#subtitle-speech}
+
+Ha az adás tartalmaz feliratot, annak szövege a képen jelenik meg. Külső állomány megnyitására a Lejátszás > Feliratfájl betöltése parancs szolgál. A Lejátszás > Feliratok felolvasása (Shift+S) bekapcsolásával a betöltött SRT- vagy WebVTT-fájl bejegyzései a megjelenésük időpontjában hallhatók, a lejátszóablak elrejtése után is. Az aktuális szöveg a kezelőelemek után külön mezőben szintén megjelenik. A beépített lejátszó az adásba ágyazott feliratokat, továbbá az ASS- és SSA-fájlokat jelenleg nem olvassa fel.
+
+A Beállítások > Feliratfelolvasás almenüben kiválaszthatja, hogy a képernyőolvasó vagy az alkalmazás saját beszédhangja szólaltassa meg a szöveget. Utóbbi kizárólag Windows rendszeren, SAPI-támogatással használható.
+
+Az alkalmazás felolvasási hangerejét és kimeneti eszközét ugyanitt, a médialejátszó beállításaitól függetlenül módosíthatja. A kipróbáláshoz a program próbamondatot játszik le. A választást ezt követően megerősítheti; elutasítás esetén az előző beállítás marad érvényben. Vezetékes vagy Bluetooth-fejhallgatót, illetve külön hangkártyát akkor választhat, ha azt a rendszer az alkalmazás beszédhangjához elérhető kimenetként felsorolja.
+
+Az eszköz elérhetetlenné válásakor a felolvasás alapértelmezés szerint a kapcsolat helyreállásáig szünetel. Külön engedélyezheti a rendszer alapértelmezett kimenetére történő átváltást. Ezek a beállítások az alkalmazás beszédhangjára vonatkoznak; a képernyőolvasó hangerejét és kimenetét annak saját beállításaiban módosíthatja.
+
+A Lejátszás > Aktuális felirat felolvasása (C) paranccsal az éppen látható szöveget hallgathatja meg; ennek hiányában a legutóbbi bejegyzés hangzik el. Az Előző felirat (Page Up) és a Következő felirat (Page Down) segítségével visszatérhet a korábbi bejegyzésekhez, így ismét meghallgathatja az elmulasztott mondatokat. A lejátszás aktuális időpontját követő szövegek nem érhetők el. A parancsok az automatikus felolvasás kikapcsolt állapotában is használhatók.
+
+A főablak Beállítások > Feliratfelolvasás almenüjéből szintén elérhető az aktuális és az előző bejegyzés meghallgatása, valamint a Friss feliratok áttekintése... ablak.
+
+Az MPV szöveges feliratai az alkalmazás által indított és felügyelt munkamenetben olvashatók fel; az önállóan elindított példányokra ez nem vonatkozik. A képként tárolt feliratok szövegfelismerése nem támogatott. Más külső lejátszóknál a feliratok képi megjelenítése önmagában nem biztosít felolvasási lehetőséget.
+
+Az egyes programok támogatottságát a Beállítások > Feliratfelolvasás > A feliratkezelés támogatottsága… ablakban ellenőrizheti. Az „elérhető”, „ez a lejátszó nem támogatja” és „még nincs ellenőrizve” állapotok eltérő jelentésűek; az utóbbi nem tekinthető a működés igazolásának.
 
 ### Hangkimeneti eszköz {#audio-output-device}
 
@@ -426,7 +447,7 @@ A beépített lejátszóban:
 - Ctrl+R: rögzítés indítása vagy leállítása.
 - Fel és Le nyílbillentyű: a hangerő módosítása 2 százalékpontos lépésekben; a Ctrl nyomva tartásával 5 százalékponttal változtathatja.
 - A: következő hangsáv.
-- S: váltás a feliratsávok között. I: tájékoztatás az éppen játszott műsorról.
+- S: váltás a feliratsávok között. I: tájékoztatás az éppen játszott műsorról. Shift+S: a feliratok automatikus felolvasásának kapcsolása. C: az aktuális szöveg meghallgatása. Page Up és Page Down: lépkedés a már megjelent bejegyzések között visszafelé, illetve előre.
 - D: hangkimeneti eszköz kiválasztása.
 - Ctrl+C: átküldés.
 - F11: teljes képernyő be- vagy kikapcsolása; az Escape visszatér az ablakos nézethez.
