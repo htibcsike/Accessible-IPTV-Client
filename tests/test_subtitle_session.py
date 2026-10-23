@@ -27,9 +27,14 @@ class _Manager:
 class _Adapter:
     def __init__(self):
         self.closed = 0
+        self.done = threading.Event()
 
-    def close(self):
+    def cancel(self):
+        pass
+
+    def close(self, terminate=True):
         self.closed += 1
+        self.done.set()
 
 
 def test_a_new_session_supersedes_the_old_one():
@@ -50,22 +55,25 @@ def test_cancelling_closes_the_adapter_and_clears_the_manager():
     controller = SubtitleSessionController(manager)
     controller.activate_session("Sky Mix")
     adapter = _Adapter()
-    controller.set_adapter(adapter)
+    controller.set_adapter(adapter, controller.session_token)
 
     controller.cancel_session()
 
     assert controller.session_token is None
     assert not controller.is_current("anything")
+    assert adapter.done.wait(1)
     assert adapter.closed == 1
-    assert manager.cleared == 1
+    assert manager.source == ""
 
 
 def test_replacing_the_adapter_closes_the_old_one():
     controller = SubtitleSessionController(_Manager())
+    token = controller.activate_session("MPV")
     first = _Adapter()
     second = _Adapter()
-    controller.set_adapter(first)
-    controller.set_adapter(second)
+    controller.set_adapter(first, token)
+    controller.set_adapter(second, token)
+    assert first.done.wait(1)
     assert first.closed == 1
     assert second.closed == 0
 
@@ -108,3 +116,84 @@ def test_a_cue_dropped_between_the_queue_and_the_ui_thread_is_not_spoken():
     controller.activate_session("CNN")  # the channel changed while it was queued
     queued.pop()()
     assert spoken == []
+
+
+import threading
+
+from subtitle_speech import SubtitleSpeechManager
+
+
+def test_old_producer_and_queued_state_cannot_touch_new_session():
+    spoken, queued, states = [], [], []
+    manager = SubtitleSpeechManager(spoken.append, ui_thread=queued.append)
+    manager.set_auto_speech(True)
+    owner = SubtitleSessionController(manager)
+    owner.set_ui_thread(queued.append)
+    old = owner.activate_session("MPV")
+    producer = owner.bind(old)
+    producer.on_cue("Old")
+    owner.dispatch(old, states.append, "unavailable")
+    new = owner.activate_session("built-in")
+    owner.bind(new).on_cue("New")
+    producer.clear()
+    producer.on_cue("Late old")
+    producer.set_capability("MPV", "timed_cues", "available")
+    for callback in queued:
+        callback()
+    assert spoken == ["New"]
+    assert states == []
+    assert [cue.text for cue in manager.get_recent()] == ["New"]
+    assert manager.get_capability("MPV", "timed_cues") == "unverified"
+
+
+def test_retirement_cancels_now_but_cleans_up_off_ui():
+    cancelled, cleaned, closed = threading.Event(), threading.Event(), []
+    caller = threading.get_ident()
+
+    class Adapter:
+        def cancel(self):
+            cancelled.set()
+
+        def close(self, terminate):
+            closed.append((terminate, threading.get_ident()))
+            cleaned.set()
+
+    owner = SubtitleSessionController(SubtitleSpeechManager(lambda text: None))
+    token = owner.activate_session()
+    owner.set_adapter(Adapter(), token)
+    owner.cancel_session()
+    assert cancelled.is_set()
+    assert cleaned.wait(1)
+    assert closed[0][0] is False  # detaching speech need not terminate playback
+    assert closed[0][1] != caller
+
+
+def test_late_adapter_registration_is_retired():
+    closed = threading.Event()
+
+    class Adapter:
+        def cancel(self):
+            pass
+
+        def close(self, terminate):
+            assert terminate
+            closed.set()
+
+    owner = SubtitleSessionController(SubtitleSpeechManager(lambda text: None))
+    old = owner.activate_session()
+    owner.activate_session()
+    assert not owner.set_adapter(Adapter(), old)
+    assert closed.wait(1)
+
+
+def test_pause_purges_once_and_manual_review_survives_timer_ticks():
+    spoken, purged = [], []
+    manager = SubtitleSpeechManager(spoken.append)
+    owner = SubtitleSessionController(manager, stop_speech=lambda: purged.append(True))
+    sink = owner.bind(owner.activate_session())
+    purged.clear()
+    sink.set_paused(True)
+    sink.speak_review("Review")
+    sink.set_paused(True)
+    assert len(purged) == 1
+    assert spoken == ["Review"]

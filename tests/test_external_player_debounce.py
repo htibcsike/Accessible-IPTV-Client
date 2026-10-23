@@ -84,11 +84,13 @@ def test_launching_another_player_closes_the_application_mpv(monkeypatch):
     Launching VLC left it running, so the two players were audible at once
     and the old channel kept playing.
     """
-    closed = []
+    closed = threading.Event()
 
     class Adapter:
+        def cancel(self):
+            pass
         def close(self):
-            closed.append(True)
+            closed.set()
 
     launcher = ExternalPlayerLauncher()
     launcher._mpv_adapter = Adapter()
@@ -97,7 +99,7 @@ def test_launching_another_player_closes_the_application_mpv(monkeypatch):
 
     launcher.launch("VLC", "https://example.test/other.ts")
 
-    assert closed, "the previous MPV session was left running"
+    assert closed.wait(1), "the previous MPV session was left running"
 
 
 def test_a_superseded_adapter_launch_does_not_start_the_old_channel(monkeypatch):

@@ -9,8 +9,8 @@ reader.
 
 Windows only, via SAPI.SpVoice driven through IDispatch (no new
 dependencies). The IDispatch vtable is fixed, so no vtable-index guessing.
-Every COM failure degrades to ``available == False``; the caller then falls
-back to screen-reader speech. Speech must never take playback down with it.
+Failures are reported to the caller without implicitly changing the output.
+Speech must never take playback down with it.
 """
 
 import ctypes
@@ -18,6 +18,8 @@ import logging
 import sys
 import threading
 from ctypes import wintypes
+from dataclasses import dataclass
+from enum import Enum
 
 LOG = logging.getLogger(__name__)
 
@@ -47,6 +49,7 @@ _VT_BOOL = 11
 # cues never stacks up minutes of stale speech behind the live one.
 _SPF_ASYNC = 1
 _SPF_PURGEBEFORESPEAK = 2
+_SPF_IS_NOT_XML = 16
 
 
 class _BStr(str):
@@ -260,77 +263,110 @@ class _Dispatch:
         self.invoke(name, (value,), prop_put=True)
 
 
-class AppTtsBackend:
-    """Application-owned TTS. Windows/SAPI only; unavailable elsewhere.
+@dataclass(frozen=True)
+class AudioOutput:
+    id: str
+    name: str
 
-    Volume (0-100) and output-device selection apply only to this backend.
+
+class RoutingState(str, Enum):
+    DEFAULT = "default"
+    READY = "selected-ready"
+    PAUSED = "selected-missing-paused"
+    FALLBACK = "approved-default-fallback"
+
+
+class SpeechResult(str, Enum):
+    SPOKEN = "spoken"
+    UNAVAILABLE = "unavailable"
+    OUTPUT_MISSING = "output-missing"
+    FAILED = "failed"
+    EMPTY = "empty"
+
+
+class AppTtsBackend:
+    """SAPI owned by the constructing (UI/COM apartment) thread.
+
+    Retain the requested endpoint across outages, including an approved
+    temporary fallback. Never confuse a successful asynchronous Speak call
+    with proof of physical delivery; device changes also need live testing.
     """
 
     def __init__(self):
         self._voice = None
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
+        self._owner_thread = threading.get_ident()
         self._volume = 100
-        self._selected_output = ""  # friendly-name fragment, "" = SAPI default
-        self._speak_failed = False  # log the first failure only, not a storm
-        self._com_initialized = False  # owes one CoUninitialize in close()
+        self._selected_output = ""
+        self._route = RoutingState.DEFAULT
+        self.last_result = SpeechResult.UNAVAILABLE
+        self._speak_failed = False
+        self._com_initialized = False
         if not _IS_WINDOWS:
             return
         try:
             init = ctypes.windll.ole32.CoInitializeEx
+            init.argtypes = [ctypes.c_void_p, wintypes.DWORD]
             init.restype = ctypes.c_long
-            # S_OK and S_FALSE both need a matching CoUninitialize;
-            # RPC_E_CHANGED_MODE means another component owns the apartment
-            # and SAPI still works inside it, but it is not ours to undo.
             self._com_initialized = init(None, _COINIT_APARTMENTTHREADED) in (0, 1)
-        except Exception:
-            LOG.debug("app_tts: CoInitializeEx failed", exc_info=True)
-            return
-        try:
             self._voice = _Dispatch(None)
-        except _ComError:
+        except Exception:
             LOG.warning("app_tts: SAPI.SpVoice unavailable", exc_info=True)
-            self._voice = None
+
+    def _check_thread(self):
+        if threading.get_ident() != self._owner_thread:
+            raise RuntimeError("SAPI must be used on its owning COM thread")
 
     @property
-    def available(self) -> bool:
+    def available(self):
         return self._voice is not None
 
-    def speak(self, text: str) -> bool:
-        """Speak asynchronously, purging queued speech first."""
-        if not self._voice or not (text or "").strip():
+    @property
+    def routing_state(self):
+        return self._route
+
+    def speak(self, text, device_policy="pause"):
+        self._check_thread()
+        if not self._voice:
+            self.last_result = SpeechResult.UNAVAILABLE
+            return False
+        if not (text or "").strip():
+            self.last_result = SpeechResult.EMPTY
+            return False
+        if not self.validate_output(device_policy):
+            self.last_result = SpeechResult.OUTPUT_MISSING
             return False
         try:
             with self._lock:
-                self._voice.call("Speak", text, _SPF_ASYNC | _SPF_PURGEBEFORESPEAK)
+                self._voice.call("Speak", text,
+                                 _SPF_ASYNC | _SPF_PURGEBEFORESPEAK | _SPF_IS_NOT_XML)
             self._speak_failed = False
+            self.last_result = SpeechResult.SPOKEN
             return True
         except _ComError:
-            # A removed Bluetooth/USB device lands here. Log once; the caller
-            # degrades to screen-reader speech and retries on the next cue,
-            # which is also how a returned device is picked back up.
+            self.stop()
             if not self._speak_failed:
                 self._speak_failed = True
                 LOG.warning("app_tts: Speak failed", exc_info=True)
+            self.last_result = SpeechResult.FAILED
             return False
 
-    def stop(self) -> None:
-        if not self._voice:
-            return
-        try:
-            with self._lock:
-                # Purge with empty text.
-                self._voice.call("Speak", "", _SPF_ASYNC | _SPF_PURGEBEFORESPEAK)
-        except _ComError:
-            LOG.debug("app_tts: stop failed", exc_info=True)
-
-    # -- volume ------------------------------------------------------------------
+    def stop(self):
+        self._check_thread()
+        if self._voice:
+            try:
+                with self._lock:
+                    self._voice.call("Speak", "",
+                                     _SPF_ASYNC | _SPF_PURGEBEFORESPEAK | _SPF_IS_NOT_XML)
+            except _ComError:
+                LOG.debug("app_tts: purge failed", exc_info=True)
 
     @property
-    def volume(self) -> int:
+    def volume(self):
         return self._volume
 
-    def set_volume(self, level: int) -> bool:
-        """0-100. Applies only to this backend's speech."""
+    def set_volume(self, level):
+        self._check_thread()
         level = max(0, min(100, int(level)))
         if not self._voice:
             return False
@@ -343,99 +379,130 @@ class AppTtsBackend:
             LOG.warning("app_tts: SetVolume failed", exc_info=True)
             return False
 
-    # -- output devices ------------------------------------------------------------
-
-    def list_outputs(self):
-        """Friendly names of SAPI audio outputs; [] when unavailable."""
+    def list_output_devices(self):
+        """Return stable token IDs separately from display descriptions."""
+        self._check_thread()
         if not self._voice:
             return []
         try:
             with self._lock:
                 tokens = self._voice.call("GetAudioOutputs")
-            names = []
-            try:
-                count = tokens.get("Count")
-                for i in range(int(count or 0)):
-                    item = tokens.call("Item", i)
-                    try:
-                        names.append(item.call("GetDescription"))
-                    finally:
-                        item.release()
-            finally:
-                tokens.release()
-            return [n for n in names if n]
-        except _ComError:
-            LOG.debug("app_tts: output enumeration failed", exc_info=True)
-            return []
-
-    def set_output(self, name: str) -> bool:
-        """Select a SAPI audio output by (sub)string of its friendly name."""
-        if not self._voice or not name:
-            return False
-        try:
-            with self._lock:
-                tokens = self._voice.call("GetAudioOutputs")
+                result = []
                 try:
-                    count = int(tokens.get("Count") or 0)
-                    for i in range(count):
+                    for i in range(int(tokens.get("Count") or 0)):
                         item = tokens.call("Item", i)
                         try:
-                            desc = item.call("GetDescription") or ""
-                            if name.lower() in desc.lower():
-                                self._voice.put("AudioOutput", item)
-                                self._selected_output = name
-                                return True
+                            token_id = str(item.get("Id") or "")
+                            name = str(item.call("GetDescription") or "")
+                            if token_id:
+                                result.append(AudioOutput(token_id, name or token_id))
                         finally:
                             item.release()
                 finally:
                     tokens.release()
-            return False
+                return result
         except _ComError:
-            LOG.warning("app_tts: SetOutput failed", exc_info=True)
+            LOG.debug("app_tts: enumeration failed", exc_info=True)
+            return []
+
+    def list_outputs(self):
+        """Compatibility: friendly names. New UI code uses list_output_devices."""
+        return [output.name for output in self.list_output_devices()]
+
+    def _select_requested_output(self):
+        wanted = self._selected_output
+        devices = self.list_output_devices()
+        matches = [d for d in devices if d.id.casefold() == wanted.casefold()]
+        if not matches:
+            # Migrate a legacy friendly name only if it is an exact, unique
+            # match. Substrings and duplicate names cannot identify an output.
+            matches = [d for d in devices if d.name.casefold() == wanted.casefold()]
+        if len(matches) != 1:
             return False
+        token_id = matches[0].id
+        if self._route == RoutingState.READY and token_id == wanted:
+            return True
+        tokens = self._voice.call("GetAudioOutputs")
+        try:
+            for i in range(int(tokens.get("Count") or 0)):
+                item = tokens.call("Item", i)
+                try:
+                    if str(item.get("Id") or "").casefold() == token_id.casefold():
+                        self.stop()
+                        self._voice.put("AudioOutput", item)
+                        self._selected_output = token_id
+                        self._route = RoutingState.READY
+                        return True
+                finally:
+                    item.release()
+        finally:
+            tokens.release()
+        return False
 
-    def reset_output(self) -> bool:
-        """Best-effort return to the SAPI default output (issue #37).
+    def set_output(self, identity):
+        """Select an ID, or migrate one unambiguous legacy description.
 
-        Used by the "use the system default" device-loss policy. Setting
-        AudioOutput to Nothing asks SAPI for its default; on failure the
-        caller keeps the screen-reader fallback, so this never breaks speech.
+        A missing selection remains requested and blocks captions under pause,
+        including at startup. Call reset_output for an explicit default.
         """
+        self._check_thread()
+        self.stop()
+        self._selected_output = str(identity or "")
+        self._route = RoutingState.PAUSED
+        return self.validate_output("pause") if identity else self.reset_output()
+
+    def validate_output(self, policy="pause"):
+        self._check_thread()
         if not self._voice:
             return False
-        try:
-            with self._lock:
-                self._voice.put("AudioOutput", None)
-            self._selected_output = ""
-            return True
-        except _ComError:
-            LOG.warning("app_tts: reset_output failed", exc_info=True)
+        with self._lock:
+            try:
+                if not self._selected_output:
+                    if self._route != RoutingState.DEFAULT:
+                        self._voice.put("AudioOutput", None)
+                    self._route = RoutingState.DEFAULT
+                    return True
+                if self._select_requested_output():
+                    return True
+                if policy == "default":
+                    if self._route != RoutingState.FALLBACK:
+                        self.stop()
+                        self._voice.put("AudioOutput", None)
+                    self._route = RoutingState.FALLBACK
+                    return True
+            except _ComError:
+                LOG.debug("app_tts: output selection failed", exc_info=True)
+            if self._route != RoutingState.PAUSED:
+                self.stop()
+            self._route = RoutingState.PAUSED
             return False
 
+    def reset_output(self):
+        """Explicit user selection of system default; clear the saved target."""
+        self._check_thread()
+        self.stop()
+        self._selected_output = ""
+        self._route = RoutingState.PAUSED
+        return self.validate_output()
+
     @property
-    def selected_output(self) -> str:
-        """The output fragment chosen via set_output, "" for SAPI default."""
+    def selected_output(self):
         return self._selected_output
 
-    def output_present(self) -> bool:
-        """True when the selected output still exists (device-loss check)."""
-        if not self._voice or not self._selected_output:
-            return True  # default output: nothing specific to lose
-        return any(
-            self._selected_output.lower() in name.lower()
-            for name in self.list_outputs()
-        )
+    def output_present(self):
+        if not self._voice:
+            return False
+        if not self._selected_output:
+            return True
+        return any(d.id.casefold() == self._selected_output.casefold()
+                   for d in self.list_output_devices())
 
-    def close(self) -> None:
+    def close(self):
+        self._check_thread()
+        self.stop()
         voice, self._voice = self._voice, None
         if voice:
-            try:
-                voice.release()
-            except Exception:
-                LOG.debug("app_tts: release failed", exc_info=True)
+            voice.release()
         if self._com_initialized:
             self._com_initialized = False
-            try:
-                ctypes.windll.ole32.CoUninitialize()
-            except Exception:
-                LOG.debug("app_tts: CoUninitialize failed", exc_info=True)
+            ctypes.windll.ole32.CoUninitialize()

@@ -96,6 +96,8 @@ def test_control_version_matches_app_meta(control, built_package):
 def test_payload_ships_the_app_and_every_catalogue(data_entries):
     assert "usr/lib/accessible-iptv-client/main.py" in data_entries
     assert "usr/lib/accessible-iptv-client/sitecustomize.py" in data_entries
+    assert "usr/lib/accessible-iptv-client/mpv_subtitle_script.py" in data_entries
+    assert "usr/lib/accessible-iptv-client/subtitle_pipeline.py" in data_entries
     catalogues = [name for name in data_entries if name.endswith("iptvclient.mo")]
     assert len(catalogues) >= 13, f"expected a catalogue per language, got {catalogues}"
 

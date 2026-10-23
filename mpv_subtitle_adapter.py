@@ -5,9 +5,8 @@ Boundaries, as agreed on the issue:
   ourselves with a per-session IPC endpoint and keep the process handle. We
   never attach to the fixed shared endpoint, which could belong to another
   instance or an earlier run.
-- One persistent read/write connection with JSON IPC request IDs. Property
-  observations live on that connection; closing it drops them, so it stays
-  open for the session.
+- One persistent read/write connection with JSON IPC request IDs. A private
+  Lua helper combines property changes into complete current-cue snapshots.
 - Missing, empty, null and disconnected are treated as different states.
 - Cues are keyed on generation, track, start time and text; the queue is
   cleared on stop, source switch and track change.
@@ -21,7 +20,8 @@ as empty for bitmap subtitles, so those stay honestly unreported.
 import json
 import logging
 import os
-import platform
+import math
+import sys
 import socket
 import subprocess
 import tempfile
@@ -29,32 +29,20 @@ import threading
 import time
 import uuid
 from typing import Callable, Dict, Optional
+from mpv_subtitle_script import SCRIPT
+from subtitle_pipeline import SubtitleSnapshot
 
 LOG = logging.getLogger(__name__)
 
-_IS_WINDOWS = platform.system() == "Windows"
+_IS_WINDOWS = sys.platform == "win32"
 
 # Timeouts / pacing.
 CONNECT_TIMEOUT_S = 1.5
 CONNECT_POLL_S = 0.1
 READ_POLL_S = 0.05
 REQUEST_TIMEOUT_S = 1.0
-# The launch handshake runs on a worker, so it can wait longer than a runtime
-# request: a cold mpv on a busy machine answers the version question a
-# second or two late, and a failed version check silently drops the whole
-# subtitle session (the app falls back to the plain handoff).
 LAUNCH_CONNECT_TIMEOUT_S = 6.0
 VERSION_TIMEOUT_S = 5.0
-
-# observe_property ids.
-_OBS_SUB_TEXT = 2
-_OBS_SUB_START = 3
-_OBS_SUB_END = 4
-_OBS_SID = 5
-
-# mpv-version floor we have exercised against. Older is not refused, just noted.
-_MIN_TESTED_MPV = (0, 37, 0)
-
 
 def _session_endpoint() -> str:
     """A per-session IPC endpoint that cannot collide with other instances."""
@@ -71,14 +59,13 @@ class _Transport:
         self.endpoint = endpoint
         self._stop = threading.Event()
         self._write_lock = threading.Lock()
-        self._read_lock = threading.Lock()
         self._sock = None
         self._pipe = None
         self._buffer = b""
 
     # -- connect ---------------------------------------------------------
 
-    def connect(self, timeout: float = CONNECT_TIMEOUT_S) -> bool:
+    def connect(self, timeout=CONNECT_TIMEOUT_S) -> bool:
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline and not self._stop.is_set():
             try:
@@ -89,43 +76,57 @@ class _Transport:
                     return True
             except Exception:
                 LOG.debug("mpv adapter: connect attempt failed", exc_info=True)
-            time.sleep(CONNECT_POLL_S)
+            self._stop.wait(CONNECT_POLL_S)
         return False
 
-    if _IS_WINDOWS:
 
-        def _connect_pipe(self) -> bool:  # noqa: F811 - windows only
-            import ctypes
-            from ctypes import wintypes
+    def _connect_pipe(self) -> bool:
+        import ctypes
+        from ctypes import wintypes
 
-            GENERIC_READ = 0x80000000
-            GENERIC_WRITE = 0x40000000
-            OPEN_EXISTING = 3
-            kernel32 = ctypes.windll.kernel32
-            kernel32.CreateFileW.argtypes = [
-                wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD,
-                wintypes.LPVOID, wintypes.DWORD, wintypes.DWORD,
-                wintypes.HANDLE,
-            ]
-            kernel32.CreateFileW.restype = wintypes.HANDLE
-            handle = kernel32.CreateFileW(
-                self.endpoint, GENERIC_READ | GENERIC_WRITE,
-                0, None, OPEN_EXISTING, 0, None,
-            )
-            if not handle or handle == wintypes.HANDLE(-1).value:
-                return False
-            self._pipe = (ctypes, handle)
-            return True
+        GENERIC_READ = 0x80000000
+        GENERIC_WRITE = 0x40000000
+        OPEN_EXISTING = 3
+        kernel32 = ctypes.windll.kernel32
+        kernel32.CreateFileW.argtypes = [
+            wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD,
+            wintypes.LPVOID, wintypes.DWORD, wintypes.DWORD,
+            wintypes.HANDLE,
+        ]
+        kernel32.CreateFileW.restype = wintypes.HANDLE
+        kernel32.ReadFile.argtypes = [wintypes.HANDLE, wintypes.LPVOID,
+            wintypes.DWORD, ctypes.POINTER(wintypes.DWORD), wintypes.LPVOID]
+        kernel32.ReadFile.restype = wintypes.BOOL
+        kernel32.WriteFile.argtypes = [wintypes.HANDLE, wintypes.LPCVOID,
+            wintypes.DWORD, ctypes.POINTER(wintypes.DWORD), wintypes.LPVOID]
+        kernel32.WriteFile.restype = wintypes.BOOL
+        kernel32.PeekNamedPipe.argtypes = [wintypes.HANDLE, wintypes.LPVOID,
+            wintypes.DWORD, ctypes.POINTER(wintypes.DWORD),
+            ctypes.POINTER(wintypes.DWORD), ctypes.POINTER(wintypes.DWORD)]
+        kernel32.PeekNamedPipe.restype = wintypes.BOOL
+        kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+        kernel32.CloseHandle.restype = wintypes.BOOL
+        handle = kernel32.CreateFileW(
+            self.endpoint, GENERIC_READ | GENERIC_WRITE,
+            0, None, OPEN_EXISTING, 0, None,
+        )
+        if not handle or handle == wintypes.HANDLE(-1).value:
+            return False
+        self._pipe = (ctypes, handle)
+        return True
 
     def _connect_socket(self) -> bool:
+        s = None
         try:
             s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             s.settimeout(CONNECT_POLL_S)
             s.connect(self.endpoint)
-            s.settimeout(None)
+            s.settimeout(CONNECT_POLL_S)
             self._sock = s
             return True
         except OSError:
+            if s is not None:
+                s.close()
             return False
 
     # -- write ------------------------------------------------------------
@@ -145,16 +146,15 @@ class _Transport:
             LOG.debug("mpv adapter: write failed", exc_info=True)
             return False
 
-    if _IS_WINDOWS:
 
-        def _write_pipe(self, line: bytes) -> bool:  # noqa: F811 - windows only
-            ctypes, handle = self._pipe
-            from ctypes import wintypes
+    def _write_pipe(self, line: bytes) -> bool:
+        ctypes, handle = self._pipe
+        from ctypes import wintypes
 
-            written = wintypes.DWORD(0)
-            ok = ctypes.windll.kernel32.WriteFile(
-                handle, line, len(line), ctypes.byref(written), None)
-            return bool(ok and written.value == len(line))
+        written = wintypes.DWORD(0)
+        ok = ctypes.windll.kernel32.WriteFile(
+            handle, line, len(line), ctypes.byref(written), None)
+        return bool(ok and written.value == len(line))
 
     # -- read --------------------------------------------------------------
 
@@ -166,19 +166,19 @@ class _Transport:
         """
         try:
             while not self._stop.is_set():
-                # One reader at a time: the reader thread and a request's
-                # inline pump both read this pipe, and two readers split a
-                # message between them - the JSON then fails to parse and
-                # the message is lost.
-                with self._read_lock:
-                    if b"\n" in self._buffer:
-                        line, self._buffer = self._buffer.split(b"\n", 1)
-                        return line
-                    chunk = self._read_chunk()
-                    if chunk is None:
+                if b"\n" in self._buffer:
+                    line, self._buffer = self._buffer.split(b"\n", 1)
+                    return line
+                if deadline is not None and time.monotonic() >= deadline:
+                    return None
+                chunk = self._read_chunk()
+                if chunk is None:
+                    return None
+                if chunk:
+                    self._buffer += chunk
+                    if len(self._buffer) > 4 * 1024 * 1024:
+                        LOG.warning("mpv adapter: oversized IPC message")
                         return None
-                    if chunk:
-                        self._buffer += chunk
             return None
         except Exception:
             LOG.debug("mpv adapter: read failed", exc_info=True)
@@ -203,28 +203,30 @@ class _Transport:
             return None
         return data if data else None  # None: peer closed
 
-    if _IS_WINDOWS:
 
-        def _read_pipe_chunk(self):  # noqa: F811 - windows only
-            import ctypes
-            from ctypes import wintypes
+    def _read_pipe_chunk(self):
+        import ctypes
+        from ctypes import wintypes
 
-            ctypes_mod, handle = self._pipe
-            kernel32 = ctypes_mod.windll.kernel32
-            avail = wintypes.DWORD(0)
-            if not kernel32.PeekNamedPipe(
-                    handle, None, 0, None, ctypes.byref(avail), None):
-                return None
-            if avail.value == 0:
-                time.sleep(READ_POLL_S)
-                return b""
-            buf = ctypes.create_string_buffer(min(avail.value, 65536))
-            read = wintypes.DWORD(0)
-            ok = kernel32.ReadFile(
-                handle, buf, len(buf) - 1, ctypes.byref(read), None)
-            if not ok or read.value == 0:
-                return None
-            return buf.raw[:read.value]
+        pipe = self._pipe
+        if pipe is None:
+            return None
+        ctypes_mod, handle = pipe
+        kernel32 = ctypes_mod.windll.kernel32
+        avail = wintypes.DWORD(0)
+        if not kernel32.PeekNamedPipe(
+                handle, None, 0, None, ctypes.byref(avail), None):
+            return None
+        if avail.value == 0:
+            self._stop.wait(READ_POLL_S)
+            return b""
+        buf = ctypes.create_string_buffer(min(avail.value, 65536))
+        read = wintypes.DWORD(0)
+        ok = kernel32.ReadFile(
+            handle, buf, len(buf), ctypes.byref(read), None)
+        if not ok or read.value == 0:
+            return None
+        return buf.raw[:read.value]
 
     # -- close ---------------------------------------------------------------
 
@@ -247,302 +249,320 @@ class _Transport:
 
 
 class MpvSubtitleAdapter:
-    """Owns one MPV process and surfaces its subtitle text as cue events.
+    """A private MPV process with asynchronous, cancellable subtitle setup.
 
-    Use :meth:`launch`; if it returns None the adapter could not be
-    established and the caller should fall back to the plain handoff.
+    launch() returns as soon as the process starts. IPC failure leaves that
+    process playing, reports unavailable speech, and never starts a second
+    player. Only the reader thread consumes the transport.
     """
 
     def __init__(self, manager, on_state_change: Optional[Callable[[str], None]] = None):
         self._manager = manager
         self._on_state_change = on_state_change
-        self._transport: Optional[_Transport] = None
-        self._process: Optional[subprocess.Popen] = None
-        self._reader: Optional[threading.Thread] = None
+        self._transport = None
+        self._process = None
+        self._reader = None
+        self._initializer = None
+        self._directory = None
         self._stop = threading.Event()
-        self._request_id = 0
-        self._pending: Dict[int, dict] = {}
+        self._snapshot_ready = threading.Event()
+        self._state_lock = threading.RLock()
+        self._close_lock = threading.Lock()
         self._pending_lock = threading.Lock()
+        self._pending: Dict[int, dict] = {}
+        self._request_id = 0
         self._generation = 0
-        self._sub_text = None
-        self._sub_start = None
-        self._sub_end = None
-        self._last_emitted_start = None
-        self._sid = None
+        self._snapshot_key = None
+        self._serial = -1
         self._mpv_version = ""
         self._first_cue_sent = False
+        self._bitmap_reported = False
         self.available = False
 
-    # -- launch ---------------------------------------------------------------
+    @classmethod
+    def launch_playback_only(cls, mpv_exe, url, manager, on_state_change=None):
+        """Keep playback owned even if a private helper cannot be created."""
+        self = cls(manager, on_state_change)
+        try:
+            self._process = subprocess.Popen([
+                mpv_exe, "--force-window=yes", "--idle=yes", "--no-terminal", "--", url])
+        except OSError:
+            LOG.warning("mpv playback-only launch failed", exc_info=True)
+            return None
+        for capability in ("timed_cues", "read_current", "read_previous"):
+            manager.set_capability("MPV", capability, "unavailable")
+        self._report("unavailable")
+        return self
 
     @classmethod
-    def launch(
-        cls,
-        mpv_exe: str,
-        url: str,
-        manager,
-        on_state_change: Optional[Callable[[str], None]] = None,
-        extra_args: Optional[list] = None,
-    ) -> "Optional[MpvSubtitleAdapter]":
-        """Spawn our own MPV with a per-session endpoint and attach to it."""
+    def launch(cls, mpv_exe, url, manager, on_state_change=None, extra_args=None):
         self = cls(manager, on_state_change)
-        endpoint = _session_endpoint()
         extra = [str(arg) for arg in (extra_args or [])]
-        # A forced window is what makes a radio stream show something, but a
-        # caller that asked for no video does not want one - and mpv stops
-        # answering its own IPC while it tries to open a window it cannot.
         force_window = not any(arg.startswith("--vo=null") for arg in extra)
-        argv = [
-            mpv_exe,
-            f"--input-ipc-server={endpoint}",
-            *(["--force-window=yes"] if force_window else []),
-            "--idle=yes",
-            "--no-terminal",
-            *extra,
-            url,
-        ]
         try:
-            # Clean a stale POSIX socket path before asking mpv to bind it.
-            if not _IS_WINDOWS and os.path.exists(endpoint):
-                try:
-                    os.unlink(endpoint)
-                except OSError:
-                    LOG.debug("mpv adapter: stale socket unlink failed", exc_info=True)
-            self._process = subprocess.Popen(argv)
+            self._directory = tempfile.TemporaryDirectory(prefix="iptv-mpv-")
+            script = os.path.join(self._directory.name, "iptv_subtitles.lua")
+            with open(script, "w", encoding="utf-8", newline="\n") as handle:
+                handle.write(SCRIPT)
+            endpoint = (_session_endpoint() if _IS_WINDOWS else
+                        os.path.join(self._directory.name, "ipc.sock"))
+            self._transport = _Transport(endpoint)
+            self._process = subprocess.Popen([
+                mpv_exe, f"--input-ipc-server={endpoint}",
+                f"--script={script}",
+                *(["--force-window=yes"] if force_window else []), "--idle=yes",
+                "--no-terminal", *extra, "--", url,
+            ])
         except Exception:
-            LOG.warning("mpv adapter: could not launch %s", mpv_exe, exc_info=True)
+            LOG.warning("mpv adapter: process launch failed", exc_info=True)
+            self.close()
             return None
-        self._transport = _Transport(endpoint)
-        if not self._transport.connect(timeout=LAUNCH_CONNECT_TIMEOUT_S):
-            LOG.warning("mpv adapter: IPC endpoint never appeared")
-            self._shutdown_process()
-            return None
-        # Observe before anything else: the cues are what the session is for,
-        # and a slow mpv must not make the app wait for them. The version is
-        # a nicety - a failed check used to drop the whole session, so it is
-        # asked on a worker and only logged.
-        self._observe()
-        threading.Thread(target=self._verify_version, name="mpv-version",
-                         daemon=True).start()
-        self._manager.set_source("mpv-ipc")
-        self._reader = threading.Thread(
-            target=self._read_loop, name="mpv-ipc", daemon=True)
-        self._reader.start()
-        self.available = True
-        self._report("available")
+        self._initializer = threading.Thread(
+            target=self._initialize, name="mpv-subtitle-setup", daemon=True)
+        self._initializer.start()
         return self
-    def _verify_version(self) -> bool:
-        resp = self._request(["get_property", "mpv-version"], timeout=VERSION_TIMEOUT_S)
-        if not resp or resp.get("error") != "success":
-            # Not a gate: the session is already observing, and the cues are
-            # what the user is after. A slow mpv must not cost them.
-            LOG.warning("mpv adapter: version check failed; carrying on without it")
-            return False
-        self._mpv_version = str(resp.get("data") or "")
+
+    def _initialize(self):
         try:
-            parts = tuple(int(p) for p in self._mpv_version.split(".")[:3])
-            if parts < _MIN_TESTED_MPV:
-                LOG.info("mpv adapter: mpv %s older than tested %s",
-                         self._mpv_version, ".".join(map(str, _MIN_TESTED_MPV)))
-        except ValueError:
-            LOG.debug("mpv adapter: unparseable version %r", self._mpv_version)
+            if not self._transport.connect(timeout=LAUNCH_CONNECT_TIMEOUT_S) or self._stop.is_set():
+                return
+            self._reader = threading.Thread(
+                target=self._read_loop, name="mpv-ipc", daemon=True)
+            self._reader.start()
+            # Version is advisory, never a gate for subtitle readiness. The
+            # same single reader handles this request and the helper handshake.
+            threading.Thread(target=self._verify_version, name="mpv-version", daemon=True).start()
+            response = self._request(["script-message", "iptvclient-subtitle-request"])
+            if not response or response.get("error") != "success":
+                return
+            # A command acknowledgement alone does not prove the script runs.
+            self._snapshot_ready.wait(REQUEST_TIMEOUT_S)
+            with self._state_lock:
+                if self._stop.is_set() or self._serial < 0:
+                    return
+                self.available = True
+                self._report("available")
+        except Exception:
+            LOG.exception("mpv subtitle initialization failed")
+        finally:
+            if not self.available:
+                if not self._stop.is_set():
+                    self._on_disconnect()
+                self.close(terminate=False)
+
+    def _verify_version(self):
+        response = self._request(["get_property", "mpv-version"], timeout=VERSION_TIMEOUT_S)
+        if not response or response.get("error") != "success":
+            return False
+        self._mpv_version = str(response.get("data") or "")
         return True
 
-    def _observe(self) -> None:
-        for obs_id, prop in ((_OBS_SUB_TEXT, "sub-text"),
-                             (_OBS_SUB_START, "sub-start"),
-                             (_OBS_SUB_END, "sub-end"),
-                             (_OBS_SID, "sid")):
-            self._send({"command": ["observe_property", obs_id, prop]})
-
-    # -- protocol ----------------------------------------------------------------
-
-    def _send(self, message: dict) -> bool:
-        if self._transport is None:
+    def _send(self, message):
+        transport = self._transport
+        if transport is None or self._stop.is_set():
             return False
         try:
             line = (json.dumps(message) + "\n").encode("utf-8")
         except (TypeError, ValueError):
             return False
-        return self._transport.write_line(line)
+        return transport.write_line(line)
 
-    def _request(self, command: list, timeout: float = REQUEST_TIMEOUT_S) -> Optional[dict]:
-        self._request_id += 1
-        rid = self._request_id
-        event = threading.Event()
+    def _request(self, command, timeout=REQUEST_TIMEOUT_S):
+        # IDs and pending entries are installed atomically before writing, so
+        # even an immediate reply is matched. Cancellation wakes every waiter.
         with self._pending_lock:
-            self._pending[rid] = {"event": event, "response": None}
+            if self._stop.is_set():
+                return None
+            self._request_id += 1
+            rid = self._request_id
+            entry = {"event": threading.Event(), "response": None, "cancelled": False}
+            self._pending[rid] = entry
         try:
             if not self._send({"command": command, "request_id": rid}):
                 return None
-            # Requests are only answered while the reader loop pumps the
-            # connection; during launch the loop is not running yet, so pump
-            # a few messages inline here.
-            deadline = time.monotonic() + timeout
-            while time.monotonic() < deadline:
-                with self._pending_lock:
-                    entry = self._pending.get(rid)
-                if entry is None or entry["event"].is_set():
-                    break
-                line = self._transport.read_line(deadline=deadline) if self._transport else None
-                if line:
-                    self._dispatch(line)
-                else:
-                    # Nothing to pump here (no transport, EOF, or the reader
-                    # loop owns the socket): the answer may still be
-                    # dispatched by another thread, so wait out the deadline.
-                    entry["event"].wait(max(0.0, deadline - time.monotonic()))
-                    break
+            received = entry["event"].wait(max(0, timeout))
             with self._pending_lock:
-                entry = self._pending.pop(rid, None)
-            if entry and entry["event"].is_set():
+                if not received or self._stop.is_set() or entry["cancelled"]:
+                    return None
                 return entry["response"]
-            return None
         finally:
             with self._pending_lock:
                 self._pending.pop(rid, None)
 
-    def _read_loop(self) -> None:
+    def _read_loop(self):
+        transport = self._transport
         try:
-            while not self._stop.is_set() and self._transport:
-                line = self._transport.read_line()
+            while not self._stop.is_set():
+                line = transport.read_line()
                 if line is None:
                     break
                 if line.strip():
                     self._dispatch(line)
         except Exception:
-            LOG.debug("mpv adapter: reader loop ended", exc_info=True)
+            LOG.debug("mpv reader ended", exc_info=True)
         finally:
             self._on_disconnect()
+            transport.close()
 
-    def _dispatch(self, line: bytes) -> None:
+    def _dispatch(self, line):
         try:
-            msg = json.loads(line.decode("utf-8", "replace"))
+            message = json.loads(line.decode("utf-8", "replace"))
         except ValueError:
             return
-        if not isinstance(msg, dict):
+        if not isinstance(message, dict):
             return
-        rid = msg.get("request_id")
-        if rid is not None:
-            with self._pending_lock:
-                entry = self._pending.get(rid)
-                if entry is not None:
-                    entry["response"] = msg
-                    entry["event"].set()
-            return
-        if msg.get("event") == "property-change":
-            self._on_property_change(msg)
-        elif msg.get("event") == "end-file":
-            self._on_end_of_file(msg)
+        with self._state_lock:
+            if self._stop.is_set():
+                return
+            rid = message.get("request_id")
+            if isinstance(rid, int) and not isinstance(rid, bool):
+                with self._pending_lock:
+                    entry = self._pending.get(rid)
+                    if entry is not None and not entry["cancelled"]:
+                        entry["response"] = message
+                        entry["event"].set()
+                return
+            if message.get("event") != "client-message":
+                return
+            args = message.get("args")
+            if not isinstance(args, list) or len(args) != 2:
+                return
+            if args[0] != "iptvclient-subtitle-snapshot" or not isinstance(args[1], str):
+                return
+            try:
+                snapshot = json.loads(args[1])
+            except ValueError:
+                return
+            self._accept_snapshot(snapshot)
 
-    # -- cue handling --------------------------------------------------------------
-
-    def _on_property_change(self, msg: dict) -> None:
-        pid = msg.get("id")
-        data = msg.get("data")  # None: unavailable; "": no cue right now
-        if pid == _OBS_SID:
-            if data != self._sid:
-                self._sid = data
-                self._bump_generation()
-                self._manager.clear()
-            return
-        if pid == _OBS_SUB_TEXT:
-            previous = self._sub_text
-            self._sub_text = data
-            # Text is the cue-display event. A new cue is established by:
-            # - empty-to-non-empty transition, OR
-            # - changed start time with non-empty text (identical consecutive
-            #   cues at different times are distinct cues, not duplicates).
-            # Text inequality alone is NOT the boundary signal.
-            if data:
-                if not previous:
-                    self._emit_new_cue()
-                elif self._sub_start != self._last_emitted_start:
-                    self._emit_new_cue()
-        elif pid == _OBS_SUB_START:
-            self._sub_start = data
-            self._update_timing()
-        elif pid == _OBS_SUB_END:
-            self._sub_end = data
-            self._update_timing()
-
-    def _bump_generation(self) -> None:
-        """New media generation: drop pending property state so a late or
-        stale event from the old stream can never be spoken under the new one."""
-        self._generation += 1
-        self._sub_text = None
-        self._sub_start = None
-        self._sub_end = None
-        self._last_emitted_start = None
-
-    def _timing_ms(self, value) -> Optional[int]:
-        try:
-            return int(float(value) * 1000) if value is not None else None
-        except (TypeError, ValueError):
+    @staticmethod
+    def _timing_ms(value):
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
             return None
+        # Keep conversion finite and within the integer precision of MPV's
+        # JSON clock, including when a malformed peer sends an enormous int.
+        if abs(value) > 9_007_199_254_740:
+            return None
+        return round(value * 1000) if math.isfinite(value) else None
 
-    def _emit_new_cue(self) -> None:
-        track = "" if self._sid is None else str(self._sid)
-        self._last_emitted_start = self._sub_start
-        self._manager.on_cue(
-            self._sub_text,
-            start_ms=self._timing_ms(self._sub_start),
-            end_ms=self._timing_ms(self._sub_end),
-            source="mpv-ipc",
-            track=track,
-            generation=self._generation,
-        )
-        if not self._first_cue_sent:
+    def _accept_snapshot(self, snapshot):
+        if (not isinstance(snapshot, dict) or type(snapshot.get("protocol")) is not int
+                or snapshot["protocol"] != 1):
+            return
+        serial, epoch = snapshot.get("serial"), snapshot.get("epoch")
+        if (type(serial) is not int or type(epoch) is not int
+                or serial < 1 or serial <= self._serial or epoch < 0
+                or not isinstance(snapshot.get("text"), str)
+                or not isinstance(snapshot.get("track"), str)
+                or type(snapshot.get("paused")) is not bool
+                or type(snapshot.get("active")) is not bool):
+            return
+        self._serial = serial
+        self._snapshot_ready.set()
+        key = (epoch, snapshot["track"])
+        if key != self._snapshot_key:
+            self._snapshot_key = key
+            self._generation += 1
+            self._first_cue_sent = False
+            self._bitmap_reported = False
+            for capability in ("timed_cues", "read_current", "read_previous"):
+                self._manager.set_capability("MPV", capability, "unverified")
+        text = snapshot["text"] if snapshot["active"] else ""
+        if snapshot.get("image") is True:
+            text = ""
+            for capability in ("timed_cues", "read_current", "read_previous"):
+                self._manager.set_capability("MPV", capability, "unavailable")
+            if not self._bitmap_reported:
+                self._bitmap_reported = True
+                self._report("bitmap")
+        start = self._timing_ms(snapshot.get("start"))
+        end = self._timing_ms(snapshot.get("finish"))
+        if start is not None and end is not None and end <= start:
+            end = None
+        if text.strip() and not self._first_cue_sent:
             self._first_cue_sent = True
+            for capability in ("timed_cues", "read_current", "read_previous"):
+                self._manager.set_capability("MPV", capability, "available")
             self._report("first_cue")
+        # Queue status before the cue: a screen-reader status spoken afterward
+        # could interrupt the very first subtitle it is meant to introduce.
+        self._manager.on_snapshot(SubtitleSnapshot(
+            text=text, start_ms=start, end_ms=end, source="mpv-ipc",
+            track=snapshot["track"], generation=self._generation,
+            sequence=serial, paused=snapshot["paused"], active=snapshot["active"],
+            text_supported=snapshot.get("image") is not True,
+        ))
 
-    def _update_timing(self) -> None:
-        """Timing arrived without new text: fill in the current cue only."""
-        self._manager.update_cue_timing(
-            self._timing_ms(self._sub_start),
-            self._timing_ms(self._sub_end),
-            generation=self._generation,
-        )
-
-    def _on_end_of_file(self, _msg: dict) -> None:
-        self._bump_generation()
-        self._manager.clear()
-
-    def _on_disconnect(self) -> None:
-        if self.available:
-            self.available = False
+    def _on_disconnect(self):
+        with self._state_lock:
+            if self._stop.is_set():
+                return
+            self.cancel()
             self._manager.clear()
+            for capability in ("timed_cues", "read_current", "read_previous"):
+                self._manager.set_capability("MPV", capability, "unavailable")
             self._report("unavailable")
 
-    def _report(self, state: str) -> None:
+    def _report(self, state):
         if self._on_state_change:
             try:
                 self._on_state_change(state)
             except Exception:
-                LOG.debug("mpv adapter: state callback failed", exc_info=True)
+                LOG.exception("mpv subtitle state callback failed")
 
-    # -- lifecycle -------------------------------------------------------------------
+    def cancel(self):
+        """Immediate logical cancellation; no OS I/O or joins."""
+        with self._state_lock:
+            self._stop.set()
+            self.available = False
+            self._snapshot_ready.set()
+            if self._transport:
+                self._transport._stop.set()
+            with self._pending_lock:
+                for entry in self._pending.values():
+                    entry["cancelled"] = True
+                    entry["event"].set()
 
-    def close(self) -> None:
-        """Drop the adapter. The MPV process we launched is terminated; a
-        foreign MPV is never touched because we only ever track our own."""
-        self._stop.set()
-        self.available = False
-        if self._transport:
-            self._transport.close()
-            self._transport = None
-        self._shutdown_process()
-        self._manager.clear()
+    def close(self, terminate=True):
+        """Detach speech, optionally terminating only our own MPV process.
 
-    def _shutdown_process(self) -> None:
-        proc, self._process = self._process, None
+        Call on a worker: transport closure and bounded joins may wait.
+        Initialization/disconnect failures always use terminate=False.
+        """
+        self.cancel()
+        if terminate:
+            # Stop the old stream before waiting for reader/setup retirement.
+            # close itself runs on a worker, so process waits never block wx.
+            self._shutdown_process()
+        # Do not hold this lock across joins: the initializer may be cleaning
+        # up after a failure at the same time as the session owner.
+        with self._close_lock:
+            transport, self._transport = self._transport, None
+        if transport:
+            transport.close()
+        for thread in (self._reader, self._initializer):
+            if thread is not None and thread is not threading.current_thread():
+                thread.join(timeout=1.0)
+        with self._close_lock:
+            directory, self._directory = self._directory, None
+        if directory:
+            try:
+                directory.cleanup()
+            except OSError:
+                LOG.debug("mpv session directory cleanup failed", exc_info=True)
+
+    def _shutdown_process(self):
+        with self._close_lock:
+            proc, self._process = self._process, None
         if proc is None:
             return
         try:
-            proc.terminate()
-            try:
-                proc.wait(timeout=3)
-            except subprocess.TimeoutExpired:
-                proc.kill()
+            if proc.poll() is None:
+                proc.terminate()
+                try:
+                    proc.wait(timeout=3)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    proc.wait(timeout=1)
         except Exception:
-            LOG.debug("mpv adapter: process shutdown failed", exc_info=True)
+            LOG.debug("mpv process shutdown failed", exc_info=True)
