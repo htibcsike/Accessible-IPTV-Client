@@ -186,23 +186,23 @@ msgstr "Már folyamatban van egy frissítés."
 
 #: main.py:9169
 msgid "Application voice output"
-msgstr ""
+msgstr "Az alkalmazás beszédhangjának kimenete"
 
 #: main.py:3687
 msgid "Application voice output..."
-msgstr ""
+msgstr "Az alkalmazás beszédhangjának kimenete…"
 
 #: main.py:9201
 msgid "Application voice output: {name}"
-msgstr ""
+msgstr "Az alkalmazás beszédhangjának kimenete: {name}"
 
 #: main.py:9127
 msgid "Application voice volume"
-msgstr ""
+msgstr "Az alkalmazás felolvasási hangereje"
 
 #: main.py:3684
 msgid "Application voice volume..."
-msgstr ""
+msgstr "Az alkalmazás felolvasási hangereje…"
 
 #: playlist.py:3546
 #: playlist.py:3547
@@ -742,7 +742,7 @@ msgstr "Nem sikerült ütemezni a rögzítést:\n{error}"
 
 #: main.py:9186
 msgid "Could not select that output device."
-msgstr ""
+msgstr "A hangkimeneti eszköz kiválasztása nem sikerült."
 
 #: main.py:5139
 msgid "Could not shut down the computer:\n{error}"
@@ -1271,11 +1271,11 @@ msgstr "Tétlen"
 
 #: main.py:9221
 msgid "If the output device disappears, subtitle speech pauses until it returns."
-msgstr ""
+msgstr "Ha a hangkimeneti eszköz elérhetetlenné válik, a feliratfelolvasás mindaddig szünetel, amíg a kapcsolat helyre nem áll."
 
 #: main.py:9225
 msgid "If the output device disappears, the application voice falls back to the system default."
-msgstr ""
+msgstr "Ha a kiválasztott hangkimenet elérhetetlenné válik, az alkalmazás beszédhangja a rendszer alapértelmezett eszközére vált."
 
 #: main.py:7770
 msgid "Import Complete"
@@ -1359,7 +1359,7 @@ msgstr "Csatlakozás a SerrebiProjects Telegram-csoporthoz"
 
 #: main.py:9194
 msgid "Keep this output device?\n{name}"
-msgstr ""
+msgstr "Megtartja ezt a hangkimeneti eszközt?\n{name}"
 
 #: main.py:2802
 #: main.py:2812
@@ -1447,11 +1447,11 @@ msgstr "A portálhoz használt MAC-cím"
 
 #: main.py:9259
 msgid "MPV subtitle speech on."
-msgstr ""
+msgstr "Az MPV feliratfelolvasása bekapcsolva."
 
 #: main.py:9262
 msgid "MPV subtitle speech unavailable."
-msgstr ""
+msgstr "A feliratfelolvasás jelenleg nem érhető el az MPV-ben."
 
 #: shortcuts.py:152
 msgid "Main-window shortcuts need Ctrl or Alt."
@@ -1738,15 +1738,15 @@ msgstr "Régebbi kiadások (angolul)"
 
 #: main.py:3697
 msgid "On device loss: pause until the device returns"
-msgstr ""
+msgstr "Az eszköz elérhetetlensége esetén: szüneteltetés a kapcsolat helyreállásáig"
 
 #: main.py:3698
 msgid "On device loss: use the system default"
-msgstr ""
+msgstr "Az eszköz elérhetetlensége esetén: a rendszer alapértelmezett kimenetének használata"
 
 #: main.py:9237
 msgid "Only players with a documented timed-text API can provide subtitle words. The built-in player reads SRT and WebVTT files; MPV works through the application's own session."
-msgstr ""
+msgstr "A feliratok szövege csak olyan lejátszóból vehető át, amely dokumentált programozási felületen időzítési adatokat is szolgáltat. A beépített lejátszó SRT- és WebVTT-fájlokat olvas fel; az MPV támogatását az alkalmazás által indított és felügyelt lejátszási munkamenet biztosítja."
 
 #: main.py:10814
 msgid "Open"
@@ -1808,7 +1808,7 @@ msgstr "Egyéb lejátszási listák"
 
 #: main.py:9168
 msgid "Output device for the application voice:"
-msgstr ""
+msgstr "Az alkalmazás beszédhangjához használt kimeneti eszköz:"
 
 #: account_info.py:616
 msgid "Package"
@@ -2505,11 +2505,11 @@ msgstr "Feliratok felolvasása"
 
 #: main.py:3655
 msgid "Speak through application voice"
-msgstr ""
+msgstr "Felolvasás az alkalmazás beszédhangjával"
 
 #: main.py:3654
 msgid "Speak through screen reader"
-msgstr ""
+msgstr "Felolvasás a képernyőolvasóval"
 
 #: account_info.py:110
 msgid "Stalker Portal"
@@ -2633,7 +2633,7 @@ msgstr "Előfizetés"
 
 #: main.py:9240
 msgid "Subtitle Capabilities"
-msgstr ""
+msgstr "A feliratkezelés támogatottsága"
 
 #: main.py:3709
 #: main.py:9113
@@ -2641,11 +2641,11 @@ msgstr ""
 #: main.py:9191
 #: main.py:9195
 msgid "Subtitle Speech"
-msgstr ""
+msgstr "Feliratfelolvasás"
 
 #: main.py:3707
 msgid "Subtitle capabilities..."
-msgstr ""
+msgstr "A feliratkezelés támogatottsága…"
 
 #: internal_player.py:2549
 msgid "Subtitle file loaded: {name}"
@@ -2663,7 +2663,7 @@ msgstr "Feliratbeszéd %s."
 #: main.py:9083
 #: main.py:9190
 msgid "Subtitle speech failed."
-msgstr ""
+msgstr "A felirat felolvasása nem sikerült."
 
 #: internal_player.py:2555
 msgid "Subtitle speech needs an SRT or WebVTT file."
@@ -2687,11 +2687,11 @@ msgstr "Feliratbeszéd szünetel: a kiválasztott hangkimenet nem érhető el."
 
 #: main.py:9120
 msgid "Subtitle speech will use the application voice."
-msgstr ""
+msgstr "A feliratokat az alkalmazás beszédhangja olvassa fel."
 
 #: main.py:9122
 msgid "Subtitle speech will use your screen reader."
-msgstr ""
+msgstr "A feliratokat a képernyőolvasó olvassa fel."
 
 #: internal_player.py:2492
 msgid "Subtitle track unavailable"
@@ -2731,7 +2731,7 @@ msgstr "A műsorújság importálása befejeződött. Az adatok naprakészek."
 
 #: main.py:9112
 msgid "The application voice is only available on Windows with SAPI."
-msgstr ""
+msgstr "Az alkalmazás beszédhangja kizárólag Windows rendszeren, SAPI-támogatással használható."
 
 #: main.py:5284
 msgid "The audio could not be copied into an MKA container, so nothing was recorded and nothing was transcoded. Choose another audio format from Recordings > Recording Format and try again.\n\n{detail}"
@@ -2832,7 +2832,7 @@ msgstr "Ez egy archív adás. A mentéshez használja a Műsorarchívum listába
 
 #: main.py:9189
 msgid "This is the application voice."
-msgstr ""
+msgstr "Ez az alkalmazás beszédhangjának próbája."
 
 #: main.py:4414
 msgid "This programme has already ended."
@@ -3127,7 +3127,7 @@ msgstr "Hangerő növelése"
 
 #: main.py:9131
 msgid "Volume:"
-msgstr ""
+msgstr "Hangerő:"
 
 #: internal_player.py:560
 #: main.py:2782
@@ -3198,7 +3198,7 @@ msgstr "Még nem adott hozzá kedvencet. Válasszon ki egy csatornát, majd nyom
 
 #: subtitle_speech.py:413
 msgid "available"
-msgstr ""
+msgstr "elérhető"
 
 #: account_info.py:118
 msgid "channel stream URL"
@@ -3210,11 +3210,11 @@ msgstr "FFmpeg kilépési kód: {code}"
 
 #: subtitle_speech.py:415
 msgid "not supported by this player"
-msgstr ""
+msgstr "ez a lejátszó nem támogatja"
 
 #: subtitle_speech.py:416
 msgid "not verified yet"
-msgstr ""
+msgstr "még nincs ellenőrizve"
 
 #: main.py:8977
 msgid "off"
