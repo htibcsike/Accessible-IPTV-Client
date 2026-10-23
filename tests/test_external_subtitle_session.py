@@ -1,5 +1,7 @@
 import threading
 
+import pytest
+
 import external_player
 from external_player import ExternalPlayerLauncher
 from subtitle_session import SubtitleSessionController
@@ -70,12 +72,14 @@ def test_auto_off_still_collects_and_duplicate_launch_keeps_owner(monkeypatch):
     assert manager.get_recent() == []
 
 
-def test_worker_cannot_fall_back_over_a_newer_launch(monkeypatch):
+@pytest.mark.parametrize("system", ["Windows", "Linux", "Darwin"])
+def test_worker_cannot_fall_back_over_a_newer_launch(monkeypatch, system):
     launcher = ExternalPlayerLauncher()
     launched = []
+    monkeypatch.setattr(external_player.platform, 'system', lambda: system)
     monkeypatch.setattr(launcher, '_spawn_posix', lambda argv: launched.append(argv) or (True, ''))
     monkeypatch.setattr(launcher, '_spawn_windows', lambda argv: launched.append(argv) or (True, ''))
-    launcher.launch('VLC', 'new channel')
+    assert launcher.launch('Custom', 'new channel', custom_path='test-player.exe') == (True, '')
     assert launcher.launch('MPV', 'old channel', expected_generation=0) == (True, '')
     assert len(launched) == 1 and launched[0][-1] == 'new channel'
 

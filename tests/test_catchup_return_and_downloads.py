@@ -20,6 +20,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 wx = pytest.importorskip("wx")
 
 import main  # noqa: E402
+from subtitle_session import SubtitleSessionController  # noqa: E402
+from subtitle_speech import SubtitleSpeechManager  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -47,18 +49,8 @@ _BOUND = (
 )
 
 
-class _SubtitleSession:
-    """The subtitle session the app owns, stubbed for the partial clients here."""
-
-    def activate_session(self, source_name=""):
-        return "token"
-
-    def cancel_session(self):
-        return None
-
-
 def _client(**attrs):
-    attrs.setdefault("_subtitle_session", _SubtitleSession())
+    attrs.setdefault("_subtitle_session", SubtitleSessionController(SubtitleSpeechManager(lambda text: None)))
     client = types.SimpleNamespace(**attrs)
     for name in _BOUND:
         setattr(client, name, getattr(main.IPTVClient, name).__get__(client))
@@ -132,7 +124,9 @@ def test_closing_a_catchup_playback_reopens_its_list(monkeypatch):
         _catchup_return=target,
         _return_to_catchup_list=lambda _ret: None,
     )
+    client._builtin_subtitle_token = client._subtitle_session.activate_session("builtin-file")
     client._on_internal_player_closed()
+    assert client._subtitle_session.session_token is None
     assert queued == [(client._return_to_catchup_list, (target,))]
     assert client._catchup_return is None
     assert client._internal_player_frame is None
@@ -187,7 +181,9 @@ def test_closing_a_live_playback_does_not_reopen_catchup(monkeypatch):
         _catchup_return={"channel": {"name": "TVP 1"}, "start": "x"},
         _return_to_catchup_list=lambda _ret: None,
     )
+    client._builtin_subtitle_token = client._subtitle_session.activate_session("builtin-file")
     client._on_internal_player_closed()
+    assert client._subtitle_session.session_token is None
     assert queued == []
     # A stale return target must not fire on some later close either.
     assert client._catchup_return is None

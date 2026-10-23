@@ -14,6 +14,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import main  # noqa: E402
 import recorder  # noqa: E402
+from subtitle_session import SubtitleSessionController  # noqa: E402
+from subtitle_speech import SubtitleSpeechManager  # noqa: E402
 
 TVP = {"name": "TVP 1", "url": "http://provider.invalid/live/tvp1.ts"}
 RELAY = "http://127.0.0.1:50123/live.ts"
@@ -33,16 +35,6 @@ class _Frame:
     def stop(self, manual=False):
         self.stops.append(manual)
         self._manual_stop = self._manual_stop or manual
-
-
-class _SubtitleSession:
-    """The subtitle session the app owns, stubbed for the partial clients here."""
-
-    def activate_session(self, source_name=""):
-        return "token"
-
-    def cancel_session(self):
-        return None
 
 
 class _Recorder:
@@ -147,6 +139,9 @@ def test_relay_handoff_keeps_the_existing_focus_in_the_player():
     play_kwargs = []
 
     class Frame:
+        def set_subtitle_sink(self, sink):
+            self.subtitle_sink = sink
+
         def Enable(self, value):
             events.append(("enable", value))
 
@@ -164,6 +159,7 @@ def test_relay_handoff_keeps_the_existing_focus_in_the_player():
             play_kwargs.append(kwargs)
 
     frame = Frame()
+    subtitle_manager = SubtitleSpeechManager(lambda text: None)
     client = types.SimpleNamespace(
         default_player="Built-in Player",
         show_player_on_enter=True,
@@ -173,7 +169,7 @@ def test_relay_handoff_keeps_the_existing_focus_in_the_player():
         _remember_played_channel=lambda _channel: None,
         _channel_audio_key=lambda _channel: "tvp 1",
         _sync_internal_player_record_state=lambda: None,
-        _subtitle_session=_SubtitleSession(),
+        _subtitle_session=SubtitleSessionController(subtitle_manager),
     )
     _bind(client, "_launch_stream")
 
@@ -185,6 +181,9 @@ def test_relay_handoff_keeps_the_existing_focus_in_the_player():
     assert ("play", None) in events
     assert ("raise", None) not in events and ("focus", None) not in events
     assert play_kwargs[0]["focus_controls"] is False
+    assert client._subtitle_session.is_current(client._builtin_subtitle_token)
+    frame.subtitle_sink.on_cue("Relay caption", 1000, 2000)
+    assert subtitle_manager.get_recent()[0].text == "Relay caption"
 
 
 def test_no_hand_back_when_the_user_moved_on(monkeypatch):
