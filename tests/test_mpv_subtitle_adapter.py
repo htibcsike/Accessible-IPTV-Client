@@ -395,3 +395,17 @@ def test_playback_only_fallback_is_owned_and_stopped_on_close(monkeypatch):
     assert manager.get_capability('MPV', 'timed_cues') == 'unavailable'
     ad.close()
     assert processes[0].terminated
+
+
+@pytest.mark.parametrize("timing", [float("inf"), float("nan"), 10 ** 500, -(10 ** 500), 1e308])
+def test_invalid_or_unbounded_native_times_do_not_break_common_input(timing):
+    assert MpvSubtitleAdapter._timing_ms(timing) is None
+
+
+@pytest.mark.parametrize("changes", [{"serial": 0}, {"protocol": True}])
+def test_native_bridge_rejects_invalid_contract_before_changing_ownership(changes):
+    ad, manager, spoken, states = adapter()
+    snapshot(ad, changes.get("serial", 1), "Invalid", **{k: v for k, v in changes.items() if k != "serial"})
+    assert manager.get_recent() == [] and spoken == [] and states == []
+    snapshot(ad, 2, "Valid")
+    assert spoken == ["Valid"]

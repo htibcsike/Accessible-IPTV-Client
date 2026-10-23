@@ -21,6 +21,8 @@ from collections import deque
 from dataclasses import dataclass, replace
 from typing import Callable, Deque, Dict, List, Optional
 
+from subtitle_pipeline import SubtitleSnapshot
+
 LOG = logging.getLogger(__name__)
 
 # Capability states per the #37 plan.
@@ -148,6 +150,8 @@ class SubtitleSpeechManager:
         self._epoch = 0
         self._output_epoch = 0
         self._paused = False
+        self._snapshot_identity = None
+        self._snapshot_sequence = 0
 
     # -- Configuration ----------------------------------------------------
 
@@ -171,6 +175,40 @@ class SubtitleSpeechManager:
             return changed
 
     # -- Cue intake (called by sources) ------------------------------------
+
+    def on_snapshot(self, snapshot: SubtitleSnapshot, before_reset=None) -> bool:
+        """Accept player-neutral input atomically; reject late generations.
+
+        Bridges translate their native protocol only. This is the common
+        boundary for timeline replacement, pause and cue intake. The optional
+        callback purges owned speech before a replacement cue is queued.
+        """
+        if not isinstance(snapshot, SubtitleSnapshot):
+            raise TypeError("snapshot must be a SubtitleSnapshot")
+        with self._lock:
+            identity = (snapshot.source, snapshot.track, snapshot.generation)
+            old = self._snapshot_identity
+            if old is not None and old[0] == snapshot.source:
+                if snapshot.generation < old[2]:
+                    return False
+                if snapshot.generation == old[2] and snapshot.sequence <= self._snapshot_sequence:
+                    return False
+            reset = identity != old
+            pausing = snapshot.paused and not self._paused
+            if (reset or pausing) and before_reset is not None:
+                before_reset()
+            if reset:
+                self.clear()
+            self._snapshot_identity = identity
+            self._snapshot_sequence = snapshot.sequence
+            self.set_paused(snapshot.paused)
+            self.on_cue(
+                snapshot.text if snapshot.active and snapshot.text_supported else "",
+                start_ms=snapshot.start_ms, end_ms=snapshot.end_ms,
+                source=snapshot.source, track=snapshot.track,
+                generation=snapshot.generation,
+            )
+            return True
 
     def on_cue(
         self,
@@ -295,6 +333,8 @@ class SubtitleSpeechManager:
     def set_source(self, name: str) -> None:
         """Switch the active cue source, clearing stale state first."""
         with self._lock:
+            self._snapshot_identity = None
+            self._snapshot_sequence = 0
             self._source_name = name or ""
             self._paused = False
             self._capabilities.clear()

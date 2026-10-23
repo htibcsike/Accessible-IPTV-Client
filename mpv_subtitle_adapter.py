@@ -30,6 +30,7 @@ import time
 import uuid
 from typing import Callable, Dict, Optional
 from mpv_subtitle_script import SCRIPT
+from subtitle_pipeline import SubtitleSnapshot
 
 LOG = logging.getLogger(__name__)
 
@@ -438,14 +439,19 @@ class MpvSubtitleAdapter:
     def _timing_ms(value):
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             return None
+        # Keep conversion finite and within the integer precision of MPV's
+        # JSON clock, including when a malformed peer sends an enormous int.
+        if abs(value) > 9_007_199_254_740:
+            return None
         return round(value * 1000) if math.isfinite(value) else None
 
     def _accept_snapshot(self, snapshot):
-        if not isinstance(snapshot, dict) or snapshot.get("protocol") != 1:
+        if (not isinstance(snapshot, dict) or type(snapshot.get("protocol")) is not int
+                or snapshot["protocol"] != 1):
             return
         serial, epoch = snapshot.get("serial"), snapshot.get("epoch")
         if (type(serial) is not int or type(epoch) is not int
-                or serial <= self._serial or epoch < 0
+                or serial < 1 or serial <= self._serial or epoch < 0
                 or not isinstance(snapshot.get("text"), str)
                 or not isinstance(snapshot.get("track"), str)
                 or type(snapshot.get("paused")) is not bool
@@ -459,10 +465,8 @@ class MpvSubtitleAdapter:
             self._generation += 1
             self._first_cue_sent = False
             self._bitmap_reported = False
-            self._manager.clear()
             for capability in ("timed_cues", "read_current", "read_previous"):
                 self._manager.set_capability("MPV", capability, "unverified")
-        self._manager.set_paused(snapshot["paused"])
         text = snapshot["text"] if snapshot["active"] else ""
         if snapshot.get("image") is True:
             text = ""
@@ -482,9 +486,12 @@ class MpvSubtitleAdapter:
             self._report("first_cue")
         # Queue status before the cue: a screen-reader status spoken afterward
         # could interrupt the very first subtitle it is meant to introduce.
-        self._manager.on_cue(
-            text, start_ms=start, end_ms=end, source="mpv-ipc",
-            track=snapshot["track"], generation=self._generation)
+        self._manager.on_snapshot(SubtitleSnapshot(
+            text=text, start_ms=start, end_ms=end, source="mpv-ipc",
+            track=snapshot["track"], generation=self._generation,
+            sequence=serial, paused=snapshot["paused"], active=snapshot["active"],
+            text_supported=snapshot.get("image") is not True,
+        ))
 
     def _on_disconnect(self):
         with self._state_lock:

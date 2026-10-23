@@ -2576,6 +2576,8 @@ class InternalPlayerFrame(wx.Frame):
     def _set_subtitle_cues(self, cues: List[subtitle_cues.Cue]) -> None:
         self._subtitle_generation += 1
         self._subtitle_cues = cues
+        from subtitle_pipeline import TimedTextSource
+        self._subtitle_file_source = TimedTextSource(cues, self._subtitle_generation)
         self._cue_index = None
         self._last_cue_index = None
         self._review_cue_index = None
@@ -2598,8 +2600,7 @@ class InternalPlayerFrame(wx.Frame):
         if getattr(self, "_destroyed", False):
             return
         sink = getattr(self, "_subtitle_sink", None)
-        if sink is not None:
-            sink.set_paused(self._is_paused)
+        from subtitle_pipeline import PlaybackPosition, TimedTextSource
         try:
             spu = self.player.video_get_spu()
             source_id = getattr(self, "_subtitle_source_id", "")
@@ -2612,26 +2613,29 @@ class InternalPlayerFrame(wx.Frame):
             if source_id and file_track is not None and spu not in (-1, file_track):
                 self._set_subtitle_cues([])
                 return
-            if spu == -1 or (source_id and file_track is None):
-                index = None
-            else:
-                # SPU delay is in microseconds; a positive delay shows cues later.
-                ms = self.player.get_time() - self.player.video_get_spu_delay() // 1000
-                last_time = getattr(self, "_subtitle_last_time", None)
-                if last_time is not None and ms < last_time:
-                    self._subtitle_generation += 1
-                    self._cue_index = None
-                    if sink is not None:
-                        sink.clear()
-                self._subtitle_last_time = ms
-                index = subtitle_cues.active(self._subtitle_cues, ms) if ms >= 0 else None
-                # Bound review by the playhead too, so a seek back into a gap
-                # cannot leave a later, unplayed cue reviewable.
-                self._last_cue_index = subtitle_cues.started(self._subtitle_cues, ms) if ms >= 0 else None
-                if self._last_cue_index is None:
-                    self._review_cue_index = None
-                elif self._review_cue_index is not None and self._review_cue_index > self._last_cue_index:
-                    self._review_cue_index = self._last_cue_index
+            enabled = spu != -1 and not (source_id and file_track is None)
+            position = PlaybackPosition(
+                position_ms=self.player.get_time(), paused=self._is_paused,
+                subtitle_delay_ms=self.player.video_get_spu_delay() // 1000,
+            )
+            file_source = getattr(self, "_subtitle_file_source", None)
+            if file_source is None:
+                file_source = self._subtitle_file_source = TimedTextSource(
+                    self._subtitle_cues, self._subtitle_generation)
+            sample = file_source.sample(
+                position, source="builtin-file", track=source_id, enabled=enabled)
+            self._subtitle_generation = sample.snapshot.generation
+            self._subtitle_last_time = position.subtitle_time_ms
+            if sample.rewound:
+                self._cue_index = None
+            index = sample.index
+            self._last_cue_index = sample.latest_index
+            if self._last_cue_index is None:
+                self._review_cue_index = None
+            elif self._review_cue_index is not None and self._review_cue_index > self._last_cue_index:
+                self._review_cue_index = self._last_cue_index
+            if sink is not None:
+                sink.on_snapshot(sample.snapshot)
         except Exception:
             return
         if index == self._cue_index:
@@ -2641,14 +2645,14 @@ class InternalPlayerFrame(wx.Frame):
             self._last_cue_index = self._review_cue_index = index
         text = self._subtitle_cues[index].text if index is not None else ""
         self.subtitle_label.SetLabel(text)
-        if not text and self._on_cue_cb is not None:
+        if not text and sink is None and self._on_cue_cb is not None:
             self._on_cue_cb(text="")
         # Issue #45, item 2: route through the shared manager when a cue sink
         # is set, instead of speaking directly. The visible label is kept,
         # but automatic speech goes through the manager/backend selection.
         if text and index is not None:
             cue = self._subtitle_cues[index]
-            if self._on_cue_cb is not None:
+            if sink is None and self._on_cue_cb is not None:
                 self._on_cue_cb(
                     text=text,
                     start_ms=cue.start,
@@ -2657,7 +2661,7 @@ class InternalPlayerFrame(wx.Frame):
                     track=getattr(self, "_subtitle_source_id", ""),
                     generation=self._subtitle_generation,
                 )
-            elif self._speak_subtitles and not self._is_paused:
+            elif sink is None and self._speak_subtitles and not self._is_paused:
                 self._speak(self.subtitle_label)
 
     def _subtitle_review_text(self, step: int) -> str:

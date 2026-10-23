@@ -248,3 +248,29 @@ def test_close_callback_from_an_old_frame_does_not_cancel_current_owner():
     instance._on_internal_player_closed(object())
     assert instance._internal_player_frame is current_frame
     assert instance._subtitle_session.is_current(token)
+
+
+def test_builtin_unknown_clock_and_negative_delay_do_not_speak_a_future_cue():
+    frame, state, manager, speech, labels = player()
+    state["time"] = -1
+    frame.player.video_get_spu_delay = lambda: -2_000_000
+    frame._on_cue_timer()
+    assert speech == [] and manager.get_recent() == []
+    assert not labels[-1]
+
+
+def test_builtin_pause_and_rewind_use_the_common_snapshot_boundary():
+    frame, state, manager, speech, _ = player()
+    frame._on_cue_timer()
+    assert speech == ["One"]
+    frame._is_paused = True
+    state["time"] = 3500
+    frame._on_cue_timer()
+    assert speech == ["One"]
+    assert manager.read_current()
+    assert speech == ["One", "Two"]
+    frame._is_paused = False
+    state["time"] = 1500
+    frame._on_cue_timer()
+    assert speech[-1] == "One"
+    assert [c.text for c in manager.get_recent()] == ["One"]

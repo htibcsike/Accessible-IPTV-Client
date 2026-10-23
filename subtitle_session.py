@@ -21,6 +21,15 @@ class _SessionSink:
             if self._owner.is_current(self._token):
                 return getattr(self._owner._manager, method)(*args, **kwargs)
 
+    def on_snapshot(self, snapshot):
+        with self._owner._lock:
+            if not self._owner.is_current(self._token):
+                return False
+            def purge():
+                if self._owner._stop_speech:
+                    self._owner.dispatch(self._token, self._owner._stop_speech)
+            return self._owner._manager.on_snapshot(snapshot, before_reset=purge)
+
     def on_cue(self, *args, **kwargs):
         return self._call("on_cue", *args, **kwargs)
 
