@@ -12,15 +12,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: tools/i18n_tools.py\n"
 
-#: CHANGELOG.md:14
+#: CHANGELOG.md:20
 msgid "Abort stalled recording relay sources (#91)"
 msgstr "Abortar las fuentes bloqueadas del relé de grabación (#91)"
 
 #: CHANGELOG.md:8
+msgid "Fix subtitle markup leaking into speech after unmatched openers (#93)"
+msgstr "Corrección de la filtración de marcas de subtítulos en la voz tras aperturas sin cierre (#93)"
+
+#: CHANGELOG.md:14
 msgid "Land subtitle follow-up from #87: ASS speech, verified reloads, private voice rate (#92)"
 msgstr "Incorporar el seguimiento de subtítulos de #87: voz ASS, recargas verificadas, velocidad de voz privada (#92)"
-
-#: CHANGELOG.md:20
-msgid "Send complete audit changes upstream (#89)"
-msgstr "Enviar los cambios completos de la auditoría a upstream (#89)"
 
