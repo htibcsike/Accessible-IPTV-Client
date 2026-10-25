@@ -162,3 +162,40 @@ def test_file_metadata_and_rejected_events_never_reach_speech_or_review(tmp_path
     assert not manager.read_current()
     assert manager.read_previous()
     assert spoken == ["Igen.", "Igen.", "Igen."]
+
+
+@pytest.mark.parametrize("body,expected", [
+    (r"Value < 3 {\i1}words{\i0}", "Value < 3 words"),
+    (r"Value {\broken <i>words</i>", r"Value {\broken words"),
+    (r"< {\i1}one{\i0} < {\b1}two{\b0}", "< one < two"),
+    (r"{\broken <i>one</i> {\unfinished <b>two</b>", r"{\broken one {\unfinished two"),
+])
+def test_unclosed_markup_preserves_literals_but_strips_later_independent_tags(body, expected):
+    assert parse("1\n00:00:01,000 --> 00:00:02,000\n" + body) == [Cue(1000, 2000, expected)]
+
+
+@pytest.mark.parametrize("broken,closed,words", [
+    ("<", r"{\i1}words{\i0}", "words"),
+    ("{\\", "<i>words</i>", "words"),
+])
+def test_many_unclosed_openers_still_allow_later_other_markup(broken, closed, words):
+    prefix = broken * 200_000
+    assert parse("1\n00:00:01,000 --> 00:00:02,000\n" + prefix + closed) == [
+        Cue(1000, 2000, prefix + words)]
+
+
+def test_malformed_markup_never_reaches_speech_or_manual_review(tmp_path):
+    path = tmp_path / "Hibás jelölés.srt"
+    path.write_text("1\n00:00:01,000 --> 00:00:02,000\n"
+                    r"Value < 3 {\i1}words{\i0}" + "\n", encoding="utf-8")
+    source = TimedTextSource.from_file(path)
+    spoken = []
+    manager = SubtitleSpeechManager(spoken.append)
+    manager.set_auto_speech(True)
+    owner = SubtitleSessionController(manager)
+    sink = owner.bind(owner.activate_session("file"))
+    sink.on_snapshot(source.sample(PlaybackPosition(1500), track=path.as_uri()).snapshot)
+    assert spoken == ["Value < 3 words"]
+    assert [cue.text for cue in manager.get_recent()] == ["Value < 3 words"]
+    assert manager.read_current()
+    assert spoken == ["Value < 3 words", "Value < 3 words"]

@@ -48,13 +48,22 @@ def _strip_markup(text: str) -> str:
     Preserve an unclosed fragment as literal text (e.g. mathematical '<').
     No regex scans the remaining line again for every unmatched opener.
     """
-    parts, offset = [], 0
-    while match := _MARKUP_START.search(text, offset):
-        end = text.find(">" if match[0] == "<" else "}", match.end())
+    parts, offset, scan = [], 0, 0
+    exhausted = set()
+    while match := _MARKUP_START.search(text, scan):
+        scan = match.end()
+        closer = ">" if match[0] == "<" else "}"
+        if closer in exhausted:
+            continue
+        end = text.find(closer, scan)
         if end < 0:
-            break
+            # Keep this opener literal, but still strip the other tag kind.
+            # A missing closer stays missing throughout the remaining suffix;
+            # never rescan that suffix for every subsequent broken opener.
+            exhausted.add(closer)
+            continue
         parts.append(text[offset:match.start()])
-        offset = end + 1
+        offset = scan = end + 1
     parts.append(text[offset:])
     return "".join(parts)
 
