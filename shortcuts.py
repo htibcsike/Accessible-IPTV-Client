@@ -7,6 +7,22 @@ from i18n import gettext as _, N_
 
 LOG = logging.getLogger(__name__)
 
+
+def searchable_commands(config, query="", translate=_):
+    """All configurable commands, searched against current translated labels/keys."""
+    needle = str(query).strip().casefold()
+    rows = []
+    for context, names in LABELS.items():
+        bindings = effective(config, context)
+        for action, label in names.items():
+            name = translate(label)
+            display = name + ": " + bindings[action]
+            if context == "player":
+                display = translate("Built-in Player") + " — " + display
+            if not needle or needle in display.casefold():
+                rows.append((context, action, name, display))
+    return rows
+
 MAIN = {
     "playlist_manager": ("Ctrl+M", 4001),
     "epg_manager": ("Ctrl+E", 4002),

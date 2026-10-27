@@ -52,6 +52,7 @@ def test_player_menu_registers_specific_help_topics(monkeypatch):
         _on_any_menu_open=lambda *args: None,
         _on_audio_track_menu_select=lambda *args: None,
         _on_record=lambda *args: None,
+        _configure_sleep_timer=lambda *args: None,
         _on_audio_device_menu=lambda *args: None,
         _on_subtitle_menu_select=lambda *args: None,
         _load_subtitle_file=lambda *args: None,
