@@ -116,11 +116,13 @@ A Nézet > Legutóbb lejátszott csatornák menüpont a korábban hallgatott vag
 
 ## Igény szerinti videó {#video-on-demand}
 
-A Nézet > Igény szerinti videó (filmek és sorozatok) paranccsal az élő csatornák helyett a szolgáltató film- és sorozatkínálata jelenik meg. A kategóriák neve a Filmek vagy Sorozatok megjelöléssel kezdődik; ezt az általa megadott kategórianév követi. Sorozat kiválasztásakor az epizódok évad- és epizódsorrendben jelennek meg. Film vagy epizód lejátszásához nyomja meg az Enter billentyűt.
+A Nézet > Igény szerinti videó (filmek és sorozatok) paranccsal az élő csatornák helyett a szolgáltató film- és sorozatkínálata jelenik meg. A kategóriák neve a Filmek vagy Sorozatok megjelöléssel kezdődik; ezt a szolgáltató által megadott kategórianév követi. Sorozat kiválasztásakor az epizódok évad- és epizódsorrendben jelennek meg. Film vagy epizód lejátszásához nyomja meg az Enter billentyűt.
 
 A Nézet > Élő TV és műsorarchívum paranccsal visszatérhet az élő csatornákhoz. A nézetváltáskor a keresőmező tartalma törlődik.
 
 Az igény szerinti videók Xtream Codes-fiókkal érhetők el a legmegbízhatóbban, mivel ez a fióktípus pontos adatokat szolgáltat a szolgáltató kínálatáról. Egyszerű M3U-lejátszási listák esetén a program a csoportnevek és az epizódszámozás alapján ismeri fel a filmeket és a sorozatokat.
+
+A beépített lejátszó megjegyzi a videótárból elindított filmek és sorozatepizódok lejátszási pozícióját, és a következő megnyitáskor felajánlja a folytatást. A megerősítő ablakban alapértelmezés szerint a Nem válasz van kijelölve. Az első 30 másodpercben, illetve a befejezés közelében nem készül folytatási pont. A program legfeljebb 200 tétel adatait őrzi meg, szolgáltatói URL-címek nélkül. A funkció használatához a forrásnak és a beépített lejátszónak egyaránt támogatnia kell az időpontra ugrást. Külső lejátszókra és archív műsorokra ez a lehetőség nem terjed ki.
 
 ## Lejátszási lista kezelése {#playlist-manager}
 
@@ -239,6 +241,18 @@ A lejátszó fontosabb billentyűparancsai:
 
 Ugyanezek a parancsok a lejátszó Lejátszás menüjéből is elérhetők. Ha egy élő adás megszakad, a lejátszó automatikusan megkísérli az újracsatlakozást, és megtartja a korábban kiválasztott hangsávot.
 
+A Lejátszás > Elalvásidőzítő… paranccsal beállíthatja, hogy a beépített lejátszás 1–1440 perc múlva leálljon. Az időzítést 0 megadásával kapcsolhatja ki. A következő ablakban a leállítást megelőző fokozatos halkítás időtartamát adhatja meg másodpercben. Alapértéke 5; 0 esetén a hangerő változatlan marad. Legfeljebb 300 másodperces halkítás állítható be, amely nem lehet hosszabb a teljes visszaszámlálásnál. A Mégse bármelyik ablakban megőrzi a korábbi időzítést.
+
+A fokozatos halkítás kizárólag a beépített lejátszó műsorhangját érinti; a képernyőolvasó, a feliratfelolvasás és a külső lejátszók hangereje, valamint a felvételek tartalma nem változik. Ha közben módosítja a hangerőt, a program az új értéket veszi alapul. Az időzítés törlésekor és a következő lejátszás indításakor a felhasználó által választott szint áll vissza. A visszaszámlálás csatornaváltás, újracsatlakozás és a helyben tárolt adáson belüli ugrás után is folytatódik; a kézi leállítás vagy a lejátszóablak bezárása megszünteti. Lejáratakor a felvételek folytatódnak, és a számítógép bekapcsolva marad. A halkítás beállított időtartamát a program megjegyzi, az aktív visszaszámlálás azonban újraindítás után nem folytatódik.
+
+A Lejátszás > Élő adás helyi tárolása… paranccsal ideiglenesen megőrizheti az élő műsor már beérkezett részét. A funkció kezdetben ki van kapcsolva. Engedélyezésekor 1–30 perces megőrzési idő és 64–4096 MiB közötti, adatforrásonként érvényes tárhelykorlát állítható be; az alapérték 10 perc és 512 MiB. Az időtartamnál megadott 0 kikapcsolja a helyi tárolást. Bármelyik határ elérésekor a legrégebbi részletek törlődnek. Ha folyamatban lévő felvételek miatt több adatforrás marad aktív, azok tárhelyigénye összeadódik; ehhez a fájlrendszer járulékos helyfoglalása is hozzájárul. A megőrzött előzmény az alkalmazás bezárása után nem érhető el.
+
+A Lejátszás > Élő adás visszatekerése… paranccsal másodpercben adhatja meg, mennyivel korábbi részhez kíván visszatérni. A tényleges ugrási pontot az adás kulcsképei határozzák meg, ezért az eltérhet a kért időponttól. A Visszatérés az élő adáshoz lehetőség a legutóbb teljesen beérkezett részletre lép; ez néhány másodperccel követheti a szolgáltató élő adását. A visszatekerés nem változtatja meg a lejátszási sebességet, és nem nyit új szolgáltatói kapcsolatot. Hosszabb szüneteltetéskor a korábbi pozíció kikerülhet a megőrzött időszakból; ekkor a műsor a még elérhető legrégebbi részlettől folytatódik, amiről állapotüzenet tájékoztat.
+
+A helyi tárolás a beépített lejátszó élő adásaihoz használható; külső lejátszókra és távoli eszközökre nem terjed ki. Hálózati kimaradás vagy lassú háttértár mellett továbbra is előfordulhat várakozás. Egyes források, például különálló hang- vagy feliratsávot használó HLS-adások nem alakíthatók át a szükséges helyi formátumra a sávok megőrzésével. Ha az indítás meghiúsul, kapcsolja ki a tárolást, majd kísérelje meg a közvetlen lejátszást.
+
+Ebben az üzemmódban külső feliratfájl nem tölthető be, mert időzítése nem rendelhető megbízhatóan az élő adáshoz. A támogatott, adásba ágyazott feliratok a műsorral együtt haladnak. Visszatekeréskor a korábbi feliratfelolvasási munkamenet megszűnik, így az előző pozícióhoz tartozó szöveg nem kerül át az új időponthoz. A helyi tárolás önmagában nem teszi lehetővé az egyébként nem támogatott élő feliratok felismerését vagy felolvasását.
+
 ### Hangsávok {#audio-tracks}
 
 Egy csatorna több hangsávot is tartalmazhat, például különböző nyelvű hangot vagy audionarrációt. Az A billentyű a következő hangsávra vált; ugyanezt a Lejátszás > Hangsáv menüből is megteheti. A Tab billentyűvel elérhető Hangsáv kiválasztása mező mindig az aktuálisan hallható sáv nevét jelzi.
@@ -257,7 +271,7 @@ Az eszköz elérhetetlenné válásakor a felolvasás alapértelmezés szerint a
 
 A Lejátszás > Aktuális felirat felolvasása (C) paranccsal az éppen látható szöveget hallgathatja meg; ennek hiányában a legutóbbi bejegyzés hangzik el. Az Előző felirat (Page Up) és a Következő felirat (Page Down) segítségével visszatérhet a korábbi bejegyzésekhez, így ismét meghallgathatja az elmulasztott mondatokat. A lejátszás aktuális időpontját követő szövegek nem érhetők el. A parancsok az automatikus felolvasás kikapcsolt állapotában is használhatók.
 
-A főablak Beállítások > Feliratfelolvasás almenüjéből szintén elérhető az aktuális és az előző bejegyzés meghallgatása, valamint a Friss feliratok áttekintése... ablak.
+A főablak Beállítások > Feliratfelolvasás almenüjéből szintén elérhető az aktuális és az előző bejegyzés meghallgatása, valamint a Friss feliratok áttekintése… ablak.
 
 Az MPV szöveges feliratai az alkalmazás által indított és felügyelt munkamenetben olvashatók fel; az önállóan elindított példányokra ez nem vonatkozik. A képként tárolt feliratok szövegfelismerése nem támogatott. Más külső lejátszóknál a feliratok képi megjelenítése önmagában nem biztosít felolvasási lehetőséget.
 
@@ -309,6 +323,8 @@ Ha a beépített lejátszóban éppen nézett csatornát kezdi rögzíteni, a le
 
 A rögzítés leállítása néhány pillanatig tarthat, amíg a program szabályosan lezárja a fájlt. Az alkalmazás bezárásakor a folyamatban lévő rögzítések is leállnak; ezt megelőzően a program rövid időt hagy a fájlok véglegesítésére.
 
+Ha az élő adás helyi tárolásának bekapcsolása után indítja el ugyanannak a forrásnak a rögzítését, a felvétel és a lejátszás közös bejövő adatfolyamot használhat. A mentés a legfrissebb elkészült részlettől kezdődik, nem a visszatekert lejátszási pozíciót követi. A lejátszó leállítása nem szünteti meg a felvételhez szükséges forrást. Amíg az utóbbi a helyi tárolóra támaszkodik, annak kikapcsolását a program megakadályozza. Egyetlen adatfolyamot engedélyező előfizetésnél másik csatorna megnyitását a folyamatban lévő rögzítés továbbra is korlátozhatja.
+
 ### Rögzítési formátumok {#recording-formats}
 
 A Felvételek > Rögzítési formátum menüponttal választhatja ki, milyen formátumban mentse a program a felvételeket:
@@ -317,6 +333,8 @@ A Felvételek > Rögzítési formátum menüponttal választhatja ki, milyen for
 - Eredeti minőség (újrakódolás nélkül, MP4): ugyanazt a kép- és hangtartalmat MP4-fájlba menti, amelyet több eszköz képes lejátszani; a feliratok és a teletext nem kerülnek bele.
 - Újrakódolás x264 használatával (MKV vagy MP4): kisebb méretű, újrakódolt fájlt készít, de a művelet lényegesen nagyobb processzorterheléssel jár.
 - Csak hang (MP3 V0, FLAC, WAV, AAC M4A vagy Opus): kizárólag a hangot menti; különösen rádióadások rögzítésére alkalmas.
+
+Kizárólag hangot tartalmazó adás felismerésekor a program hangrögzítési formátumot alkalmaz. Az Eredeti minőség (újrakódolás nélkül, MKA) lehetőséggel a kiválasztott hangsáv eredeti kódolását őrizheti meg Matroska-hangfájlban. Ez nem javítja a forrás minőségét, de elkerüli az újrakódolásból eredő veszteséget. Ha a sáv nem másolható MKA-konténerbe, a program nem végez automatikus átkódolást, hanem másik hangformátum kiválasztását kéri.
 
 ### Ütemezett felvételek {#scheduled-recordings}
 
@@ -374,7 +392,7 @@ A Beállítások menü a program működését szabályozó lehetőségeket tart
 - Adás-URL megjelenítése: engedélyezésekor a főablakban az Epizódleírás után megjelenik az Adás-URL mező.
 - Frissítések automatikus keresése: lásd a Frissítések című részt.
 - Automatikus bemondások: meghatározhatja a lejátszással és a csatornákkal kapcsolatos tájékoztatás részletességét. A választható szintek: Nincs, Csak hibák, Fontos események és Részletes állapotjelentés.
-- Billentyűparancsok: módosíthatja az egyes műveletekhez rendelt billentyűkombinációt. A program nem fogad el ütköző hozzárendeléseket. Mentés után indítsa újra az alkalmazást.
+- Billentyűparancsok: megnyitáskor a magyar parancsnevek és a hozzájuk rendelt billentyűkombinációk között kereshet; üres keresőkifejezéssel valamennyi módosítható művelet megjelenik. A beépített lejátszó parancsait külön jelölés azonosítja. Módosíthatja az egyes műveletekhez rendelt billentyűkombinációt. A program nem fogad el ütköző hozzárendeléseket. Mentés után indítsa újra az alkalmazást.
 - A Beállítások exportálása paranccsal titkosított biztonsági mentést készíthet a lejátszási listákról, a műsorújság-forrásokról, a kedvencekről és az egyéni beállításokról. Visszaállításukra a Beállítások importálása szolgál. Őrizze meg a mentés jelszavát: a szolgáltatói bejelentkezési adatok helyreállításához is szükség lesz rá.
 
 ### Nyelv {#language}
@@ -402,7 +420,7 @@ A Súgó > Újdonságok parancs verziónként, a legfrissebbel kezdve sorolja fe
 ## Hibaelhárítás {#troubleshooting}
 
 - A Súgó > Naplómappa megnyitása paranccsal elérheti a naplókat tartalmazó mappát. Itt található többek között a műsorújság importálásának naplója, valamint minden egyes rögzítés külön naplófájlja.
-- A Súgó > Napló- és hibakeresési adatok másolása olyan jelentést helyez a vágólapra, amely tartalmazza a program verzióját, a rendszer alapadatait és a legutóbbi naplósorokat. Ez közvetlenül beilleszthető egy hibajelentésbe. A jelentés az adások internetes címeit is tartalmazza; ezekben a szolgáltatói bejelentkezési adatok is szerepelhetnek, ezért nyilvános megosztás előtt mindig ellenőrizze a tartalmát.
+- A Súgó > Napló- és hibakeresési adatok másolása olyan jelentést helyez a vágólapra, amely tartalmazza a program verzióját, a rendszer alapadatait és a legutóbbi naplósorokat. Ez közvetlenül beilleszthető egy hibajelentésbe. A program a másoláskor kiszűri a felismerhető hozzáférési adatokat tartalmazó naplósorokat; helyüket a [***] jelölés mutatja. A helyi napló változatlan marad. A szűrés nem garantálja minden bizalmas adat felismerését, ezért nyilvános megosztás előtt mindig ellenőrizze a jelentés tartalmát.
 
 Gyakori problémák:
 

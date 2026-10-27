@@ -1768,7 +1768,7 @@ msgstr "A beépített lejátszóban jelenleg nincs aktív csatorna."
 #: client_recording.py:52
 #: client_recording.py:92
 msgid "Nothing was recorded: the stream ended before it wrote anything."
-msgstr "Semmi sem lett rögzítve: az adás véget ért, mielőtt bármit is írt volna."
+msgstr "Nem készült felvétel: az adás véget ért, mielőtt a program adatot menthetett volna."
 
 #: client_epg.py:96
 msgid "Now: {title} ({start} – {end})"
@@ -2267,7 +2267,7 @@ msgstr "Összes lejátszási lista frissítése"
 
 #: main.py:6372
 msgid "Refreshing all playlists..."
-msgstr "Az összes lejátszási lista frissítése..."
+msgstr "Az összes lejátszási lista frissítése…"
 
 #: main.py:6377
 msgid "Refreshing playlist: {name}"
@@ -2326,7 +2326,7 @@ msgstr "Visszatérés az élő adáshoz"
 
 #: client_ui.py:376
 msgid "Review recent subtitles..."
-msgstr "Friss feliratok áttekintése..."
+msgstr "Friss feliratok áttekintése…"
 
 #: D:/a/Accessible-IPTV-Client/Accessible-IPTV-Client/client_timeshift.py:262
 msgid "Rewind Live TV"
@@ -2759,7 +2759,7 @@ msgstr "Feliratfájlok (*.srt;*.ass;*.ssa;*.vtt)"
 
 #: main.py:6995
 msgid "Subtitle speech %s."
-msgstr "Feliratbeszéd %s."
+msgstr "Feliratfelolvasás: %s."
 
 #: main.py:7091
 #: main.py:7100
@@ -2785,7 +2785,7 @@ msgstr "Feliratfelolvasás bekapcsolva. A szöveg meghallgatásához töltsön b
 
 #: main.py:7094
 msgid "Subtitle speech paused: the selected audio output is unavailable."
-msgstr "Feliratbeszéd szünetel: a kiválasztott hangkimenet nem érhető el."
+msgstr "A feliratfelolvasás szünetel: a kiválasztott hangkimenet nem érhető el."
 
 #: main.py:7137
 msgid "Subtitle speech will use the application voice."
@@ -2869,7 +2869,7 @@ msgstr "A program nyelve megváltozott. A módosítás teljes érvénybe lépés
 
 #: main.py:3255
 msgid "The live buffer is switching sources. The scheduled recording could not start."
-msgstr "Az élő adás forrásváltása még folyamatban van. Az időzített felvételt nem sikerült elindítani."
+msgstr "Az élő adás forrásváltása még folyamatban van. Az ütemezett felvételt nem sikerült elindítani."
 
 #: D:/a/Accessible-IPTV-Client/Accessible-IPTV-Client/client_timeshift.py:60
 msgid "The local buffer is still feeding a recording. Stop the recording before disabling it."
@@ -2885,7 +2885,7 @@ msgstr "Az élő adás helyi tárolását nem sikerült elindítani. Nem nyílt 
 
 #: D:/a/Accessible-IPTV-Client/Accessible-IPTV-Client/client_timeshift.py:316
 msgid "The old buffered position expired; playback moved to the retained window."
-msgstr "A korábbi pozíció már nem érhető el; a lejátszás a megőrzött tartományra lépett."
+msgstr "A korábbi lejátszási pozíció már nem érhető el; a műsor a még megőrzött résztől folytatódik."
 
 #: main.py:1895
 msgid "The passwords do not match."
@@ -2893,7 +2893,7 @@ msgstr "A megadott jelszavak nem egyeznek."
 
 #: D:/a/Accessible-IPTV-Client/Accessible-IPTV-Client/client_timeshift.py:301
 msgid "The paused position expired. Playback resumed at the oldest retained picture."
-msgstr "A szüneteltetés helye már nem érhető el. A lejátszás a legrégebbi megőrzött képtől folytatódik."
+msgstr "A szüneteltetéskori pozíció már nem érhető el. A lejátszás a legrégebbi megőrzött képtől folytatódik."
 
 #: catchup_urls.py:75
 msgid "The provider asked for a login (HTTP 401 Unauthorized). Check the playlist's user name and password."
@@ -2925,7 +2925,7 @@ msgstr "A lejátszást nem sikerült a mentett időponttól folytatni."
 
 #: main.py:7111
 msgid "The selected audio output is unavailable. Subtitle speech is paused."
-msgstr "A kiválasztott hangkimenet nem érhető el. A feliratbeszéd szünetel."
+msgstr "A kiválasztott hangkimenet nem érhető el. A feliratfelolvasás szünetel."
 
 #: account_info.py:639
 msgid "The server did not report any account details."
