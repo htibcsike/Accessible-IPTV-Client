@@ -1909,35 +1909,20 @@ class IPTVClient(EpgRoutingMixin, RecordingReportsMixin, UiMixin, M3uCacheMixin,
         return label + "\t" + shortcuts.effective(self.config, "main")[action]
 
     def _customize_shortcuts(self, _event=None) -> None:
-        actions = [
-            ("main", "play_pause", _("Play/Pause")),
-            ("main", "stop", _("Stop")),
-            ("main", "previous_channel", _("Previous Channel")),
-            ("main", "channel_number", _("Go to Channel Number...")),
-            ("main", "recent_channels", _("Recently Watched...")),
-            ("main", "volume_up", _("Volume Up")),
-            ("main", "volume_down", _("Volume Down")),
-            ("main", "epg_manager", _("EPG Manager")),
-            ("main", "whats_on_now", _("What's on Now")),
-            ("main", "what_is_playing", _("What Is Playing")),
-            ("main", "record", _("Start Recording")),
-            ("main", "cast", _("Cast / Connect...")),
-            ("player", "play_pause", _("Play/Pause")),
-            ("player", "stop", _("Stop")),
-            ("player", "volume_up", _("Volume Up")),
-            ("player", "volume_down", _("Volume Down")),
-            ("player", "record", _("Record")),
-            ("player", "cast", _("Cast...")),
-            ("player", "audio_track", _("Audio Track")),
-            ("player", "subtitles", _("Subtitles")),
-            ("player", "read_subtitle", _("Read Current Subtitle")),
-            ("player", "previous_subtitle", _("Previous Subtitle")),
-            ("player", "next_subtitle", _("Next Subtitle")),
-            ("player", "what_is_playing", _("What Is Playing")),
-        ]
-        labels = ["{name}: {key}".format(
-            name=name, key=shortcuts.effective(self.config, context)[action])
-            for context, action, name in actions]
+        search = wx.TextEntryDialog(self, _("Find"), _("Keyboard Shortcuts"))
+        user_guide.set_help_topic(search, "keyboard-shortcuts")
+        try:
+            if search.ShowModal() != wx.ID_OK:
+                return
+            query = search.GetValue()
+        finally:
+            search.Destroy()
+        rows = shortcuts.searchable_commands(self.config, query, translate=_)
+        if not rows:
+            message_box(_("Not Found"), _("Keyboard Shortcuts"), wx.OK | wx.ICON_INFORMATION)
+            return
+        actions = [(context, action, name) for context, action, name, _label in rows]
+        labels = [row[3] for row in rows]
         dlg = wx.SingleChoiceDialog(self, _("Choose a command to change:"),
                                     _("Keyboard Shortcuts"), labels)
         try:
@@ -3990,6 +3975,7 @@ class IPTVClient(EpgRoutingMixin, RecordingReportsMixin, UiMixin, M3uCacheMixin,
     def _copy_diagnostic_information(self, *_args):
         """Copy useful, privacy-safe diagnostics that can be sent to the developer."""
         from app_meta import APP_DISPLAY_NAME, APP_VERSION
+        from diagnostic_privacy import sharing_excerpt
 
         log_path = get_epg_log_path()
         lines = [
@@ -4004,9 +3990,7 @@ class IPTVClient(EpgRoutingMixin, RecordingReportsMixin, UiMixin, M3uCacheMixin,
             _("EPG debug log (latest 128 KiB):"),
         ]
         tail = self._read_diagnostic_log_tail(log_path)
-        lines.append(tail or _("(No EPG debug log has been written yet.)"))
-        # Deliberately verbatim: stream URLs and provider credentials stay in the
-        # report so the person receiving it can reproduce and diagnose the fault.
+        lines.append(sharing_excerpt(tail) if tail else _("(No EPG debug log has been written yet.)"))
         report = "\n".join(lines)
         try:
             if not wx.TheClipboard.Open():
@@ -6826,6 +6810,9 @@ class IPTVClient(EpgRoutingMixin, RecordingReportsMixin, UiMixin, M3uCacheMixin,
             on_cue=self._on_player_subtitle_cue,
         )
         self._internal_player_frame = frame
+        configure_resume = getattr(frame, "configure_vod_resume", None)
+        if callable(configure_resume):
+            configure_resume(self.config, lambda: save_config(self.config))
         return frame
 
     def _on_player_subtitle_cue(self, text: str, start_ms=None, end_ms=None,
@@ -7433,6 +7420,12 @@ class IPTVClient(EpgRoutingMixin, RecordingReportsMixin, UiMixin, M3uCacheMixin,
                 # drops the previous channel's cues, so "Read current
                 # subtitle" cannot answer with the last line of the channel
                 # the user just left.
+                prepare_resume = getattr(frame, "prepare_vod_resume", None)
+                if callable(prepare_resume):
+                    prepare_resume(channel if stream_kind in {"live", "vod"} else None)
+                if stream_kind == "live" and (channel or {}).get("kind") == "movie":
+                    stream_kind = "vod"
+                    self._internal_player_stream_kind = stream_kind
                 frame.play(
                     url,
                     display_title,

@@ -139,11 +139,10 @@ def test_started_cue_lookup():
 
 
 def test_new_commands_are_offered_in_the_keyboard_shortcuts_dialog():
-    import inspect
-    import main
-    source = inspect.getsource(main.IPTVClient._customize_shortcuts)
+    import shortcuts
+    commands = {(context, action) for context, action, _, _ in shortcuts.searchable_commands({})}
     for action in ("read_subtitle", "previous_subtitle", "next_subtitle"):
-        assert '("player", "%s"' % action in source
+        assert ("player", action) in commands
 
 
 def test_the_players_cue_reaches_the_speech_manager():

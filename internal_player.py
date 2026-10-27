@@ -1,5 +1,6 @@
 
 import logging
+import math
 import os
 import platform
 from pathlib import Path
@@ -20,6 +21,8 @@ from i18n import gettext as _
 from modal_guard import message_box
 import user_guide
 import shortcuts
+from playback_timer import PlaybackTimer
+import playback_resume
 import subtitle_cues
 import live_announce
 
@@ -210,6 +213,13 @@ class InternalPlayerFrame(wx.Frame):
         self._on_close_cb = on_close
         self._on_cast_cb = on_cast
         self._on_record_cb = on_record
+        self._sleep_countdown = PlaybackTimer()
+        self._sleep_call = None
+        self._resume_config = None
+        self._resume_save = None
+        self._resume_key = ""
+        self._resume_start_ms = 0
+        self._resume_last_save = 0.0
         self._is_recording = False
         self.announcement_level = max(0, min(3, int(announcement_level)))
         self._shortcuts = shortcuts.effective(shortcut_config or {}, "player")
@@ -533,6 +543,7 @@ class InternalPlayerFrame(wx.Frame):
         playback_menu = wx.Menu()
         m_play_pause = playback_menu.Append(wx.ID_ANY, self._shortcut_label(_("Play/Pause"), "play_pause"))
         m_stop = playback_menu.Append(wx.ID_ANY, self._shortcut_label(_("Stop"), "stop"))
+        m_sleep = playback_menu.Append(wx.ID_ANY, _("Sleep Timer..."))
         self.play_pause_menu_item = m_play_pause
         self.stop_menu_item = m_stop
         self.record_menu_item = playback_menu.Append(wx.ID_ANY, self._shortcut_label(_("Record"), "record"))
@@ -566,6 +577,7 @@ class InternalPlayerFrame(wx.Frame):
 
         self.Bind(wx.EVT_MENU, lambda _evt: self._on_toggle_pause(), m_play_pause)
         self.Bind(wx.EVT_MENU, lambda _evt: self.stop(manual=True), m_stop)
+        self.Bind(wx.EVT_MENU, self._configure_sleep_timer, m_sleep)
         self.Bind(wx.EVT_MENU, self._on_record, self.record_menu_item)
         self.Bind(wx.EVT_MENU, self._on_audio_device_menu, m_audio_device)
         self.Bind(wx.EVT_MENU, self._on_subtitle_menu_select)
@@ -590,6 +602,7 @@ class InternalPlayerFrame(wx.Frame):
                      m_read_subtitle, m_previous_subtitle, m_next_subtitle):
             user_guide.set_menu_help(self, item, "subtitle-speech")
         user_guide.set_menu_help(self, m_audio_device, "audio-output-device")
+        user_guide.set_menu_help(self, m_sleep, "built-in-player")
         user_guide.set_menu_help(self, self.record_menu_item, "recordings")
         user_guide.set_menu_help(self, m_cast, "casting")
 
@@ -789,6 +802,9 @@ class InternalPlayerFrame(wx.Frame):
         self._last_bitrate_mbps = bitrate
 
         media = self.instance.media_new(playback_url)
+        resume_ms = getattr(self, "_resume_start_ms", 0)
+        if resume_ms and self._current_stream_kind == "vod":
+            media.add_option(":start-time={:.3f}".format(resume_ms / 1000))
         self._apply_cache_options(media, cache_profile)
         self._apply_stream_headers(media, merged_headers)
         if not video_visible:
@@ -855,6 +871,8 @@ class InternalPlayerFrame(wx.Frame):
         """Stop playback. Returns a future that is done once libVLC has really
         let go of the stream (None when it already has): a hand-off to another
         connection on a one-stream provider waits on it, off the GUI thread."""
+        if getattr(self, "_resume_config", None) is not None:
+            self._save_resume_checkpoint(force=True)
         manual_stop = manual or (_evt is not None)
         if manual_stop and self._gave_up:
             return None
@@ -1460,6 +1478,7 @@ class InternalPlayerFrame(wx.Frame):
             return
         self._pending_xtream_refresh = False
         now = time.monotonic()
+
         if self._last_restart_ts and (now - self._last_restart_ts) >= self._reconnect_reset_window:
             if self._reconnect_attempts:
                 LOG.debug(
@@ -2086,6 +2105,8 @@ class InternalPlayerFrame(wx.Frame):
         state_name = self._state_name(state)
         state_key = state_name.lower()
         now = time.monotonic()
+        if getattr(self, "_resume_config", None) is not None:
+            self._save_resume_checkpoint()
 
         if self._last_state_name != state_key:
             self._last_state_name = state_key
@@ -2988,9 +3009,108 @@ class InternalPlayerFrame(wx.Frame):
         except Exception:
             LOG.debug("InternalPlayerFrame._hide_player: ignored exception", exc_info=True)
 
+    def configure_vod_resume(self, config, save) -> None:
+        self._resume_config = config
+        self._resume_save = save
+
+    def prepare_vod_resume(self, channel) -> None:
+        if getattr(self, "_resume_config", None) is not None:
+            self._save_resume_checkpoint(force=True)
+        self._resume_key = playback_resume.item_key(channel)
+        self._resume_start_ms = 0
+        config = self._resume_config
+        if not isinstance(config, dict) or not self._resume_key:
+            return
+        entries = playback_resume.normalize(config.get("playback_bookmarks"))
+        entry = entries.get(self._resume_key)
+        if entry is None:
+            return
+        seconds = entry["position_ms"] // 1000
+        clock = "{}:{:02d}:{:02d}".format(seconds // 3600, seconds // 60 % 60, seconds % 60)
+        if message_box(_("Resume playback from {time}?").format(time=clock), _("Resume"),
+                       wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION, parent=self) == wx.ID_YES:
+            self._resume_start_ms = entry["position_ms"]
+        else:
+            entries.pop(self._resume_key, None)
+            config["playback_bookmarks"] = entries
+            if callable(self._resume_save):
+                try:
+                    self._resume_save()
+                except Exception:
+                    LOG.debug("Could not persist cleared bookmark", exc_info=True)
+        self._resume_last_save = time.monotonic()
+
+    def _save_resume_checkpoint(self, force=False) -> None:
+        config = getattr(self, "_resume_config", None)
+        key = getattr(self, "_resume_key", "")
+        if not isinstance(config, dict) or not key or getattr(self, "_current_stream_kind", "") != "vod":
+            return
+        if getattr(self, "_destroyed", False) or getattr(self, "_manual_stop", False):
+            return
+        now = time.monotonic()
+        if not force and now - self._resume_last_save < 30:
+            return
+        try:
+            if not self._has_seen_playing:
+                return
+            position, length = self.player.get_time(), self.player.get_length()
+            # A failed/unfinished start-time seek must not overwrite the old bookmark.
+            if self._resume_start_ms and position < self._resume_start_ms - 2000:
+                if now - self._play_start_monotonic > 60:
+                    self._resume_start_ms = 0
+                    self._resume_last_save = now
+                    self._update_status_label(_("The saved playback position could not be restored."), priority=2)
+                return
+            if self._resume_start_ms and position >= self._resume_start_ms - 2000:
+                self._resume_start_ms = 0
+            updated = playback_resume.checkpoint(config.get("playback_bookmarks"), key, position, length)
+            self._resume_last_save = now
+            if updated != config.get("playback_bookmarks", {}):
+                config["playback_bookmarks"] = updated
+                if callable(self._resume_save):
+                    self._resume_save()
+        except Exception:
+            LOG.debug("Could not save playback checkpoint", exc_info=True)
+
+    def _configure_sleep_timer(self, _event=None) -> None:
+        dlg = wx.NumberEntryDialog(
+            self, _("Stop built-in playback after 1–1440 minutes; enter 0 to cancel the timer."),
+            _("Minutes:"), _("Sleep Timer"), self._sleep_countdown.remaining_minutes(), 0, 1440)
+        user_guide.set_help_topic(dlg, "built-in-player")
+        try:
+            if dlg.ShowModal() != wx.ID_OK:
+                return
+            minutes = dlg.GetValue()
+        finally:
+            dlg.Destroy()
+        if self._sleep_call is not None:
+            self._sleep_call.Stop()
+        generation = self._sleep_countdown.set_minutes(minutes)
+        self._sleep_call = wx.CallLater(minutes * 60_000, self._expire_sleep_timer, generation) if minutes else None
+
+    def _expire_sleep_timer(self, generation) -> None:
+        if self._destroyed or generation != self._sleep_countdown.generation:
+            return
+        if self._sleep_countdown.take_due(generation):
+            self._sleep_call = None
+            self.stop(manual=True)
+        elif self._sleep_countdown.deadline is not None:
+            # Timer delivery can be early: keep the monotonic deadline authoritative.
+            remaining = max(1, math.ceil((self._sleep_countdown.deadline - time.monotonic()) * 1000))
+            self._sleep_call = wx.CallLater(remaining, self._expire_sleep_timer, generation)
+
     def _quiesce(self) -> None:
         """Mark the player closed so nothing schedules more work on it."""
+        if getattr(self, "_resume_config", None) is not None:
+            self._save_resume_checkpoint(force=True)
         self._destroyed = True
+        countdown = getattr(self, "_sleep_countdown", None)
+        if countdown is not None:
+            countdown.set_minutes(0)
+        pending = getattr(self, "_sleep_call", None)
+        if pending is not None:
+            pending.Stop()
+            self._sleep_call = None
         self._subtitle_cues = []
         sink = getattr(self, "_subtitle_sink", None)
         if sink is not None:
