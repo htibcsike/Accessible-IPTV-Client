@@ -3461,3 +3461,95 @@ msgstr "~{value} Mbps"
 msgid "◄ Back"
 msgstr "◄ Retour"
 
+
+#: main.py:5930
+msgid "The playlists changed while checking this content. Reopen Continue Watching and try again."
+msgstr "Les listes ont changé pendant la vérification. Rouvrez Reprendre le visionnage et réessayez."
+
+#: main.py:5932 main.py:5941 main.py:7490 resume_dialogs.py:29 resume_dialogs.py:180
+msgid "Continue Watching"
+msgstr "Reprendre le visionnage"
+
+#: main.py:5939
+msgid "Saved positions can only be restored in the built-in player. Select it and disconnect casting before continuing."
+msgstr "Les positions enregistrées ne peuvent être restaurées que dans le lecteur intégré. Sélectionnez-le et déconnectez la diffusion vers un autre appareil."
+
+#: client_ui.py:147 client_ui.py:288
+msgid "Continue Watching..."
+msgstr "Reprendre le visionnage…"
+
+#: resume_dialogs.py:17
+msgid "Play from Beginning"
+msgstr "Lire depuis le début"
+
+#: resume_dialogs.py:37
+msgid "Saved playback positions"
+msgstr "Positions de lecture enregistrées"
+
+#: resume_dialogs.py:38
+msgid "Position"
+msgstr "Position de lecture"
+
+#: resume_dialogs.py:39
+msgid "Last Watched"
+msgstr "Dernier visionnage"
+
+#: resume_dialogs.py:39
+msgid "Availability"
+msgstr "Disponibilité"
+
+#: resume_dialogs.py:46
+msgid "Check Availability"
+msgstr "Vérifier la disponibilité"
+
+#: resume_dialogs.py:47
+msgid "Remove Saved Position"
+msgstr "Supprimer la position enregistrée"
+
+#: resume_dialogs.py:48
+msgid "Clear All Saved Positions"
+msgstr "Effacer toutes les positions enregistrées"
+
+#: resume_dialogs.py:75
+msgid "Previously saved content (title unavailable)"
+msgstr "Contenu précédemment enregistré (titre indisponible)"
+
+#: resume_dialogs.py:84
+msgid "Not checked"
+msgstr "Non vérifié"
+
+#: resume_dialogs.py:91 resume_dialogs.py:94
+msgid "No saved playback positions."
+msgstr "Aucune position de lecture enregistrée."
+
+#: resume_dialogs.py:122
+msgid "Checking saved content…"
+msgstr "Vérification du contenu enregistré…"
+
+#: resume_dialogs.py:141
+msgid "Could not check availability."
+msgstr "Impossible de vérifier la disponibilité."
+
+#: resume_dialogs.py:141
+msgid "Available"
+msgstr "Disponible"
+
+#: resume_dialogs.py:141
+msgid "Unavailable or ambiguous"
+msgstr "Indisponible ou identification ambiguë"
+
+#: resume_dialogs.py:157
+msgid "Could not save playback history changes."
+msgstr "Impossible d’enregistrer les modifications de l’historique."
+
+#: resume_dialogs.py:168
+msgid "Remove this saved playback position?"
+msgstr "Supprimer cette position de lecture enregistrée ?"
+
+#: resume_dialogs.py:175
+msgid "Remove all saved playback positions?"
+msgstr "Supprimer toutes les positions de lecture enregistrées ?"
+
+#: main.py:7489
+msgid "Could not prepare saved playback:\n{error}"
+msgstr "Impossible de préparer la reprise de la lecture :\n{error}"

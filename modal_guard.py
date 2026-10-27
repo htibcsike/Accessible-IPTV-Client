@@ -24,10 +24,19 @@ _MODAL_BOX_CLOSED_HOOK = None
 
 def message_box(*args, **kwargs):
     """``wx.MessageBox`` that records, app-wide, that a modal box is on screen."""
+    return _run_modal(wx.MessageBox, *args, **kwargs)
+
+
+def show_modal(dialog):
+    """Keep queued recording/update notifications behind a custom modal too."""
+    return _run_modal(dialog.ShowModal)
+
+
+def _run_modal(callback, *args, **kwargs):
     global _MODAL_BOX_DEPTH
     _MODAL_BOX_DEPTH += 1
     try:
-        return wx.MessageBox(*args, **kwargs)
+        return callback(*args, **kwargs)
     finally:
         _MODAL_BOX_DEPTH = max(0, _MODAL_BOX_DEPTH - 1)
         if _MODAL_BOX_DEPTH == 0:

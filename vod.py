@@ -190,6 +190,7 @@ def categorize_m3u_vod(channels: List[Dict]) -> Tuple[List[str], Dict[str, List[
                 for se, ch in entries:
                     ep = dict(ch)
                     ep["_se"] = se
+                    ep["kind"] = KIND_MOVIE
                     episodes.append(ep)
                 series = {
                     "kind": KIND_SERIES,
@@ -225,6 +226,28 @@ def _category_map(rows: List[Dict]) -> Dict[str, str]:
     return out
 
 
+def xtream_movie_items(client, provider_id):
+    """Current playable movies; errors remain distinguishable from an empty list."""
+    categories = _category_map(client.get_vod_categories())
+    result = []
+    streams = client.get_vod_streams()
+    if not isinstance(streams, list):
+        raise ValueError("invalid VOD catalogue")
+    for row in streams:
+        if not isinstance(row, dict) or row.get("stream_id") is None:
+            continue
+        sid = row["stream_id"]
+        result.append({
+            "kind": KIND_MOVIE,
+            "name": row.get("name") or row.get("title") or str(sid),
+            "url": client.vod_stream_url(sid, row.get("container_extension") or "mp4"),
+            "group": categories.get(str(row.get("category_id")), _("Movies")),
+            "provider-type": "xtream", "provider-id": provider_id,
+            "resume-type": "movie", "resume-id": sid,
+        })
+    return result
+
+
 def build_xtream_catalog(client, provider_id: Optional[str]) -> Tuple[List[str], Dict[str, List[Dict]]]:
     """Build a movie + series catalogue for one Xtream provider via player_api.
 
@@ -237,26 +260,9 @@ def build_xtream_catalog(client, provider_id: Optional[str]) -> Tuple[List[str],
 
     # Movies.
     try:
-        vod_cats = _category_map(client.get_vod_categories())
-        for s in client.get_vod_streams():
-            if not isinstance(s, dict):
-                continue
-            sid = s.get("stream_id")
-            if sid is None:
-                continue
-            category = vod_cats.get(str(s.get("category_id")), _("Movies"))
-            ext = s.get("container_extension") or "mp4"
-            movie = {
-                "kind": KIND_MOVIE,
-                "name": s.get("name") or s.get("title") or str(sid),
-                "url": client.vod_stream_url(sid, ext),
-                "group": category,
-                "provider-type": "xtream",
-                "provider-id": provider_id,
-            }
-            _add(group_order, groups, _("Movies") + " — " + category, movie)
+        for movie in xtream_movie_items(client, provider_id):
+            _add(group_order, groups, _("Movies") + " — " + movie["group"], movie)
     except Exception:
-        # A provider may not offer VOD; keep whatever we did collect.
         LOG.debug("build_xtream_catalog: ignored exception", exc_info=True)
 
     # Series (episodes loaded lazily on open).
@@ -284,7 +290,7 @@ def build_xtream_catalog(client, provider_id: Optional[str]) -> Tuple[List[str],
     return group_order, groups
 
 
-def xtream_series_episodes(client, series_id, provider_id: Optional[str]) -> List[Dict]:
+def xtream_series_episodes(client, series_id, provider_id: Optional[str], *, strict=False) -> List[Dict]:
     """Fetch and order the episodes of one Xtream series as playable channel dicts."""
     info = client.get_series_info(series_id)
     seasons = info.get("episodes") if isinstance(info, dict) else None
@@ -297,6 +303,8 @@ def xtream_series_episodes(client, series_id, provider_id: Optional[str]) -> Lis
         season_items = enumerate(seasons)
         list_form = True
     else:
+        if strict:
+            raise ValueError("invalid series catalogue")
         season_items = []
     for season_key, entries in season_items:
         if not isinstance(entries, list):
@@ -329,6 +337,7 @@ def xtream_series_episodes(client, series_id, provider_id: Optional[str]) -> Lis
                 "provider-type": "xtream",
                 "provider-id": provider_id,
                 "_se": (s_no, e_no),
+                "resume-type": "episode", "resume-id": eid, "series_id": series_id,
             })
     return _sort_episodes(episodes)
 

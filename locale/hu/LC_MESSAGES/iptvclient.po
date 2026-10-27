@@ -3461,3 +3461,95 @@ msgstr "Körülbelül {value} Mbps"
 msgid "◄ Back"
 msgstr "◄ Vissza"
 
+
+#: main.py:5930
+msgid "The playlists changed while checking this content. Reopen Continue Watching and try again."
+msgstr "A lejátszási listák az ellenőrzés közben megváltoztak. Nyissa meg újra a Folytatásra váró tartalmak ablakot, majd próbálja meg ismét."
+
+#: main.py:5932 main.py:5941 main.py:7490 resume_dialogs.py:29 resume_dialogs.py:180
+msgid "Continue Watching"
+msgstr "Folytatásra váró tartalmak"
+
+#: main.py:5939
+msgid "Saved positions can only be restored in the built-in player. Select it and disconnect casting before continuing."
+msgstr "A mentett pozíciók kizárólag a beépített lejátszóban állíthatók vissza. A folytatáshoz válassza ezt a lejátszót, és szakítsa meg az átküldést."
+
+#: client_ui.py:147 client_ui.py:288
+msgid "Continue Watching..."
+msgstr "Folytatásra váró tartalmak…"
+
+#: resume_dialogs.py:17
+msgid "Play from Beginning"
+msgstr "Lejátszás az elejétől"
+
+#: resume_dialogs.py:37
+msgid "Saved playback positions"
+msgstr "Mentett lejátszási pozíciók"
+
+#: resume_dialogs.py:38
+msgid "Position"
+msgstr "Lejátszási pozíció"
+
+#: resume_dialogs.py:39
+msgid "Last Watched"
+msgstr "Utolsó megtekintés"
+
+#: resume_dialogs.py:39
+msgid "Availability"
+msgstr "Elérhetőség"
+
+#: resume_dialogs.py:46
+msgid "Check Availability"
+msgstr "Elérhetőség ellenőrzése"
+
+#: resume_dialogs.py:47
+msgid "Remove Saved Position"
+msgstr "Mentett pozíció törlése"
+
+#: resume_dialogs.py:48
+msgid "Clear All Saved Positions"
+msgstr "Összes mentett pozíció törlése"
+
+#: resume_dialogs.py:75
+msgid "Previously saved content (title unavailable)"
+msgstr "Korábban mentett tartalom (a cím nem érhető el)"
+
+#: resume_dialogs.py:84
+msgid "Not checked"
+msgstr "Még nincs ellenőrizve"
+
+#: resume_dialogs.py:91 resume_dialogs.py:94
+msgid "No saved playback positions."
+msgstr "Nincsenek mentett lejátszási pozíciók."
+
+#: resume_dialogs.py:122
+msgid "Checking saved content…"
+msgstr "A mentett tartalom ellenőrzése…"
+
+#: resume_dialogs.py:141
+msgid "Could not check availability."
+msgstr "Az elérhetőséget nem sikerült ellenőrizni."
+
+#: resume_dialogs.py:141
+msgid "Available"
+msgstr "Elérhető"
+
+#: resume_dialogs.py:141
+msgid "Unavailable or ambiguous"
+msgstr "Nem érhető el vagy nem azonosítható egyértelműen"
+
+#: resume_dialogs.py:157
+msgid "Could not save playback history changes."
+msgstr "A megtekintési előzmények módosításait nem sikerült menteni."
+
+#: resume_dialogs.py:168
+msgid "Remove this saved playback position?"
+msgstr "Törli ezt a mentett lejátszási pozíciót?"
+
+#: resume_dialogs.py:175
+msgid "Remove all saved playback positions?"
+msgstr "Törli az összes mentett lejátszási pozíciót?"
+
+#: main.py:7489
+msgid "Could not prepare saved playback:\n{error}"
+msgstr "A mentett pozíciótól történő lejátszást nem sikerült előkészíteni:\n{error}"

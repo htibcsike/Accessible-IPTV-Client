@@ -144,6 +144,8 @@ class UiMixin:
                 view_vod.Check(self.view_mode == "vod")
                 self.Bind(wx.EVT_MENU, lambda _evt: self._set_view_mode("live"), id=1301)
                 self.Bind(wx.EVT_MENU, lambda _evt: self._set_view_mode("vod"), id=1302)
+                view_menu.Append(1323, _("Continue Watching..."))
+                self.Bind(wx.EVT_MENU, self._show_continue_watching, id=1323)
                 view_menu.AppendSeparator()
                 view_menu.Append(1310, self._shortcut_label(self._favorite_action_label(), "favorite"))
                 view_menu.Append(1311, _("Go to Favorites"))
@@ -283,6 +285,8 @@ class UiMixin:
             self.view_vod_item = vm.AppendRadioItem(wx.ID_ANY, _("Video on Demand (Movies && Series)"))
             self.view_live_item.Check(self.view_mode == "live")
             self.view_vod_item.Check(self.view_mode == "vod")
+            continue_item = vm.Append(wx.ID_ANY, _("Continue Watching..."))
+            self.Bind(wx.EVT_MENU, self._show_continue_watching, continue_item)
             vm.AppendSeparator()
             # The label follows the selected channel, so it always says what
             # activating it will do (see _sync_favorite_menu_item).
