@@ -21,7 +21,7 @@ import concurrent.futures
 import live_announce
 # The modal-box guard lives in its own module: the player and the playlist
 # dialogs open boxes too, and they cannot import main (main imports them).
-from modal_guard import message_box, modal_box_is_open, set_modal_box_closed_hook
+from modal_guard import message_box, modal_box_is_open, set_modal_box_closed_hook, show_modal
 
 # The macOS app bundles ffmpeg and libVLC (tools/build_macos.sh). An app opened
 # from Finder has no Homebrew on PATH, so point ffmpeg lookups and python-vlc
@@ -72,6 +72,8 @@ from providers import (
     ProviderError, generate_provider_id
 )
 import vod
+import playback_resume
+from resume_dialogs import ContinueWatchingDialog
 import account_info
 from http_headers import channel_http_headers, merge_headers, split_stream_modifiers
 from audio_tracks import (
@@ -5888,6 +5890,59 @@ class IPTVClient(LiveBufferMixin, EpgRoutingMixin, RecordingReportsMixin, UiMixi
     # ================================================================== #
     # Video on Demand (movies & series) view
     # ================================================================== #
+    def _show_continue_watching(self, _event=None):
+        frame = getattr(self, "_internal_player_frame", None)
+        if frame is not None:
+            frame._save_resume_checkpoint(force=True)
+        # All configured sources, independent of the current playlist filter.
+        source_generation = self._playlist_load_token
+        channels = [dict(ch) for ch in self.all_channels]
+        channels.extend(dict(ch) for ch in playback_resume.playable_items(self.vod_groups))
+        for row in getattr(self, "displayed", []):
+            if isinstance(row, dict) and isinstance(row.get("data"), dict):
+                channels.append(dict(row["data"]))
+        clients = {pid: client for pid, client in self.provider_clients.items()
+                   if isinstance(client, XtreamCodesClient)}
+
+        def save_entries(entries):
+            previous = self.config.get("playback_bookmarks", {})
+            self.config["playback_bookmarks"] = entries
+            try:
+                save_config(self.config)
+            except Exception:
+                self.config["playback_bookmarks"] = previous
+                raise
+            # A playing item must not silently recreate a deliberately deleted
+            # bookmark on its next timer tick. Tracking resumes at the next play.
+            if (frame is not None and getattr(frame, "_resume_key", "") in previous
+                    and frame._resume_key not in entries):
+                frame._resume_key = ""
+
+        dialog = ContinueWatchingDialog(
+            self, self.config, save_entries,
+            lambda key, entries: playback_resume.resolve_current(key, entries, channels, clients))
+        try:
+            if show_modal(dialog) != wx.ID_OK:
+                return
+            item, saved_key = dialog.item, dialog.saved_key
+        finally:
+            dialog.Destroy()
+        if source_generation != self._playlist_load_token:
+            message_box(_("The playlists changed while checking this content. "
+                          "Reopen Continue Watching and try again."),
+                        _("Continue Watching"), wx.OK | wx.ICON_INFORMATION)
+            return
+        if saved_key not in playback_resume.normalize(self.config.get("playback_bookmarks")):
+            return
+        caster = getattr(self, "caster", None)
+        if self.default_player not in {"Built-in Player", "player_Internal", "internal", "Internal"} or (
+                caster is not None and caster.is_connected()):
+            message_box(_("Saved positions can only be restored in the built-in player. "
+                          "Select it and disconnect casting before continuing."),
+                        _("Continue Watching"), wx.OK | wx.ICON_INFORMATION)
+            return
+        self._launch_stream(item["url"], item.get("name"), stream_kind="vod", channel=item)
+
     def _set_view_mode(self, mode: str):
         """Switch between the live channel view and the VOD view."""
         if mode not in ("live", "vod"):
@@ -7426,6 +7481,21 @@ class IPTVClient(LiveBufferMixin, EpgRoutingMixin, RecordingReportsMixin, UiMixi
                 return
             display_title = title or _("IPTV Stream")
             try:
+                prepare_resume = getattr(frame, "prepare_vod_resume", None)
+                source_generation = getattr(self, "_playlist_load_token", None)
+                frame._resume_validate = lambda: source_generation == getattr(self, "_playlist_load_token", None)
+                try:
+                    if callable(prepare_resume) and prepare_resume(
+                            channel if stream_kind in {"live", "vod"} else None) is False:
+                        return
+                finally:
+                    frame._resume_validate = None
+            except Exception as err:
+                frame._resume_prepared = None
+                message_box(_("Could not prepare saved playback:\n{error}").format(error=err),
+                            _("Continue Watching"), wx.OK | wx.ICON_ERROR)
+                return
+            try:
                 token = self._subtitle_session.activate_session("builtin-file")
                 self._builtin_subtitle_token = token
                 frame.set_subtitle_sink(self._subtitle_session.bind(token))
@@ -7460,9 +7530,6 @@ class IPTVClient(LiveBufferMixin, EpgRoutingMixin, RecordingReportsMixin, UiMixi
                 # drops the previous channel's cues, so "Read current
                 # subtitle" cannot answer with the last line of the channel
                 # the user just left.
-                prepare_resume = getattr(frame, "prepare_vod_resume", None)
-                if callable(prepare_resume):
-                    prepare_resume(channel if stream_kind in {"live", "vod"} else None)
                 if stream_kind == "live" and (channel or {}).get("kind") == "movie":
                     stream_kind = "vod"
                     self._internal_player_stream_kind = stream_kind
@@ -7492,6 +7559,7 @@ class IPTVClient(LiveBufferMixin, EpgRoutingMixin, RecordingReportsMixin, UiMixi
                 if not show_internal_player:
                     wx.CallAfter(self._restore_main_focus)
             except Exception as err:
+                frame._resume_prepared = None
                 self._subtitle_session.cancel_session()
                 message_box(_("Failed to start built-in player:\n{error}").format(error=err), _("Launch Error"), wx.OK | wx.ICON_ERROR)
             return

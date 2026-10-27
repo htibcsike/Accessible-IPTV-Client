@@ -53,6 +53,7 @@ def frame(accepted=True):
                           ['configure_vod_resume', 'prepare_vod_resume', '_save_resume_checkpoint'], {
         'playback_resume': resume, 'time': SimpleNamespace(monotonic=lambda: clock[0]),
         'wx': wx, 'message_box': lambda *args, **kwargs: 5 if accepted else 6,
+        'choose_resume': lambda *args: 'resume' if accepted else 'beginning',
     })
     instance = cls()
     instance._resume_key = ''
@@ -75,7 +76,8 @@ def frame(accepted=True):
 def test_prompt_restores_only_after_consent_or_clears_the_old_bookmark(accepted):
     instance, _, saved, _, config = frame(accepted)
     instance.prepare_vod_resume({'kind': 'movie', 'url': 'https://example.invalid/movie/test/1.mp4'})
-    assert instance._resume_start_ms == (60000 if accepted else 0)
+    assert instance._resume_prepared[1] == (60000 if accepted else 0)
+    assert instance._resume_start_ms == 0  # active stream identity changes only in play()
     assert (KEY in config['playback_bookmarks']) == accepted
     assert bool(saved) != accepted
 

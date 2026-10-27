@@ -23,6 +23,7 @@ import user_guide
 import shortcuts
 from playback_timer import PlaybackTimer
 import playback_resume
+from resume_dialogs import choose_resume
 import subtitle_cues
 import live_announce
 
@@ -730,6 +731,11 @@ class InternalPlayerFrame(wx.Frame):
             raise InternalPlayerUnavailableError(_("Player window has been destroyed."))
         if not url:
             raise InternalPlayerUnavailableError(_("No stream URL provided."))
+        if not _retry and getattr(self, "_resume_prepared", None) is not None:
+            self._resume_key, self._resume_start_ms, self._resume_metadata = self._resume_prepared
+            self._resume_prepared = None
+            self._has_seen_playing = False
+            self._resume_last_save = time.monotonic()
         # Armed first: resolving the new stream can take a while, and a switch
         # already queued must see that it has been replaced.
         self._vlc_generation = generation = getattr(self, "_vlc_generation", 0) + 1
@@ -3049,34 +3055,52 @@ class InternalPlayerFrame(wx.Frame):
         self._resume_config = config
         self._resume_save = save
 
-    def prepare_vod_resume(self, channel) -> None:
+    def prepare_vod_resume(self, channel) -> bool:
         if getattr(self, "_resume_config", None) is not None:
             self._save_resume_checkpoint(force=True)
-        self._resume_key = playback_resume.item_key(channel)
-        self._resume_start_ms = 0
+        self._resume_prepared = None
         config = self._resume_config
-        if not isinstance(config, dict) or not self._resume_key:
-            return
-        entries = playback_resume.normalize(config.get("playback_bookmarks"))
-        entry = entries.get(self._resume_key)
-        if entry is None:
-            return
-        seconds = entry["position_ms"] // 1000
-        clock = "{}:{:02d}:{:02d}".format(seconds // 3600, seconds // 60 % 60, seconds % 60)
-        if message_box(_("Resume playback from {time}?").format(time=clock), _("Resume"),
-                       wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION, parent=self) == wx.ID_YES:
-            self._resume_start_ms = entry["position_ms"]
-        else:
-            entries.pop(self._resume_key, None)
+        entries, key = playback_resume.lookup(
+            config.get("playback_bookmarks") if isinstance(config, dict) else {}, channel)
+        entry = entries.get(key)
+        start = 0
+        if entry is not None:
+            choice = choose_resume(self, entry["position_ms"])
+            if choice == "cancel":
+                return False
+            if choice == "resume":
+                start = entry["position_ms"]
+            else:
+                entries.pop(key, None)
+        validate = getattr(self, "_resume_validate", None)
+        if callable(validate) and not validate():
+            raise RuntimeError(_("The playlists changed while checking this content. "
+                                 "Reopen Continue Watching and try again."))
+        # A modal question runs the event loop: checkpoint timers may have
+        # updated other items meanwhile. Merge from the current config again.
+        if isinstance(config, dict):
+            entries, key = playback_resume.lookup(config.get("playback_bookmarks"), channel)
+            if entry is not None and choice == "beginning":
+                entries.pop(key, None)
+        if isinstance(config, dict) and entries != config.get("playback_bookmarks", {}):
+            previous = config.get("playback_bookmarks", {})
             config["playback_bookmarks"] = entries
-            if callable(self._resume_save):
-                try:
+            try:
+                if callable(self._resume_save):
                     self._resume_save()
-                except Exception:
-                    LOG.debug("Could not persist cleared bookmark", exc_info=True)
-        self._resume_last_save = time.monotonic()
+            except Exception:
+                config["playback_bookmarks"] = previous
+                raise
+        # Don't assign the new item's identity to a still-playing old stream.
+        # play() consumes this proposal only after the caller accepted it.
+        self._resume_prepared = (key, start, playback_resume.metadata(channel))
+        return True
 
     def _save_resume_checkpoint(self, force=False) -> None:
+        # prepare saved the outgoing stream already. A session stop during the
+        # accepted handoff must not revive a cleared/migrated bookmark.
+        if getattr(self, "_resume_prepared", None) is not None:
+            return
         config = getattr(self, "_resume_config", None)
         key = getattr(self, "_resume_key", "")
         if not isinstance(config, dict) or not key or getattr(self, "_current_stream_kind", "") != "vod":
@@ -3099,7 +3123,9 @@ class InternalPlayerFrame(wx.Frame):
                 return
             if self._resume_start_ms and position >= self._resume_start_ms - 2000:
                 self._resume_start_ms = 0
-            updated = playback_resume.checkpoint(config.get("playback_bookmarks"), key, position, length)
+            updated = playback_resume.checkpoint(
+                config.get("playback_bookmarks"), key, position, length,
+                info=getattr(self, "_resume_metadata", None))
             self._resume_last_save = now
             if updated != config.get("playback_bookmarks", {}):
                 config["playback_bookmarks"] = updated

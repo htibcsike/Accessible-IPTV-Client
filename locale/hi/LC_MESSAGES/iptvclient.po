@@ -3461,3 +3461,95 @@ msgstr "~{value} Mbps"
 msgid "◄ Back"
 msgstr "◄ वापस"
 
+
+#: main.py:5930
+msgid "The playlists changed while checking this content. Reopen Continue Watching and try again."
+msgstr "जाँच के दौरान प्लेलिस्ट बदल गईं। देखना जारी रखें विंडो फिर से खोलें और दोबारा प्रयास करें।"
+
+#: main.py:5932 main.py:5941 main.py:7490 resume_dialogs.py:29 resume_dialogs.py:180
+msgid "Continue Watching"
+msgstr "देखना जारी रखें"
+
+#: main.py:5939
+msgid "Saved positions can only be restored in the built-in player. Select it and disconnect casting before continuing."
+msgstr "सहेजी गई स्थितियाँ केवल अंतर्निहित प्लेयर में बहाल की जा सकती हैं। उसे चुनें और दूसरे उपकरण पर कास्टिंग बंद करें।"
+
+#: client_ui.py:147 client_ui.py:288
+msgid "Continue Watching..."
+msgstr "देखना जारी रखें…"
+
+#: resume_dialogs.py:17
+msgid "Play from Beginning"
+msgstr "शुरू से चलाएँ"
+
+#: resume_dialogs.py:37
+msgid "Saved playback positions"
+msgstr "सहेजी गई प्लेबैक स्थितियाँ"
+
+#: resume_dialogs.py:38
+msgid "Position"
+msgstr "स्थिति"
+
+#: resume_dialogs.py:39
+msgid "Last Watched"
+msgstr "अंतिम बार देखा"
+
+#: resume_dialogs.py:39
+msgid "Availability"
+msgstr "उपलब्धता"
+
+#: resume_dialogs.py:46
+msgid "Check Availability"
+msgstr "उपलब्धता जाँचें"
+
+#: resume_dialogs.py:47
+msgid "Remove Saved Position"
+msgstr "सहेजी गई स्थिति हटाएँ"
+
+#: resume_dialogs.py:48
+msgid "Clear All Saved Positions"
+msgstr "सभी सहेजी गई स्थितियाँ मिटाएँ"
+
+#: resume_dialogs.py:75
+msgid "Previously saved content (title unavailable)"
+msgstr "पहले सहेजी गई सामग्री (शीर्षक उपलब्ध नहीं)"
+
+#: resume_dialogs.py:84
+msgid "Not checked"
+msgstr "जाँच नहीं हुई"
+
+#: resume_dialogs.py:91 resume_dialogs.py:94
+msgid "No saved playback positions."
+msgstr "कोई सहेजी गई प्लेबैक स्थिति नहीं है।"
+
+#: resume_dialogs.py:122
+msgid "Checking saved content…"
+msgstr "सहेजी गई सामग्री की जाँच हो रही है…"
+
+#: resume_dialogs.py:141
+msgid "Could not check availability."
+msgstr "उपलब्धता की जाँच नहीं हो सकी।"
+
+#: resume_dialogs.py:141
+msgid "Available"
+msgstr "उपलब्ध"
+
+#: resume_dialogs.py:141
+msgid "Unavailable or ambiguous"
+msgstr "अनुपलब्ध या पहचान अस्पष्ट"
+
+#: resume_dialogs.py:157
+msgid "Could not save playback history changes."
+msgstr "देखने के इतिहास में बदलाव सहेजे नहीं जा सके।"
+
+#: resume_dialogs.py:168
+msgid "Remove this saved playback position?"
+msgstr "यह सहेजी गई प्लेबैक स्थिति हटाएँ?"
+
+#: resume_dialogs.py:175
+msgid "Remove all saved playback positions?"
+msgstr "सभी सहेजी गई प्लेबैक स्थितियाँ हटाएँ?"
+
+#: main.py:7489
+msgid "Could not prepare saved playback:\n{error}"
+msgstr "सहेजी गई स्थिति से प्लेबैक तैयार नहीं हो सका:\n{error}"
