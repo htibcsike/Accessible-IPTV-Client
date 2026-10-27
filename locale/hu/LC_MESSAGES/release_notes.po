@@ -1,8 +1,9 @@
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: Accessible IPTV Client\n"
 "Report-Msgid-Bugs-To: https://github.com/serrebidev/Accessible-IPTV-Client/issues\n"
-"PO-Revision-Date: 2026-09-21 12:00+0000\n"
+"PO-Revision-Date: 2026-10-27 21:00+0000\n"
 "Last-Translator: Tibor Hermann (@htibcsike)\n"
 "Language-Team: Hungarian <https://github.com/serrebidev/Accessible-IPTV-Client/issues>\n"
 "Language: hu\n"
@@ -15,16 +16,30 @@ msgstr ""
 #: CHANGELOG.md:14
 msgid "Add bounded shared live buffer, rewind controls and sleep fade (#96)"
 msgstr ""
+"Az élő adás helyi tárolása korlátozott tárhelyhasználattal, a lejátszással "
+"és a felvétellel közös adatforrással; visszatekerési lehetőség és fokozatos "
+"halkítás az elalvásidőzítő lejárta előtt (#96)"
 
 #: CHANGELOG.md:15
-msgid "Add built-in sleep timer, VOD resume, command search and filtered diagnostics (#94)"
+msgid ""
+"Add built-in sleep timer, VOD resume, command search and filtered "
+"diagnostics (#94)"
 msgstr ""
+"Elalvásidőzítő a beépített lejátszóhoz, filmek és sorozatepizódok folytatása"
+" a mentett időponttól, parancskeresés és a bizalmas adatokat szűrő "
+"diagnosztikai jelentés (#94)"
 
 #: CHANGELOG.md:8
-msgid "Fix scheduled buffered recordings and cold-start bitrate cap (replacement for #97) (#98)"
+msgid ""
+"Fix scheduled buffered recordings and cold-start bitrate cap (replacement "
+"for #97) (#98)"
 msgstr ""
+"A helyben tárolt élő adás időzített rögzítésének, valamint a bitrátakorlát "
+"lejátszóindításkori alkalmazásának javítása (a 97-es javaslatot felváltó "
+"módosítás) (#98)"
 
 #: CHANGELOG.md:21
 msgid "Fix subtitle markup leaking into speech after unmatched openers (#93)"
 msgstr ""
-
+"Annak a hibának a javítása, amely miatt lezáratlan nyitójelölés után a "
+"felirat formázási utasításai is bekerülhettek a felolvasott szövegbe (#93)"
